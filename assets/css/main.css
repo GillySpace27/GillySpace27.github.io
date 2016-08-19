@@ -2821,8 +2821,8 @@
 	}
 
 	body.is-touch #header {
-		background-attachment: scroll;
-		background-size: auto, cover;
+		background-attachment: fixed;
+		background-size: auto;
 	}
 
 	body.is-touch .poptrox-popup .nav-next,
@@ -2907,12 +2907,12 @@
 		/* Header */
 
 			#header {
-				background-attachment: scroll;
-				background-position: top left, center center;
-				background-size: auto,		cover;
+				background-attachment: fixed;
+				background-position: top left;
+				background-size: auto;
 				left: auto;
 				padding: 6em 4em;
-				position: relative;
+				position: fixed;
 				text-align: center;
 				top: auto;
 				width: 100%;
@@ -2929,16 +2929,16 @@
 		/* Footer */
 
 			#footer {
-				background-attachment: scroll;
+				background-attachment: fixed;
 				background-color: #1f1815;
-				background-image: url("images/overlay.png"), url("../../images/bg.jpg");
-				background-position: top left,						bottom center;
-				background-repeat: repeat,							no-repeat;
-				background-size: auto,							cover;
+				background-image: url("../../images/bg.jpg");
+				background-position: top left;
+				background-repeat: no-repeat;
+				background-size: auto;
 				bottom: auto;
 				left: auto;
 				padding: 4em 4em 6em 4em;
-				position: relative;
+				position: fixed;
 				text-align: center;
 				width: 100%;
 			}
