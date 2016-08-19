@@ -2821,8 +2821,8 @@
 	}
 
 	body.is-touch #header {
-		background-attachment: fixed;
-		background-size: auto;
+		background-attachment: scroll;
+		background-size: auto, cover;
 	}
 
 	body.is-touch .poptrox-popup .nav-next,
