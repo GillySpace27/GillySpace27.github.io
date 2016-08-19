@@ -2912,7 +2912,7 @@
 				background-size: auto;
 				left: auto;
 				padding: 6em 4em;
-				position: fixed;
+				position: relative;
 				text-align: center;
 				top: auto;
 				width: 100%;
@@ -2929,16 +2929,16 @@
 		/* Footer */
 
 			#footer {
-				background-attachment: fixed;
+				background-attachment: scroll;
 				background-color: #1f1815;
-				background-image: url("../../images/bg.jpg");
-				background-position: top left;
-				background-repeat: no-repeat;
-				background-size: auto;
+				background-image: url("images/overlay.png"), url("../../images/bg.jpg");
+				background-position: top left,						bottom center;
+				background-repeat: repeat,							no-repeat;
+				background-size: auto,							cover;
 				bottom: auto;
 				left: auto;
 				padding: 4em 4em 6em 4em;
-				position: fixed;
+				position: relative;
 				text-align: center;
 				width: 100%;
 			}
