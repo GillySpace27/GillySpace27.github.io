@@ -2861,6 +2861,10 @@
 					#header h1 br {
 						display: none;
 					}
+                    				
+                #header h2 {
+					font-size: 1.25em;
+				}
 
 		/* Footer */
 
@@ -2919,13 +2923,16 @@
 			}
 
 				#header h1 {
-					font-size: 0.1em;
+					font-size: 0.75em;
 				}
 
 					#header h1 br {
 						display: inline;
 					}
 
+                #header h2 {
+					font-size: 1.25em;
+				}
 		/* Footer */
 
 			#footer {
