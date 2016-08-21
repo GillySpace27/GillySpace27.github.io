@@ -1989,7 +1989,7 @@
 		position: relative;
 	}
 
-		.image:before {
+		/*.image:before {
 			-moz-transition: opacity 0.2s ease-in-out;
 			-webkit-transition: opacity 0.2s ease-in-out;
 			-ms-transition: opacity 0.2s ease-in-out;
@@ -2004,13 +2004,13 @@
 			position: absolute;
 			top: 0;
 			width: 100%;
-		}
+		}*/
 
 		.image.thumb {
 			text-align: center;
 		}
 
-			.image.thumb:after {
+			/*.image.thumb:after {
 				-moz-transition: opacity 0.2s ease-in-out;
 				-webkit-transition: opacity 0.2s ease-in-out;
 				-ms-transition: opacity 0.2s ease-in-out;
@@ -2032,7 +2032,7 @@
 				text-decoration: none;
 				top: 50%;
 				white-space: nowrap;
-			}
+			}*/
 
 			.image.thumb:hover:after {
 				opacity: 1.0;
