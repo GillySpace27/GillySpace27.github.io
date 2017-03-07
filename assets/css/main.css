@@ -18,15 +18,15 @@
 		vertical-align: baseline;
 	}
 
-	article, aside, details, figcaption, footer, header, hgroup, menu, nav, section {
+	article, figure, aside, details, figcaption, footer, header, hgroup, menu, nav, section {
 		display: block;
 	}
 
     figure {
         display: inline-block;
-        /*width:25%;
-        float:left;
-        margin:0px;
+        /*width:25%;*/
+        /*float:left;*/
+        /*margin:0px;
         text-align:center;
         padding:0px;*/
     }
@@ -2839,17 +2839,17 @@
 		opacity: 1.0 !important;
 	}
 
-/* XLarge */
+/* XLarge 
 
 	@media screen and (max-width: 1800px) {
 
-		/* Basic */
+		 Basic 
 
 			body, input, select, textarea {
 				font-size: 12pt;
 			}
 
-	}
+	}*/
 
 /* Large */
 
