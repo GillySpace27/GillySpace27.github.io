@@ -2512,7 +2512,7 @@
 	#footer {
 		bottom: 0;
 		left: 0;
-		padding: 0 4em 6em 0;
+		padding: 0 4em 1em 0;
 		position: fixed;
 		text-align: right;
 		width: 35%;
@@ -2858,12 +2858,12 @@
 		/* Header */
 
 			#header {
-				padding: 3em 3em 3em 3em;
+				padding: 0.2em 3em 3em 3em;
 				width: 30%;
 			}
 
 				#header h1 {
-					font-size: 1.25em;
+					font-size: 1em;
 				}
 
 					#header h1 br {
@@ -2873,7 +2873,7 @@
 		/* Footer */
 
 			#footer {
-				padding: 0 3em 5em 3em;
+				padding: 3em 3em 0.2em 3em;
 				width: 30%;
 			}
 
@@ -2948,7 +2948,7 @@
 				background-size: auto,							cover;
 				bottom: auto;
 				left: auto;
-				padding: 4em 4em 6em 4em;
+				padding: 4em 4em 1em 4em;
 				position: relative;
 				text-align: center;
 				width: 100%;
