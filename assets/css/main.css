@@ -23,7 +23,7 @@
 	}
 
     figure{
-        display: block;
+        display: inline-block;
         /*width:25%;
         float:left;
         margin:0px;
