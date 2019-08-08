@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <title>The Kelvin-Helmholtz Instability</title>
+</head>
+<body style='margin-left:30pt'>
+    <h1>The Kelvin-Helmholtz Instability</h1>
+    <h2>A review by Chris Gilbert (Gilly)</h2>
+
+    <!--Figure links at the top-->
+
+        <figure>
+            <a href="files/KHPaper.pdf" target="_blank">
+                <img src="images/thumbs/KHpaper.png" width="450" height="300"
+                     alt="">
+            </a>
+            <figcaption>Click Here to read my paper! It explains everything <br /> you need to know about the KH Instability.</figcaption>
+        </figure>
+        <figure>
+            <a href="files/KHPresentation.pdf" target="_blank">
+                <img src="images/thumbs/KHpresentation.png" width="500" height="300"
+                     alt="">
+            </a>
+            <figcaption>Click Here to see my powerpoint slides!<br /> All the same information, but perhaps a better narrative.</figcaption>
+        </figure>
+    <br />
+     <a href="index.html">(Return to Home Page)</a>
+    <hr />
+    <h2>Spectral Simulation of the Instability</h2>
+    <h3>Single Stream</h3>
+    <img src="images/fulls/streamSmSlow.gif" alt="HTML5 Icon" style="width:1000px;height:284px;">
+    <h3>Double Stream</h3>
+    <img src="images/fulls/doubleStreamSmSlow.gif" alt="HTML5 Icon" style="width:1000px;height:284px;">
+    <p>
+        What you are looking at is a simulation of the Kelvin-Helmholtz Instability. It was first characterized in 1868,
+        and occurs when there are two fluids with relative motion, called shear, between them. This simulation was done in
+        <a href="http://dedalus-project.org/" target="_blank">Dedalus, an open-source differential equations solver.</a> Each of the boxes began with the same configuration, but a single parameter,
+        called the Reynolds Number, was changed for each one. As you can see, the higher the Reynolds number, the more complex the structure
+        becomes. This is because the diffusion of the fluid becomes very small, and can't smear out the structure. The second row shows
+        vorticity, which is a measure of the "spin" of the fluid, also called the motion's "Curl."
+    </p>
+</body>
+</html>
