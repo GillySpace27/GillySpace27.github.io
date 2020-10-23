@@ -1,0 +1,127 @@
+
+<!--
+ * Copyright 2010-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * This file is licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License. A copy of
+ * the License is located at
+ *
+ * http://aws.amazon.com/apache2.0/
+ *
+ * This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+-->
+
+<!--
+ snippet-comment:[These are tags for the AWS doc team's sample catalog. Do not remove.]
+ snippet-sourcedescription:[s3_PhotoViewer.html demonstrates how to allow viewing of photos in albums stored in an Amazon S3 bucket.]
+ snippet-service:[s3]
+ snippet-keyword:[HTML]
+ snippet-keyword:[Amazon S3]
+ snippet-keyword:[Code Sample]
+ snippet-sourcetype:[full-example]
+ snippet-sourcedate:[2019-05-07]
+ snippet-sourceauthor:[AWS-JSDG]
+-->
+
+<!--
+ ABOUT THIS NODE.JS SAMPLE: This sample is part of the SDK for JavaScript Developer Guide topic at
+ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-photos-view.html
+ NOTES:
+ - For the JavaScript code, see s3_PhotoViewer.js.
+ - For IAM role policy and CORS setup, see the JavaScript Developer Guide topic at
+   https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-photos-view.html
+-->
+
+<!-- snippet-start:[s3.HTML.s3_PhotoViewer.complete] -->
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- **DO THIS**: -->
+    <!--   Replace SDK_VERSION_NUMBER with the current SDK version number -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.777.0.min.js"></script>
+    <script src="./s3_PhotoViewer.js"></script>
+    <script>viewAlbum('album1');</script>
+
+    <meta charset="utf-8" />
+    <title>Outreach and Public Talks</title>
+
+    <meta property="og:image" content="images/bg.jpg" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="assets/css/academicons.min.css"/>
+
+    <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-82880034-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-82880034-1');
+    </script>
+
+</head>
+<body>
+<!--<body>  style="margin-left:5%; margin-right:10%;">-->
+
+<!-- Header -->
+<header id="header">
+
+    <a href="index.html" class="image avatar">
+        <img src="images/avatar.jpg" alt="" />
+    </a>
+    <h2><strong>Chris R. Gilly</strong></h2>
+
+    <a href="http://www.colorado.edu/aps/" target="_blank">PhD Candidate, <br>CU Boulder</a> <br>
+    <a href="http://lasp.colorado.edu/home/" target="_blank">Graduate Researcher, <br>
+        <img src="images/main/lasplogo.png" width="250" height="50" /></a>
+
+</header>
+<a name="Top"></a>
+<!-- Main -->
+<div id="main">
+    <h1>The Sun Right Now</h1>
+    <div id="viewer" />
+</div>
+
+<!-- Footer -->
+<footer id="footer">
+    <a href="index.html">(Return to Home Page)</a>
+
+    <ul class="icons">
+        Find me all across the internet! </br>
+        <!--            <a href="#Work">Click here</a> to see my work. <a href="#Contact">Click here</a> to contact me.-->
+        <li><a href="https://arxiv.org/a/gilly_c_1.html" class="ai ai-arxiv ai-2x" target="_blank" title="Arxiv"><span class="label"></span></a></li>
+        <li><a href="https://orcid.org/0000-0003-0021-9056" class="ai ai-orcid ai-2x" target="_blank" title="ORCID"><span class="label"></span></a></li>
+        <li><a href="https://www.linkedin.com/in/gillyspace27/" class="icon fa-linkedin-square" target="_blank" title="Linked In"><span class="label">Linked-In</span></a></li>
+        <li><a href="https://github.com/GillySpace27" class="icon fa-github" target="_blank" title="Github"><span class="label">Github</span></a></li>
+        <li><a href="https://www.soundcloud.com/gillyspace27" class="icon fa-soundcloud" title="Sound Cloud"><span class="label">Sound Cloud</span></a></li>
+        <li><a href="https://twitter.com/GillySpace27" class="icon fa-twitter" target="_blank" title="Twitter"><span class="label">Twitter</span></a></li>
+        <li><a href="https://www.facebook.com/GillySpace27" class="icon fa-facebook" target="_blank" title="Facebook"><span class="label">Facebook</span></a></li>
+        <!--            <li><a href="https://orcid.org/0000-0003-0021-9056" target="_blank" style="text-decoration: none"><img src="https://orcid.org/sites/default/files/images/orcid_32x32.png" style="width:1.3em;"></a></li>-->
+        <li><a href="mailto:chris.gilly@colorado.edu" class="icon fa-envelope-o" title="Email"><span class="label">Email</span></a></li>
+
+    </ul>
+    <ul class="copyright">
+        <li>&copy; Chris R. Gilly</li>
+        <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+    </ul>
+</footer>
+</body>
+</html>
+<!-- snippet-end:[s3.HTML.s3_PhotoViewer.complete] -->
