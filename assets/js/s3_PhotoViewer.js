@@ -119,22 +119,24 @@ function viewAlbum(albumName) {
       var photoUrl = bucketUrl + encodeURIComponent(photoKey);
       var thumbUrl = bucketUrl + "renders/thumbs/" + photoKey.replace(albumPhotosKey, '');
 
-
-      if (photoKey.endsWith("png")) {
-        if (photoKey.includes("orig")) {
-          return getHtml([
+      if (photoKey.includes("thumbs")) {
+        return getHtml([])
+      } else {
+        if (photoKey.endsWith("png")) {
+          if (photoKey.includes("orig")) {
+            return getHtml([
               // '<div>',photoKey.replace(albumPhotosKey, ''), '</div>',
-          '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
-        ])} else {
-          return getHtml([
+              '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
+            ])} else {
+            return getHtml([
               'AIA ', photoKey.replace(albumPhotosKey, ''), '<br/>',
-            '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
-        ])}
-        // } else {
-        // return getHtml([
-        //     'asdf'
-        // ]);
-      }})
+              '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
+            ])}
+          // } else {
+          // return getHtml([
+          //     'asdf'
+          // ]);
+        }}})
 
 
     var message = photos.length ?
