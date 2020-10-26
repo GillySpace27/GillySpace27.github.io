@@ -45,7 +45,7 @@ var albumBucketName = 'gillyspace27-test-billboard';
 // Initialize the Amazon Cognito credentials provider
 AWS.config.region = 'us-east-2'; // Region
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: 'us-east-2:c9106db6-2689-430e-a584-ef4f17edef34',
+  IdentityPoolId: 'us-east-2:c9106db6-2689-430e-a584-ef4f17edef34',
 });
 
 // Create a new service object
@@ -78,22 +78,22 @@ function listAlbums() {
         var albumName = decodeURIComponent(prefix.replace('/', ''));
         return getHtml([
           '<li>',
-            '<button style="margin:5px;" onclick="viewAlbum(\'' + albumName + '\')">',
-              albumName,
-            '</button>',
+          '<button style="margin:5px;" onclick="viewAlbum(\'' + albumName + '\')">',
+          albumName,
+          '</button>',
           '</li>'
         ]);
       });
       var message = albums.length ?
-        getHtml([
-          '<p>Click on an album name to view it.</p>',
-        ]) :
-        '<p>You do not have any albums. Please Create album.';
+          getHtml([
+            '<p>Click on an album name to view it.</p>',
+          ]) :
+          '<p>You do not have any albums. Please Create album.';
       var htmlTemplate = [
         '<h2>Albums</h2>',
         message,
         '<ul>',
-          getHtml(albums),
+        getHtml(albums),
         '</ul>',
       ]
       document.getElementById('viewer').innerHTML = getHtml(htmlTemplate);
@@ -117,25 +117,29 @@ function viewAlbum(albumName) {
     var photos = data.Contents.map(function(photo) {
       var photoKey = photo.Key;
       var photoUrl = bucketUrl + encodeURIComponent(photoKey);
-      return getHtml([
-          // '<span>',
-          // photoKey.replace(albumPhotosKey, ''),
-          // '<br>',
-          // '</span>',
-          //   '<div>',
-        // '<span>',
-          // '</div>',
-          // '<div>',
-          '<a href="' + photoUrl + '" target="_blank"><img style="width:48%;" src="' + photoUrl + '"/></a>',
-            // '<br>',
+      var thumbUrl = bucketUrl + "renders/thumbs/" + photoKey.replace(albumPhotosKey, '');
 
-          // '</div>',
-        // '</span>',
-      ]);
-    });
+
+      if (photoKey.endsWith("png")) {
+        if (photoKey.includes("orig")) {
+          return getHtml([
+              // '<div>',photoKey.replace(albumPhotosKey, ''), '</div>',
+          '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
+        ])} else {
+          return getHtml([
+              'AIA ', photoKey.replace(albumPhotosKey, ''), '<br/>',
+            '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
+        ])}
+        // } else {
+        // return getHtml([
+        //     'asdf'
+        // ]);
+      }})
+
+
     var message = photos.length ?
-      '<p>The following photos are present.</p>' :
-      '<p>There are no photos in this album.</p>';
+        '<p>The following photos are present.</p>' :
+        '<p>There are no photos in this album.</p>';
     var htmlTemplate = [
       // '<div>',
       //   '<button onclick="listAlbums()">',
@@ -147,7 +151,7 @@ function viewAlbum(albumName) {
       // '</h2>',
       // message,
       '<div>',
-        getHtml(photos),
+      getHtml(photos),
       '</div>',
       // '<h2>',
       //   'End of Album: ' + albumName,
