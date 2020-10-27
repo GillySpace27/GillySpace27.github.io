@@ -119,7 +119,7 @@ function viewAlbum(albumName) {
       var photoUrl = bucketUrl + encodeURIComponent(photoKey);
       var thumbUrl = bucketUrl + "renders/thumbs/" + photoKey.replace(albumPhotosKey, '');
 
-      if (photoKey.includes("thumbs")) {
+      if (photoKey.includes("thumbs")||photoKey.includes("archive")||photoKey.includes("4500")) {
         return getHtml([])
       } else {
         if (photoKey.endsWith("png")) {
