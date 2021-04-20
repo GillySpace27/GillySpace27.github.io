@@ -71,11 +71,10 @@ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-pho
         gtag('config', 'UA-82880034-1');
     </script>
 
-        <!-- **DO THIS**: -->
-    <!--   Replace SDK_VERSION_NUMBER with the current SDK version number -->
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.777.0.min.js"></script>
     <script src="./assets/js/s3_PhotoViewer.js"></script>
     <script>viewAlbum('renders');</script>
+
 
 
 </head>
@@ -90,6 +89,10 @@ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-pho
         <img src="images/avatar.jpg" alt="" />
         <h2><strong>Chris R. Gilly</strong></h2>
     </a>
+
+    <!-- Keep the Images from being Cached"-->
+    Cache-Control: no-store, max-age=10
+    <meta http-equiv="Cache-control" content="no-cache">
 
 
     <a href="http://www.colorado.edu/aps/" target="_blank">PhD Candidate, <br>CU Boulder</a> <br>
