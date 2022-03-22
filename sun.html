@@ -133,21 +133,20 @@ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-pho
     These images were taken within the last few minutes by the Solar Dynamics Observatory.
     Each color represents a different set of mirror coatings, which
     only allow one particular wavelength of ultraviolet light to be detected at a time. These wavelengths were selected because they
-    correspond to particular ions which are known to exist at different temperatures.
+    correspond to particular ions which are known to exist at different temperatures. Wavelengths are listed in angstroms, which are 1/10th of a nanometer.
+    <br>
     <a href=" https://en.wikipedia.org/wiki/Solar_Dynamics_Observatory">Find out more on wikipedia!</a>
-    Wavelengths are listed in the timestamp in angstroms, which are 1/10th of a nanometer.
-    <br />
-    <br />
-    The images on the left have been radially normalized using my own
-        algorithm to bring out the detail in the upper atmosphere compared with the original images on the right.
-    <br />
-    <br />
+    <br /><br>
+    The images on the left have been radially normalized using the Quantile Radial Normalization (QRN) (Gilly & Cranmer 2022, in prep)
+        algorithm to bring out the detail in the upper atmosphere, as compared with the original images on the right.
+
+    <br>
     These images are from:
     <br />
-    &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp <object data="https://gillyspace27-test-billboard.s3.us-east-2.amazonaws.com/G%3A%5Csunback_images%5Cbackground_server%5Crainbow%5Cimage_times_readable.txt"
-                                                width="200" height="50"></object>
-
+    &nbsp &nbsp<object data="https://gillyspace27-test-billboard.s3.us-east-2.amazonaws.com/G%3A%5Csunback_images%5Cbackground_server%5Crainbow%5Cimage_times_readable.txt"
+                                                width="200" height="200"></object>
     <div id="viewer" >
+    </div>
 </div>
 
 </body>
