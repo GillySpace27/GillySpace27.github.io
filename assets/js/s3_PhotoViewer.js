@@ -36,7 +36,8 @@
 // **DO THIS**:
 //   Replace BUCKET_NAME with the bucket name.
 //
-var albumBucketName = 'gillyspace27-test-billboard';
+// var albumBucketName = 'gillyspace27-test-billboard';
+var albumBucketName = 'the-sun-now';
 
 // **DO THIS**:
 //   Replace this block of code with the sample code located at:
