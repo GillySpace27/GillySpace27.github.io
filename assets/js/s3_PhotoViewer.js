@@ -124,7 +124,7 @@ function viewAlbum(albumName) {
         return getHtml([])
       } else {
         if (photoKey.endsWith("png")) {
-          if (photoKey.includes("orig")) {
+          if (photoKey.includes("orig")||photoKey.includes("compare")) {
             return getHtml([
               // '<div>',photoKey.replace(albumPhotosKey, ''), '</div>',
               '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
