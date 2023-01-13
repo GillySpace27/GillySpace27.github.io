@@ -80,15 +80,30 @@ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-pho
 </head>
 <body>
 
+
 <!--<body>  style="margin-left:5%; margin-right:10%;">-->
 
 <!-- Header -->
-<header id="header">
+<!--<header id="header">-->
 
-    <a href="index.html" class="image avatar">
-        <img src="images/avatar.jpg" alt="" />
-        <h2><strong>Dr. Gilly, </strong></h2>
-    </a>
+<!--    <a href="index.html" class="image avatar">-->
+<!--        <img src="images/avatar.jpg" alt="" />-->
+<!--        <h2><strong>Dr. Gilly, </strong></h2>-->
+<!--    </a>-->
+
+
+<header id="header">
+<br />
+<!--    <a href="index.html" class="image avatar"><img src="images/avatar.jpg" alt="" /></a>-->
+    <a href="index.html" class="image avatar"><img src="images/avatar.jpg" alt="" /></a>
+    <a href="index.html" class="image avatar"><img src="images/avatar.jpg" alt="" /></a>
+    <h2>Dr. Gilly, <a href="http://www.colorado.edu/aps/" target="_blank">PhD</a></h2>
+    <h3>Heliophysicist</h3>
+    Forward Models <br>
+    Data Analysis <br>
+    Instrumentation <br>
+</header>
+
 
     <!-- Keep the Images from being Cached"-->
 <!--    Cache-Control: no-store, max-age=10-->
@@ -135,19 +150,18 @@ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-pho
     Each color represents a different set of mirror coatings, which
     only allow one particular wavelength of ultraviolet light to be detected at a time. These wavelengths were selected because they
     correspond to particular ions which are known to exist at different temperatures. Wavelengths are listed in angstroms, which are 1/10th of a nanometer.
-    <br>
     <a href=" https://en.wikipedia.org/wiki/Solar_Dynamics_Observatory">Find out more on wikipedia!</a>
     <br /><br>
-    The images on the left have been radially normalized using the Quantile Radial Normalization (QRN) (Gilly & Cranmer 2022, in prep)
-        algorithm to bring out the detail in the upper atmosphere, as compared with the original images on the right.
+    The images been radially normalized using Radial Histogram Equalization (RHE, Gilly & Cranmer 2023, in prep) and Multiscale Gaussian Normalization (MSGN, Morgan and Druckmuller 2014)
+        to bring out the detail in the upper atmosphere. The original images can be seen at <a href="https://www.thesuntoday.org/sun/current-observations/">The Sun Today</a>.
+    <br />
+    My apologies: the AWS server running this site has been messing up for a few months now, so the page only updates when I run the script on my PC. There should be a fix coming soon.
 
     <br>
     These images are from:
     <br />
     &nbsp &nbsp<object data="https://the-sun-now.s3.us-east-2.amazonaws.com/G%3A%5Csunback_images%5Cbackground_server%5Crainbow%5Cimage_times_readable.txt"
-                                                width="200" height="200"></object>
-    <br />
-    My apologies: the AWS server running this site has been messing up for a few months now, so the page only updates when I run the script on my PC. There should be a fix coming soon.
+    width="200" height="200"></object>
     <div id="viewer" >
     </div>
 </div>
