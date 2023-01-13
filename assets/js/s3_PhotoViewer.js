@@ -117,8 +117,10 @@ function viewAlbum(albumName) {
 
     var photos = data.Contents.map(function(photo) {
       var photoKey = photo.Key;
-      var photoUrl = bucketUrl + encodeURIComponent(photoKey);
+      // var photoUrl = bucketUrl + encodeURIComponent(photoKey);
+      var photoUrl = bucketUrl + photoKey;
       var thumbUrl = bucketUrl + "renders/thumbs/" + photoKey.replace(albumPhotosKey, '');
+      var photoName = photoKey.replace(albumPhotosKey, '').replace('_DrGilly_', ' ').replace("_hq.png", '')
 
       if (photoKey.includes("thumbs")||photoKey.includes("archive")||photoKey.includes("4500")) {
         return getHtml([])
@@ -130,7 +132,7 @@ function viewAlbum(albumName) {
               '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
             ])} else {
             return getHtml([
-              'AIA ', photoKey.replace(albumPhotosKey, ''), '<br/>',
+              // '<br/>', photoName, '<br/>',
               '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
             ])}
           // } else {
