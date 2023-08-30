@@ -150,23 +150,29 @@ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-pho
 <div id="main">
     <h1>The Sun Right Now!</h1>
 
-    These images were taken within the last few minutes by the Solar Dynamics Observatory.
-    Each color represents a different set of mirror coatings, which
-    only allow one particular wavelength of ultraviolet light to be detected at a time. These wavelengths were selected because they
-    correspond to particular ions which are known to exist at different temperatures. Wavelengths are listed in angstroms, which are 1/10th of a nanometer.
-    <a href=" https://en.wikipedia.org/wiki/Solar_Dynamics_Observatory" target="_blank">Find out more on wikipedia!</a>
+    These images were taken recently (See the time stamps below) by the Atmospheric Imaging Assembly (AIA) on the Solar Dynamics Observatory (SDO), a NASA mission launched in 2010.
+    Each color is representative of the intensity recorded when observing one particular wavelength
+    of ultraviolet light. These wavelengths were selected by the SDO mission because they
+    correspond to particular atomic ions which are known to exist at a range of temperatures.
+    This means we can use these images to determine the temperature of the solar atmosphere.
+    The wavelength of each image is printed on the top right of each image (in units of angstroms, which are 1/10th of a nanometer).
+    <a href=" https://en.wikipedia.org/wiki/Solar_Dynamics_Observatory" target="_blank">Find out more about SDO on wikipedia!</a>
     <br /><br>
-    The images been radially normalized using Radial Histogram Equalization (RHE, Gilly & Cranmer 2023, in prep) and Multiscale Gaussian Normalization (MSGN, Morgan and Druckmuller 2014)
-        to bring out the detail in the upper atmosphere. The original images can be seen at <a href="https://www.thesuntoday.org/sun/current-observations/" target="_blank">The Sun Today</a>.
-    <br />
-    My apologies: the AWS server running this site has been messing up for a few months now, so the page only updates when I run the script on my PC. There should be a fix coming soon.
 
-    <br>
+    The images have been radially normalized using Radial Histogram Equalization (RHE) (Gilly & Cranmer 2023, in prep)
+    and Multiscale Gaussian Normalization (MSGN)
+    (<a href="https://ui.adsabs.harvard.edu/link_gateway/2014SoPh..289.2945M/doi:10.1007/s11207-014-0523-9" target="_blank">Morgan and Druckmuller (2014)</a>)
+    to maximize the dynamic range of the image and draw out fine details. The unprocessed images can be seen at
+    <a href="https://www.thesuntoday.org/sun/current-observations/" target="_blank">The Sun Today</a>.
+
+    <br> <br>
+
     These images are from:
     <br />
 
-    <iframe src="https://the-sun-now.s3.us-east-2.amazonaws.com/sunback_images/image_times_readable.txt"
-        width="200" height="200" style="background-color: white; color: black;"></iframe>
+    <iframe src="https://the-sun-now.s3.us-east-2.amazonaws.com/image_times_readable.txt"
+        width="200" height="195" style="background-color: white; color: black;"></iframe>
+    <br> <br>
 
     <div id="viewer">
     </div>
