@@ -1,80 +1,25 @@
-/**
- * Copyright 2010-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * This file is licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License. A copy of
- * the License is located at
- *
- * http://aws.amazon.com/apache2.0/
- *
- * This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
- * CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- */
-
-// snippet-comment:[These are tags for the AWS doc team's sample catalog. Do not remove.]
-// snippet-sourcedescription:[s3_PhotoViewer.js demonstrates how to allow viewing of photos in albums stored in an Amazon S3 bucket.]
-// snippet-service:[s3]
-// snippet-keyword:[JavaScript]
-// snippet-sourcesyntax:[javascript]
-// snippet-keyword:[Amazon S3]
-// snippet-keyword:[Code Sample]
-// snippet-sourcetype:[full-example]
-// snippet-sourcedate:[2019-05-07]
-// snippet-sourceauthor:[AWS-JSDG]
-
-// ABOUT THIS JAVASCRIPT SAMPLE: This sample is part of the SDK for JavaScript Developer Guide topic at
-// https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-photos-view.html
-
-// snippet-start:[s3.JavaScript.s3_PhotoViewer.complete]
-//
-// Data constructs and initialization.
-//
-
-// snippet-start:[s3.JavaScript.s3_PhotoViewer.config]
-// **DO THIS**:
-//   Replace BUCKET_NAME with the bucket name.
-//
-// var albumBucketName = 'gillyspace27-test-billboard';
 var albumBucketName = 'the-sun-now';
 
-// **DO THIS**:
-//   Replace this block of code with the sample code located at:
-//   Cognito -- Manage Identity Pools -- [identity_pool_name] -- Sample Code -- JavaScript
-//
-// Initialize the Amazon Cognito credentials provider
-AWS.config.region = 'us-east-2'; // Region
+AWS.config.region = 'us-east-2';
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
   IdentityPoolId: 'us-east-2:c9106db6-2689-430e-a584-ef4f17edef34',
 });
 
-// Create a new service object
 var s3 = new AWS.S3({
   apiVersion: '2006-03-01',
-  params: {Bucket: albumBucketName}
+  params: { Bucket: albumBucketName }
 });
 
-// A utility function to create HTML.
 function getHtml(template) {
   return template.join('\n');
-  // return template;
 }
-// snippet-end:[s3.JavaScript.s3_PhotoViewer.config]
 
-
-//
-// Functions
-//
-
-// snippet-start:[s3.JavaScript.s3_PhotoViewer.listAlbums]
-// List the photo albums that exist in the bucket.
 function listAlbums() {
-  s3.listObjects({Delimiter: '/'}, function(err, data) {
+  s3.listObjects({ Delimiter: '/' }, function (err, data) {
     if (err) {
       return alert('There was an error listing your albums: ' + err.message);
     } else {
-      var albums = data.CommonPrefixes.map(function(commonPrefix) {
+      var albums = data.CommonPrefixes.map(function (commonPrefix) {
         var prefix = commonPrefix.Prefix;
         var albumName = decodeURIComponent(prefix.replace('/', ''));
         return getHtml([
@@ -86,90 +31,87 @@ function listAlbums() {
         ]);
       });
       var message = albums.length ?
-          getHtml([
-            '<p>Click on an album name to view it.</p>',
-          ]) :
-          '<p>You do not have any albums. Please Create album.';
+        getHtml(['<p>Click on an album name to view it.</p>']) :
+        '<p>You do not have any albums. Please Create album.';
       var htmlTemplate = [
         '<h2>Albums</h2>',
         message,
         '<ul>',
         getHtml(albums),
         '</ul>',
-      ]
+      ];
       document.getElementById('viewer').innerHTML = getHtml(htmlTemplate);
     }
   });
 }
-// snippet-end:[s3.JavaScript.s3_PhotoViewer.listAlbums]
 
-// snippet-start:[s3.JavaScript.s3_PhotoViewer.viewAlbum]
-// Show the photos that exist in an album.
 function viewAlbum(albumName) {
   var albumPhotosKey = encodeURIComponent(albumName) + '/';
-  s3.listObjects({Prefix: albumPhotosKey}, function(err, data) {
+  s3.listObjects({ Prefix: albumPhotosKey }, function (err, data) {
     if (err) {
       return alert('There was an error viewing your album: ' + err.message);
     }
-    // 'this' references the AWS.Response instance that represents the response
+
     var href = this.request.httpRequest.endpoint.href;
     var bucketUrl = href + albumBucketName + '/';
 
-    var photos = data.Contents.map(function(photo) {
+    var photos = data.Contents.map(function (photo) {
       var photoKey = photo.Key;
-      // var photoUrl = bucketUrl + encodeURIComponent(photoKey);
       var photoUrl = bucketUrl + photoKey;
       var thumbUrl = bucketUrl + "renders/thumbs/" + photoKey.replace(albumPhotosKey, '');
-      var photoName = photoKey.replace(albumPhotosKey, '').replace('_DrGilly_', ' ').replace("_hq.png", '')
+      var photoName = photoKey.replace(albumPhotosKey, '').replace('_DrGilly_', ' ').replace("_hq.png", '');
 
-      if (photoKey.includes("thumbs")||photoKey.includes("archive")||photoKey.includes("4500")) {
-        return getHtml([])
+      if (photoKey.includes("thumbs") || photoKey.includes("archive") || photoKey.includes("4500")) {
+        return getHtml([]);
+      } else if (photoKey.endsWith("png") && !photoKey.includes("_frame_for_thumb.png")) {
+        return getHtml([
+          '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
+        ]);
       } else {
-        if (photoKey.endsWith("png")) {
-          if (photoKey.includes("orig")||photoKey.includes("compare")) {
-            return getHtml([
-              // '<div>',photoKey.replace(albumPhotosKey, ''), '</div>',
-              '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
-            ])} else {
-            return getHtml([
-              // '<br/>', photoName, '<br/>',
-              '<a href="' + photoUrl + '" target="_blank"><img style="width:49%;" src="' + thumbUrl + '"/></a>',
-            ])}
-          // } else {
-          // return getHtml([
-          //     'asdf'
-          // ]);
-        }}})
+        return getHtml([]);
+      }
+    });
 
+    const videoThumbs = data.Contents.filter(item => item.Key.endsWith("_frame_for_thumb.png"));
+    const videoFiles = data.Contents.filter(item => item.Key.endsWith(".mp4"));
+
+    const videoHtmlSnippets = [];
+
+    videoThumbs.forEach(thumbnail => {
+      const baseName = thumbnail.Key.split("/").pop().replace("_frame_for_thumb.png", "");
+      const videoMatch = videoFiles.find(v => v.Key.includes(baseName + ".mp4"));
+
+      const thumbUrl = bucketUrl + thumbnail.Key;
+      const videoUrl = videoMatch ? bucketUrl + videoMatch.Key : null;
+
+      if (videoUrl) {
+        videoHtmlSnippets.push(getHtml([
+          '<div style="position: relative; display: inline-block; width: 49%; margin: 5px;">',
+            '<a href="' + videoUrl + '" target="_blank">',
+              '<img src="' + thumbUrl + '" style="width: 100%; border: 1px solid black;" />',
+              '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);' +
+              'font-size: 64px; color: white; text-shadow: 0 0 10px black;">▶</div>',
+            '</a>',
+          '</div>'
+        ]));
+      }
+    });
+
+    // Prepend the video previews to the image gallery
+    photos = videoHtmlSnippets.concat(photos);
 
     var message = photos.length ?
-        '<p>The following photos are present.</p>' :
-        '<p>There are no photos in this album.</p>';
+      '<p>The following photos are present.</p>' :
+      '<p>There are no photos in this album.</p>';
     var htmlTemplate = [
-      // '<div>',
-      //   '<button onclick="listAlbums()">',
-      //     'Back To Albums',
-      //   '</button>',
-      // '</div>',
-      // '<h2>',
-      //   'Album: ' + albumName,
-      // '</h2>',
-      // message,
       '<div>',
       getHtml(photos),
       '</div>',
-      // '<h2>',
-      //   'End of Album: ' + albumName,
-      // '</h2>',
-      // '<div>',
-      //   '<button onclick="listAlbums()">',
-      //     'Back To Albums',
-      //   '</button>',
-      // '</div>',
-    ]
+    ];
     document.getElementById('viewer').innerHTML = getHtml(htmlTemplate);
-    document.getElementsByTagName('img')[0].setAttribute('style', 'display:none;');
+    const firstImg = document.getElementsByTagName('img')[0];
+    if (firstImg) {
+      firstImg.setAttribute('style', 'display:none;');
+    }
   });
 }
-// snippet-end:[s3.JavaScript.s3_PhotoViewer.viewAlbum]
-// snippet-end:[s3.JavaScript.s3_PhotoViewer.complete]
