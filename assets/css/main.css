@@ -3116,4 +3116,17 @@
 				padding-left: 0;
 			}
 
+			/* Flexbox stabilization for My Work section only */
+			/* #two .row.work-grid {
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			#two .row.work-grid > .work-item {
+				float: none;
+				display: flex;
+				flex-direction: column;
+			}
+			 */
+			
 	}
