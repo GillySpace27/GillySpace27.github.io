@@ -205,18 +205,34 @@ export default {
       return jsonResponse({ error: 'inference failed', detail: String(err?.message || err) }, 502, cors);
     }
 
-    // Workers AI response shape varies by model. For Llama-family chat
-    // models the binding returns `{ response: "..." }`; OpenAI-compat path
-    // returns `{ choices: [{ message: { content: "..." } }] }`. Handle both.
+    // Workers AI response shape varies by model. Known shapes:
+    //   • Llama-family: { response: "..." }
+    //   • OpenAI-compat: { choices: [{ message: { content: "..." } }] }
+    //   • Kimi K2.x:    { result: { response: "..." } } per observed runs,
+    //                    or sometimes { result: { choices: [...] } }
+    //   • Some models:  { output: "..." } or { text: "..." }
+    // Try each in order; first non-empty wins.
     const text = (
       aiResult?.response ||
       aiResult?.choices?.[0]?.message?.content ||
+      aiResult?.result?.response ||
+      aiResult?.result?.choices?.[0]?.message?.content ||
+      aiResult?.output ||
+      aiResult?.text ||
+      aiResult?.message?.content ||
       ''
     ).trim();
 
     if (!text) {
-      console.error('Empty model response:', JSON.stringify(aiResult).slice(0, 500));
-      return jsonResponse({ error: 'empty response from model' }, 502, cors);
+      console.error('Empty model response:', JSON.stringify(aiResult).slice(0, 1000));
+      // Echo the raw shape back to the client so the calling page can show
+      // it in DevTools — much faster than chasing it through the dashboard
+      // log stream. Safe because the worker is only callable from our own
+      // origin (CORS allow-list).
+      return jsonResponse({
+        error: 'empty response from model',
+        rawShape: aiResult,
+      }, 502, cors);
     }
 
     // Cache the new impression. If KV write fails, still return — better
