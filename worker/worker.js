@@ -37,10 +37,13 @@ const MAX_TOKENS = 500;
 
 // Toggle KV caching of impressions. While iterating on the prompt, set this
 // to FALSE so every request regenerates and we don't accumulate cached
-// outputs from interim prompts that we'd later have to clear by hand.
-// Flip back to TRUE once the prompt voice is locked — no other code changes
-// needed; previously-stored entries (if any) will start being used again.
-const CACHE_ENABLED = false;
+// outputs from interim prompts. Flip to TRUE once the prompt voice is
+// locked — each unique date is then generated exactly once globally and
+// served instantly forever after, also dropping inference cost to near
+// zero for repeat visitors. Previously-stored entries (if any) start
+// being used again, so make sure the namespace is clean for the
+// current prompt before re-enabling.
+const CACHE_ENABLED = true;
 
 // CORS allow-list. The Workers Builds deploy gives a *.workers.dev URL and
 // you'll be calling it from gilly.space/enso. Add localhost variants if you
