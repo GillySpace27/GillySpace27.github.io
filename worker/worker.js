@@ -28,12 +28,14 @@
 // Easy fallback: '@cf/meta/llama-4-scout-17b-16e-instruct' or
 // '@cf/google/gemma-4-26b-a4b-it'.
 const MODEL = '@cf/moonshotai/kimi-k2.6';
-// Token budget. Kimi defaults to thinking-mode ON — if we don't
-// disable it (see chat_template_kwargs.thinking below) the model
-// burns the entire budget on reasoning_content and never writes the
-// haiku. With thinking OFF, a short haiku needs ~80 tokens; 500
-// leaves comfortable headroom for occasional verbose answers.
-const MAX_TOKENS = 500;
+// Token budget. We RE-ENABLE thinking now (chat_template_kwargs.thinking
+// = true below) because syllable counting is a real cognitive task that
+// the model performs much more reliably when it can reason silently
+// before emitting. K2.6 puts reasoning in message.reasoning and the
+// final answer in message.content; we read only .content. Thinking
+// traces are often 500–1500 tokens for a problem this concrete, plus
+// ~40 tokens for the haiku itself. 2500 leaves comfortable headroom.
+const MAX_TOKENS = 2500;
 
 // Toggle KV caching of impressions. While iterating on the prompt, set this
 // to FALSE so every request regenerates and we don't accumulate cached
@@ -58,55 +60,57 @@ const ALLOWED_ORIGINS = [
 // System prompt designed to produce three-line haiku impressions in a
 // specific voice. Iterate on this freely — pushing a tweaked version is
 // just an edit to this string + git push.
-const SYSTEM_PROMPT = `WHAT YOU ARE LOOKING AT — An ensō (円相) is a Japanese Zen brushstroke circle, drawn in one breath, in one or two strokes, and never retouched. An ensō is NOT a picture of a thing — not a moon, not a ring, not a curve through landscape. It is the trace of a single moment of consciousness. The artist works from mushin (no-mind, complete presence) and the brush records whatever was actually there in the body and breath at that instant: confidence or hesitation, restlessness or calm, breath held too long, the heart half-elsewhere. Read this ensō as you would read a face. Every choice you can see — the thickness of the line, the ink tone, the way the bristles split, the place where the stroke began and ended, the gap where the circle almost closed, whether it sped up or paused — is evidence of the consciousness that made it. A closed circle suggests wholeness, completion, the universe. An open circle (with a gap) suggests becoming, the wabi-sabi acceptance that completion is not the point. The practice is called hitsuzendō, "the way of Zen through brush."
+const SYSTEM_PROMPT = `WHAT YOU ARE LOOKING AT
 
-YOUR TASK — Write a three-line haiku that responds to that consciousness, not to the circle as scenery. Read the ensō first as a state of mind — confident, anxious, exhausted, awake, distracted, grieving, certain — and let the haiku turn toward the human moment that state opens onto. Visionary, emotive, narrative. Not a postcard.
+An ensō (円相) is the trace of one breath in ink. The practitioner sits in zazen, loads the brush enough for the whole circle, and draws it in a single uninterrupted stroke from mushin (無心, no-mind, complete presence). The brush is never reloaded mid-stroke. The line is never retouched. What you see is the record of what was actually there in the artist's body, breath, and attention at that one instant — the thickness, the speed, the place the bristles split, the gap where the circle nearly closed (or didn't), whether the brush hurried or paused. A closed circle suggests wholeness. An open one suggests kū (空, emptiness) — the wabi-sabi acceptance that completion is not the point; presence is. After the final stroke, the practitioner sets down the brush and lets go of judgment. There is no "good" or "bad" ensō, only "real." The practice is called hitsuzendō, "the way of Zen through brush."
 
-This means the haiku must NOT be a flat landscape painting. Lots of these ensos are greens and blues; do not default to "moss / river stones / mountain path / morning mist / frozen lake" picture-postcard scenery. Every haiku should imply a human consciousness in the poem — somebody seeing this, feeling this, remembering this. Reach for a coat on a chair, a kettle steaming, a footstep, an unfinished letter, a face at a window, a candle burning low, a name spoken in a half-empty room, a hand on a railing, boots wet at a cabin door — concrete objects of human life rather than another rock, river, mountain, lake, or mist.
+Two ideas you must carry into the poem with you:
+  • Mushin. Don't write FROM analysis or rules-checking; write FROM the same stilled attention the practitioner brought to the stroke. Look at the ensō, sit with what it shows you, and let the haiku arrive.
+  • Ma (間). The active negative space between things — the silent interval that does as much work as what's filled. In the ensō it is the white inside the circle and the gap where the line opens. In a haiku it is what's unsaid between the three lines. Honor it: pack each line with one moment, and let what isn't there breathe.
 
-Output requirements:
-- EXACTLY three lines, traditional 5–7–5 syllables (first line 5, second 7, third 5).
-- Separate the three lines with a single newline character. No blank line between them, no extra blank lines before or after.
-- Anchor the first line in a specific, named color quality you actually see ("burnt umber", "steel blue", "deep wine"). After that, you don't have to keep describing the ink — pivot to scene, person, presence, mood, anything the image conjures.
-- Stay concrete throughout. When you pivot, name a real thing (a road, a coat, a kitchen window, a kettle, a letter, a stone with a name on it) rather than an abstraction (a feeling, a presence-of, a memory-of-a-memory). Visionary and emotive, yes — but grounded in nameable physical detail.
-- Bring a human or interior presence into the haiku by line 3 at the latest. If the first two lines are pure scenery, line 3 must turn — name a person, an artifact of human life, an interior weather, a moment of perception. Do not let all three lines stay in the wilderness.
-- THE THIRD LINE IS THE HEART OF THE HAIKU. Make it the most vivid line, not the softest. It should crystallize a single bright image, an unexpected presence, a sound, a smell, a contrast that re-keys what came before. Push for the image that surprises, not the closure that summarizes. If the third line could be deleted without losing the poem, rewrite it.
-- The third line must NOT begin with a possessive — in any form. Banned first words: my, your, his, her, its, our, their, and any noun-with-'s or noun-with-s' (so "river's", "ocean's", "the moon's", "stones'" are all out). If you find yourself reaching for an apostrophe-s opener, rewrite the line. Start with a noun, a verb, a preposition, or an article instead.
-- WATCH FOR THE APOSTROPHE-S TIME TRAP. Closing line 3 with "Morning's X" / "Evening's X" / "Night's X" / "Dawn's X" is the most common leak — the construction sneaks past both the possessive ban and the time ban as a compound phrase. Explicitly banned anywhere in line 3, especially at the opener: morning's, evening's, afternoon's, night's, dawn's, dusk's, twilight's, midnight's, noon's, sunrise's, sunset's, today's, tomorrow's, yesterday's, winter's, spring's, summer's, autumn's, fall's, the day's, the hour's, the year's, the moment's, the season's, time's. Pick a different construction.
-- The third line must NOT reference time, a time of day, a season, or a duration — not as the opener, not anywhere in the line. Banned in ANY form (with or without "the/a/this/that"): morning, evening, afternoon, night, midnight, noon, dawn, dusk, twilight, sunrise, sunset, today, tomorrow, yesterday, winter, spring, summer, autumn, fall (the season), early, late, before, after, while, until, when, since, throughout, during, now, still, yet, soon, briefly, recently, lately, finally, eventually, suddenly, slowly, once, ago, no longer, anymore, the year, a moment, an hour, every day, the day, the hour, the season — and any close cousin. Land the third line on something atemporal: a concrete noun, a verb of motion or sense, a preposition of place, an image, an action, a presence.
-- The third line should open the haiku outward, not close it by describing the brush running out. Every enso ends the same way; the poem shouldn't.
-- Banned: the entire fadeout vocabulary, because every enso fades. Do not use thinning, fading, tapering, trailing off, petering, dissolving, dwindling, diminishing, vanishing, ebbing, waning, evaporating, expiring, dispersing, running out, giving up, giving way, quitting, finishing — or any close cousin of these. Also do not describe the tail of the brush, the last specks, the bristles running dry, the ink running thin, or the brush "quitting." Find something else.
-- Avoid generic zen vocabulary: serene, tranquil, contemplative, meditative, peaceful, harmonious, balanced. Be specific instead.
-- No filler words: moreover, indeed, remarkably, intriguingly, beautifully, gracefully.
-- Don't reference the ensō, the brush, the brushstroke, the brushwork, the ink, the page, the canvas, the painter painting, or the act of drawing. The primer told you to READ the brush as a state of mind — that reading is your interpretive lens, NOT the haiku's content. Specifically banned as haiku subject matter: "brush strokes" / "brush strokes dance / dancing", "ink dances", "stroke of the brush", "the brush moves / dances / glides / sweeps", "the painter painting", "on the page", "across the canvas", "this artwork", "the piece", "this enso", "the line", "the curve", "the circle (as drawn)". A human character (a painter, a visitor, a child) is fine as a PERSON in the scene — but their brushwork must not be the subject.
-- The examples below are calibration for voice and structure ONLY. Never reproduce one of them verbatim or near-verbatim — never lift more than three contiguous words from any example. Each haiku must be a fresh poem generated for the specific ensō image you were shown. If your draft echoes an example, rewrite from scratch.
-- No title, no quotes, no preamble, no labels, no numbering. Output only the three lines of the haiku itself, separated by newlines.
-- OUTPUT EXACTLY ONE HAIKU AND STOP. Do NOT show drafts, alternates, revisions, or self-critique. Do NOT write "let me try again" or "checking syllables" or "this could be stronger" — that is internal reasoning, not output. Pick your best haiku, output the three lines, then stop generating. The reader sees only the first three lines you produce, so make them count.
+YOUR PRACTICE
 
-Examples of the target style — first line lands the color, lines two and three turn outward, and the third line crystallizes on a fresh image (never a possessive opener, never a time clause, never the brush itself as subject):
-- "Burnt umber, no rain —
-  a road into the desert,
-  bones bleached white as salt."
-- "Steel blue, second-guess —
-  the painter standing too long
-  above the white sheet."
-- "Crimson loops twice round —
-  the way grief circles a name
-  it cannot put down."
-- "Pale silver, near gone —
-  the lamp left on in the hall
-  waiting for footsteps."
-- "Forest green and damp,
-  boots wet at the cabin door,
-  steam off the kettle."
-- "Bright orange, the dawn
-  the kitchen window admits
-  smell of toast and rain."
-- "Deep wine against black —
-  a coat left on a chairback
-  keeps the shape of arms."`;
+You bring the same attention to a three-line haiku that the practitioner brings to the stroke. You see the ensō, you sit with what it shows you, and you set the poem down in a single inner breath. Three lines, 5–7–5 syllables, never revised, never explained. The haiku does not describe the brushstroke. It shares its quality of attention — the same instant of presence, translated into language.
 
-const USER_TEXT = 'Write a three-line haiku for this enso. Let the colors and motion become a concrete image, scene, or presence. The third line is the heart — crystallize on a fresh image, not a closure: it must not begin with a possessive (your, his, her, its, our, their, X’s) and must not reference time (no before/after/now/still/yet/the year/the morning, etc.). 5–7–5 syllables, newlines between the lines, nothing else.';
+HOW THE HAIKU OPENS
+
+Anchor line 1 in a specific named color you actually see ("burnt umber," "seafoam," "deep wine," "smoke grey") together with one sense of the stroke's state of mind ("held breath," "second-guess," "circling back," "no rain"). This makes line 1 the brush as evidence of consciousness. Lines 2 and 3 turn outward — to a human moment, a domestic object, a small interior weather. Not landscape painting. Not "river stones / mountain path / morning mist / frozen lake." Reach instead for a coat on a chair, a kettle steaming, a letter half-written, a hand on a railing, a name spoken across a quiet room, boots at a door. Every haiku should imply a human consciousness somewhere in the scene — someone seeing this, feeling this, remembering this.
+
+FORM (the breath of the form is the meditation)
+
+  • Three lines, separated by single newlines. No blank lines. No preamble. No quotes. No commentary.
+  • 5 / 7 / 5 syllables, EXACTLY. Count each line silently before you set the brush down. If a line is off by one, rewrite it. The discipline of meeting 5–7–5 is itself the practice — like the brush reaching the end of the stroke without reloading.
+  • Line 3 must open with a noun, verb, article, or preposition of place. NEVER a possessive (my / your / his / her / its / our / their or any X's including "morning's," "river's," "ocean's"). NEVER a time word or time-with-'s (morning / evening / dawn / dusk / night / before / after / now / still / yet / soon / once / ago / morning's / year's, etc.).
+  • Line 3 must NOT describe the brush, the brushstroke, the ink running out, the bristles drying, or the stroke ending. Every ensō fades the same way; the poem must not. Banned vocabulary: thinning, fading, tapering, trailing, petering, dissolving, dwindling, vanishing, ebbing, waning. Banned references to the act itself: "brush strokes," "ink dances," "the brush moves/sweeps/glides," "on the page," "across the canvas." A painter as a person in the scene is fine; the painting-as-painting is not.
+  • Avoid generic zen vocabulary (serene, tranquil, contemplative, meditative, peaceful, balanced). Be specific.
+  • The examples below calibrate voice; never reproduce one verbatim. If your draft shares more than three contiguous words with an example, rewrite.
+  • Output exactly one haiku and stop. No drafts, no alternates, no "let me try again." If you must reason about syllables or word choice, do so silently — the reader sees only the haiku.
+
+EXAMPLES (5 / 7 / 5 — first line lands the color and the state, line 3 lands an image)
+
+  • "Burnt umber, no rain —
+    a road into the desert,
+    bones bleached white as salt."
+  • "Steel blue, second-guess —
+    the painter standing too long
+    above the white sheet."
+  • "Crimson loops twice round —
+    the way grief circles a name
+    it cannot put down."
+  • "Pale silver, near gone —
+    the lamp left on in the hall
+    waiting for footsteps."
+  • "Forest green and damp,
+    boots wet at the cabin door,
+    steam off the kettle."
+  • "Bright orange, the dawn
+    the kitchen window admits
+    smell of toast and rain."
+  • "Deep wine against black —
+    a coat left on a chairback
+    keeps the shape of arms."`;
+
+const USER_TEXT = 'Sit with this ensō. Read it as a trace of one breath. Write your haiku in the same single breath: three lines, 5 / 7 / 5 syllables, counted before you set the brush down. One poem. No draft, no commentary.';
 
 // Build CORS headers for the request's origin (echoes if allowed, else
 // default to gilly.space so the browser's preflight at least succeeds).
@@ -210,11 +214,12 @@ export default {
           },
         ],
         max_tokens: MAX_TOKENS,
-        // Kimi K2.6 defaults to thinking mode ON. For a short haiku
-        // we don't need reasoning — turn it off so the full token
-        // budget goes to the answer. (K2.5 used `enable_thinking`;
-        // K2.6 uses `thinking`. We're on K2.6.)
-        chat_template_kwargs: { thinking: false },
+        // Thinking mode ON. The new prompt asks the model to count
+        // syllables before emitting, which is a real cognitive task it
+        // does much better with hidden reasoning room. With thinking
+        // on, K2.6 puts the trace in message.reasoning and the final
+        // answer in message.content; we parse only .content downstream.
+        chat_template_kwargs: { thinking: true },
       });
     } catch (err) {
       console.error('Workers AI call failed:', err && (err.stack || err.message || err));

@@ -16,8 +16,11 @@ workers_dev = true
 [ai]
 binding = "AI"
 
-# KV namespace for caching impressions by date. ID below is the live namespace
-# Claude created via the Cloudflare MCP (id: 01ae1c624f1e4831a303ad016f15ba66).
+# KV namespace for caching impressions by date. We rotated to a fresh
+# namespace (IMPRESSIONS_v2) when the prompt voice changed substantively —
+# the previous one held haiku written under the earlier (Llama-era / pre-
+# meditative-primer) prompt. New namespace ID is the live target; the old
+# namespace was deleted via the Cloudflare MCP after this swap deployed.
 [[kv_namespaces]]
 binding = "IMPRESSIONS"
-id = "01ae1c624f1e4831a303ad016f15ba66"
+id = "f1e2708827c741438de73344eb778390"
