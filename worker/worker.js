@@ -19,10 +19,13 @@
 // No secrets required. The whole stack is internal to Cloudflare.
 // ─────────────────────────────────────────────────────────────────────────
 
-// Model. Llama 4 Scout is natively multimodal (single set of parameters
-// handles text + vision), instruction-tuned, and free-tier eligible.
-// Easy to swap for Kimi K2.5/2.6 or Gemma 4 if quality needs nudging.
-const MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
+// Model. Kimi K2.5 — Moonshot's frontier-scale 1T-param multimodal model.
+// Larger / more compliant than Llama 4 Scout; we swap up after Scout
+// proved bias-locked to a few haiku closer templates ("Morning's X",
+// "brush strokes dance") that explicit lexical bans couldn't dislodge.
+// Easy fallback: revert to '@cf/meta/llama-4-scout-17b-16e-instruct' or
+// try '@cf/google/gemma-4-26b-a4b-it' (smaller, thinking mode).
+const MODEL = '@cf/moonshotai/kimi-k2.5';
 const MAX_TOKENS = 200;
 
 // Toggle KV caching of impressions. While iterating on the prompt, set this
