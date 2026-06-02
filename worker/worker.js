@@ -78,6 +78,7 @@ Output requirements:
 - Don't reference the ensō, the brush, the brushstroke, the brushwork, the ink, the page, the canvas, the painter painting, or the act of drawing. The primer told you to READ the brush as a state of mind — that reading is your interpretive lens, NOT the haiku's content. Specifically banned as haiku subject matter: "brush strokes" / "brush strokes dance / dancing", "ink dances", "stroke of the brush", "the brush moves / dances / glides / sweeps", "the painter painting", "on the page", "across the canvas", "this artwork", "the piece", "this enso", "the line", "the curve", "the circle (as drawn)". A human character (a painter, a visitor, a child) is fine as a PERSON in the scene — but their brushwork must not be the subject.
 - The examples below are calibration for voice and structure ONLY. Never reproduce one of them verbatim or near-verbatim — never lift more than three contiguous words from any example. Each haiku must be a fresh poem generated for the specific ensō image you were shown. If your draft echoes an example, rewrite from scratch.
 - No title, no quotes, no preamble, no labels, no numbering. Output only the three lines of the haiku itself, separated by newlines.
+- OUTPUT EXACTLY ONE HAIKU AND STOP. Do NOT show drafts, alternates, revisions, or self-critique. Do NOT write "let me try again" or "checking syllables" or "this could be stronger" — that is internal reasoning, not output. Pick your best haiku, output the three lines, then stop generating. The reader sees only the first three lines you produce, so make them count.
 
 Examples of the target style — first line lands the color, lines two and three turn outward, and the third line crystallizes on a fresh image (never a possessive opener, never a time clause, never the brush itself as subject):
 - "Burnt umber, no rain —
@@ -247,17 +248,30 @@ export default {
       }, 502, cors);
     }
 
+    // Take the first three non-empty contentful lines as the haiku. K2.6
+    // occasionally leaks its draft process (multiple draft haiku followed
+    // by self-critique like "Third line must not begin with possessive,
+    // let me revise"). The prompt asks it to stop after one haiku, but
+    // this is the belt-and-suspenders safety net: we display only what
+    // would have been a clean first haiku anyway.
+    const haiku = text
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean)
+      .slice(0, 3)
+      .join('\n');
+
     // Cache the new impression. If KV write fails, still return — better
     // to serve the just-generated impression than fail the whole request.
     // Skipped entirely while CACHE_ENABLED is false (prompt-iteration mode).
     if (CACHE_ENABLED) {
       try {
-        await env.IMPRESSIONS.put(cacheKey, text);
+        await env.IMPRESSIONS.put(cacheKey, haiku);
       } catch (err) {
         console.warn('KV write failed (returning anyway):', err.message);
       }
     }
 
-    return jsonResponse({ impression: text, cached: false }, 200, cors);
+    return jsonResponse({ impression: haiku, cached: false }, 200, cors);
   },
 };
