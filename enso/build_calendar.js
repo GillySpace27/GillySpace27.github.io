@@ -329,6 +329,16 @@ const html = `<!DOCTYPE html>
     padding: 0 8px;
   }
   .modal-impression.visible { display: flex; }
+  /* Banner state when Workers AI daily quota is exhausted. Non-italic,
+     slightly smaller and dimmer than the haiku — reads as a status
+     note rather than a poem. */
+  .modal-impression.paused {
+    font-style: normal;
+    font-size: 13px;
+    opacity: 0.85;
+    letter-spacing: 0.02em;
+    max-width: 70%;
+  }
   .impression-spinner {
     display: inline-block;
     width: 12px;
@@ -638,6 +648,7 @@ ${renderSrc}
     // doesn't briefly show next time the modal opens.
     const imp = document.getElementById('modalImpression');
     imp.classList.remove('visible');
+    imp.classList.remove('paused');
     imp.style.display = 'none';
     document.getElementById('impressionText').textContent = '';
     document.getElementById('impressionSpinner').classList.remove('hidden');
@@ -675,18 +686,40 @@ ${renderSrc}
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date: dateStr, image: dataUrl }),
       });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-      const data = await response.json();
+      // Parse the body even on non-2xx — Cloudflare's Workers AI quota
+      // error (code 4006) arrives as a 502 with a structured error
+      // body that we want to surface differently from a generic fail.
+      let data = null;
+      try { data = await response.json(); } catch (e) { /* non-JSON body */ }
       // Modal closed or moved on before the response landed — abandon.
       if (utcMs !== currentModalUtcMs) return;
-      if (!data || !data.impression) throw new Error('empty impression');
-      impressionCache.set(dateStr, data.impression);
+      if (response.ok && data && data.impression) {
+        impressionCache.set(dateStr, data.impression);
+        spinner.classList.add('hidden');
+        text.textContent = data.impression;
+        return;
+      }
+      // Not ok, or no impression in body. Tell the two failure shapes
+      // apart: Workers AI free-tier quota exhaustion is a temporary,
+      // expected state (resets at UTC midnight) and deserves a kind
+      // banner; everything else hides the slot as before.
+      const detail = String((data && (data.detail || data.error)) || '');
+      const quotaExhausted = /4006|free allocation|daily.*allocation|neurons/i.test(detail);
       spinner.classList.add('hidden');
-      text.textContent = data.impression;
+      if (quotaExhausted) {
+        imp.classList.add('paused');
+        text.textContent = 'the brush is set down for today.\nfresh haiku tomorrow.';
+      } else {
+        // Generic failure — hide the whole slot rather than show an error.
+        console.warn('[impressions] fetch failed:', response.status, detail);
+        imp.classList.remove('visible');
+        imp.style.display = 'none';
+      }
     } catch (err) {
       console.warn('[impressions] fetch failed:', err && err.message);
       if (utcMs !== currentModalUtcMs) return;
-      // Graceful failure: hide the whole slot rather than show an error.
+      // Network error (worker unreachable, CORS rejection, etc.) —
+      // treat as generic failure, hide the slot.
       imp.classList.remove('visible');
       imp.style.display = 'none';
     }
