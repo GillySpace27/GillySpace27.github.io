@@ -28,18 +28,13 @@
 // Easy fallback: '@cf/meta/llama-4-scout-17b-16e-instruct' or
 // '@cf/google/gemma-4-26b-a4b-it'.
 const MODEL = '@cf/moonshotai/kimi-k2.6';
-// Token budget. We RE-ENABLE thinking now (chat_template_kwargs.thinking
-// = true below) because syllable counting is a real cognitive task that
-// the model performs much more reliably when it can reason silently
-// before emitting. K2.6 puts reasoning in message.reasoning_content
-// and the final answer in message.content; we read only .content.
-// Empirically K2.6 will use most of its budget on reasoning when the
-// task is concrete (counting syllables, checking bans, drafting and
-// rejecting candidates) — observed runs hit 2500 tokens of reasoning
-// without converging. 8000 gives the model enough room to finish a
-// real thinking pass and still write the haiku. Caching is on, so
-// each unique date pays this cost exactly once globally.
-const MAX_TOKENS = 8000;
+// Token budget. Thinking mode is OFF (chat_template_kwargs.thinking
+// = false below). Empirically a single haiku with thinking off needs
+// ~80 tokens; 500 leaves headroom for any verbose draft and is fast.
+// Worth the trade — thinking-on inference was ~30+ s per call, which
+// is unusable as an on-click UX even with caching catching every
+// repeat visit.
+const MAX_TOKENS = 500;
 
 // Toggle KV caching of impressions. While iterating on the prompt, set this
 // to FALSE so every request regenerates and we don't accumulate cached
@@ -218,12 +213,12 @@ export default {
           },
         ],
         max_tokens: MAX_TOKENS,
-        // Thinking mode ON. The new prompt asks the model to count
-        // syllables before emitting, which is a real cognitive task it
-        // does much better with hidden reasoning room. With thinking
-        // on, K2.6 puts the trace in message.reasoning and the final
-        // answer in message.content; we parse only .content downstream.
-        chat_template_kwargs: { thinking: true },
+        // Thinking mode OFF. With thinking on, K2.6 burns 2500-8000
+        // tokens reasoning before it writes a single line — every
+        // first-visit click takes ~30 s, which is unusable as UX.
+        // Trade: slightly looser syllable compliance, plus we lean
+        // harder on the trimmer + the prompt's own instructions.
+        chat_template_kwargs: { thinking: false },
       });
     } catch (err) {
       console.error('Workers AI call failed:', err && (err.stack || err.message || err));
