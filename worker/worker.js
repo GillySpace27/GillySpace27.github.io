@@ -25,6 +25,13 @@
 const MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
 const MAX_TOKENS = 200;
 
+// Toggle KV caching of impressions. While iterating on the prompt, set this
+// to FALSE so every request regenerates and we don't accumulate cached
+// outputs from interim prompts that we'd later have to clear by hand.
+// Flip back to TRUE once the prompt voice is locked — no other code changes
+// needed; previously-stored entries (if any) will start being used again.
+const CACHE_ENABLED = false;
+
 // CORS allow-list. The Workers Builds deploy gives a *.workers.dev URL and
 // you'll be calling it from gilly.space/enso. Add localhost variants if you
 // ever want to test against a local copy of the calendar.
@@ -123,14 +130,17 @@ export default {
     // Cache lookup. Each unique date is generated exactly once across all
     // visitors. KV is eventually consistent globally (~60s), which is fine
     // here — even a duplicate generation is free on the Workers AI tier.
+    // Skipped entirely while CACHE_ENABLED is false (prompt-iteration mode).
     const cacheKey = `impression:${date}`;
-    try {
-      const cached = await env.IMPRESSIONS.get(cacheKey);
-      if (cached) {
-        return jsonResponse({ impression: cached, cached: true }, 200, cors);
+    if (CACHE_ENABLED) {
+      try {
+        const cached = await env.IMPRESSIONS.get(cacheKey);
+        if (cached) {
+          return jsonResponse({ impression: cached, cached: true }, 200, cors);
+        }
+      } catch (err) {
+        console.warn('KV read failed (continuing):', err.message);
       }
-    } catch (err) {
-      console.warn('KV read failed (continuing):', err.message);
     }
 
     // Normalize image: accept either a raw base64 string or a data URL.
@@ -184,10 +194,13 @@ export default {
 
     // Cache the new impression. If KV write fails, still return — better
     // to serve the just-generated impression than fail the whole request.
-    try {
-      await env.IMPRESSIONS.put(cacheKey, text);
-    } catch (err) {
-      console.warn('KV write failed (returning anyway):', err.message);
+    // Skipped entirely while CACHE_ENABLED is false (prompt-iteration mode).
+    if (CACHE_ENABLED) {
+      try {
+        await env.IMPRESSIONS.put(cacheKey, text);
+      } catch (err) {
+        console.warn('KV write failed (returning anyway):', err.message);
+      }
     }
 
     return jsonResponse({ impression: text, cached: false }, 200, cors);
