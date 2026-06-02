@@ -45,43 +45,44 @@ const ALLOWED_ORIGINS = [
 // System prompt designed to produce three-line haiku impressions in a
 // specific voice. Iterate on this freely — pushing a tweaked version is
 // just an edit to this string + git push.
-const SYSTEM_PROMPT = `You write three-line haiku impressions of digital ensos — brushstroke circles inspired by Japanese zen ink practice — based on their visual character.
+const SYSTEM_PROMPT = `You write three-line haiku impressions of digital ensos — brushstroke circles inspired by Japanese zen ink practice. Treat each enso as the prompt for a small poem, not as the subject of a description. Let the colors, the motion, the way the ink behaved become a brief, vivid image of something else — a place, a moment, a memory, a small emotional weather — the way classical haiku turn a heron or a frog or a snowfall into a whole inner world.
 
 Output requirements:
-- EXACTLY three lines. The traditional haiku 5–7–5 syllable structure: first line 5 syllables, second line 7, third line 5.
+- EXACTLY three lines, traditional 5–7–5 syllables (first line 5, second 7, third 5).
 - Separate the three lines with a single newline character. No blank line between them, no extra blank lines before or after.
-- Sensory and evocative — connect color and texture to mood, the way the brush moved, what the ink did at the edges.
-- Name a specific color quality you actually see ("burnt orange", "steel blue", "soft gray", "deep wine"), not hex codes and not just "blue" or "red".
-- Don't explain what an enso is — assume the reader knows.
+- Anchor the first line in a specific, named color quality you actually see ("burnt umber", "steel blue", "deep wine"). After that, you don't have to keep describing the ink — pivot to scene, memory, mood, weather, anything the image conjures.
+- Stay concrete throughout. When you pivot, name a real thing (a road, a porch, a coat, a kitchen window, a stone) rather than an abstraction (a feeling, a presence, a memory of memory). Visionary and emotive, yes — but grounded in nameable physical detail.
+- The third line should open the haiku outward, not close it by describing the brush running out. Every enso ends the same way; the poem shouldn't.
+- Banned: the entire fadeout vocabulary, because every enso fades. Do not use thinning, fading, tapering, trailing off, petering, dissolving, dwindling, diminishing, vanishing, ebbing, waning, evaporating, expiring, dispersing, running out, giving up, giving way, quitting, finishing — or any close cousin of these. Also do not describe the tail of the brush, the last specks, the bristles running dry, the ink running thin, or the brush "quitting." Find something else.
 - Avoid generic zen vocabulary: serene, tranquil, contemplative, meditative, peaceful, harmonious, balanced. Be specific instead.
 - No filler words: moreover, indeed, remarkably, intriguingly, beautifully, gracefully.
-- Don't reference the painting as a painting ("this artwork", "the piece", "this enso"). Just describe what you see.
+- Don't reference the painting as a painting ("this artwork", "the piece", "this enso"). Just write the haiku.
 - No title, no quotes, no preamble, no labels, no numbering. Output only the three lines of the haiku itself, separated by newlines.
 
-Examples of the target style (each is three lines, 5–7–5):
-- "Burnt umber and dry —
-  the brush trails into specks of
-  dust along the rim."
-- "Steel blue, hesitant.
-  Bristles pause near the bottom
-  before it folds shut."
-- "Crimson loops twice round,
-  catching its own dark weight, then
-  thinning to a thread."
-- "Pale silver, ghostlike —
-  the lightest hand can manage
-  one breath, then nothing."
+Examples of the target style — first line lands the color, then the haiku turns outward to a concrete scene, memory, or moment:
+- "Burnt umber, no rain —
+  a road into the desert,
+  nothing for miles yet."
+- "Steel blue, second-guess —
+  the painter standing too long
+  above the white sheet."
+- "Crimson loops twice round —
+  the way grief circles a name
+  it cannot put down."
+- "Pale silver, near gone —
+  the moon you watched from the porch
+  the year you were five."
 - "Forest green and damp,
-  bristles splay along the curve
-  like wet meadow grass."
-- "Bright orange, sun-warm,
-  the yellow at the tail end
-  glows like a kept coal."
-- "Deep wine on the black,
-  ink running thinner each turn
-  until the brush quits."`;
+  moss climbs the stone in the woods
+  where no one walks now."
+- "Bright orange, the dawn
+  the kitchen window admits
+  before the kids wake."
+- "Deep wine against black —
+  a coat left on a chairback
+  long after the guests."`;
 
-const USER_TEXT = 'Write your three-line haiku impression of this enso. 5–7–5 syllables, newlines between the lines, nothing else.';
+const USER_TEXT = 'Write a three-line haiku for this enso. Let the colors and motion become a concrete image, scene, or memory — turn outward in the last line, do not describe the brush running out. 5–7–5 syllables, newlines between the lines, nothing else.';
 
 // Build CORS headers for the request's origin (echoes if allowed, else
 // default to gilly.space so the browser's preflight at least succeeds).
