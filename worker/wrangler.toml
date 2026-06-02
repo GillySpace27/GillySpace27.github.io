@@ -1,0 +1,23 @@
+# Cloudflare Worker config for enso-impressions.
+# Workers Builds reads this file at deploy time from the repo root directory
+# (which you'll point at "worker/" in the dashboard). No CLI use required.
+
+name = "enso-impressions"
+main = "worker.js"
+compatibility_date = "2024-12-01"
+
+# Enables your free *.workers.dev subdomain. The URL printed in the dashboard
+# after the first build is what you'll paste into IMPRESSIONS_WORKER_URL in
+# enso/index.html (the calendar).
+workers_dev = true
+
+# Workers AI binding — gives the worker access to env.AI.run(<model>, {...}).
+# No external API key needed. Free tier: 100,000 requests/day.
+[ai]
+binding = "AI"
+
+# KV namespace for caching impressions by date. ID below is the live namespace
+# Claude created via the Cloudflare MCP (id: 01ae1c624f1e4831a303ad016f15ba66).
+[[kv_namespaces]]
+binding = "IMPRESSIONS"
+id = "01ae1c624f1e4831a303ad016f15ba66"

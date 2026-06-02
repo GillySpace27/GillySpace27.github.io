@@ -2,3 +2,4 @@
 *.mp4
 *.config
 *.scss
+.DS_Store
