@@ -213,6 +213,35 @@
     gap: 10px;
     align-items: center;
   }
+  /* Vision-based AI impression line displayed between the canvas and the
+     action buttons. Stays hidden when the feature isn't configured. */
+  .modal-impression {
+    font-style: italic;
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 580px;
+    text-align: center;
+    line-height: 1.55;
+    display: none;          /* enabled by JS once a fetch begins */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 22px;
+    padding: 0 8px;
+  }
+  .modal-impression.visible { display: flex; }
+  .impression-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--card-border);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: enso-spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  .impression-spinner.hidden { display: none; }
+  @keyframes enso-spin { to { transform: rotate(360deg); } }
   .modal-close, .modal-download {
     background: var(--btn-bg);
     color: var(--btn-text);
@@ -258,6 +287,10 @@
   <div class="modal" id="modal">
     <div class="modal-date" id="modalDate"></div>
     <canvas id="modalCanvas" width="640" height="640"></canvas>
+    <div class="modal-impression" id="modalImpression" style="display: none;">
+      <span class="impression-spinner" id="impressionSpinner"></span>
+      <span class="impression-text" id="impressionText"></span>
+    </div>
     <div class="modal-actions">
       <button class="modal-download" id="modalDownload">⬇ Download PNG</button>
       <button class="modal-download" id="modalEdit" title="Open this enso in the editor with all its parameters preloaded">✎ Edit in tool</button>
@@ -1703,6 +1736,19 @@
   const DOWNLOAD_SIZE = 2400;   // print-quality (~8 in at 300 DPI); preserves bristle detail
   let currentModalUtcMs = null;
 
+  // ── AI impression feature ───────────────────────────────────────────────
+  // Set this to your deployed Cloudflare Worker URL after running
+  // 'wrangler deploy' on the enso-impressions Worker. Leaving it empty
+  // disables the impression UI silently — the modal just doesn't show the
+  // line. See enso-impressions/README.md for the full setup.
+  const IMPRESSIONS_WORKER_URL = '';
+
+  // Session cache: dateStr → impression text. Prevents re-fetching when the
+  // user reopens the same day's modal in the current tab session. The KV
+  // cache on the Worker side handles the cross-session/cross-user case, so
+  // each unique date is generated exactly once globally.
+  const impressionCache = new Map();
+
   function openModal(utcMs) {
     currentModalUtcMs = utcMs;
     const dateStr = new Date(utcMs).toLocaleDateString(undefined, {
@@ -1715,10 +1761,70 @@
     // Render directly (not via cache — modal is a one-off at higher res).
     renderEnso(modalCnv, utcMs, MODAL_SIZE);
     document.getElementById('modalBackdrop').classList.add('open');
+    // Fire-and-forget the impression fetch. It owns its own UI lifecycle
+    // (spinner → text or silent hide) and bails out if the modal closes
+    // or changes date before the response arrives.
+    loadImpression(utcMs);
   }
   function closeModal() {
     document.getElementById('modalBackdrop').classList.remove('open');
     currentModalUtcMs = null;
+    // Reset impression block so a stale spinner from an in-flight request
+    // doesn't briefly show next time the modal opens.
+    const imp = document.getElementById('modalImpression');
+    imp.classList.remove('visible');
+    imp.style.display = 'none';
+    document.getElementById('impressionText').textContent = '';
+    document.getElementById('impressionSpinner').classList.remove('hidden');
+  }
+  // Fetches the AI impression for the current modal date from the Worker.
+  // Owns the visibility of #modalImpression entirely: it shows the slot when
+  // it starts work, hides it on error/disabled. All state transitions are
+  // guarded by the currentModalUtcMs check so a slow response for an
+  // already-closed modal can't blank the impression for a newer open.
+  async function loadImpression(utcMs) {
+    const imp = document.getElementById('modalImpression');
+    const spinner = document.getElementById('impressionSpinner');
+    const text = document.getElementById('impressionText');
+    // Feature disabled (Worker URL not configured): keep slot hidden.
+    if (!IMPRESSIONS_WORKER_URL) return;
+    const dateStr = formatUtcDate(utcMs);
+    // Session cache hit → show instantly, no spinner.
+    if (impressionCache.has(dateStr)) {
+      spinner.classList.add('hidden');
+      text.textContent = impressionCache.get(dateStr);
+      imp.classList.add('visible');
+      imp.style.display = 'flex';
+      return;
+    }
+    // First view this session: show spinner, fire request.
+    spinner.classList.remove('hidden');
+    text.textContent = 'reading the enso…';
+    imp.classList.add('visible');
+    imp.style.display = 'flex';
+    const modalCnv = document.getElementById('modalCanvas');
+    const dataUrl = modalCnv.toDataURL('image/png');
+    try {
+      const response = await fetch(IMPRESSIONS_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: dateStr, image: dataUrl }),
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      // Modal closed or moved on before the response landed — abandon.
+      if (utcMs !== currentModalUtcMs) return;
+      if (!data || !data.impression) throw new Error('empty impression');
+      impressionCache.set(dateStr, data.impression);
+      spinner.classList.add('hidden');
+      text.textContent = data.impression;
+    } catch (err) {
+      console.warn('[impressions] fetch failed:', err && err.message);
+      if (utcMs !== currentModalUtcMs) return;
+      // Graceful failure: hide the whole slot rather than show an error.
+      imp.classList.remove('visible');
+      imp.style.display = 'none';
+    }
   }
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('modalBackdrop').addEventListener('click', e => {
