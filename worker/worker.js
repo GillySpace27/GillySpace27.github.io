@@ -19,14 +19,21 @@
 // No secrets required. The whole stack is internal to Cloudflare.
 // ─────────────────────────────────────────────────────────────────────────
 
-// Model. Kimi K2.5 — Moonshot's frontier-scale 1T-param multimodal model.
-// Larger / more compliant than Llama 4 Scout; we swap up after Scout
-// proved bias-locked to a few haiku closer templates ("Morning's X",
-// "brush strokes dance") that explicit lexical bans couldn't dislodge.
-// Easy fallback: revert to '@cf/meta/llama-4-scout-17b-16e-instruct' or
-// try '@cf/google/gemma-4-26b-a4b-it' (smaller, thinking mode).
-const MODEL = '@cf/moonshotai/kimi-k2.5';
-const MAX_TOKENS = 200;
+// Model. Kimi K2.6 — Moonshot's frontier-scale 1T-param multimodal model
+// (32B active per token, native vision, 262.1k context). Swapped up
+// from Llama 4 Scout after Scout proved bias-locked to a few haiku
+// closer templates ("Morning's X", "brush strokes dance") that
+// explicit lexical bans couldn't dislodge. K2.5 was tried first but
+// was deprecated 2026-05-30; K2.6 is the active successor.
+// Easy fallback: '@cf/meta/llama-4-scout-17b-16e-instruct' or
+// '@cf/google/gemma-4-26b-a4b-it'.
+const MODEL = '@cf/moonshotai/kimi-k2.6';
+// Token budget. Kimi defaults to thinking-mode ON — if we don't
+// disable it (see chat_template_kwargs.thinking below) the model
+// burns the entire budget on reasoning_content and never writes the
+// haiku. With thinking OFF, a short haiku needs ~80 tokens; 500
+// leaves comfortable headroom for occasional verbose answers.
+const MAX_TOKENS = 500;
 
 // Toggle KV caching of impressions. While iterating on the prompt, set this
 // to FALSE so every request regenerates and we don't accumulate cached
@@ -199,6 +206,11 @@ export default {
           },
         ],
         max_tokens: MAX_TOKENS,
+        // Kimi K2.6 defaults to thinking mode ON. For a short haiku
+        // we don't need reasoning — turn it off so the full token
+        // budget goes to the answer. (K2.5 used `enable_thinking`;
+        // K2.6 uses `thinking`. We're on K2.6.)
+        chat_template_kwargs: { thinking: false },
       });
     } catch (err) {
       console.error('Workers AI call failed:', err && (err.stack || err.message || err));
