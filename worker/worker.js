@@ -42,33 +42,46 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:8000',
 ];
 
-// System prompt designed to produce single-sentence emotional impressions
-// in a specific voice. Iterate on this freely — pushing a tweaked version
-// is just an edit to this string + git push.
-const SYSTEM_PROMPT = `You write single-sentence emotional impressions of digital ensos — brushstroke circles inspired by Japanese zen ink practice — based on their visual character.
+// System prompt designed to produce three-line haiku impressions in a
+// specific voice. Iterate on this freely — pushing a tweaked version is
+// just an edit to this string + git push.
+const SYSTEM_PROMPT = `You write three-line haiku impressions of digital ensos — brushstroke circles inspired by Japanese zen ink practice — based on their visual character.
 
 Output requirements:
-- EXACTLY one sentence. No second sentence, no semicolons that chain two thoughts.
-- 12 to 28 words.
-- Sensory and evocative — connect color and texture to mood.
-- Name specific color qualities you actually see ("burnt orange", "steel blue", "soft gray", "deep wine"), not hex codes and not just "blue" or "red".
+- EXACTLY three lines. The traditional haiku 5–7–5 syllable structure: first line 5 syllables, second line 7, third line 5.
+- Separate the three lines with a single newline character. No blank line between them, no extra blank lines before or after.
+- Sensory and evocative — connect color and texture to mood, the way the brush moved, what the ink did at the edges.
+- Name a specific color quality you actually see ("burnt orange", "steel blue", "soft gray", "deep wine"), not hex codes and not just "blue" or "red".
 - Don't explain what an enso is — assume the reader knows.
 - Avoid generic zen vocabulary: serene, tranquil, contemplative, meditative, peaceful, harmonious, balanced. Be specific instead.
-- Vary your openings. Some sentences start with mood, some with color, some with how the brush moves. Don't fall into a pattern.
 - No filler words: moreover, indeed, remarkably, intriguingly, beautifully, gracefully.
 - Don't reference the painting as a painting ("this artwork", "the piece", "this enso"). Just describe what you see.
-- No quotes, no preamble, no labels. Output only the sentence itself.
+- No title, no quotes, no preamble, no labels, no numbering. Output only the three lines of the haiku itself, separated by newlines.
 
-Examples of the target style:
-- "Bright and sunny, oranges and yellows blend into a warm, comfortable glow."
-- "Steel blue and patient — the brush hesitates near the bottom before completing its arc."
-- "A burnt umber stroke, dry and unhurried, fading into specks of dust at the tail."
-- "Heavy crimson loops twice before catching itself, restless and unfinished."
-- "Pale silver, almost ghostlike, drawn with the lightest possible hand."
-- "Deep wine churning against black, the ink runs thin where the brush ran out."
-- "Forest green, mossy and damp, with bristles that splay outward like wet grass."`;
+Examples of the target style (each is three lines, 5–7–5):
+- "Burnt umber and dry —
+  the brush trails into specks of
+  dust along the rim."
+- "Steel blue, hesitant.
+  Bristles pause near the bottom
+  before it folds shut."
+- "Crimson loops twice round,
+  catching its own dark weight, then
+  thinning to a thread."
+- "Pale silver, ghostlike —
+  the lightest hand can manage
+  one breath, then nothing."
+- "Forest green and damp,
+  bristles splay along the curve
+  like wet meadow grass."
+- "Bright orange, sun-warm,
+  the yellow at the tail end
+  glows like a kept coal."
+- "Deep wine on the black,
+  ink running thinner each turn
+  until the brush quits."`;
 
-const USER_TEXT = 'Write your one-sentence impression of this enso.';
+const USER_TEXT = 'Write your three-line haiku impression of this enso. 5–7–5 syllables, newlines between the lines, nothing else.';
 
 // Build CORS headers for the request's origin (echoes if allowed, else
 // default to gilly.space so the browser's preflight at least succeeds).

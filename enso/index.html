@@ -208,26 +208,46 @@
     image-rendering: pixelated;
     border-radius: 8px;
   }
+  /* Wraps the canvas so the haiku can be absolutely positioned over its
+     center while inheriting the canvas's responsive size. */
+  .modal-canvas-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .modal-actions {
     display: flex;
     gap: 10px;
     align-items: center;
   }
-  /* Vision-based AI impression line displayed between the canvas and the
-     action buttons. Stays hidden when the feature isn't configured. */
+  /* Haiku impression rendered as a centered overlay on the enso. Three
+     lines, preserved via white-space: pre-line so the model's newlines
+     become visual line breaks. Soft frosted backdrop keeps the text
+     legible against white, black, or transparent canvas backgrounds. */
   .modal-impression {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-style: italic;
-    font-size: 14px;
-    color: var(--muted);
-    max-width: 580px;
+    font-size: 15px;
+    color: var(--text);
     text-align: center;
-    line-height: 1.55;
+    line-height: 1.6;
+    white-space: pre-line;
+    max-width: 60%;
     display: none;          /* enabled by JS once a fetch begins */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-height: 22px;
-    padding: 0 8px;
+    gap: 6px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--modal-bg) 78%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;   /* clicks pass through to the canvas / modal */
   }
   .modal-impression.visible { display: flex; }
   .impression-spinner {
@@ -286,10 +306,12 @@
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal" id="modal">
     <div class="modal-date" id="modalDate"></div>
-    <canvas id="modalCanvas" width="640" height="640"></canvas>
-    <div class="modal-impression" id="modalImpression" style="display: none;">
-      <span class="impression-spinner" id="impressionSpinner"></span>
-      <span class="impression-text" id="impressionText"></span>
+    <div class="modal-canvas-wrap">
+      <canvas id="modalCanvas" width="640" height="640"></canvas>
+      <div class="modal-impression" id="modalImpression" style="display: none;">
+        <span class="impression-spinner" id="impressionSpinner"></span>
+        <span class="impression-text" id="impressionText"></span>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="modal-download" id="modalDownload">⬇ Download PNG</button>
