@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixelated Enso</title>
+<style>
+  html, body { margin: 0; padding: 0; }
+
+  /* ---- Theme variables ---- */
+  :root {
+    --page-bg: #f5f5f0;
+    --card-bg: #ffffff;
+    --card-shadow: rgba(0,0,0,0.08);
+    --heading: #1a2a5a;
+    --body-text: #555555;
+    --hint-text: #888888;
+    --fieldset-border: #dddddd;
+    --input-border: #cccccc;
+    --input-bg: #ffffff;
+    --input-text: #1a1a1a;
+    --canvas-frame: #ffffff;
+    --divider: #eeeeee;
+    --btn-bg: #1a2a5a;
+    --btn-primary-bg: #0d1f4f;
+    --btn-text: #ffffff;
+    --preset-empty-bg: #f9f9f7;
+    --preset-empty-text: #999999;
+    --preset-name: #1a2a5a;
+    --muted-text: #666666;
+  }
+  :root.dark {
+    --page-bg: #15161a;
+    --card-bg: #23252f;
+    --card-shadow: rgba(0,0,0,0.5);
+    --heading: #a9b8ff;
+    --body-text: #b4b8c4;
+    --hint-text: #888d9c;
+    --fieldset-border: #3a3d4a;
+    --input-border: #454a59;
+    --input-bg: #1b1c23;
+    --input-text: #e6e8ef;
+    --canvas-frame: #23252f;
+    --divider: #343748;
+    --btn-bg: #3c4d92;
+    --btn-primary-bg: #4459ad;
+    --btn-text: #ffffff;
+    --preset-empty-bg: #1b1c23;
+    --preset-empty-text: #888d9c;
+    --preset-name: #a9b8ff;
+    --muted-text: #9a9eb0;
+  }
+
+  /* ---- Structural theming. !important because the markup carries inline
+     styles (background/color/border) that would otherwise win over a
+     stylesheet rule. The variables collapse to the original light values
+     in the default theme, so this is a no-op visually until .dark is set. */
+  .app-root { background: var(--page-bg) !important; }
+  .card, #previewPane { background: var(--card-bg) !important; box-shadow: 0 2px 12px var(--card-shadow) !important; }
+  .app-root h1, .app-root h3 { color: var(--heading) !important; }
+  .app-desc { color: var(--body-text) !important; }
+  .app-root fieldset { border-color: var(--fieldset-border) !important; }
+  .app-root legend { color: var(--heading) !important; }
+  /* Hint captions are spans inside .lbl with no id; the id-bearing spans are
+     live value readouts and should keep inheriting the label text color. */
+  .lbl span:not([id]) { color: var(--hint-text) !important; }
+  #enso { background: var(--canvas-frame) !important; }
+  #previewHandle { color: var(--hint-text) !important; border-bottom-color: var(--divider) !important; }
+  #presetStatus { color: var(--muted-text) !important; }
+  .preset-section-desc { color: var(--muted-text) !important; }
+  #presetName { background: var(--input-bg) !important; color: var(--input-text) !important; border-color: var(--input-border) !important; }
+  #previewDock { color: var(--heading) !important; border-color: var(--input-border) !important; background: var(--card-bg) !important; }
+
+  /* ---- Theme toggle button ---- */
+  .theme-toggle {
+    background: var(--card-bg); color: var(--heading);
+    border: 1px solid var(--fieldset-border); border-radius: 6px;
+    padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 500;
+    white-space: nowrap; transition: opacity 0.15s;
+  }
+  .theme-toggle:hover { opacity: 0.82; }
+  .theme-toggle.active {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border-color: var(--btn-bg);
+  }
+
+  /* Disabled slider/select styling: gray out the whole label (including the
+     value readout and caption) so the user can SEE which controls are not
+     wired up in the current render mode. :has() is widely supported and
+     lets us target the parent label without adding a JS-managed class. */
+  label:has(input:disabled), label:has(select:disabled) {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+</style>
+<script>
+  // Apply saved theme before first paint to avoid a flash of the wrong
+  // theme. Preference is one of 'system' | 'light' | 'dark'; absent =
+  // 'system' (the default), which follows the OS setting. Class goes on
+  // <html> (documentElement) so the :root.dark variable overrides take
+  // effect immediately. localStorage is wrapped because it throws in some
+  // embedded/incognito contexts — there we just follow the OS preference.
+  (function() {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<div class="app-root" style="font-family: system-ui, -apple-system, sans-serif; padding: 20px; background: #f5f5f0; min-height: 100vh;">
+  <div style="max-width: 1320px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+      <div>
+        <h1 style="color: #1a2a5a; margin-bottom: 8px;">Pixelated Enso</h1>
+        <p class="app-desc" style="color: #555; margin-top: 0;">A digital adaptation of the Japanese brushstroke — fading by pixel dropout rather than ink striation.</p>
+        <div style="margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap;">
+          <button id="randomEnso" type="button" class="btn primary" style="font-size: 15px; padding: 10px 20px;">🎲 Random enso of the day</button>
+          <button id="rerollEnso" type="button" class="btn" title="A fresh enso seeded from the current moment (date + time)" style="font-size: 15px; padding: 10px 16px;">🔄 Re-roll</button>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <button id="ritualToggle" type="button" class="theme-toggle" title="When on, every random enso starts at the bottom (90°) and is drawn clockwise — closer to the traditional enso practice. Only brush, ink, and color params vary by date; the geometric start is fixed.">🧘 Ritual mode</button>
+        <button id="themeToggle" type="button" class="theme-toggle">🖥️ System</button>
+      </div>
+    </div>
+
+    <!-- Two-column layout: preview pinned LEFT, controls flow RIGHT. On
+         narrow viewports flex-wrap stacks them (preview on top of controls)
+         so the page stays usable on phones. align-items: flex-start lets
+         the preview stay at its natural height; the controls column will
+         be much taller and sticky positioning on the preview pane keeps
+         it in view as the user scrolls through the controls. -->
+    <div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 16px;">
+
+    <div id="previewPane" style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); position: sticky; top: 8px; z-index: 10; resize: both; overflow: hidden; min-width: 200px; min-height: 200px; width: 470px; max-width: 100%; flex-shrink: 0;">
+      <div id="previewHandle" style="display: flex; align-items: center; justify-content: space-between; cursor: grab; user-select: none; font-size: 11px; color: #888; padding-bottom: 8px; border-bottom: 1px solid #eee; margin-bottom: 8px;">
+        <span style="letter-spacing: 0.5px;">⋮⋮  drag to reposition</span>
+        <button id="previewDock" type="button" style="display: none; background: none; border: 1px solid #ccc; border-radius: 4px; padding: 2px 8px; font-size: 11px; color: #1a2a5a; cursor: pointer;">dock</button>
+      </div>
+      <canvas id="enso" width="470" height="470" style="display: block; margin: 0 auto; max-width: 100%; max-height: 100%; aspect-ratio: 1 / 1; background: white;"></canvas>
+    </div>
+
+    <!-- Right column: controls card, download buttons, presets. flex: 1
+         lets it fill remaining space; min-width: 320px is the threshold
+         at which the flex container wraps to a single-column stacked
+         layout on phones. -->
+    <div style="flex: 1; min-width: 320px;">
+
+    <div class="card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-top: 0;">
+
+      <fieldset style="border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px 16px; margin-bottom: 14px;">
+        <legend style="color: #1a2a5a; font-weight: 600; padding: 0 6px;">Geometry</legend>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <label><span class="lbl">Start angle: <span id="startAngleVal">270</span>° <span style="color:#888;font-size:11px;">(0°=right, 90°=bottom, 270°=top)</span></span>
+            <input type="range" id="startAngle" min="0" max="360" value="270"></label>
+          <label><span class="lbl">Direction</span>
+            <select id="direction">
+              <option value="cw">Clockwise</option>
+              <option value="ccw" selected>Counter-clockwise</option>
+            </select></label>
+          <label><span class="lbl">Gap angle: <span id="gapVal">30</span>°</span>
+            <input type="range" id="gap" min="0" max="120" value="30"></label>
+          <label><span class="lbl">Circle radius: <span id="radiusVal">32</span>% <span style="color:#888;font-size:11px;">(of canvas)</span></span>
+            <input type="range" id="radius" min="10" max="48" value="32"></label>
+          <label><span class="lbl">Imperfection: <span id="imperfectionVal">1.5</span>%</span>
+            <input type="range" id="imperfection" min="0" max="10" value="1.5" step="0.1"></label>
+          <label><span class="lbl">Imperfection tilt: <span id="tiltVal">0.00</span> <span style="color:#888;font-size:11px;">(−1 HF ↔ +1 LF)</span></span>
+            <input type="range" id="tilt" min="-100" max="100" value="0" step="1"></label>
+        </div>
+        <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+          <button id="regenerate" class="btn">Re-roll randomness</button>
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px 16px; margin-bottom: 14px;">
+        <legend style="color: #1a2a5a; font-weight: 600; padding: 0 6px;">Brush profile</legend>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <label><span class="lbl">Render style: <span style="color:#888;font-size:11px;">(switches the visual model)</span></span>
+            <select id="renderStyle" style="padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px;">
+              <option value="stipple">Stipple body (dark fill + light dropouts)</option>
+              <option value="bristles" selected>Continuous bristles (dark strokes on light)</option>
+            </select></label>
+          <label><span class="lbl">Max thickness: <span id="thicknessVal">55</span>px</span>
+            <input type="range" id="thickness" min="1" max="300" value="55"></label>
+          <label><span class="lbl">Start taper length: <span id="startTaperVal">12</span>%</span>
+            <input type="range" id="startTaper" min="0" max="50" value="12"></label>
+          <label><span class="lbl">Start taper sharpness: <span id="startSharpVal">0.7</span></span>
+            <input type="range" id="startSharp" min="20" max="200" value="70"></label>
+          <label><span class="lbl">End taper length: <span id="endTaperVal">10</span>%</span>
+            <input type="range" id="endTaper" min="0" max="50" value="10"></label>
+          <label><span class="lbl">End thickness: <span id="endThickVal">20</span>% of max</span>
+            <input type="range" id="endThick" min="0" max="100" value="20"></label>
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px 16px; margin-bottom: 14px;">
+        <legend style="color: #1a2a5a; font-weight: 600; padding: 0 6px;">Ink behavior (smooth zone)</legend>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <label><span class="lbl">Bristle ink runout starts: <span id="inkRunoutStartVal">30</span>% <span style="color:#888;font-size:11px;">(of smooth zone; affects bristle wetness &amp; bleed)</span></span>
+            <input type="range" id="inkRunoutStart" min="0" max="100" value="30"></label>
+          <label><span class="lbl">Bristle ink runout rate: <span id="inkRunoutRateVal">1.0</span>×</span>
+            <input type="range" id="inkRunoutRate" min="0" max="1000" value="100"></label>
+          <label><span class="lbl">Minimum ink: <span id="minInkVal">0.00</span>% <span style="color:#888;font-size:11px;">(floor on ink level; runout can never drop below this)</span></span>
+            <input type="range" id="minInk" min="0" max="1000" value="0"></label>
+          <label><span class="lbl">Brush body fade starts: <span id="brushFadeStartVal">50</span>% <span style="color:#888;font-size:11px;">(of smooth zone; pixel-grid dropouts in body)</span></span>
+            <input type="range" id="brushFadeStart" min="0" max="100" value="50"></label>
+          <label><span class="lbl">Brush body fade rate: <span id="brushFadeRateVal">1.0</span>×</span>
+            <input type="range" id="brushFadeRate" min="0" max="300" value="100"></label>
+          <label><span class="lbl">Bristle count: <span id="bristleCountVal">60</span> <span style="color:#888;font-size:11px;">(across full brush width)</span></span>
+            <input type="range" id="bristleCount" min="0" max="100" value="59"></label>
+          <label><span class="lbl">Bristle width (mean): <span id="striationCoarsenessVal">1.5</span>px <span style="color:#888;font-size:11px;">(bristle dot size in bristles mode; Gaussian sigma in stipple)</span></span>
+            <input type="range" id="striationCoarseness" min="1" max="20" value="1.5" step="0.5"></label>
+          <label><span class="lbl">Bristle width variation: <span id="bristleSizeStdVal">0.10</span>px <span style="color:#888;font-size:11px;">(σ around the mean, log scale 0.1–100; low = all same size, high = huge dynamic range)</span></span>
+            <input type="range" id="bristleSizeStd" min="0" max="100" value="0"></label>
+          <label><span class="lbl">Brush shape: <span id="striationSpreadVal">50</span>% <span style="color:#888;font-size:11px;">(0 = equi-spaced bristles, 100 = entirely random initial offsets)</span></span>
+            <input type="range" id="striationSpread" min="0" max="100" value="50"></label>
+          <label><span class="lbl">Viscosity: <span id="viscosityVal">0</span> <span style="color:#888;font-size:11px;">(− watercolor diffuses along arc, + acrylic piles up, 0 neutral)</span></span>
+            <input type="range" id="viscosity" min="-100" max="100" value="0"></label>
+          <label><span class="lbl">Bristle pulse: <span id="bristleModulationVal">55</span>% <span style="color:#888;font-size:11px;">(per-bristle alpha fade in/out along arc)</span></span>
+            <input type="range" id="bristleModulation" min="0" max="100" value="55"></label>
+          <label><span class="lbl">Bristle pulse rate: <span id="bristlePulseRateVal">5.0</span> <span style="color:#888;font-size:11px;">(mean cycles per arc; per-bristle freq jittered by pulse rate spread)</span></span>
+            <input type="range" id="bristlePulseRate" min="1" max="20" value="5" step="0.5"></label>
+          <label><span class="lbl">Bristle pulse rate spread: <span id="bristlePulseSpreadVal">50</span>% <span style="color:#888;font-size:11px;">(per-bristle freq variation around the mean; 0 = all bristles in lockstep)</span></span>
+            <input type="range" id="bristlePulseSpread" min="0" max="100" value="50"></label>
+          <label><span class="lbl">Bristle fade rate (Q): <span id="bristleFadeRateVal">1.00</span> <span style="color:#888;font-size:11px;">(log 0.1–10; high Q widens the dropouts, low Q narrows them)</span></span>
+            <input type="range" id="bristleFadeRate" min="0" max="100" value="50"></label>
+          <label><span class="lbl">Brush wobble rate: <span id="bristleWobbleRateVal">0.0</span> <span style="color:#888;font-size:11px;">(cycles per arc; whole brush undulates as one)</span></span>
+            <input type="range" id="bristleWobbleRate" min="0" max="30" value="0" step="0.5"></label>
+          <label><span class="lbl">Brush wobble amount: <span id="bristleWobbleAmountVal">0</span>% <span style="color:#888;font-size:11px;">(of max thickness; 0 = clean circular arcs, high = painter rotating the brush)</span></span>
+            <input type="range" id="bristleWobbleAmount" min="0" max="100" value="0"></label>
+          <label><span class="lbl">Neighbor correlation: <span id="bristleCorrelationVal">35</span>% <span style="color:#888;font-size:11px;">(adjacent bristles pulse together)</span></span>
+            <input type="range" id="bristleCorrelation" min="0" max="100" value="35"></label>
+          <label><span class="lbl">Edge wobble amount: <span id="edgeWobbleAmountVal">7.0</span>% <span style="color:#888;font-size:11px;">(of max thickness)</span></span>
+            <input type="range" id="edgeWobbleAmount" min="0" max="20" value="7" step="0.5"></label>
+          <label><span class="lbl">Edge wobble frequency: <span id="edgeWobbleFreqVal">10.0</span> <span style="color:#888;font-size:11px;">(cycles around arc)</span></span>
+            <input type="range" id="edgeWobbleFreq" min="1" max="30" value="10" step="0.5"></label>
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px 16px; margin-bottom: 14px;">
+        <legend style="color: #1a2a5a; font-weight: 600; padding: 0 6px;">Brush → pixel transition</legend>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <label><span class="lbl">Smooth→pixel transition starts: <span id="pixelStartVal">28</span>% <span style="color:#888;font-size:11px;">(where the brush model switches to chunky pixels)</span></span>
+            <input type="range" id="pixelStart" min="0" max="100" value="28"></label>
+          <label><span class="lbl">Transition width: <span id="transitionWidthVal">12</span>%</span>
+            <input type="range" id="transitionWidth" min="0" max="40" value="12"></label>
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px 16px; margin-bottom: 14px;">
+        <legend style="color: #1a2a5a; font-weight: 600; padding: 0 6px;">Pixel dropout</legend>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <label><span class="lbl">Pixel size: <span id="pixelSizeVal">8</span>px <span style="color:#888;font-size:11px;">(pixelated side only)</span></span>
+            <input type="range" id="pixelSize" min="1" max="14" value="8"></label>
+          <label><span class="lbl">Fade starts at: <span id="fadeStartVal">52</span>%</span>
+            <input type="range" id="fadeStart" min="10" max="90" value="52"></label>
+          <label><span class="lbl">Fade curve: <span id="fadeCurveVal">2.2</span></span>
+            <input type="range" id="fadeCurve" min="5" max="50" value="22"></label>
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px 16px; margin-bottom: 14px;">
+        <legend style="color: #1a2a5a; font-weight: 600; padding: 0 6px;">Radial bleed / pixel scatter</legend>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <label><span class="lbl">Outward bleed: <span id="outwardBleedVal">14</span>px</span>
+            <input type="range" id="outwardBleed" min="0" max="60" value="14"></label>
+          <label><span class="lbl">Inward bleed: <span id="inwardBleedVal">10</span>px</span>
+            <input type="range" id="inwardBleed" min="0" max="60" value="10"></label>
+          <label><span class="lbl">Longitudinal bleed: <span id="longitudinalBleedVal">0</span>px <span style="color:#888;font-size:11px;">(σ of Gaussian arc-direction falloff past the smooth-zone end; softens the cutoff)</span></span>
+            <input type="range" id="longitudinalBleed" min="0" max="200" value="0"></label>
+          <label><span class="lbl">Baseline bleed: <span id="bleedOnsetVal">5</span>% <span style="color:#888;font-size:11px;">(constant level along the whole brush; ink runout adds more)</span></span>
+            <input type="range" id="bleedOnset" min="0" max="100" value="5"></label>
+          <label><span class="lbl">Pixel bleed starts at: <span id="bleedStartVal">0</span>% <span style="color:#888;font-size:11px;">(of full arc; bleed gated off before this t)</span></span>
+            <input type="range" id="bleedStart" min="0" max="100" value="0"></label>
+          <label><span class="lbl">Body scatter: <span id="bleedBodyVal">0.000</span> <span style="color:#888;font-size:11px;">(log 0.001–1; reduces bristle alpha so high contrast binarizes the survivors into a scattered field)</span></span>
+            <input type="range" id="bleedBody" min="0" max="100" value="0"></label>
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px 16px; margin-bottom: 14px;">
+        <legend style="color: #1a2a5a; font-weight: 600; padding: 0 6px;">Appearance</legend>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <label><span class="lbl">Base color <span style="color:#888;font-size:11px;">(shade variants are generated from this color in HSL space)</span></span>
+            <input type="color" id="color" value="#0d1f4f" style="width: 100%; height: 32px; border: 1px solid #ccc; border-radius: 4px;">
+            <div class="swatch-row">
+              <button type="button" class="swatch" data-color="#d9a91a" title="Gold" style="background:#d9a91a"></button>
+              <button type="button" class="swatch" data-color="#b8b8b8" title="Silver" style="background:#b8b8b8"></button>
+              <button type="button" class="swatch" data-color="#a05a2c" title="Bronze" style="background:#a05a2c"></button>
+              <button type="button" class="swatch" data-color="#0d1f4f" title="Metallic blue" style="background:#0d1f4f"></button>
+            </div></label>
+          <label><span class="lbl">Shade variants: <span id="numVariantsVal">5</span> <span style="color:#888;font-size:11px;">(1 = single base color, up to 50 = continuous gradient of derived shades)</span></span>
+            <input type="range" id="numVariants" min="1" max="50" value="5" step="1"></label>
+          <label><span class="lbl">Brighter/darker ratio: <span id="brighterDarkerRatioVal">0</span> <span style="color:#888;font-size:11px;">(− = palette skews darker than base, + = brighter, 0 = balanced)</span></span>
+            <input type="range" id="brighterDarkerRatio" min="-100" max="100" value="0"></label>
+          <label><span class="lbl">Shade distribution: <span id="shadeDistributionVal">0</span> <span style="color:#888;font-size:11px;">(0 = random, 50 = brightest centered & darkest at edges, 100 = sequential gradient across brush)</span></span>
+            <input type="range" id="shadeDistribution" min="0" max="100" value="0"></label>
+          <label><span class="lbl">Color variation: <span id="colorVariationVal">50</span>% <span style="color:#888;font-size:11px;">(0 = all bristles in the base color, 100 = full spread across the generated palette)</span></span>
+            <input type="range" id="colorVariation" min="0" max="100" value="50"></label>
+          <label><span class="lbl">Background</span>
+            <select id="bg">
+              <option value="white">White</option>
+              <option value="black">Black</option>
+              <option value="transparent">Transparent</option>
+            </select></label>
+          <label><span class="lbl">Smooth-side contrast: <span id="smoothContrastVal">0</span>% <span style="color:#888;font-size:11px;">(used BEFORE the cutoff; 0 = smooth streaks, 100 = binarized pixels)</span></span>
+            <input type="range" id="smoothContrast" min="0" max="100" value="0"></label>
+          <label><span class="lbl">Pixel-side contrast: <span id="pixelContrastVal">100</span>% <span style="color:#888;font-size:11px;">(used AFTER the cutoff; 0 = smooth streaks, 100 = binarized pixels)</span></span>
+            <input type="range" id="pixelContrast" min="0" max="100" value="100"></label>
+          <label><span class="lbl">Contrast cutoff: <span id="contrastCutoffVal">70</span>% <span style="color:#888;font-size:11px;">(arc fraction where contrast transitions smooth → pixel)</span></span>
+            <input type="range" id="contrastCutoff" min="0" max="100" value="70"></label>
+          <label><span class="lbl">Contrast transition width: <span id="contrastTransitionWidthVal">30</span>% <span style="color:#888;font-size:11px;">(of arc; 0 = hard switch, larger = gentler ramp)</span></span>
+            <input type="range" id="contrastTransitionWidth" min="0" max="100" value="30"></label>
+        </div>
+      </fieldset>
+
+      <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button id="download" class="btn primary">Download PNG (800×800)</button>
+        <button id="downloadHD" class="btn primary">Download PNG (2400×2400)</button>
+      </div>
+    </div>
+
+    <div class="card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-top: 16px;">
+      <h3 style="margin: 0 0 12px; color: #1a2a5a;">Presets</h3>
+      <p class="preset-section-desc" style="font-size: 13px; color: #666; margin: 0 0 12px;">Saved presets persist across sessions. Click a thumbnail to load its settings into the sliders.</p>
+      <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+        <input type="text" id="presetName" placeholder="Name this preset…" style="flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" />
+        <button id="savePreset" class="btn">Save current settings</button>
+        <button id="exportPresets" class="btn" style="background: #555;">Export all</button>
+        <button id="importPresets" class="btn" style="background: #555;">Import…</button>
+        <input type="file" id="presetFileInput" accept="application/json,.json" style="display: none;" />
+      </div>
+      <div id="presetStatus" style="font-size: 12px; color: #666; margin-bottom: 12px; min-height: 16px;"></div>
+      <div id="presetGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
+    </div>
+
+    </div><!-- /right column -->
+    </div><!-- /two-column flex wrapper -->
+  </div>
+
+  <style>
+    .lbl { font-size: 13px; color: var(--body-text); display: block; margin-bottom: 4px; }
+    label input[type="range"] { width: 100%; }
+    label select { width: 100%; padding: 6px; border: 1px solid var(--input-border); border-radius: 4px; background: var(--input-bg); color: var(--input-text); }
+    .btn { padding: 10px 18px; background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 14px; }
+    .btn.primary { background: var(--btn-primary-bg); }
+    .btn:hover { opacity: 0.92; }
+    .btn:disabled { opacity: 0.6; cursor: default; }
+    .preset-card { background: var(--card-bg); border: 1px solid var(--fieldset-border); border-radius: 8px; overflow: hidden; cursor: pointer; transition: border-color 0.15s, transform 0.15s; position: relative; }
+    .preset-card:hover { border-color: var(--heading); transform: translateY(-1px); }
+    .preset-thumb { width: 100%; aspect-ratio: 1/1; display: block; background: var(--card-bg); }
+    .preset-info { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; font-size: 12px; border-top: 1px solid var(--divider); gap: 2px; }
+    .preset-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--preset-name); font-weight: 500; }
+    .preset-default { background: none; border: none; cursor: pointer; color: #ccc; font-size: 15px; line-height: 1; padding: 0 4px; transition: color 0.15s; }
+    .preset-default:hover { color: #f0b400; }
+    .preset-default.is-default { color: #f0b400; }
+    .preset-delete { background: none; border: none; cursor: pointer; color: #aaa; font-size: 16px; line-height: 1; padding: 0 4px; }
+    .preset-delete:hover { color: #c33; }
+    .preset-empty { color: var(--preset-empty-text); font-size: 13px; padding: 16px; text-align: center; grid-column: 1 / -1; background: var(--preset-empty-bg); border-radius: 6px; }
+    .status-ok { color: #2a7a3a; }
+    .status-err { color: #c33; }
+    .swatch-row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .swatch {
+      width: 28px; height: 28px; padding: 0;
+      border: 1px solid var(--input-border); border-radius: 4px;
+      cursor: pointer; transition: transform 0.1s, border-color 0.1s;
+    }
+    .swatch:hover { border-color: var(--heading); transform: scale(1.08); }
+    .swatch:active { transform: scale(0.95); }
+  </style>
+
+  <script>
+    const canvas = document.getElementById('enso');
+    const ctx = canvas.getContext('2d');
+
+    function getRenderSize() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const cssSize = Math.min(rect.width, rect.height);
+      if (cssSize <= 0) return Math.round(470 * dpr);
+      return Math.max(200, Math.round(cssSize * dpr));
+    }
+
+    let seed = Math.random();
+
+    function mulberry32(a) {
+      return function() {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    // Linear interpolate between two #rrggbb hex colors. Returns hex.
+    function lerpColor(hex1, hex2, t) {
+      const r1 = parseInt(hex1.slice(1, 3), 16);
+      const g1 = parseInt(hex1.slice(3, 5), 16);
+      const b1 = parseInt(hex1.slice(5, 7), 16);
+      const r2 = parseInt(hex2.slice(1, 3), 16);
+      const g2 = parseInt(hex2.slice(3, 5), 16);
+      const b2 = parseInt(hex2.slice(5, 7), 16);
+      const r = Math.round(r1 + (r2 - r1) * t);
+      const g = Math.round(g1 + (g2 - g1) * t);
+      const b = Math.round(b1 + (b2 - b1) * t);
+      const toHex = n => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+      return '#' + toHex(r) + toHex(g) + toHex(b);
+    }
+
+    // RGB hex <-> HSL conversions. HSL is the right space for "shades of
+    // the same color" because vary-L keeps hue and saturation fixed so all
+    // variants read as the same color family — picking gold gives a gold
+    // ramp, picking blue gives a blue ramp, no surprise hue shifts.
+    function hexToHsl(hex) {
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      const l = (max + min) / 2;
+      if (max === min) return { h: 0, s: 0, l: l };
+      const d = max - min;
+      const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      let h;
+      if (max === r) h = ((g - b) / d) + (g < b ? 6 : 0);
+      else if (max === g) h = ((b - r) / d) + 2;
+      else h = ((r - g) / d) + 4;
+      return { h: h / 6, s: s, l: l };
+    }
+    function hslToHex(h, s, l) {
+      let r, g, b;
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return p + (q - p) * 6 * t;
+          if (t < 1 / 2) return q;
+          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+          return p;
+        };
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+      }
+      const toHex = n => Math.max(0, Math.min(255, Math.round(n * 255))).toString(16).padStart(2, '0');
+      return '#' + toHex(r) + toHex(g) + toHex(b);
+    }
+
+    // Generate a palette of `numVariants` shades derived from `baseHex` by
+    // varying only the lightness (L) channel in HSL. The brighter/darker
+    // ratio biases how many variants land above vs below the base shade
+    // in L: ratio=0 → all darker, 0.5 → balanced, 1 → all brighter. The
+    // base shade itself is always present in the returned palette at
+    // `baseIdx` so that "colorVariation = 0" collapses everything to it.
+    //
+    // Approach: pick a max L offset (50 lightness points each direction,
+    // clamped to [0.05, 0.95] so we never hit pure white or pure black —
+    // those wash out and read as "not the user's color"), then evenly
+    // distribute the darker and brighter halves across their available
+    // ranges. The two halves use independent step sizes so a base color
+    // near L=0 or L=1 still gets a wide spread on the other side.
+    function generatePalette(baseHex, numVariants, brighterRatio) {
+      if (numVariants <= 1) return { palette: [baseHex], baseIdx: 0 };
+      const hsl = hexToHsl(baseHex);
+      const baseL = hsl.l;
+      const maxOffset = 0.5;
+      const darkestL = Math.max(0.05, baseL - maxOffset);
+      const brightestL = Math.min(0.95, baseL + maxOffset);
+      // Round-to-nearest split. With numVariants=1 we already returned;
+      // otherwise numBrighter + numDarker = numVariants - 1 (the rest is
+      // the base shade itself).
+      const numBrighter = Math.round((numVariants - 1) * brighterRatio);
+      const numDarker = numVariants - 1 - numBrighter;
+      const palette = [];
+      for (let i = 0; i < numDarker; i++) {
+        // Distribute evenly across (numDarker+1) intervals between
+        // darkestL and baseL; take the inner numDarker points. This
+        // mirrors the structure of the brighter loop and keeps the
+        // closest-to-base shade one step away rather than equal to base.
+        const t = (i + 1) / (numDarker + 1);
+        const L = darkestL + (baseL - darkestL) * t;
+        palette.push(hslToHex(hsl.h, hsl.s, L));
+      }
+      palette.push(baseHex);
+      const baseIdx = numDarker;
+      for (let i = 0; i < numBrighter; i++) {
+        const t = (i + 1) / (numBrighter + 1);
+        const L = baseL + (brightestL - baseL) * t;
+        palette.push(hslToHex(hsl.h, hsl.s, L));
+      }
+      return { palette, baseIdx };
+    }
+
+    // Map a 0–100 slider linearly to a value log-spaced between minVal and maxVal.
+    // Slider 0 → minVal; slider 100 → maxVal; slider 50 → geometric mean.
+    function logMap(sliderVal, minVal, maxVal) {
+      const fraction = sliderVal / 100;
+      return minVal * Math.pow(maxVal / minVal, fraction);
+    }
+
+    function getParams(scale) {
+      return {
+        renderStyle: document.getElementById('renderStyle').value,
+        startAngle: (parseFloat(document.getElementById('startAngle').value) * Math.PI) / 180,
+        direction: document.getElementById('direction').value,
+        gapDeg: parseFloat(document.getElementById('gap').value),
+        radiusFrac: parseFloat(document.getElementById('radius').value) / 100,
+        imperfection: parseFloat(document.getElementById('imperfection').value) / 100,
+        spectralTilt: parseFloat(document.getElementById('tilt').value) / 100,
+
+        maxThickness: parseFloat(document.getElementById('thickness').value) * scale,
+        startTaper: parseFloat(document.getElementById('startTaper').value) / 100,
+        startSharp: parseFloat(document.getElementById('startSharp').value) / 100,
+        endTaper: parseFloat(document.getElementById('endTaper').value) / 100,
+        endThickFrac: parseFloat(document.getElementById('endThick').value) / 100,
+
+        inkRunoutStart: parseFloat(document.getElementById('inkRunoutStart').value) / 100,
+        inkRunoutRate: parseFloat(document.getElementById('inkRunoutRate').value) / 100,
+        // minInk slider is 0–1000 displaying 0–10% in 0.01% steps; /10000 → fraction.
+        minInk: parseFloat(document.getElementById('minInk').value) / 10000,
+        brushFadeStart: parseFloat(document.getElementById('brushFadeStart').value) / 100,
+        brushFadeRate: parseFloat(document.getElementById('brushFadeRate').value) / 100,
+        striationCoarseness: parseFloat(document.getElementById('striationCoarseness').value) * scale,
+        // Log-mapped: slider 0–100 → CSS px in [0.1, 100]. Scaled to canvas px.
+        bristleSizeStd: logMap(parseFloat(document.getElementById('bristleSizeStd').value), 0.1, 100) * scale,
+        striationSpread: parseFloat(document.getElementById('striationSpread').value) / 100,
+        // Log-mapped: slider 0–100 → integer bristle count in [1, 1000].
+        bristleCount: Math.max(1, Math.round(logMap(parseFloat(document.getElementById('bristleCount').value), 1, 1000))),
+        // viscosity now lives in [-1, +1] centered at 0; sign selects mode.
+        viscosity: parseFloat(document.getElementById('viscosity').value) / 100,
+        bristleModulation: parseFloat(document.getElementById('bristleModulation').value) / 100,
+        bristlePulseRate: parseFloat(document.getElementById('bristlePulseRate').value),
+        bristlePulseSpread: parseFloat(document.getElementById('bristlePulseSpread').value) / 100,
+        // Log-mapped: slider 0–100 → Q in [0.1, 10]. Default slider 50 → Q ≈ 1 (no shaping).
+        bristleFadeRate: logMap(parseFloat(document.getElementById('bristleFadeRate').value), 0.1, 10),
+        bristleWobbleRate: parseFloat(document.getElementById('bristleWobbleRate').value),
+        bristleWobbleAmount: parseFloat(document.getElementById('bristleWobbleAmount').value) / 100,
+        bristleCorrelation: parseFloat(document.getElementById('bristleCorrelation').value) / 100,
+        edgeWobbleAmount: parseFloat(document.getElementById('edgeWobbleAmount').value) / 100,
+        edgeWobbleFreq: parseFloat(document.getElementById('edgeWobbleFreq').value),
+
+        pixelStart: parseFloat(document.getElementById('pixelStart').value) / 100,
+        transitionWidth: parseFloat(document.getElementById('transitionWidth').value) / 100,
+
+        pixelSize: Math.max(1, Math.round(parseFloat(document.getElementById('pixelSize').value) * scale)),
+        fadeStart: parseFloat(document.getElementById('fadeStart').value) / 100,
+        fadeCurve: parseFloat(document.getElementById('fadeCurve').value) / 10,
+
+        outwardBleed: parseFloat(document.getElementById('outwardBleed').value) * scale,
+        inwardBleed: parseFloat(document.getElementById('inwardBleed').value) * scale,
+        longitudinalBleed: parseFloat(document.getElementById('longitudinalBleed').value) * scale,
+        bleedOnset: parseFloat(document.getElementById('bleedOnset').value) / 100,
+        bleedStart: parseFloat(document.getElementById('bleedStart').value) / 100,
+        // Body scatter — slider 0–100 with log mapping into [0.001, 1].
+        // The hard zero at slider=0 lets the user park at "no scatter"
+        // without relying on logMap's 0.001 floor. Higher slider values
+        // give multiplicatively bigger scatter so the bottom of the dial
+        // is where the perceptual action is (per user request).
+        bleedBody: (function() {
+          const s = parseFloat(document.getElementById('bleedBody').value);
+          return s <= 0 ? 0 : logMap(s, 0.001, 1);
+        })(),
+
+        color: document.getElementById('color').value,
+        // Shade palette: numVariants 1–50 with brighterDarkerRatio mapped
+        // from slider [-100, +100] to [0, 1] (0 = all darker, 1 = all
+        // brighter, 0.5 = balanced). Palette is generated downstream in
+        // generatePalette() based on the picked base color.
+        numVariants: parseInt(document.getElementById('numVariants').value, 10),
+        brighterDarkerRatio: (parseFloat(document.getElementById('brighterDarkerRatio').value) + 100) / 200,
+        // Shade distribution across bristles: 0 = uniform random, 0.5 =
+        // brightest in middle / darkest at edges, 1 = sequential gradient
+        // across the brush width. Continuous blend between these three modes.
+        shadeDistribution: parseFloat(document.getElementById('shadeDistribution').value) / 100,
+        colorVariation: parseFloat(document.getElementById('colorVariation').value) / 100,
+        bg: document.getElementById('bg').value,
+        smoothContrast: parseFloat(document.getElementById('smoothContrast').value) / 100,
+        pixelContrast: parseFloat(document.getElementById('pixelContrast').value) / 100,
+        // Contrast cutoff: where along the arc (in arc-t units, 0..1) the
+        // contrast value transitions from smoothContrast to pixelContrast.
+        // Transition width is symmetric around the cutoff: half goes
+        // before, half after.
+        contrastCutoff: parseFloat(document.getElementById('contrastCutoff').value) / 100,
+        contrastTransitionWidth: parseFloat(document.getElementById('contrastTransitionWidth').value) / 100
+      };
+    }
+
+    function render(size) {
+      size = size || getRenderSize();
+      canvas.width = size;
+      canvas.height = size;
+
+      const scale = size / 800;
+      const p = getParams(scale);
+
+      ctx.globalAlpha = 1;
+      if (p.bg === 'white') {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, size, size);
+      } else if (p.bg === 'black') {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, size, size);
+      } else {
+        ctx.clearRect(0, 0, size, size);
+      }
+
+      const cx = size / 2;
+      const cy = size / 2;
+      const baseRadius = size * p.radiusFrac;
+
+      const gapRad = (p.gapDeg * Math.PI) / 180;
+      const totalSweep = 2 * Math.PI - gapRad;
+      const dir = p.direction === 'cw' ? 1 : -1;
+
+      const rand = mulberry32(Math.floor(seed * 1e9));
+
+      const harmonics = [];
+      const numHarmonics = 8;
+      for (let h = 0; h < numHarmonics; h++) {
+        harmonics.push({ freq: 2 + h * 2 + rand() * 1.5, phase: rand() * Math.PI * 2 });
+      }
+      const tiltK = 2.5;
+      const rawWeights = harmonics.map((_, h) => Math.pow(h + 1, -p.spectralTilt * tiltK));
+      const wSum = rawWeights.reduce((s, v) => s + v, 0);
+      const weights = rawWeights.map(v => v / wSum);
+
+      const bristlePhase = rand() * Math.PI * 2;
+
+      const driftHarmonics = [];
+      for (let h = 0; h < 3; h++) {
+        driftHarmonics.push({ freq: 4 + h * 6 + rand() * 4, phase: rand() * Math.PI * 2, amp: 1 / (h + 1) });
+      }
+      const driftNorm = driftHarmonics.reduce((s, h) => s + h.amp, 0);
+      function bristleDriftAt(t) {
+        let drift = 0;
+        for (const h of driftHarmonics) drift += h.amp * Math.sin(t * 2 * Math.PI * h.freq + h.phase);
+        return (drift / driftNorm) * p.striationCoarseness * 0.7;
+      }
+
+      const boundaryHarmonics = [];
+      for (let h = 0; h < 3; h++) {
+        boundaryHarmonics.push({ freq: p.edgeWobbleFreq * (1 + h * 0.55 + rand() * 0.3), phase: rand() * Math.PI * 2, amp: 1 / (h + 1) });
+      }
+      const boundaryNorm = boundaryHarmonics.reduce((s, h) => s + h.amp, 0);
+      function boundaryWobbleAt(t) {
+        let v = 0;
+        for (const h of boundaryHarmonics) v += h.amp * Math.sin(t * 2 * Math.PI * h.freq + h.phase);
+        return v / boundaryNorm;
+      }
+
+      // Bristle positions: directly specified count, with striationSpread
+      // ("Brush shape") interpolating between two regimes:
+      //   spread = 0 → all bristles exactly equi-spaced across bristleRange
+      //   spread = 1 → each bristle's offset drawn uniformly in
+      //               [-bristleRange, +bristleRange] (no relation to a comb)
+      //   intermediate → linear interp between the two
+      // This replaces the old ±0.5×spacing jitter, which capped at "slightly
+      // perturbed comb" no matter how high the slider went.
+      const bristleRange = p.maxThickness * 1.3;
+      const numBristles = Math.max(1, p.bristleCount);
+      const bristleSpacing = (2 * bristleRange) / numBristles;
+      const bristlePositions = new Float32Array(numBristles);
+      for (let k = 0; k < numBristles; k++) {
+        const basePos = -bristleRange + (k + 0.5) * bristleSpacing;
+        const randomPos = -bristleRange + rand() * (2 * bristleRange);
+        bristlePositions[k] = basePos * (1 - p.striationSpread) + randomPos * p.striationSpread;
+      }
+      const bristleSigma = Math.max(0.5, p.striationCoarseness * 0.55);
+      const invTwoSigmaSq = 1 / (2 * bristleSigma * bristleSigma);
+
+      // Spatial bin index: dryAt only needs bristles within ~3σ of the
+      // query offset. (Used to also pad by driftAmp for the now-removed
+      // per-bristle drift; with wobble applied globally at the centerline
+      // the bristle-to-offset distances are independent of t.) Without
+      // this, dryAt is O(N) per call and the 1000-bristle ceiling would
+      // make rendering minutes-long.
+      const binWidth = Math.max(1, bristleSigma * 3);
+      const numBins = Math.max(1, Math.ceil((2 * bristleRange) / binWidth) + 2);
+      const bins = new Array(numBins);
+      for (let b = 0; b < numBins; b++) bins[b] = [];
+      for (let k = 0; k < numBristles; k++) {
+        const b = Math.max(0, Math.min(numBins - 1,
+          Math.floor((bristlePositions[k] + bristleRange) / binWidth)));
+        bins[b].push(k);
+      }
+
+      // Per-bristle fade offset — each bristle has its OWN moment of going
+      // dry, staggered around the global inkRunoutStart. This is what gives
+      // a real brushstroke its feathered tail: bristles don't all run out
+      // simultaneously; some die early, some last to the very end of the
+      // arc. Used by bristleInkAt() in continuous-bristles render mode.
+      // Variance is ±15% in localT-space (smooth-zone-relative). Hardcoded
+      // here rather than exposing as a slider — it's a sensible default
+      // and the per-bristle modulation slider already gives the user a
+      // separate knob for variation amplitude.
+      const bristleFadeOffset = new Float32Array(numBristles);
+      for (let k = 0; k < numBristles; k++) {
+        bristleFadeOffset[k] = (rand() - 0.5) * 2; // [-1, 1]
+      }
+      // Per-bristle RATE multiplier — uniform in [0, 2]. The user's
+      // inkRunoutRate slider gets multiplied by this per-bristle, so half
+      // the bristles have effective rate < 1 and CANNOT reach alpha=0
+      // by smoothEnd no matter how high the slider goes. That's the fix
+      // for the previous behavior where runoutRate=1.0 made every bristle
+      // hit exactly zero at smoothEnd, cutting the brush off sharply.
+      // Now the slider controls the DENSITY of white-streak failures
+      // (more bristles failing earlier) without controlling the brush's
+      // physical extent — shape is left to the start/end taper sliders.
+      const bristleRateMult = new Float32Array(numBristles);
+      for (let k = 0; k < numBristles; k++) {
+        bristleRateMult[k] = rand() * 2;
+      }
+      // Per-bristle DOT SIZE — drawn width in canvas pixels for each bristle
+      // in continuous-bristles mode. Sampled from a normal distribution
+      // (Box-Muller) around p.striationCoarseness with standard deviation
+      // p.bristleSizeStd, clamped to >= 1 px. With std=0 every bristle is
+      // the same width (the mean); cranking std up gives a brush with a
+      // range of sizes — some hair-thin, some chunky — matching real
+      // brushes where individual hairs vary.
+      const bristleDotSize = new Float32Array(numBristles);
+      for (let k = 0; k < numBristles; k++) {
+        const u1 = Math.max(0.0001, rand());
+        const u2 = rand();
+        const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+        bristleDotSize[k] = Math.max(1, Math.round(p.striationCoarseness + z * p.bristleSizeStd));
+      }
+
+      // Paint palette: maps bristles to color buckets. Per-bristle
+      // assignment happens here once at setup so a given bristle has a
+      // CONSISTENT shade for its entire arc — this is what makes streaks
+      // of the same shade track individual bristles instead of twinkling
+      // randomly along the stroke.
+      //
+      // Palette is built dynamically from the user's base color so any
+      // picked color — gold, silver, bronze, dark blue, whatever — gets
+      // the same multi-shade treatment. `numVariants` controls how many
+      // shades; brighterDarkerRatio biases the L distribution above vs
+      // below the base; colorVariation lerps each bucket's rendered
+      // color between the base shade and its target shade so the slider
+      // smoothly fades from "all bristles in base color" to "full
+      // generated palette spread".
+      //
+      // `renderedPalette[i]` is what gets fed to ctx.fillStyle for shade
+      // bucket i. At colorVariation = 0 every bucket collapses to the base
+      // shade so the whole brush draws flat; as variation rises, buckets
+      // pull toward their generated palette entries. This lets the slider
+      // go smoothly from "matte" to "highly textured" without retriggering
+      // the per-bristle index roll.
+      const paletteResult = generatePalette(p.color, p.numVariants, p.brighterDarkerRatio);
+      const palette = paletteResult.palette;
+      const baseShade = palette[paletteResult.baseIdx];
+      const renderedPalette = palette.map(shade => lerpColor(baseShade, shade, p.colorVariation));
+      // Per-bristle palette index. With numVariants=1 the palette has a
+      // single entry, so all bristles get index 0 (equivalent to the old
+      // "solid" paint type). With multiple variants, the shadeDistribution
+      // slider blends between three modes based on each bristle's
+      // POSITION (not its k index) so the distribution stays sensible
+      // even with high brush-shape randomization:
+      //
+      //   ord = 0    Random: each bristle picks uniformly across the palette
+      //   ord = 0.5  Centered: bristle at the centerline gets the brightest
+      //              palette entry, bristles at ±bristleRange get the
+      //              darkest. Symmetric — both edges darken equally.
+      //   ord = 1    Sequential: palette index ramps linearly from the
+      //              left edge (index 0, darkest) to the right edge
+      //              (index palette.length-1, brightest).
+      //
+      // Linear interpolation between adjacent modes gives a continuous
+      // slider that smoothly morphs from one distribution to the next.
+      const bristlePaletteIdx = new Int8Array(numBristles);
+      if (palette.length > 1) {
+        const palMax = palette.length - 1;
+        const ord = p.shadeDistribution;
+        for (let k = 0; k < numBristles; k++) {
+          const normPos = bristlePositions[k] / bristleRange; // [-1, +1] (approximately)
+          const clampedNorm = Math.max(-1, Math.min(1, normPos));
+
+          // Random index — independent draw per bristle, same RNG seed.
+          const randomIdx = Math.floor(rand() * palette.length);
+          // Sequential index — left edge → 0, right edge → palMax.
+          const seqIdx = Math.min(palMax, Math.max(0, Math.floor(((clampedNorm + 1) / 2) * palette.length)));
+          // Centered index — center → palMax, edges → 0.
+          const centeredness = 1 - Math.abs(clampedNorm);
+          const centeredIdx = Math.round(centeredness * palMax);
+
+          // Blend: ord ∈ [0, 0.5] morphs random→centered; [0.5, 1] morphs centered→sequential.
+          let idx;
+          if (ord <= 0.5) {
+            const b = ord * 2;
+            idx = randomIdx * (1 - b) + centeredIdx * b;
+          } else {
+            const b = (ord - 0.5) * 2;
+            idx = centeredIdx * (1 - b) + seqIdx * b;
+          }
+          bristlePaletteIdx[k] = Math.min(palMax, Math.max(0, Math.round(idx)));
+        }
+      }
+
+      // Per-bristle ink modulation harmonics. Each bristle gets its own pair of
+      // sines so its wetness pulses independently along the arc — at zero
+      // correlation, adjacent bristles are uncorrelated. The bristlePulseSpread
+      // parameter controls how widely the per-bristle frequencies fan out
+      // around the mean (p.bristlePulseRate); at spread=0 every bristle pulses
+      // at exactly the same rate, at spread=1 they range from 0× to 2× the mean.
+      const bristleModFreqs = [];
+      const pulseSpread = p.bristlePulseSpread;
+      for (let k = 0; k < numBristles; k++) {
+        const mult1 = 1 + (rand() - 0.5) * 2 * pulseSpread;
+        // Second harmonic: held at ~2.4× the bristle's f1 (the old hardcoded
+        // 1.5..3.3 range averaged 2.4) so the texture stays bimodal, but it
+        // tracks the spread instead of being independently random.
+        bristleModFreqs.push({
+          f1: p.bristlePulseRate * mult1,
+          p1: rand() * Math.PI * 2,
+          f2: p.bristlePulseRate * mult1 * 2.4,
+          p2: rand() * Math.PI * 2
+        });
+      }
+      // Shared modulation basis: a few harmonics whose phase varies SMOOTHLY
+      // across bristle index k. When blended in via bristleCorrelation, this
+      // makes neighbors share wetness state (low spatial frequency in k) while
+      // distant bristles still differ. Implementation: each basis term is a
+      // sinusoid in t whose phase has a low-frequency component in k, so
+      // adjacent k's sample nearly the same phase → they pulse together.
+      const sharedModBasis = [];
+      for (let h = 0; h < 4; h++) {
+        const sharedMult = 1 + (rand() - 0.5) * 2 * pulseSpread;
+        sharedModBasis.push({
+          freqT: p.bristlePulseRate * sharedMult,
+          freqK: 0.3 + h * 0.4, // low spatial freq → smooth across k
+          phaseT: rand() * Math.PI * 2,
+          phaseK: rand() * Math.PI * 2,
+          amp: 1 / (h + 1)
+        });
+      }
+      const sharedModNorm = sharedModBasis.reduce((s, h) => s + h.amp, 0);
+      const modCache = new Float32Array(numBristles);
+      let modCacheT = -1;
+      function updateModCache(t) {
+        if (t === modCacheT) return;
+        modCacheT = t;
+        const amt = p.bristleModulation;
+        if (amt <= 0.001) {
+          for (let k = 0; k < numBristles; k++) modCache[k] = 1;
+          return;
+        }
+        const corr = p.bristleCorrelation;
+        // Q-factor on the sinusoidal mod signal — pow(mod, Q) reshapes the
+        // duty cycle of "high alpha" vs "low alpha" without changing freq.
+        //   Q = 1 → unchanged sinusoid (50/50 above/below midline)
+        //   Q > 1 → mod is small most of the time → factor near 0 →
+        //           modCache stays near (1-amt) → WIDE dropouts
+        //   Q < 1 → mod is large most of the time → factor near 1 →
+        //           modCache stays near 1 → NARROW dropouts (brief blips)
+        // Caching Q=1 fast-path saves a Math.pow call per bristle per t.
+        const Q = p.bristleFadeRate;
+        const applyQ = Math.abs(Q - 1) > 0.01;
+        for (let k = 0; k < numBristles; k++) {
+          const m = bristleModFreqs[k];
+          const indivS = Math.sin(t * 2 * Math.PI * m.f1 + m.p1) * 0.7 +
+                         Math.sin(t * 2 * Math.PI * m.f2 + m.p2) * 0.3;
+          const indivNorm = (indivS + 1) / 2;
+          let mod;
+          if (corr <= 0.001) {
+            mod = indivNorm;
+          } else {
+            let sharedS = 0;
+            for (const h of sharedModBasis) {
+              sharedS += h.amp * Math.sin(
+                t * 2 * Math.PI * h.freqT + h.phaseT +
+                k * h.freqK + h.phaseK
+              );
+            }
+            const sharedNorm = (sharedS / sharedModNorm + 1) / 2;
+            mod = indivNorm * (1 - corr) + sharedNorm * corr;
+          }
+          const factor = applyQ ? Math.pow(Math.max(0, mod), Q) : mod;
+          modCache[k] = 1 - amt * (1 - factor); // [1 - amt, 1]
+        }
+      }
+
+      function radiusAt(angle) {
+        let wobble = 0;
+        for (let h = 0; h < harmonics.length; h++) wobble += weights[h] * Math.sin(angle * harmonics[h].freq + harmonics[h].phase);
+        return baseRadius * (1 + wobble * p.imperfection);
+      }
+
+      function thicknessAt(t) {
+        const sT = p.startTaper, eT = p.endTaper;
+        let thick = p.maxThickness;
+        if (sT > 0 && t < sT) {
+          const u = t / sT; thick = p.maxThickness * Math.pow(u, p.startSharp);
+        } else if (eT > 0 && t > 1 - eT) {
+          const u = (t - (1 - eT)) / eT; thick = p.maxThickness * (1 - u) + p.maxThickness * p.endThickFrac * u;
+        }
+        return thick;
+      }
+
+      function densityAt(t) {
+        if (t < p.fadeStart) return 1.0;
+        const localT = (t - p.fadeStart) / (1 - p.fadeStart);
+        return Math.pow(1 - localT, p.fadeCurve);
+      }
+
+      function bleedAmountAt(t) {
+        // Reinterpretation: bleedOnset is now the BASELINE bleed level —
+        // a constant level present throughout the brush — rather than a
+        // threshold that gated bleed off until ink had depleted past it.
+        // The old "max(0, (raw - bleedOnset) / (1 - bleedOnset))" formula
+        // is why bleed only ever appeared at the wings: with default
+        // bleedOnset=0.05, bleed was zero everywhere inkAt was still 1,
+        // and inkAt only drops in the back half of the smooth zone. Now
+        // the slider sets a floor on bleed, and ink depletion can push it
+        // higher at the tail; bleed never drops below the baseline.
+        //
+        // bleedStart additionally gates the bleed off entirely for any
+        // t before it — for users who want a clean head and bleed only
+        // partway around the arc. Returns 0 (not the baseline) before
+        // bleedStart so the gate is hard.
+        if (t < p.bleedStart) return 0;
+        const inkLevel = inkAt(t);
+        return Math.max(p.bleedOnset, 1 - inkLevel);
+      }
+
+      function smoothFactorAt(t) {
+        const start = p.pixelStart, width = p.transitionWidth;
+        if (t < start) return 1;
+        if (width <= 0 || t >= start + width) return 0;
+        return 1 - (t - start) / width;
+      }
+
+      const smoothEnd = Math.max(0.001, p.pixelStart + p.transitionWidth);
+      function inkAt(t) {
+        // Global ink curve with a minimum floor. minInk = 0 reproduces the
+        // old "ink eventually hits zero" behavior (sharp cutoff at the
+        // brush's end); minInk > 0 prevents it from ever dropping below
+        // that level, so bleed-coverage formulas that multiply by inkAt(t)
+        // keep generating pixels past smoothEnd. Needed for the new
+        // longitudinal bleed to actually show anything past the cutoff.
+        const localT = Math.min(1, t / smoothEnd);
+        if (localT < p.inkRunoutStart) return 1;
+        const depleteFrac = (localT - p.inkRunoutStart) / Math.max(0.001, 1 - p.inkRunoutStart);
+        return Math.max(p.minInk, 1 - depleteFrac * p.inkRunoutRate);
+      }
+
+      // Whole-brush ink runout: independent of the bristle-level model.
+      // Returns the FADE AMOUNT in [0, 1] — 0 means no fade (full ink),
+      // 1 means brush is fully out of ink (every body cell drops). This
+      // feeds the same hash-keyed body-dropout mechanism as the smooth→
+      // pixel transition, taking the MAX of the two driving values, so
+      // the brush body can crumble across the whole arc (whole-brush
+      // runout) and/or across the transition zone, smoothly composed.
+      // localT (= t/smoothEnd) is used so the slider reads as "% of
+      // smooth zone" — matching the bristle ink runout slider's units.
+      // The brush polygon only exists in the smooth zone anyway, so
+      // there's nothing for this to do outside it.
+      function brushFadeAt(t) {
+        if (p.brushFadeRate <= 0) return 0;
+        const localT = Math.min(1, t / smoothEnd);
+        if (localT < p.brushFadeStart) return 0;
+        const frac = (localT - p.brushFadeStart) / Math.max(0.001, 1 - p.brushFadeStart);
+        return Math.min(1, frac * p.brushFadeRate);
+      }
+
+      // Per-bristle ink curve. Each bristle has its OWN start-of-runout
+      // (bristleFadeOffset shifts it by ±0.15 in localT) AND its own RATE
+      // multiplier in [0, 2] (bristleRateMult). The rate factor is what
+      // prevents the brush from sharp-cutoffing at smoothEnd: any bristle
+      // with rateMult < 1/p.inkRunoutRate cannot reach alpha=0 before
+      // the smooth zone ends, so a fraction of bristles always survives
+      // to the very end no matter what the user sets the rate to. The
+      // runout rate slider thus controls the DENSITY of white-streak
+      // failures (= dry bristles becoming invisible mid-arc) rather than
+      // dictating the brush's shape — shape is the start/end taper's job.
+      function bristleInkAt(k, t) {
+        const localT = Math.min(1, t / smoothEnd);
+        const startK = Math.max(0, Math.min(1,
+          p.inkRunoutStart + bristleFadeOffset[k] * 0.15));
+        if (localT < startK) return 1;
+        const frac = (localT - startK) / Math.max(0.001, 1 - startK);
+        return Math.max(0, 1 - frac * p.inkRunoutRate * bristleRateMult[k]);
+      }
+
+      // Deterministic hash of integer grid coords → [0, 1). Used by the
+      // smooth→pixel transition: each pixelSize cell has a fixed "moment of
+      // failure" h, and the cell drops out of the body when sqrtOneMinusSF
+      // exceeds h. Low-h cells fall away early in the transition, high-h
+      // cells hold on until near smoothEnd. The bit-mix below kills the
+      // linear pattern that a plain multiply-XOR produces (without it,
+      // adjacent cells along x would dropout in a left-to-right "wipe"
+      // instead of a chaotic crumble).
+      function hashCoord(ix, iy) {
+        let h = Math.imul(ix | 0, 73856093) ^ Math.imul(iy | 0, 19349663);
+        h ^= h >>> 13;
+        h = Math.imul(h, 0x5bd1e995);
+        h ^= h >>> 15;
+        h = Math.imul(h, 0xc2b2ae35);
+        h ^= h >>> 16;
+        return (h >>> 0) / 4294967296;
+      }
+
+      // For each bristle, compute its WETNESS (max contribution at this t).
+      // Position drift used to live here too — each bristle had its own
+      // m.f1*0.4 drift phase — which gave the brush the "lots of
+      // individual wobble per bristle" look. That's gone now: any wobble
+      // is applied globally at the brush centerline (px/py shifted in the
+      // main loop) so all bristles wobble together as one and the
+      // wetness lookup just compares offset to the static bristlePositions.
+      // Uses the spatial bin index so cost stays O(1) per call no matter
+      // how many bristles there are.
+      function dryAt(offset, t) {
+        if (p.viscosity <= 0.001) return 0;
+        updateModCache(t);
+        const queryBin = Math.max(0, Math.min(numBins - 1,
+          Math.floor((offset + bristleRange) / binWidth)));
+        let maxWet = 0;
+        for (let b = Math.max(0, queryBin - 1); b <= Math.min(numBins - 1, queryBin + 1); b++) {
+          const bin = bins[b];
+          for (let i = 0; i < bin.length; i++) {
+            const k = bin[i];
+            const d = offset - bristlePositions[k];
+            const dSq = d * d * invTwoSigmaSq;
+            if (dSq > 9) continue; // > 3σ, contribution negligible
+            const w = Math.exp(-dSq) * modCache[k];
+            if (w > maxWet) maxWet = w;
+          }
+        }
+        return (1 - maxWet) * p.viscosity;
+      }
+
+      const arcStep = Math.max(0.5, scale * 1.0);
+      const numSteps = Math.ceil((totalSweep * baseRadius) / arcStep);
+
+      function resolveCoverage(coverage, contrast) {
+        if (coverage <= 0) return null;
+        if (contrast >= 0.999) return rand() < coverage ? 1 : 0;
+        if (contrast <= 0.001) return coverage;
+        const prob = Math.pow(coverage, contrast);
+        if (rand() >= prob) return 0;
+        return Math.pow(coverage, 1 - contrast);
+      }
+
+      const pixelGrid = new Set();
+      // Smooth zone: collected as ONE filled polygon (outer edge forward,
+      // inner edge backward). Previously we drew ~1500 overlapping thick line
+      // segments with per-segment alpha — that produced concentric moiré bands
+      // because each segment's anti-aliased edges landed at slightly different
+      // radial positions and the cumulative source-over alpha at each pixel
+      // depended on how many edges crossed it. One polygon = one shape per
+      // pixel = no cumulative banding.
+      const outerPts = []; // flat [x0,y0,x1,y1,...] along the outer brush edge
+      const innerPts = []; // flat [x0,y0,x1,y1,...] along the inner brush edge
+      // Striation dropouts are COLLECTED here and applied after the polygon
+      // is drawn. Applying inline would let subsequent draws paint over them.
+      const striationDots = [];
+      // Continuous-bristles render mode: each bristle is traced as its own
+      // arc, sampled at every arc step, producing a source-over mark at the
+      // bristle's drifted position. Bristles fade individually via
+      // bristleInkAt + modCache. With ~60 bristles × ~1500 steps that's ~90k
+      // marks — well within performance budget for fillRect.
+      //
+      // For paint type support, dots are bucketed by palette index so each
+      // ctx.fillStyle change happens once per shade rather than once per
+      // bristle (let alone once per dot). Each bucket is a flat array
+      // [gx, gy, alpha, size, perpX, perpY, ...] in pushed order. Solid
+      // paint always pushes to bucket 0; metallics route per
+      // bristlePaletteIdx[k].
+      const bristleDotsByPaletteIdx = new Array(palette.length);
+      for (let i = 0; i < palette.length; i++) bristleDotsByPaletteIdx[i] = [];
+      // Transition-zone body dropouts: pixelSize-grid cells INSIDE the body
+      // that have crossed their hash threshold. Applied as destination-out
+      // after the polygon, so they punch holes through the body — turning
+      // the transition into "brush gradually breaks apart" rather than
+      // "brush narrows + pixel field rises". Each cell can only be dropped
+      // once (bodyDropoutGrid dedup), but the dedup happens AT DROP TIME,
+      // not at evaluation time — a cell that hasn't yet crossed its hash
+      // threshold gets re-evaluated by later arc steps with higher
+      // sqrtOneMinusSF until either it drops or smoothEnd is reached.
+      const bodyDropouts = [];   // flat [gx, gy, gx, gy, ...]
+      const bodyDropoutGrid = new Set();
+      // Outside-body bleed: source-over pixelSize rects with Gaussian falloff
+      // beyond halfThick. Collected here instead of drawn inline so they land
+      // on TOP of the polygon (in case the polygon's wobble pushes its outer
+      // edge slightly past halfThick into the bleed region).
+      const bleedPixels = [];    // flat [gx, gy, alpha, gx, gy, alpha, ...]
+      ctx.fillStyle = p.color;
+
+      // Pre-compute arc-length per unit t for the longitudinal-bleed
+      // distance calculation. Approximating with baseRadius is fine — the
+      // radial wobble (imperfection) only perturbs it by a few percent, and
+      // we're using this to scale a Gaussian falloff, not to do anything
+      // geometry-critical.
+      const arcLengthPerT = baseRadius * totalSweep;
+
+      for (let i = 0; i < numSteps; i++) {
+        const t = i / numSteps;
+
+        const angle = p.startAngle + dir * totalSweep * t;
+        const r = radiusAt(angle);
+        const thickness = thicknessAt(t);
+        const density = densityAt(t);
+        const bleed = bleedAmountAt(t);
+
+        // Smooth-vs-pixel zone factor. In STIPPLE mode this drives the
+        // existing polygon-fades-to-bleed-pixels transition. In BRISTLE
+        // mode we collapse it to 1 throughout the arc, which means
+        // bristles render to the very end (no smooth-zone cutoff). The
+        // user-visible smooth→pixel transition is now done by varying the
+        // contrast value along the arc instead (see contrastCutoff /
+        // contrastTransitionWidth in the bristle pass below).
+        const isBristleMode = p.renderStyle === 'bristles';
+        const sF = isBristleMode ? 1 : smoothFactorAt(t);
+        const sqrtSF = isBristleMode ? 1 : Math.sqrt(sF);
+        const sqrtOneMinusSF = isBristleMode ? 0 : Math.sqrt(1 - sF);
+
+        // Longitudinal scale: Gaussian falloff past smoothEnd. Only relevant
+        // for stipple mode's bleed pass; bristle mode bypasses it entirely.
+        // Forcing it to 0 in bristle mode makes the "skip if no bleed work"
+        // check below short-circuit, AND makes the bleed sampling block at
+        // the bottom of the loop see no work to do — no need for another
+        // conditional. With p.longitudinalBleed = 0 (in stipple) we get the
+        // old behavior (sharp cutoff).
+        let longitudinalScale = 1;
+        if (isBristleMode) {
+          longitudinalScale = 0;
+        } else if (sqrtSF < 0.01) {
+          if (p.longitudinalBleed > 0.01) {
+            const distPastEnd = (t - smoothEnd) * arcLengthPerT;
+            longitudinalScale = Math.exp(
+              -(distPastEnd * distPastEnd) /
+              (2 * p.longitudinalBleed * p.longitudinalBleed)
+            );
+          } else {
+            longitudinalScale = 0;
+          }
+        }
+
+        // Skip if there's nothing to do: past smoothEnd AND no longitudinal
+        // bleed AND density faded. In bristle mode sqrtSF=1 so this never
+        // fires (we always want bristles).
+        if (sqrtSF < 0.01 && longitudinalScale < 0.001 && density < 0.0005) continue;
+
+        const perpX = Math.cos(angle);
+        const perpY = Math.sin(angle);
+
+        // Global brush wobble — single coherent lateral oscillation of the
+        // ENTIRE brush centerline, replacing the per-bristle drift that used
+        // to live in dryAt and the bristle collection. Same sine driven by
+        // the new bristleWobbleRate slider, amplitude scaled to a fraction
+        // of max thickness. By shifting px/py here rather than offsetting
+        // each bristle individually, the polygon, bristles, body dropouts,
+        // and bleed pixels ALL wobble together — which is what "painter
+        // rotating the brush" actually looks like. Rate or amount = 0
+        // collapses to no wobble (clean circular arcs).
+        const brushWobble = Math.sin(t * 2 * Math.PI * p.bristleWobbleRate) *
+                            p.bristleWobbleAmount * p.maxThickness * 0.5;
+        const px = cx + r * Math.cos(angle) + perpX * brushWobble;
+        const py = cy + r * Math.sin(angle) + perpY * brushWobble;
+
+        const halfThick = thickness / 2;
+
+        // effectiveBoundary computed here (was previously inside the
+        // smooth-zone block) so the bleed pass past smoothEnd can use it.
+        // The wobble keeps applying even in the longitudinal tail, which
+        // gives the trailing scatter an irregular edge rather than a clean
+        // straight one.
+        const wobble = boundaryWobbleAt(t);
+        const wobbleScale = p.edgeWobbleAmount * p.maxThickness * 0.5;
+        const baseBoundary = halfThick + wobble * wobbleScale;
+        const effectiveBoundary = Math.max(0.5, baseBoundary);
+
+        if (sqrtSF > 0.01) {
+          const ink = inkAt(t);
+          if (ink > 0.001) {
+            // Polygon stays at FULL width all the way through the smooth zone
+            // (including the transition zone). The previous sqrtSF taper made
+            // the body narrow as we approached smoothEnd while pixels rose
+            // alongside it — that's the visual "two separate layers" problem.
+            // Now the body holds its width and the transition is enacted by
+            // destination-out punching pixelSize-grid holes through it (see
+            // the body-dropout pass below). By smoothEnd, dropoutDrive=1
+            // means every cell has dropped, so the polygon's blunt ending
+            // edge is invisible anyway.
+            // effectiveBoundary is computed earlier (hoisted out so the
+            // bleed sampling past smoothEnd can also use it).
+
+            // Collect this arc-point's outer and inner edge coords for the
+            // post-loop polygon fill. No drawing happens per-step anymore.
+            outerPts.push(px + perpX * effectiveBoundary, py + perpY * effectiveBoundary);
+            innerPts.push(px - perpX * effectiveBoundary, py - perpY * effectiveBoundary);
+
+            if (p.renderStyle === 'bristles') {
+              // Continuous-bristles mode: trace EACH bristle as its own
+              // arc by sampling all of them at this arc step. Each bristle
+              // is one source-over mark at its drifted position. Adjacent
+              // arc steps' marks for the same bristle land within ~1 px
+              // (arcStep) of each other and merge into a continuous line.
+              //
+              // Per-step contrast: smoothContrast applies BEFORE the cutoff
+              // (the "loaded brush" part of the stroke), pixelContrast
+              // applies AFTER (the "dry brush" tail where the user wants
+              // the binarized-into-pixels look). Linear blend across the
+              // transition zone. With smoothContrast=0 and pixelContrast=1
+              // (the canonical setup) bristles draw as smooth streaks
+              // early and as scattered binary pixels late — exactly the
+              // gold-leaf wet→dry brush gradient. Combined with body
+              // scatter (which fades bristle alpha), the binarization at
+              // high contrast keeps only the strongest survivors, giving
+              // the sparse-square-pixel look in the reference image.
+              updateModCache(t);
+              const halfW = p.contrastTransitionWidth * 0.5;
+              const edge0 = p.contrastCutoff - halfW;
+              const w = Math.max(0.0001, p.contrastTransitionWidth); // avoid /0 at width=0
+              const blend = Math.max(0, Math.min(1, (t - edge0) / w));
+              const localContrast = p.smoothContrast + (p.pixelContrast - p.smoothContrast) * blend;
+              // Bristle fade tied to body-scatter slider: at bleedBody=0
+              // bristles draw at their normal alpha; at bleedBody=1 they
+              // fully fade. Combined with binarizing contrast, the slider
+              // controls how dense the survivor field is.
+              const bristleFadeMult = Math.max(0, 1 - p.bleedBody);
+              for (let k = 0; k < numBristles; k++) {
+                // Per-bristle position is now STATIC. Wobble (when the
+                // brush wobble sliders are nonzero) is applied once at
+                // the brush centerline (px/py shifted upstream) so all
+                // bristles wobble together — replacing the old per-bristle
+                // m.f1*0.4 drift which gave each bristle its own
+                // uncorrelated path and made the brush look frantic.
+                const offset = bristlePositions[k];
+                if (Math.abs(offset) > effectiveBoundary) continue;
+                // sqrtSF is forced to 1 in bristle mode (set above), so
+                // it's a no-op multiplier here — kept in the expression
+                // for parity with stipple mode in case the gate ever
+                // moves. Bristle fade comes from bristleInkAt (ink
+                // depletion along the arc) + modCache (per-bristle pulse).
+                const rawAlpha = bristleInkAt(k, t) * modCache[k] * sqrtSF * bristleFadeMult;
+                if (rawAlpha < 0.01) continue;
+                const alpha = resolveCoverage(rawAlpha, localContrast);
+                if (!alpha) continue;
+                const gx = Math.round(px + perpX * offset);
+                const gy = Math.round(py + perpY * offset);
+                bristleDotsByPaletteIdx[bristlePaletteIdx[k]].push(gx, gy, alpha, bristleDotSize[k], perpX, perpY);
+              }
+            } else {
+              // Stipple mode: collect bristle striation dropout positions.
+              // Sample at RANDOM offsets each arc step (not on a fixed grid),
+              // then dedup at the canvas-pixel level before drawing.
+              // Fixed-grid sampling produced continuous radial lines at every
+              // deadzone offset — the source of moiré-like striping. Random
+              // offsets + pixel-dedup make each pixel get hit (or not) by
+              // exactly one arc step's random probe; the dropout density at
+              // a given offset is proportional to local dryness, producing
+              // a stipple instead of stripes.
+              //
+              // smoothContrast controls how the raw striation alpha gets
+              // resolved into a drawable value: at 0% the raw greyscale
+              // alpha is used directly; at 100% it's quantized to 0/1
+              // stochastically (matching pixelContrast's role on the bleed
+              // side).
+              const striationFactor = Math.sin(Math.PI * Math.min(1, Math.max(0, ink)));
+              if (p.viscosity > 0.001 && striationFactor > 0.001) {
+                const numStr = Math.max(4, Math.ceil(effectiveBoundary));
+                for (let d = 0; d < numStr; d++) {
+                  const offset = (rand() - 0.5) * 2 * effectiveBoundary;
+                  const dryness = dryAt(offset, t);
+                  const rawAlpha = dryness * striationFactor;
+                  if (rawAlpha < 0.01) continue;
+                  const dropoutAlpha = resolveCoverage(rawAlpha, p.smoothContrast);
+                  if (!dropoutAlpha) continue;
+                  const gx = Math.round(px + perpX * offset);
+                  const gy = Math.round(py + perpY * offset);
+                  striationDots.push(gx, gy, dropoutAlpha);
+                }
+              }
+            }
+          }
+        }
+
+        // Body-dropout + bleed sampling. Hoisted out of the smooth-zone
+        // block so it can fire past smoothEnd as a "longitudinal tail"
+        // of pixel scatter — the only reason it used to live inside
+        // `if (sqrtSF > 0.01)` was that everything else does, but the
+        // scatter itself doesn't depend on the polygon/bristles.
+        // Conditions:
+        //   - bodyDropActive: hash-keyed pixel dropouts inside body.
+        //     Driven by max(transition progress, whole-brush fade);
+        //     gated to the smooth zone since there's no polygon to drop
+        //     from past smoothEnd.
+        //   - bleedActive: Gaussian scatter outside body. Driven by
+        //     bleedAmountAt (which rides ink depletion). Past smoothEnd
+        //     it stays active because of the minInk floor + bleedOnset
+        //     baseline; combined with longitudinalScale's Gaussian
+        //     decay along the arc, this creates the softened cutoff.
+        const fadeAmt = brushFadeAt(t);
+        const dropoutDrive = Math.max(sqrtOneMinusSF, fadeAmt);
+        const bodyDropActive = p.renderStyle !== 'bristles' &&
+                               sqrtSF > 0.01 &&
+                               dropoutDrive > 0.001 && density > 0.0005;
+        const bleedActive = bleed > 0.001 && density > 0.0005;
+
+        if (bodyDropActive || (bleedActive && longitudinalScale > 0.001)) {
+          const sigmaOut = bleedActive ? p.outwardBleed * bleed : 0;
+          const sigmaIn = bleedActive ? p.inwardBleed * bleed : 0;
+          const extentOut = effectiveBoundary + sigmaOut * 3;
+          const extentIn = effectiveBoundary + sigmaIn * 3;
+          const numSamples = Math.ceil((extentOut + extentIn) / p.pixelSize) + 2;
+
+          for (let j = 0; j < numSamples; j++) {
+            let offset = -extentIn + j * p.pixelSize + (rand() - 0.5) * p.pixelSize * 0.7;
+            if (offset > extentOut || offset < -extentIn) continue;
+
+            const absDist = Math.abs(offset);
+            const pixelX = px + perpX * offset;
+            const pixelY = py + perpY * offset;
+            const gx = Math.round(pixelX / p.pixelSize) * p.pixelSize;
+            const gy = Math.round(pixelY / p.pixelSize) * p.pixelSize;
+            const key = gx + ',' + gy;
+
+            if (absDist <= effectiveBoundary) {
+              // INSIDE BODY.
+              //
+              // Stipple mode: hash-keyed dropout (only in smooth zone —
+              // bodyDropActive's sqrtSF gate already enforces that).
+              //
+              // Bristle mode: bleedBody-controlled inside-body scatter.
+              // Coverage scaled by longitudinalScale so the tail past
+              // smoothEnd inherits the arc-direction Gaussian decay.
+              if (bodyDropActive) {
+                if (bodyDropoutGrid.has(key)) continue;
+                const ix = (gx / p.pixelSize) | 0;
+                const iy = (gy / p.pixelSize) | 0;
+                const h = hashCoord(ix, iy);
+                if (dropoutDrive > h) {
+                  bodyDropoutGrid.add(key);
+                  bodyDropouts.push(gx, gy);
+                }
+              } else if (p.renderStyle === 'bristles' && bleedActive && p.bleedBody > 0.001) {
+                const coverage = density * inkAt(t) * p.bleedBody * longitudinalScale;
+                const drawAlpha = resolveCoverage(coverage, p.pixelContrast);
+                if (!drawAlpha) continue;
+                if (pixelGrid.has(key)) continue;
+                pixelGrid.add(key);
+                bleedPixels.push(gx, gy, drawAlpha);
+              }
+            } else {
+              // OUTSIDE BODY: Gaussian-bleed source-over pixels. Coverage
+              // is density * inkAt(t) * radialFalloff * longitudinalScale.
+              // The minInk floor on inkAt keeps this nonzero past
+              // smoothEnd; longitudinalScale provides the arc-direction
+              // Gaussian that softens the cutoff.
+              if (!bleedActive) continue;
+              const excess = absDist - effectiveBoundary;
+              const sigma = offset > 0 ? sigmaOut : sigmaIn;
+              if (sigma < 0.5) continue;
+              const falloff = Math.exp(-(excess * excess) / (2 * sigma * sigma));
+              const coverage = density * inkAt(t) * falloff * longitudinalScale;
+              const drawAlpha = resolveCoverage(coverage, p.pixelContrast);
+              if (!drawAlpha) continue;
+              if (pixelGrid.has(key)) continue;
+              pixelGrid.add(key);
+              bleedPixels.push(gx, gy, drawAlpha);
+            }
+          }
+        }
+      }
+
+      // Smooth-zone body: ONE filled polygon along all collected edges (so
+      // there's exactly one anti-aliased boundary and zero internal overlap,
+      // killing the moiré that overlapping strokes used to produce). Only
+      // drawn in stipple mode — bristle mode wants the light background to
+      // show through between bristles, so a body fill would obliterate the
+      // whole effect.
+      if (p.renderStyle !== 'bristles' && outerPts.length >= 4) {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.moveTo(outerPts[0], outerPts[1]);
+        for (let k = 2; k < outerPts.length; k += 2) {
+          ctx.lineTo(outerPts[k], outerPts[k + 1]);
+        }
+        for (let k = innerPts.length - 2; k >= 0; k -= 2) {
+          ctx.lineTo(innerPts[k], innerPts[k + 1]);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Body dropouts: pixelSize-grid holes punched through the polygon. This
+      // is the smooth→pixel transition itself — same grid resolution as the
+      // bleed below, so the body crumbling and the ink scattering read as
+      // the same visual language rather than two layered styles. Order is
+      // critical: must happen AFTER the polygon (or there's nothing to
+      // remove) and BEFORE bleed (so bleed pixels don't get holed too).
+      // Skipped in bristle mode — bodyDropouts is empty there anyway.
+      if (bodyDropouts.length > 0) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = '#000';
+        ctx.globalAlpha = 1;
+        for (let k = 0; k < bodyDropouts.length; k += 2) {
+          ctx.fillRect(bodyDropouts[k], bodyDropouts[k + 1], p.pixelSize, p.pixelSize);
+        }
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      // Outside-body bleed pixels: Gaussian-falloff scatter representing ink
+      // that's escaped past the brush boundary. Drawn after the polygon so
+      // any pixels that landed inside the polygon's wobble-expanded boundary
+      // still appear. Applies in both render modes.
+      if (bleedPixels.length > 0) {
+        ctx.fillStyle = p.color;
+        for (let k = 0; k < bleedPixels.length; k += 3) {
+          ctx.globalAlpha = bleedPixels[k + 2];
+          ctx.fillRect(bleedPixels[k], bleedPixels[k + 1], p.pixelSize, p.pixelSize);
+        }
+      }
+
+      if (p.renderStyle === 'bristles') {
+        // Continuous bristles: each dot was collected at a bristle's
+        // drifted arc position. Source-over with brush color = dark on
+        // light background. Adjacent arc-step samples of the same bristle
+        // are within ~1 px of each other, so they visually merge into a
+        // continuous stroke. Where bristles cross or cluster, multiple
+        // dots accumulate at the same pixel and the area gets DARKER —
+        // which is the "loaded brush" look from the reference.
+        //
+        // Each bristleDot entry is 6 values: (gx, gy, alpha, size, perpX,
+        // perpY). The perp pair lets us recover the arc-tangent direction
+        // at the dot's arc position (tangent ⟂ perp): tangentX = -perpY,
+        // tangentY = perpX. Used by NEGATIVE viscosity (watercolor) to
+        // smear each dot along the arc direction.
+        //
+        // Viscosity ∈ [-1, +1]:
+        //   < 0 watercolor: each dot drawn as 5 echoes spaced along tangent,
+        //                   alpha divided so total ink is conserved
+        //   = 0 neutral: single fillRect per dot (cheapest path)
+        //   > 0 acrylic: single fillRect with boosted alpha — overlapping
+        //                bristles pile up darker
+        //
+        // Outer loop iterates palette buckets so fillStyle changes at most
+        // palette.length times total (1 for solid, 5 for metallics). Inside
+        // each bucket the three viscosity paths are kept separate so the
+        // hot loop has no per-dot branch on visc sign.
+        const visc = p.viscosity;
+        for (let pi = 0; pi < palette.length; pi++) {
+          const dots = bristleDotsByPaletteIdx[pi];
+          if (dots.length === 0) continue;
+          ctx.fillStyle = renderedPalette[pi];
+
+          if (visc < -0.01) {
+            const diffusion = -visc;
+            const echoes = 2;
+            const totalEchoes = 2 * echoes + 1;
+            for (let k = 0; k < dots.length; k += 6) {
+              const x = dots[k];
+              const y = dots[k + 1];
+              const alpha = dots[k + 2];
+              const size = dots[k + 3];
+              const tx = -dots[k + 5];
+              const ty = dots[k + 4];
+              const stepSize = diffusion * size * 1.5;
+              ctx.globalAlpha = alpha / totalEchoes;
+              for (let e = -echoes; e <= echoes; e++) {
+                ctx.fillRect(x + tx * e * stepSize, y + ty * e * stepSize, size, size);
+              }
+            }
+          } else if (visc > 0.01) {
+            const alphaMult = 1 + visc;
+            for (let k = 0; k < dots.length; k += 6) {
+              ctx.globalAlpha = Math.min(1, dots[k + 2] * alphaMult);
+              const size = dots[k + 3];
+              ctx.fillRect(dots[k], dots[k + 1], size, size);
+            }
+          } else {
+            for (let k = 0; k < dots.length; k += 6) {
+              ctx.globalAlpha = dots[k + 2];
+              const size = dots[k + 3];
+              ctx.fillRect(dots[k], dots[k + 1], size, size);
+            }
+          }
+        }
+        ctx.globalAlpha = 1;
+      } else {
+        // Stipple mode: apply collected bristle striations now that the
+        // polygon and bleed are down. destination-out subtracts alpha from
+        // existing ink — physically the right model (dry bristles REMOVE
+        // ink) and visually the only ordering where the dropouts survive
+        // instead of being repainted over. Dot size scales with the canvas
+        // DPR so striations stay visible at retina resolutions rather than
+        // collapsing to half-CSS-pixel slivers.
+        if (striationDots.length > 0) {
+          const dotSize = Math.max(1, Math.round(scale));
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.fillStyle = '#000';
+          // Pixel-level dedup: each canvas pixel can be hit by at most ONE
+          // random probe across all arc steps. Without this, the cumulative
+          // destination-out at fixed offsets would saturate to fully-transparent
+          // lines exactly as before; with it, the dropout pattern is a stipple
+          // whose density (not depth) varies with local dryness.
+          const striationGrid = new Set();
+          for (let k = 0; k < striationDots.length; k += 3) {
+            const gx = striationDots[k];
+            const gy = striationDots[k + 1];
+            const key = gx * 32768 + gy;
+            if (striationGrid.has(key)) continue;
+            striationGrid.add(key);
+            ctx.globalAlpha = striationDots[k + 2];
+            ctx.fillRect(gx, gy, dotSize, dotSize);
+          }
+          ctx.globalCompositeOperation = 'source-over';
+        }
+      }
+
+      ctx.globalAlpha = 1;
+    }
+
+    function updateLabels() {
+      document.getElementById('startAngleVal').textContent = document.getElementById('startAngle').value;
+      document.getElementById('gapVal').textContent = document.getElementById('gap').value;
+      document.getElementById('radiusVal').textContent = document.getElementById('radius').value;
+      document.getElementById('imperfectionVal').textContent = parseFloat(document.getElementById('imperfection').value).toFixed(1);
+      document.getElementById('tiltVal').textContent = (parseFloat(document.getElementById('tilt').value) / 100).toFixed(2);
+      document.getElementById('thicknessVal').textContent = document.getElementById('thickness').value;
+      document.getElementById('startTaperVal').textContent = document.getElementById('startTaper').value;
+      document.getElementById('startSharpVal').textContent = (document.getElementById('startSharp').value / 100).toFixed(2);
+      document.getElementById('endTaperVal').textContent = document.getElementById('endTaper').value;
+      document.getElementById('endThickVal').textContent = document.getElementById('endThick').value;
+      document.getElementById('inkRunoutStartVal').textContent = document.getElementById('inkRunoutStart').value;
+      document.getElementById('inkRunoutRateVal').textContent = (parseFloat(document.getElementById('inkRunoutRate').value) / 100).toFixed(2);
+      // minInk slider 0–1000 displayed as 0.00–10.00 %
+      document.getElementById('minInkVal').textContent = (parseFloat(document.getElementById('minInk').value) / 100).toFixed(2);
+      document.getElementById('brushFadeStartVal').textContent = document.getElementById('brushFadeStart').value;
+      document.getElementById('brushFadeRateVal').textContent = (parseFloat(document.getElementById('brushFadeRate').value) / 100).toFixed(2);
+      document.getElementById('striationCoarsenessVal').textContent = parseFloat(document.getElementById('striationCoarseness').value).toFixed(1);
+      document.getElementById('bristleSizeStdVal').textContent = logMap(parseFloat(document.getElementById('bristleSizeStd').value), 0.1, 100).toFixed(2);
+      document.getElementById('striationSpreadVal').textContent = document.getElementById('striationSpread').value;
+      document.getElementById('bristleCountVal').textContent = Math.max(1, Math.round(logMap(parseFloat(document.getElementById('bristleCount').value), 1, 1000)));
+      document.getElementById('viscosityVal').textContent = document.getElementById('viscosity').value;
+      document.getElementById('bristleModulationVal').textContent = document.getElementById('bristleModulation').value;
+      document.getElementById('bristlePulseRateVal').textContent = parseFloat(document.getElementById('bristlePulseRate').value).toFixed(1);
+      document.getElementById('bristlePulseSpreadVal').textContent = document.getElementById('bristlePulseSpread').value;
+      document.getElementById('bristleFadeRateVal').textContent = logMap(parseFloat(document.getElementById('bristleFadeRate').value), 0.1, 10).toFixed(2);
+      document.getElementById('bristleWobbleRateVal').textContent = parseFloat(document.getElementById('bristleWobbleRate').value).toFixed(1);
+      document.getElementById('bristleWobbleAmountVal').textContent = document.getElementById('bristleWobbleAmount').value;
+      document.getElementById('bristleCorrelationVal').textContent = document.getElementById('bristleCorrelation').value;
+      document.getElementById('edgeWobbleAmountVal').textContent = parseFloat(document.getElementById('edgeWobbleAmount').value).toFixed(1);
+      document.getElementById('edgeWobbleFreqVal').textContent = parseFloat(document.getElementById('edgeWobbleFreq').value).toFixed(1);
+      document.getElementById('pixelStartVal').textContent = document.getElementById('pixelStart').value;
+      document.getElementById('transitionWidthVal').textContent = document.getElementById('transitionWidth').value;
+      document.getElementById('pixelSizeVal').textContent = document.getElementById('pixelSize').value;
+      document.getElementById('fadeStartVal').textContent = document.getElementById('fadeStart').value;
+      document.getElementById('fadeCurveVal').textContent = (document.getElementById('fadeCurve').value / 10).toFixed(1);
+      document.getElementById('outwardBleedVal').textContent = document.getElementById('outwardBleed').value;
+      document.getElementById('inwardBleedVal').textContent = document.getElementById('inwardBleed').value;
+      document.getElementById('longitudinalBleedVal').textContent = document.getElementById('longitudinalBleed').value;
+      document.getElementById('bleedOnsetVal').textContent = document.getElementById('bleedOnset').value;
+      document.getElementById('bleedStartVal').textContent = document.getElementById('bleedStart').value;
+      document.getElementById('bleedBodyVal').textContent = (function() {
+        const s = parseFloat(document.getElementById('bleedBody').value);
+        return s <= 0 ? '0.000' : logMap(s, 0.001, 1).toFixed(3);
+      })();
+      document.getElementById('colorVariationVal').textContent = document.getElementById('colorVariation').value;
+      document.getElementById('numVariantsVal').textContent = document.getElementById('numVariants').value;
+      document.getElementById('brighterDarkerRatioVal').textContent = document.getElementById('brighterDarkerRatio').value;
+      document.getElementById('shadeDistributionVal').textContent = document.getElementById('shadeDistribution').value;
+      document.getElementById('smoothContrastVal').textContent = document.getElementById('smoothContrast').value;
+      document.getElementById('pixelContrastVal').textContent = document.getElementById('pixelContrast').value;
+      document.getElementById('contrastCutoffVal').textContent = document.getElementById('contrastCutoff').value;
+      document.getElementById('contrastTransitionWidthVal').textContent = document.getElementById('contrastTransitionWidth').value;
+    }
+
+    // When render style changes, some sliders become inert because their
+    // mechanism doesn't exist in the new mode. Rather than silently letting
+    // them sit there doing nothing — which is what was happening before, and
+    // makes the editor feel broken — we mark them disabled so the user can
+    // SEE that the control isn't wired up. They get re-enabled (and properly
+    // wired) one at a time in subsequent iterations.
+    //
+    // Currently disabled in BRISTLES mode (no polygon to operate on):
+    //   - brushFadeStart / brushFadeRate: drive hash-keyed body dropouts
+    //     through the polygon; nothing to drop from when there's no fill.
+    //
+    // Re-wired (was disabled previously):
+    //   - striationCoarseness: drives per-bristle dot size (mean).
+    //   - viscosity: now centered at 0; negative = arc-tangent diffusion
+    //     (watercolor), positive = alpha pile-up (acrylic). See bristle
+    //     draw loop above.
+    function updateSliderEnabled() {
+      const bristleMode = document.getElementById('renderStyle').value === 'bristles';
+      const numVariants = parseInt(document.getElementById('numVariants').value, 10);
+      const hasVariants = numVariants > 1;
+      document.getElementById('brushFadeStart').disabled = bristleMode;
+      document.getElementById('brushFadeRate').disabled = bristleMode;
+      // Pixel-zone & radial-bleed controls have no effect in bristle mode:
+      // bristles render throughout the whole arc, contrast does the work
+      // that used to be done by switching to a separate pixel zone, and
+      // body scatter is the only bleed-family knob that still matters
+      // (it reduces bristle alpha so high-contrast binarization scatters
+      // the survivors). Disabled so the UI doesn't suggest these have any
+      // effect; the underlying code paths short-circuit too.
+      const pixelZoneSliders = [
+        'pixelStart', 'transitionWidth', 'pixelSize', 'fadeStart', 'fadeCurve',
+        'outwardBleed', 'inwardBleed', 'longitudinalBleed', 'bleedOnset', 'bleedStart'
+      ];
+      pixelZoneSliders.forEach(id => {
+        document.getElementById(id).disabled = bristleMode;
+      });
+      // With only 1 shade variant the palette collapses to a single color
+      // (just the base) — colorVariation has nothing to lerp toward,
+      // brighter/darker ratio has no other shades to distribute, and
+      // shadeDistribution has no per-bristle choice to make, so all three
+      // are inert. Grey them out so the UI shows that.
+      document.getElementById('colorVariation').disabled = !hasVariants;
+      document.getElementById('brighterDarkerRatio').disabled = !hasVariants;
+      document.getElementById('shadeDistribution').disabled = !hasVariants;
+    }
+
+    const ids = ['startAngle','direction','gap','radius','imperfection','tilt',
+                 'renderStyle',
+                 'thickness','startTaper','startSharp','endTaper','endThick',
+                 'inkRunoutStart','inkRunoutRate','minInk','brushFadeStart','brushFadeRate',
+                 'striationCoarseness','bristleSizeStd','striationSpread','bristleCount',
+                 'viscosity','bristleModulation','bristlePulseRate','bristlePulseSpread','bristleFadeRate','bristleWobbleRate','bristleWobbleAmount','bristleCorrelation',
+                 'edgeWobbleAmount','edgeWobbleFreq',
+                 'pixelStart','transitionWidth',
+                 'pixelSize','fadeStart','fadeCurve',
+                 'outwardBleed','inwardBleed','longitudinalBleed','bleedOnset','bleedStart','bleedBody',
+                 'color','numVariants','brighterDarkerRatio','shadeDistribution','colorVariation','bg','smoothContrast','pixelContrast','contrastCutoff','contrastTransitionWidth'];
+    ids.forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        updateLabels();
+        updateSliderEnabled();
+        render();
+      });
+    });
+    updateSliderEnabled();
+
+    // Preset color swatches: clicking one writes the swatch's data-color into
+    // the picker and dispatches an 'input' event so the same listener chain
+    // above (updateLabels → updateSliderEnabled → render) fires. No special
+    // handling needed downstream — the palette is generated from p.color
+    // every render, so swapping it via swatch is identical to dragging the
+    // color picker.
+    document.querySelectorAll('.swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const colorInput = document.getElementById('color');
+        colorInput.value = btn.dataset.color;
+        colorInput.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    });
+
+    // Theme toggle: three states cycling System → Light → Dark → System.
+    // 'system' (the default) follows the OS setting and live-updates when
+    // the OS theme changes; 'light'/'dark' are explicit user overrides.
+    // The canvas render is independent of UI theme (its background comes
+    // from the bg dropdown), so no re-render is needed — only the chrome
+    // recolors via CSS variables.
+    (function () {
+      const themeToggle = document.getElementById('themeToggle');
+      const order = ['system', 'light', 'dark'];
+      const labels = { system: '🖥️ System', light: '☀️ Light', dark: '🌙 Dark' };
+      const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+      function getMode() {
+        try { return localStorage.getItem('enso-theme') || 'system'; }
+        catch (e) { return 'system'; }
+      }
+      function applyMode(mode) {
+        const prefersDark = mq ? mq.matches : false;
+        const dark = mode === 'dark' || (mode === 'system' && prefersDark);
+        document.documentElement.classList.toggle('dark', dark);
+        themeToggle.textContent = labels[mode];
+      }
+      themeToggle.addEventListener('click', () => {
+        const next = order[(order.indexOf(getMode()) + 1) % order.length];
+        try { localStorage.setItem('enso-theme', next); } catch (e) {}
+        applyMode(next);
+      });
+      // Live-follow the OS while in system mode. Guarded for older Safari
+      // which only has the deprecated addListener API.
+      if (mq) {
+        const onChange = () => { if (getMode() === 'system') applyMode('system'); };
+        if (mq.addEventListener) mq.addEventListener('change', onChange);
+        else if (mq.addListener) mq.addListener(onChange);
+      }
+      applyMode(getMode());
+    })();
+
+    let resizeFrame = null;
+    const resizeObserver = new ResizeObserver(() => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = null;
+        render();
+      });
+    });
+    resizeObserver.observe(document.getElementById('previewPane'));
+
+    // Draggable preview: on grab, the pane flips from position:sticky to
+    // position:fixed so it can be parked anywhere (e.g. the empty letterbox
+    // margins on wide viewports). The dock button restores the original
+    // in-flow layout.
+    (function makePreviewDraggable() {
+      const pane = document.getElementById('previewPane');
+      const handle = document.getElementById('previewHandle');
+      const dockBtn = document.getElementById('previewDock');
+      let dragging = false;
+      let startX, startY, startLeft, startTop;
+      let floating = false;
+
+      function startFloating() {
+        const rect = pane.getBoundingClientRect();
+        pane.style.position = 'fixed';
+        pane.style.top = rect.top + 'px';
+        pane.style.left = rect.left + 'px';
+        pane.style.right = 'auto';
+        pane.style.bottom = 'auto';
+        pane.style.margin = '0';
+        pane.style.zIndex = '100';
+        dockBtn.style.display = 'inline-block';
+        floating = true;
+      }
+
+      function dock() {
+        pane.style.position = '';
+        pane.style.top = '';
+        pane.style.left = '';
+        pane.style.right = '';
+        pane.style.bottom = '';
+        pane.style.margin = '';
+        pane.style.zIndex = '';
+        dockBtn.style.display = 'none';
+        floating = false;
+      }
+
+      handle.addEventListener('pointerdown', (e) => {
+        if (e.target === dockBtn) return; // dock button has its own handler
+        dragging = true;
+        if (!floating) startFloating();
+        const rect = pane.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        startLeft = rect.left;
+        startTop = rect.top;
+        handle.style.cursor = 'grabbing';
+        handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+
+      handle.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const rect = pane.getBoundingClientRect();
+        // Keep at least 40px of the pane on-screen so it can't be dragged out of reach.
+        const minLeft = 40 - rect.width;
+        const maxLeft = window.innerWidth - 40;
+        const minTop = 0;
+        const maxTop = window.innerHeight - 40;
+        pane.style.left = Math.min(maxLeft, Math.max(minLeft, startLeft + dx)) + 'px';
+        pane.style.top = Math.min(maxTop, Math.max(minTop, startTop + dy)) + 'px';
+      });
+
+      function endDrag() {
+        if (!dragging) return;
+        dragging = false;
+        handle.style.cursor = 'grab';
+      }
+      handle.addEventListener('pointerup', endDrag);
+      handle.addEventListener('pointercancel', endDrag);
+
+      dockBtn.addEventListener('click', dock);
+    })();
+
+    document.getElementById('regenerate').addEventListener('click', () => {
+      seed = Math.random();
+      render();
+    });
+
+    // ── Random enso generator ────────────────────────────────────────────
+    // Conservative artistic bounds, deliberately NARROWER than each slider's
+    // full range. Most sliders produce poor results near their extremes
+    // (invisible strokes, mush, moiré), so each entry is [min, max, step]
+    // tuned against the bundled bristle-mode presets (Fade/Fade2/GoldPix/
+    // BlueEnso), which mark known-good regions of the parameter space.
+    //
+    // Sliders intentionally OMITTED (left at their current value):
+    //   • renderStyle — forced to 'bristles' below (stipple is legacy)
+    //   • brushFadeStart/Rate and the pixel-zone + radial-bleed sliders —
+    //     all disabled/inert in bristle mode, so randomizing them is a no-op
+    //   • color and bg — handled by the bespoke logic below
+    // Shape variety between rolls comes mainly from a fresh _seed, with
+    // imperfection adding a touch of organic radial deformation on top.
+    const RANDOM_BOUNDS = {
+      startAngle:              [0, 360, 1],
+      gap:                     [5, 45, 1],
+      radius:                  [28, 42, 1],
+      imperfection:            [0, 4, 0.1],
+      tilt:                    [-60, 80, 1],
+      thickness:               [60, 160, 1],
+      startTaper:              [0, 25, 1],
+      startSharp:              [35, 200, 1],
+      endTaper:                [0, 35, 1],
+      endThick:                [0, 55, 1],
+      inkRunoutStart:          [0, 70, 1],
+      inkRunoutRate:           [100, 350, 1],
+      minInk:                  [100, 200, 1],  // slider/100 = %, floor ≥1% so the dry end stays visible after binarization
+      striationCoarseness:     [1.5, 6, 0.5],
+      bristleSizeStd:          [20, 65, 1],
+      striationSpread:         [15, 100, 1],
+      bristleCount:            [55, 95, 1],
+      viscosity:               [-30, 60, 1],
+      bristleModulation:       [50, 100, 1],
+      bristlePulseRate:        [4, 13, 0.5],
+      bristlePulseSpread:      [20, 100, 1],
+      bristleFadeRate:         [35, 75, 1],
+      bristleWobbleRate:       [0, 6, 0.5],
+      bristleWobbleAmount:     [0, 15, 1],
+      bristleCorrelation:      [40, 100, 1],
+      edgeWobbleAmount:        [0, 6, 0.5],
+      edgeWobbleFreq:          [1, 8, 0.5],
+      bleedBody:               [30, 70, 1],
+      numVariants:             [3, 12, 1],
+      brighterDarkerRatio:     [-70, 40, 1],
+      shadeDistribution:       [0, 100, 1],
+      colorVariation:          [30, 70, 1],
+      smoothContrast:          [0, 45, 1],
+      pixelContrast:           [60, 88, 1],
+      contrastCutoff:          [40, 80, 1],
+      contrastTransitionWidth: [15, 50, 1],
+    };
+
+    // Curated base colors that always read well once generatePalette() fans
+    // them into lighter/darker shades: gold, silver, bronze, metallic blue,
+    // plus deep red, forest, plum, and teal.
+    const RANDOM_COLORS = ['#d9a91a', '#b8b8b8', '#a05a2c', '#0d1f4f',
+                           '#7a1f2b', '#1f4d3a', '#3a2a5a', '#155e63'];
+
+    // Generate a random enso DETERMINISTICALLY from the clock, in UTC so the
+    // "enso of the day" is the same worldwide for a given calendar date:
+    //   • daily mode (useTimeOfDay = false): seed = today at UTC midnight,
+    //     identical every time it's generated for the whole UTC day (and for
+    //     everyone, regardless of their local timezone).
+    //   • re-roll mode (useTimeOfDay = true): seed = UTC midnight + UTC
+    //     time-of-day = the full current timestamp (= Date.now()), so each
+    //     re-roll yields a different enso, yet one still a pure function of
+    //     the instant it was rolled (deterministic in time).
+    // A single mulberry32 stream seeded from that value drives EVERY choice
+    // below — the shape seed, all slider values, direction, and color — so
+    // the entire enso is reproducible from the seed alone.
+    // Dashboard's own ritual mode flag. Independent from the calendar's
+    // `enso-ritual` key — the dashboard defaults OFF (the dashboard is a
+    // free-exploration tool, not the daily-ritual viewer). The flag is
+    // synced from the calendar via a `?ritual=` URL param when the user
+    // clicks "Edit" on a day, and from then on the dashboard's own toggle
+    // takes over. Stored under `enso-ritual-dashboard` so toggling here
+    // doesn't bleed back into the calendar's state.
+    let ritualOn = false;
+    try {
+      const stored = localStorage.getItem('enso-ritual-dashboard');
+      if (stored !== null) ritualOn = stored === 'on';
+    } catch (e) {}
+
+    function randomEnso(useTimeOfDay, dateOverrideMs) {
+      const now = new Date();
+      // Default date is today (UTC); the calendar's Edit button passes a
+      // specific past date here, so the dashboard reproduces THAT day's enso.
+      const utcMidnight = (dateOverrideMs != null)
+        ? dateOverrideMs
+        : Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+      const seedBase = useTimeOfDay ? now.getTime() : utcMidnight;
+      const prng = mulberry32(seedBase);          // mulberry32 coerces to int32 internally
+      const r = (min, max) => min + prng() * (max - min);
+      const snap = (v, step) => Math.round(v / step) * step;
+      // First draw becomes the shape seed (0–1), consumed downstream as
+      // mulberry32(floor(_seed * 1e9)) for the brush-tip layout.
+      const settings = { _seed: prng(), renderStyle: 'bristles' };
+      for (const [id, [min, max, step]] of Object.entries(RANDOM_BOUNDS)) {
+        settings[id] = String(snap(r(min, max), step));
+      }
+      settings.direction = prng() < 0.5 ? 'cw' : 'ccw';
+      settings.bg = 'transparent';   // random ensos are transparent by default
+      // ~45% curated swatch, otherwise a synthesized rich hue. S/L kept
+      // mid-range so the palette fan-out around the base stays legible.
+      if (prng() < 0.45) {
+        settings.color = RANDOM_COLORS[Math.floor(prng() * RANDOM_COLORS.length)];
+      } else {
+        settings.color = hslToHex(prng(), 0.45 + prng() * 0.35, 0.28 + prng() * 0.24);
+      }
+      // Ritual override applied AFTER prng draws — it never disturbs the
+      // brush/ink/color stream, only the geometric start point and direction.
+      if (ritualOn) {
+        settings.startAngle = '90';
+        settings.direction = 'cw';
+      }
+      applySettings(settings);  // sets seed + all values, relabels, re-enables, renders
+    }
+    document.getElementById('randomEnso').addEventListener('click', () => randomEnso(false));
+    document.getElementById('rerollEnso').addEventListener('click', () => randomEnso(true));
+
+    // Ritual toggle button — same shape as the calendar's. Persists to
+    // `enso-ritual-dashboard` localStorage. Does NOT re-render automatically;
+    // toggling here just changes how the next 🎲/🔄 button click will draw.
+    (function () {
+      const btn = document.getElementById('ritualToggle');
+      function apply() { btn.classList.toggle('active', ritualOn); }
+      btn.addEventListener('click', () => {
+        ritualOn = !ritualOn;
+        try { localStorage.setItem('enso-ritual-dashboard', ritualOn ? 'on' : 'off'); } catch (e) {}
+        apply();
+      });
+      apply();
+    })();
+
+    document.getElementById('download').addEventListener('click', () => {
+      render(800);
+      const link = document.createElement('a');
+      link.download = 'pixelated-enso-800.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      setTimeout(() => render(), 100);
+    });
+
+    document.getElementById('downloadHD').addEventListener('click', () => {
+      render(2400);
+      const link = document.createElement('a');
+      link.download = 'pixelated-enso-2400.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      setTimeout(() => render(), 100);
+    });
+
+    // ---------- Presets ----------
+    const PRESETS_KEY = 'enso-presets-v2';
+    const SEED_KEY = 'enso-presets-seeded-v1';
+    const statusEl = document.getElementById('presetStatus');
+
+    // FACTORY_PRESETS: shipped-with-the-file defaults. Seeded into the user's
+    // storage on first run (controlled by SEED_KEY so we only do it once,
+    // even if they later delete everything). Populate this object with the
+    // output of "Export all" to bake presets into a distribution build.
+    const FACTORY_PRESETS = {"circle":{"_seed":0.4070956689226791,"startAngle":"270","direction":"ccw","gap":"0","radius":"28","imperfection":"0","tilt":"90","thickness":"120","startTaper":"0","startSharp":"20","endTaper":"50","endThick":"100","inkRunoutStart":"0","inkRunoutRate":"0","striationCoarseness":"12.5","striationSpread":"42","viscosity":"88","bristleModulation":"94","bristlePulseRate":"13","edgeWobbleAmount":"0","edgeWobbleFreq":"26.5","pixelStart":"100","transitionWidth":"0","pixelSize":"2","fadeStart":"52","fadeCurve":"22","outwardBleed":"60","inwardBleed":"10","bleedOnset":"65","color":"#0d1f4f","bg":"white","smoothContrast":"0","pixelContrast":"35","_thumb":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAHTUlEQVR4Aexba2wVRRQ+21vaQqstxUIopQ9AW1owwUgsRIwYpfiPl9iiIo0JLwnViCYY/aWBRDFSRF5/MAEpQaD8E9CIEQNNMIEILVR5XEop0looDaUPelvnW3trudy7vWdmdntrtunp7s6c851vvjuzOzN7G9Xt/igpEEXuj5ICroBK8hG5AroCKiqgGO72QFdARQUUw90e6AqoqIBiuNsDXQEVFVAMj6geWFNbTyUfbqGnX1xFE6YuoawpiynrqcWUk/8WPVOwWtRtpavXbio2WW/4gAq4Z/8xSs0rokcz55g26dmltHPPUfrjYi3VNzRR4+1marzVTHV/NdL56hpRd4Qmz1hm+iIGsd/u/4mriFZ/xwW8f98nRCs0RVi+ppTutrRKNwixK9ZsMrFS8woJ2NJgkoGOCYjhmTRuHo14fL4QrU2Sbuiwuy1tJjZy1FyrD+2oucYRAVOyFxKGZ1dXl2b6D8Mhx6QZSwk5H67VX2KrgCVrvzaHV3t7h37m/SAiJ+6TJWu39OOpVm2bgKNzi2hn2Q9q7DRE7yw7Sqm5hRqQgkPYImBi1lxquSf/cAhOVb707r02Aid5hNCR2gVMzJpDYo88dMYBqgGnRPHB6k6vVUAQ7O7WTVEfnh0iahMQ0wcQ1Ndce5DAMWncXG3gWgTETRrTB22sbAbq6uqm0WIFpCONsoCrxTQBN2kdZJzEaBErIHBXzaks4DdimqBKAvGGYVBeTgY1ew9ZWm52JhmGgRBl08FdScCU7FeUGxEd7TEFu3OlnE4eLg2B919xxZGNBF8I7fEo0TdBVdsgzaD2egO1t983Scj+qThSSrcuHpANp9uXDlLF9/2LbpUAbbhW12DlYlknLeDk55ZZAltVRouegx6Um51h5RZWXe7Ef4e9x+MJyz+Y05Ni7RysPJwyKQE7OjrJ55PbGIiLi6FboueEQ47jc/vSARoqsDkxfl+fr5vQJv815yglYOaUNzg5en09oufVX9jXe6375KbA9kj2xIwpr0vRkRIQG5ky2XDPkonjxKAncvz9vi1iP9F/zjmyBSw7eIyD3+tbcXhj77ndJ+E8zYNx2Fv+c7BiyzK2gO99vN0SMFilRwzd3JzMYFW2lGE+iZxc8Hc/2sYN4X87C1vn3CxODN1ATjI5ZYYxuwcGEu3v2jD0rBr6yxOs3jDsz80SsEZMnoMRtSrL0zDXs8K3qsvLTreqDlpXe533Qool4Oebvwua1KrwhIMPj0AeJ8JYGgbGfLZ5f2CR5TVLwIpTVZZg/4fKk6fOs5rBEvDvxjvhgw9Sz4bGJhZzloBt7Z0s8MHo3MHcIGEJaFAEv/DQ9Gl1E+/JzRIwJnaIJpqRCxMXG80ixxIwZUQSC3wwOj82IpFFmyXgtKkTWeCD0Tl/ai6LNkvAD1YtYIHDefrsEhwGxKbPfoed9/1VvNcULAHTxoxkE6qsrmHH6AqorL7Khkofk8KKYQnIQu5xxovsnlPHD07kZgsYHx/HFmL4+HnsGNUAmZwJEm1jC/jlp8vZbfOJ9yeVF/jDiZ2oJ6Dqglfqnc0Xn/BflLEFLJz7fA9N3mGagw+TfImHB1pTNG8mDixjCwh0mWGMuOHj5+NgqyVL3i4S4odK8XpAwHARrp7eHa7rA34+n49G5Sx8oEznxaiJr1KnuF3IYHpP75IJ42/pI0tMTDR5PLw1I+JgrW0dZEdPRM9rbW1HCrbh/QnaxA4UAVI9UMTR78d34CBlPtET8QXwqvPqD5YqMdcDVqdkz0MDzv7Cf1GGOJi0gGNTUyhWcXMh/+US0RvlpzjJE+ZTfoHaSgdtSGNOniGc36QFBEBDNX+LH3F9DVMc9CB8PTi/oP+lF57m8EVMZ6evL5TUuWoblAQE4yVFs3BQNqwaqqq95v+VQJxQhvkkfJUTCoA3NXBXFnDT+pUULzkFEG0YsN+EYXH0leCuSkBZQBC4UVlGUVFyT2XEO21RUVFUV7VXS1otAoJJ0+VyMozIF9EwDGq6fBCUtZg2AcEGX701jMgVEdTAEVx1mVYBQQoEDSPyRDQMg+5cOQSKWk27gGAHEXGTxnkkWPywoUK8cluo2CIgmOImXaxhmgAsFSsueoluVJWFhFCtsE1AECsV04Rm7yGxYonBpaMWGxtj/vtE6fq3bc1rq4B+5g3V++icWDtj+uAvs+uIHOd+3UHIaVeOvriOCIiE6WNHmtOHxj8PUILE1jkwrAyYwMYUJT1tpJWr1jrHBPSzHjLEQ3WVe83htXXDaiGm3EYm8BLECmjbhhITC5jARrmT5riAfRv32oIXhJhlpgC4V549vp2KFxXQExPSKDnpEcLTM14suZKTEsyy4kWzCMMTvrA6sQJatGBmX0jHzwdUwMDWZowdRaXrVtBvP24m75ld5tPzhlhyec/sNstK160kJ4dnIL9g1xElYDCCkV7mCqj4CbkCugIqKqAY7vZAV0BFBRTDB2MPVGyy3nBXQEU9XQFdARUVUAz/BwAA//8bsGzjAAAABklEQVQDAHX1So5ZGoNTAAAAAElFTkSuQmCC"},"brush":{"_seed":0.123231803046711,"startAngle":"90","direction":"cw","gap":"0","radius":"36","imperfection":"0","tilt":"90","thickness":"120","startTaper":"1","startSharp":"73","endTaper":"0","endThick":"70","inkRunoutStart":"21","inkRunoutRate":"39","striationCoarseness":"4","striationSpread":"100","viscosity":"75","bristleModulation":"97","bristlePulseRate":"6.5","bristleCorrelation":"47","edgeWobbleAmount":"2.5","edgeWobbleFreq":"7","pixelStart":"100","transitionWidth":"0","pixelSize":"1","fadeStart":"52","fadeCurve":"22","outwardBleed":"60","inwardBleed":"10","bleedOnset":"65","color":"#0d1f4f","bg":"white","smoothContrast":"100","pixelContrast":"34","_thumb":"data:image/png;base64,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"},"brushpix":{"_seed":0.123231803046711,"startAngle":"90","direction":"cw","gap":"0","radius":"36","imperfection":"0","tilt":"90","thickness":"120","startTaper":"1","startSharp":"73","endTaper":"10","endThick":"70","inkRunoutStart":"21","inkRunoutRate":"39","striationCoarseness":"4","striationSpread":"100","viscosity":"75","bristleModulation":"97","bristlePulseRate":"6.5","bristleCorrelation":"47","edgeWobbleAmount":"2.5","edgeWobbleFreq":"7","pixelStart":"75","transitionWidth":"0","pixelSize":"1","fadeStart":"90","fadeCurve":"22","outwardBleed":"60","inwardBleed":"10","bleedOnset":"65","color":"#0d1f4f","bg":"white","smoothContrast":"100","pixelContrast":"100","_thumb":"data:image/png;base64,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"},"Fade":{"_seed":0.4047388930180438,"startAngle":"90","direction":"cw","gap":"3","radius":"36","imperfection":"0","tilt":"100","renderStyle":"bristles","thickness":"170","startTaper":"7","startSharp":"200","endTaper":"23","endThick":"0","inkRunoutStart":"51","inkRunoutRate":"503","minInk":"19","brushFadeStart":"50","brushFadeRate":"100","striationCoarseness":"6","bristleSizeStd":"58","striationSpread":"0","bristleCount":"91","viscosity":"100","bristleModulation":"100","bristlePulseRate":"7","bristlePulseSpread":"100","bristleFadeRate":"56","bristleWobbleRate":"2.5","bristleWobbleAmount":"0","bristleCorrelation":"100","edgeWobbleAmount":"1.5","edgeWobbleFreq":"1","pixelStart":"100","transitionWidth":"0","pixelSize":"11","fadeStart":"90","fadeCurve":"13","outwardBleed":"48","inwardBleed":"13","longitudinalBleed":"89","bleedOnset":"1","bleedStart":"100","bleedBody":"94","color":"#0d1f4f","bg":"white","smoothContrast":"0","pixelContrast":"0","_thumb":"data:image/png;base64,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"},"Fade2":{"_seed":0.4523121785258578,"startAngle":"90","direction":"cw","gap":"4","radius":"37","imperfection":"0","tilt":"100","renderStyle":"bristles","thickness":"154","startTaper":"9","startSharp":"38","endTaper":"11","endThick":"38","inkRunoutStart":"51","inkRunoutRate":"357","minInk":"34","brushFadeStart":"50","brushFadeRate":"100","striationCoarseness":"6","bristleSizeStd":"35","striationSpread":"100","bristleCount":"91","viscosity":"47","bristleModulation":"100","bristlePulseRate":"7","bristlePulseSpread":"100","bristleFadeRate":"70","bristleWobbleRate":"2.5","bristleWobbleAmount":"0","bristleCorrelation":"100","edgeWobbleAmount":"3.5","edgeWobbleFreq":"1.5","pixelStart":"100","transitionWidth":"0","pixelSize":"11","fadeStart":"90","fadeCurve":"13","outwardBleed":"48","inwardBleed":"13","longitudinalBleed":"89","bleedOnset":"1","bleedStart":"100","bleedBody":"50","color":"#0d1f4f","bg":"white","smoothContrast":"0","pixelContrast":"0","_thumb":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAQAElEQVR4AexcB5wWxd1+Zvet914vHBwcxYOjHXCgCFJULAQRC9aon1FsiSXd5EswibGXWD5rNHZNRBR7S+yiIAKK0nuvx91x/e7t3/PMcRdRVBDQ8/dz752d2dnZ2Z1n/31mz0n+sO0RAg5+2PYIgR8A3CP4gDYD4EkTrsT1/zcZo479LfoOPx9jT/sTOpachpHH/gbtep6MnO4n4aAf/RK5xSfhJxfeiGdefH8Ph753Lv9OAJzx0WL85fpHLUA9Bp+NjG7j8ebUT3DrvVMwZ95K1NU34YOZixCOxODEDTweD3x+L5oiETjG4JU3ZuKcX95srxt21K9QPHgC7rr/hb2DyG728q0CeNbFf0NOj5Mw9pTLcNu9z1qgysqrgWQSmRmpaGqKIckBRKIx7lVKwhvwICM9hNKS/TC4tCcOGd4fBQW5OOPkw1HUpT2WrtgAf8CHa26dhJIRF+C0867F41Pe5vXfzm+fA/jejPno0Pc05PU8Cc+9Mp1gAQkC5roOXNfYUebkpGPbtloYY1DQIRdIxuHzuvbcli1V2Fy2DR+Sap98fipmzlmCNWu34J9Pvok168uQn5eJSDiCXsWdsbWiCp8sWIk/XvUAehw4AX9/8CUsXLLW9rOvdvsUwNweJ+OY0/+CaCQKAwc52WlwPQ6Ik4gOgEEo5Ed1dQOM4yAvOx15OWnIykhDdlYmUkMp6FKYi/TUANsFkRL0o6kxgna5GTDEnvYHqmsbUFZRjY8/XQbXuCivrCbrR+E6Dv583cM4+Zyrcd6vb8G+2px90XFPvn0J/ZQUPwrysxH0+yC2rKysJbVEkUg0s2eQgPj9XogCe/UoRDDgh1i6riGMbdW1SCYSiEWTtj4cDiMai4PEi8amMEHMgs/nRWNjGI5x4Pd5EE/ovOGQktiytQrpaSloaGzCK6/NQn6vU3H/Y6/y3N797VUATzz7SrTvfSrS0lMRCHotFWwqq0RNfSMHnrTyzetxUVzUCX6CGo8nSH2N2MrBLlq6Bms3lmHzlkoLSoRUW0tlMuvTpfCxbSwaRywWsy+itq6JQFexHEXA70dGRgq8Xi9yczJ47CUFxgm6j+CFUVfbCMlQtZl4zUOWtSc/9y721rbXABxzykTLRh4CtKWsAh6yUHVt/XZqA9JSU+zgIgRh6Yr1FiRRTzweg2QiIMoBgQaBiUHgxuNxm6/bUEbWd+FSbvpJdV7KR7FvLJagIqpHJeWnzlVV1yOPIHbr3A75uZkW8DzKyKqaOpA4ceDAnmjgy/zNZfdg5LjfYG9szt7opNdB5+KTeSvQGI7B47poYi4qEQgakO5RQzAbmyIqEqSkzYPUnikpAaQSXFU4jmtBaoYSMMbY5DoOWKJiIZsS1GTSID01iB5FHdGhfQ7rvaihLKxvaMLqdVsoB2sRotzMy8kkFTZZyuzcqR0WLV2LEUNLkEcZuoza+6Axv0R1TT32ZHP25OKb7pqCTjR2q6oa4CVlcLyIkaKi0Sg4YmgrK69qBUzHPrJap4I8y8ICtIHyrq6uAbo2QXASlHs6ECWLypQk69IzgsjPy0LRfgWksnQkecH6jeXYUlZFlo1a4NPTgihon00lnrDaN86++vfuhlAggFoCPH7ccJo9G8nSqShh/bIVGy1LC0x8w835htfhhtsm4293PImGpijBcNHAt5+gTKtviFgqFPtJaxpD2mESCD4KeimT9Ru3Ikpbb0DfbujIAQf8PsowDwwpzSUVGmMs6zqOY8EPh6PYVllHs2ULlq/cRNC2WUBUX9gpDwcP6weDpKXCzZS5TWwveSglMnfxKoqECLoWtsOsOUvRp2dn9OnVhUZ5GBPOGE2Nn4oRR39zdv5GAN7y96dxHQGMkWI4RtRT2IMDkJrwej2kwgQcAtFADUksODhASiFCz8J1HHQmBXq9LuYvXmNtvCbacQIjmUxQkyaga3TeQ3lqjEEg4GXy2T7VRvVBsr8xBhtIhdPptfDdUTNnUM76ILFQUVGDFas3YfzYYWifl23LBwwoQk5WGmVmDQaWdMf7H8zDqOED0C4vg5x0OokhvNv0tNsAXvS723H1zZPsjUIpQQrnpAUsFAxYyhMLuq5DyknY42QSVkl4ybqiQCmMjVsq0ER5GKNZEqdJEyAYQSaH4KrjONEQ2AJd/dXWNUJJxzonc0aAi2V9fBEBn2spuJEvQtfHqKhyaXMedfhgPPHMVMxdvJqgBkm9m7GFxvaQQT0xk4b5iCH9sGzVRlxy3nFWNAw85EJ8MGuRutjltFsATnnhPTzx7FSCk4S0YQ0VQ5IIZWWESGExSz0xgqI6wNBui9m2opgYByWtqXMxAiQbMWU76AJT8lDg6LwxBtq8Xg+pzrEySy9FLKlc9/YQOIFKMYfSfsXo1CGHd3Tsc8AxiPA5Ppi9EL2KC9G3V2cqixoql2qsW1eGBfROBhPEN977GLk03l9+7UMM7FdkZewVNz6qW+9y2i0AfznxHsqmOERJkmUJUk+njnmWAjVmAeDxeNgmwcEAxjQDoXpwEzgOB2eMoRkTQQON3CiB5Snk0p0rJGunp6bAtW1gwdc1kUhETSCQfVRWTTSqRaHqV+w/beZ8svJWa7QLsChtRmnXbVV1qKSXUr61Gjf+9XwCWAN5LbM+XgKZWGecdDhdw8VwaTlsZZtR9LMzyOKX/O+dkEa3N/2a3S4DWDL8AtTVN1jwwmSVBF99aiiACnoXdbStXFJLjG89Ti2seyYoz5QrEQ9SkrGAaNCqU/JSxnVol2NZvZwyax2VSw01cowUSsK2VK4X4rJdUdcOMPwTcMoFrOM4aN8uy14f5b2XU+atWr0ZerbszDSytRdraENW0j78w5UP4uJzj0Wf4q4EsQrzFq7GwkWrMfrQAzBj9iLU1NWDviAG9+thz31E11DP+HVplwA8+5KbsH5TOUFwqD3jNneIisi/jqAaYyBTRDdLkCqNMbYNuGmQcdYJOGMMjDGsTaIL7TIBtYlGd4zKyHUdvDTpKlSverY1bVwwCRXLnsLG+ZMw+827UM5y5fIpWDTjARw4qBdfSMIqIb2snOwMZGekkhviSAsFGVioJjtHaC+mUE7H2a4STz7/LgEsRCHvHaan8xFt1/mLVmEAIz3TZi7Eq6/PRlllDboW5uPhx1/DR3OX81m/+rdLACr+ZkySb1rKIck3nESH/CysWb8VHgYHAn4v79IMjMMeHYJLpWxZQ5RijNkOHBAM+ljv4bX0Lsg6U1+82QJWufxpjKSRy46+9teB/vUbz1yPqpXPYupLNyOFPrQiMWJPP5WRnikjPYWi0EEVDeUIwerSJR9Llq/DzI8Xo4Ba2VIonx0GFA1hipAMupEVVDTrUUB5uoEE89EnS7+WlTncr37e0lEX6h520JJ7xhj7VjdsquSFSQQDQd4kTGpIwhhDtvNbgBPkwdh2+caG9qeBNdFudF2Dd1+8CZWkplIKb3vyG+4G9N0P6+c/jtuvu8i+4CrKvTLGGOPxJD2cADJJlQ00pzbxefux7VyybhKwIbEIzSqvx4u87Ez7/CCYi5etxao1m63yeWfaJ3j59Q/Z+st/zpefaj6zYcNWatM4YpQxYjMJ8VqyrShLZkwkGrE3d0l1xIxtY/ZY543hEzV3Y/fJpMEvzj8OW5c8hdKSIlu3t3ZnnnIEWXwKzjz1CCs+6uob0UCjPkbxIHevjqZQLBLHgfsXQxHxQ0cMwIbNFehBz6aKkR+9XMdxaCPWkfWjVlSlpqRg/sI12LRZxLLzJ/1KADv0+bE1IXw0GQSIUpSASc45BCfOh5PGC4UCcNxm9hbQupUxzeB5xSasUPRFFHflH8/i0b773Xn9xbjnpl8glBKwN9EzVlbVoqRPNyyh/9uF8q2UHtBr73yMUSNK8c77n2DMkUNssKMjg7n9SaUrVm3CouVraZbFyd5NuIEe11vvzbH9fX73pQD+9s/3whgDmQMKDjiOges4ZE9YCvNacyIKh3URuk4KN4EbL+G++RegBxFlxMTv86Fs8eTmym9hf+r4QyAFNGxwb7pqaZTTLn3jNThgYHe88c4nyKSGLizIwVoGHnp074wXX52OA6h9HY5RZlFhx1x0zMtFmOMCuaaquo4cmNjpk38pgC+8+gFcyqqUlACBBIFLkj3jFjxjmk0S9ag3LXmX5IExxrZj0QrlRkaPWYWyJXsKnnrc/fQitfrhIwda7ezzejB7zjK6ciHrR7fLzUIVw1zpqX6IO8pJpZ065NGeLIeM7Gwa2AIuj26elOTlNzy20wf4UgApg6n+k3wLEQuKx3UseOqlHWNsUQYD5BnIGxFLGyPwmt9St87tsbW8Sk0hTWkL39Hurr9dgsPIqjKwJU4odRiRWYfeDCpoHmXF6i04ZsxQKPCRwcmr/bp0oPmyDF275GHMEQfi3WlzSYQGpxx/MG4kK39+GDsFcNSxlzKUHkMaQ+Jer2uvkTA2xpAaTSs4sta9XpkwaAXXdRysWrvZXvPK5Gts/l3vbr/hYgYZvMilrVhL5dKfgYTnXp5GjymGGA3/t9+byyh5R6yk9h02uI/1WErZpnv3jiSgKI4YOYDmzxIoQPH5sewUwCWMkxErGLauYUjcGJWMBUksnSS/KgSl8FVUsT+2a/lJ40nZaI5jxJC+LdXfeT7lob+giS5gn+JCRo8aGVzw08xJscpl0dLVqKK3wgFCLp5rHIKbQD7NmwsnjMPr78zBiUePsNr78wNxPl+hY7/fwzcTR3i7HWdY6ZCymInUbCbvQggbo7O2CmqjWJ+P8mbm63c0V7aRvWT18WNHYDGnE4zr4uCD+mHNmjIGW4OkshjtWS9OPG4EJ/jn4PBDBuK+R19Bl47tcAjNnfJt1Zj96TL0p/bWNO1nh/QFAIf+6Bd0yxqRnZmOlrlaKQnHMTDGUK2HqVxcxAiuKE2dteQe+qzGGEz/9/+pus2l/+FkfC0j0yccdRDKOY+SkZ6CUMhv5d+Dk15jHuAzG7Rvl82yn7IPBDdCTa4Idhcr0tbTLmaj1p/TWtpeWElnPJsTMxs2l9u5Bk0OGWMIWJw2YUhUDgnjZtCa2doYY6+WYtGcbXFRJ3vc1nYlvbsyYpODOx54AR3prp1/1ljMW7SSymJ/Gs8xGwvMofad/Ow7kBaez2h2HYPFvXt2pS+9DRrl5+OFXwBQQcqqqhoIqSipzENDOEhfU2DU0ppXHmG4SLmoUrmSMeoeuOHy83TYZtM5Z/wI5bQQsjl5//6M+WhHc2bYgX0tONkZIZx35hjrqhZ1K6BvvA219LouPucYzF2wioZ1gpNY2Xh8ylut4/sCgAorBf0+S8IyT9QyIz0IYwxcsjHsliS+Scq8ZtBU5bAnUeUJ40bosM2mn559NAIMODz/n+nokJeNUSNLMXXaPBzK0P7ztH01zVDcvRNlog9r15ehoryG7l0t+jNiU1fbhOWMYA8c0L11fBx2a9kug/B4PeT1EOrpgAuQ9LSQNaA9CSU8sAAAEABJREFUrmNztTbGgTGGbJ2wQKpO0eYMzoqp3NaToj7lW2uQkRVCCsGspaVRwMmtGP39GAMM8vkrt9Uw5JaPTpy0krsXbgpTofTHvIWrbCCiZYxOS0F5ZnoqkozdabpQ1Cchu43WepLBU9B0URtjDFV8XEUIYBVcx7GAPnTn73XY5tPVE8/mBFIE3bsUQFo1Lz8Dx48dDq360hK63j0KUVcfRhZdvgLOO8+cswTdGNAtaJ+F3sWd0a1L+9YxOq0lFl57Z7bl8ySjyaEUP0TKsvXCfCsJnjfGECgWtv+M0bGxvmaSxuERVP/bT7XpTAGFAX26WtMkTl894PEiPS0FIpIkfV8vRZhLcZVPN66R89Z9enbBuNFD6E+vtVOj1mbcPkJne24zaalU+oYZdGnqeWGcofUYk9wcAcQ+ocCAbcyd6pghzICl8u9TKirqiAWcVq2hWbOWU6NpaQEb1pdj0J0U1n2/jlQgjdiwqQKvvjGLMtGPIfv3Rn9GdbQKo2WsOwA4hyHuWgrKuromy56Sa2ooeRikrEjC0JThm2KlwDOm2YxR2WGZ1f/9tfHSqGH94TgGUbpymgKIxzQ6g3UE06Wh3a93NyvrKmiRNFL+aXhr1m5BZ07Qt8vLah3dDgAmJOt4qiXXSikeIi0liBi9cJF1FUM7xhhV2+Q4zV3I2LYV35OdZhOHMtzVg+bKuo1lkOyrrmnAfNqFubQFAwEPjewgli5bBwVf/3rDY3BdB16vg2Ur16Flax799qMeJFu5cdkUnj5qY7G0l7lYOKHlTQSuiTEyUdz2SxipkXRsOfr+5FvKqmii1FpTZe6i1RBbaplIBq2OUGpQ4pCOhAeracoMp524/4Ae6NY5H4ePHISDh/ZrHegOAGqRTTgcQwVVeIThqlnUPhHKt3WcYEkkjAUrFApY0ne2U57eijEGxpjWTr8PBVFb9/3aozNn6DJCQfQoKkRnznHLx4/RnAk3RhlwCEBe1RoGXmdzgmk5I9WbOA2wglGbljHuAGA3qmp7YjsYCZo0xlBOEMxmqjNwKTfAzWFujEBN8uj798ukc1DPgK/C9xF6XMlEAu3bZVri0HxKmJP55SSkD2YtxNvvfYJrLptAvQB0KshFkBH2lhHvAODWrdvg93s5kxUiRQENNKZbGhoSNfGyPqMWSwpQJZdRa1Ghyi1tvw/56wxRtacbpwhLU1PEAvfx3BUYPLDYrpjVzF4N5X2EJpyUhqjScWGN6+IenVqHuAOAWlYRpozbxqlBh61dUllLS8OybMIoyVtaS9TppXyMM3TtdV0CbjDp6bdbmrf5fPPWShRSoypIWkKNu5Zz3DmU/ZoG3UA21QqJJDlQBKVQvwikW+cO4GQzppMqWwa4A4Djjx5O6zvVnkuQpGUDehhM0MWy/6RpFVfbTEp1SI6qV4rT8FZ+5U3/ste29d2n81fasNzcBStwNoMLMqK779cBlSQcTdpPn7nQ2nuLOEc8qH93HDy8H2TiSVhlZ6VZWdkyRqeloLycNk8NVXkqhaoAUZ2AM8bwhhHKgKTNRc7qzBhjKU9kbozBpi0VuqTNp7enfQppYVHT8tUb0bdXV0z9QJGZDNQ1NFkRFiEnpqQEsB/1wjbKwgXU1CW9ukDrEWfNWdo6xh0AvO2ai5AgNdU3NEJsKhAbGpus4hBFOo5j/WBiZTuQqWML3DmOQYIkz2Kb//3rqTchts0hy8YZmjugtLudqXNcxwIkXzeLtqDP46IHJ96LaN61z8+241JkWrN49oC7HQDkMTSxnCR5NdD6FiiAIeXBbsFgwIKkDgRuPd+WPcFdgizPDMeefrmyNpu2UPxUVNZg3I+GoGxrNQkiga6F7fEOZ9/GjxuOgM9L6tyG5Ss3UCvnoEO7bORmpWPBktXWmSjIz0EpQ1stA/wCgGvXatGPQ23sawUuIUR5hcs3xIwhIL8ynifSLLXUs4h3P5irrM2ma2+dZAMHXWkUdy7MtXbeQ4//ByKGUDBo8w7tcyEtPHb0YKQzLqB111WUjwly2PW3TcboUfu3ju8LAI4fN8xSWYy2nzGivmaQHJZra+vpynjszFVrDzRv1DFIqcYYaPv9Ffcra3OpkvMgmlw/8ZgRWLJ8PcDIi5Tim1PnQIsr3+PLzyLrHj/2IGQyOtOB1KZBPE7rorh7IR7817/xk1MPV1Vr2gFA1fbq0RkBv5dhrSS0lFaY6CZgQWyrcwmyq1wetd9OnDxtmFQD3Pvwy82FNrZ/gAD4/C7GjRZAQUsMWhm7qWwbJOeKGQdMCwUgK6MP509aHj/O8fZj+EsD1CKmlnrlXwDwpwx5y98lXnY1qihPhiZfF683DDQ2MXeojZUb9WFZWeAKTMdx7HGPIRPsubay01dRTzz7Np579Aq89PoMThplwOMY/OzS2zH28MEoK6uEVmEdNLgvvK7HmiqKwmjd4RqKtWUrN+LDnSxA/wKAGrA+kxKVBYN+HhpIBkrjKsiqelYCxuEbdKHNmGYgVRaQxhg+UBX+8UjboETNFv72L/di3JFD8c8n38KwA/ri/Rnz0Ld3V1RzQj0vNws/PXscyiurMYBzv6mkwhqKqyAn0559aTpl3iD7GdsRhwzSEHdIOwXwpqsusFRWwQ6lIASK1iprlZaHqj1JktZDtdiI6lFtWnK1Ufl3f70fzd+Q6Oi7S5OfexeNDA4cwsn0VAZOp89agIvPOR5/ue5RjhPo1qUd7n7wBQYW8uhIpCGbxrLGqydes36LBa87zZkzTj5MVTuknQJ4zI+Gkg0TMNuFrEOKkoPt93og18YYA7GqSNxDQMFNbZjZnwxtH80BHRSUnKbsO0vLyXozZi/Gr382HqsYEC1jGKuShnFtQ4P9ZkSLjM768Whq5hAOGzEQKeS6zZSJYUahtKb6x+MPhb6/Q7Mu/cI4dgqgWh06vBSKUjQwYuGjUhGTBoI+O1PvZzTCdYy1oYzRGdj+W6hQ1ysMlhYKqojM/U6wU4P24Fvc3XD7ZEjuyW5bvnozjhg1CI899QYuveRk/PX6R6EPwa/787mY9MzbOOzggejJ6UzJPC3xDTICX0mtfe2tT6C0fw+cd+ZRO33yLwXwuccuh9g3GotaavRzomUbO/S4LuT7ShYaY+wqLlGhYNQ5EEpjeESNItsqOzPVXt914Jn4x8Mv7fQh9kWlXqAoT5GjHHoc+5cWYdRxv8NTD/4Zinvm5WbinNPHQLJO3KUo9Hy6a2vWlSEzM4RnX54GXZuZEaKtWPClj/ilAOqKgw7ojQSNR6/HC9fjwJDqIgzviNI8XtfeQJQtllWuL8bVVudTSH1SPhUC3eNRd7iUMrH/yJ/Z8r7eLeCEkaLIfJ/Iyc3AIeMuxWW/Po0cFMXk599FDr2LEUP72vDcgL5F6EBXTfJOwdPeNOU8tCYEqIA+4egvXyzgfNVAtL7PQ+D0JaZAcV1Hz0PBa0j+ceawNqPOqR+HN40yOOkluI2MJSrKYYyBANY5YwxWr9tsWVrt91XatKUSi5atsYuCismW8h4e+fvvcdjIAbjmlscxZGBPlkvJYS42MNo+sH8R/vPWbPRkVLq2rhGvvjmLU7qF0Ir9P/329K98zK8EUFdqRRPHjTCDjlIqHtfhW4vC6/Ogrq6BcjAJD9kahFbU6joO6xIMdBiyRwM0We+ScltAti+B7J3Rbby63+upgS9u+aqN1KbpSOXchr6Xu/ZPE+jfVuLcX96K448eRjetCn16drbaNUBZJ2rNIptfcdM/ceShg9CLBvVjT76BM0850s6LfNVDfi2At117EQK0hwCDGCeW4mRph4DIuPZ4PYINYlWdB7c4TRzHEETmAquqpg7BlCDftoGuE8i8HF6ydeZ+exfEuvomrFxLCqcMizLwqy+QTjpmJC7+3zvxtzun4DcXnoiXX5+JS84/3i6WDIUCljsE4Av/no7H7v496uvD9sUHOOYTxg3H121fC6A62LhgEjwcsMoJApOwIPLSJCy1CSiBo/OiNoGYn59lz4EQy4fWNUpqk+TLiHOa1BiDrKITccvfn1H1Hqd1G7bS9KJY8frQt7gzHn/6LZx63rXo1rk9tJzjjvuew8N3XEqDuYZc40Br/YIESmx89cQJljKzs1Pxzvufsv2ufY7h7OpTXzjhaKSGUkhFzZckCGSYtpLf54dCQMTJdpXkXhQmeyszPcQZfR9rgARBtwXuxM6iWtUl2M8VNz6GnkPO4Zlv9tNzPMYY39aKanKLD0Haciefc7Vd73femWNQ0D4bU16cintv/RVmf7oU6zhVGWUcMBQKYsWqDTiEk+xa2ptNNpb81IqtXX0SZ1cbXvGHn9iIRZC2oK4RCMq1FCIcjcJxHYgKEwQqziSqrKqpRzgSx5ADevHcf2/Vcq3ylqQHz+h6PK5juEn97koS8ANHXYSJVz8E/XOLfn260FV7E6eccyXOoNcwnlMUaakpVA6dcCzdOM3peF3Xyj5NZ5YwEj1oQDEKCnIgStzGSSRD7tDyjV25v9r8d1Q6+pr0KDVZaUkR/D4vjDG075JIMIKtJSCG1wb8vlagYtTGjuNY2fchPQFFdOTFsJm9tiU3xrQes4Ab73wK/UdeoNNfm/Sy5rx9N35+3nE2AHr59f9EZXUtfnziYejYPo+uWT5qqVWLunXEodTAFQykriWbHzd2mFUwPp8HcXJAKgPFPspzRWVKenf92vt+tsFuAagLX518DSScPa7D8RpoEKrXgzRSU+tBHAIHGMrAOKKMK6pOxqpm/Bzyt0sqMMagZVN7D80lVcXjCegr0E4lp7ec3mm+aNk6jGEURd7Gk/R1qxgUOHbMUIw+dH+cNG4ktaeLGTMX4YKzxuKA0h6Yv3g1KqpqIarUvz2R4fzGu3P4jAlq7DQsWLQK/XcTPD2Yo93uptefvp4zVf1JXQ6MEYgJUiOYkmTZKOuNrTfGsA6IEEQVxK4CXArks/dMkAoAQ8HuQpQaoGkhwPWf3rB9u+XupzHm5IkYc+plOPHsK/FXumJ33P88tMaltH93/Oyco3HoiP7kDg/eePdj+79hbrrqfBhjINkorhlz2AG2N7Hr7VQoJx07EkWcNNrIaczcnEx7bnd3zu5e0NL+2Ucux9D9e8Hrdcm2AirJ3CFOSVJd3OaiNlGXMQYcCbQZwzILApNZ6y9GsyNKtpcBHqOA93o99tyYUy6z+eEHlzLkdDQmnDYaRx1xIM467UjcetVPGRwdgsGlxVi1eouluJ6MHJ9O+TeSkZey8iqraVOoaQfRn1VHESq+U869BhdNOEaHNol78ttl2fLu7pzdveCz7eWpTPz16XTpQsSHIJKSgn6/BU8AJahMJGfEsrpOcTYBqrIxxlJccxn2enuO+MZo4ohqBao+xwe3ASVF+HTBSkizj6axO5qsmpqWgnenzYNW1YcjEXTsmIvCjnmQjarpRx9fgj7dymaYXn3e99ir+NVl9+CuG3/eKnrYNfS/GpR/k7RHAOqGvzK+IzkAAAJlSURBVLnwBDx+7x/QoR1ZwABN4bBlQ03QCMQw51fFsvJIGhnZSRDkQMBLIFJIsbDAqR24xSn/6KSwBJ4zlrrHHN7Mdqo8ZvRQzKOsuu0fz+Hnf7wbE696gNVJ/GzCOIwYUgKtrJCiMMYgFApA99b9IuEILvn9XWRvL+SV5OWk22g7L97j3x4DqCcYeVAJFs14EL2KC+HhWxcbKhQmE0JUZYxBFT2SBNHJz8uEzIkqTuDH4mJ7g7S0kAXMGFIx25CELYVEycpP3DdRt7DJQ0Vz8bnH4aqJZ+Nmsu9vLzwJPel2bdhUAX3cmENKU0BgNeN+Yss585bjtbc/wrWcSbvn5l9wQugIZGak2r721m6vANjyMDP+fTtefPxK6Hu5GOVZE9+8ZJmmAgJ+LzWjBwpWRmMJS3lpqUFShc9qwnSCGKDySEnxW+owxkBmUUvfymfOWYoXXp2OqdM+RRnnd10CKvkmKtOHgvp/CJJ1fXt1YWA0YLX0sUcdhGsIuK7fF2mvAqgHVAhs0Qf3238koWOXZouoIUb2TCVgXo8LAadB1zIY4XENWS2CahrdIr6UYAAZaWm46coLsOVzH2mfz6DmqeMPtcB0LcyHvjCXzFMaQoV24KBeuqVNQb4MW9jHu70O4Geft2LZFGxa+AQ2L5wMsWJJzy6QMa1Awgn0EnxeL2oZAFAs7rARA5AeCuDKP/wEyz96COf9z5jPdtVmy/sUwM+O+khqTn1BvmH+JKz8+BE8dOellsKqVj6DBdPuwzOPXk7gHoHCZ/gebd8agHsRkzbV1Q8A7uHr+AHAHwDcQwT28PL/BwAA//+7AYstAAAABklEQVQDADcyn1EWxG0/AAAAAElFTkSuQmCC"},"GoldPix":{"_seed":0.1544331090716229,"startAngle":"90","direction":"cw","gap":"60","radius":"33","imperfection":"1","tilt":"-22","renderStyle":"bristles","thickness":"87","startTaper":"9","startSharp":"38","endTaper":"17","endThick":"18","inkRunoutStart":"18","inkRunoutRate":"325","minInk":"14","brushFadeStart":"50","brushFadeRate":"100","striationCoarseness":"4.5","bristleSizeStd":"56","striationSpread":"34","bristleCount":"91","viscosity":"8","bristleModulation":"100","bristlePulseRate":"7","bristlePulseSpread":"20","bristleFadeRate":"70","bristleWobbleRate":"2.5","bristleWobbleAmount":"0","bristleCorrelation":"100","edgeWobbleAmount":"4.5","edgeWobbleFreq":"1.5","pixelStart":"100","transitionWidth":"0","pixelSize":"11","fadeStart":"90","fadeCurve":"13","outwardBleed":"48","inwardBleed":"13","longitudinalBleed":"89","bleedOnset":"1","bleedStart":"100","bleedBody":"86","color":"#0d1f4f","paintType":"gold","colorVariation":"59","bg":"black","smoothContrast":"42","pixelContrast":"100","contrastCutoff":"50","contrastTransitionWidth":"34","_thumb":"data:image/png;base64,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"},"BlueEnso":{"_seed":0.1544331090716229,"startAngle":"90","direction":"cw","gap":"20","radius":"33","imperfection":"0","tilt":"-22","renderStyle":"bristles","thickness":"89","startTaper":"9","startSharp":"38","endTaper":"26","endThick":"25","inkRunoutStart":"0","inkRunoutRate":"424","minInk":"11","brushFadeStart":"50","brushFadeRate":"100","striationCoarseness":"1.5","bristleSizeStd":"57","striationSpread":"34","bristleCount":"100","viscosity":"28","bristleModulation":"74","bristlePulseRate":"11","bristlePulseSpread":"20","bristleFadeRate":"70","bristleWobbleRate":"2.5","bristleWobbleAmount":"0","bristleCorrelation":"100","edgeWobbleAmount":"4.5","edgeWobbleFreq":"1.5","pixelStart":"100","transitionWidth":"0","pixelSize":"11","fadeStart":"90","fadeCurve":"13","outwardBleed":"48","inwardBleed":"13","longitudinalBleed":"89","bleedOnset":"1","bleedStart":"100","bleedBody":"86","color":"#0d1f4f","numVariants":"6","brighterDarkerRatio":"-64","colorVariation":"34","bg":"transparent","smoothContrast":"0","pixelContrast":"100","contrastCutoff":"67","contrastTransitionWidth":"34","_thumb":"data:image/png;base64,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"}};
+
+    function setStatus(msg, kind) {
+      statusEl.textContent = msg || '';
+      statusEl.className = kind === 'ok' ? 'status-ok' : kind === 'err' ? 'status-err' : '';
+    }
+
+    function storageAvailable() {
+      return !!storageBackend;
+    }
+
+    // Storage backend: prefer Claude's window.storage (artifact-only), fall
+    // back to localStorage when the artifact is opened in a standalone tab.
+    // Feature-detected so both environments work without code changes.
+    const storageBackend = (function() {
+      if (typeof window !== 'undefined' && window.storage
+          && typeof window.storage.get === 'function'
+          && typeof window.storage.set === 'function') {
+        return {
+          kind: 'artifact',
+          async get(key) {
+            try {
+              const r = await window.storage.get(key, false);
+              return r ? r.value : null;
+            } catch (e) {
+              return null; // missing key or transient error → treat as empty
+            }
+          },
+          async set(key, value) {
+            const r = await window.storage.set(key, value, false);
+            if (!r) throw new Error('storage.set returned no result');
+          }
+        };
+      }
+      try {
+        if (typeof localStorage !== 'undefined') {
+          const probe = '__enso_probe__';
+          localStorage.setItem(probe, '1');
+          localStorage.removeItem(probe);
+          return {
+            kind: 'localStorage',
+            async get(key) { return localStorage.getItem(key); },
+            async set(key, value) { localStorage.setItem(key, value); }
+          };
+        }
+      } catch (e) { /* blocked or unavailable */ }
+      return null;
+    })();
+
+    async function loadPresets() {
+      if (!storageBackend) throw new Error('No storage backend available');
+      // First-run factory seed: if we've never seeded AND FACTORY_PRESETS is
+      // non-empty, merge them into storage. Tracked separately from the
+      // presets themselves so the user can delete a factory preset and we
+      // won't quietly resurrect it on the next page load.
+      const seeded = await storageBackend.get(SEED_KEY);
+      if (!seeded && Object.keys(FACTORY_PRESETS).length > 0) {
+        const existing = await storageBackend.get(PRESETS_KEY);
+        const merged = existing ? Object.assign({}, JSON.parse(existing), FACTORY_PRESETS) : Object.assign({}, FACTORY_PRESETS);
+        await storageBackend.set(PRESETS_KEY, JSON.stringify(merged));
+        await storageBackend.set(SEED_KEY, '1');
+        return merged;
+      }
+      const v = await storageBackend.get(PRESETS_KEY);
+      if (!v) return {};
+      try { return JSON.parse(v); } catch (e) { return {}; }
+    }
+
+    async function savePresets(presets) {
+      if (!storageBackend) throw new Error('No storage backend available');
+      await storageBackend.set(PRESETS_KEY, JSON.stringify(presets));
+    }
+
+    // Default-preset tracking. We store the NAME of the preset to apply on
+    // load (rather than copying its settings) so that re-saving a preset by
+    // the same name updates the default in place.
+    const DEFAULT_KEY = 'enso-default-preset-name-v1';
+
+    async function getDefaultName() {
+      if (!storageBackend) return null;
+      try {
+        const v = await storageBackend.get(DEFAULT_KEY);
+        return v && v.length > 0 ? v : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function setDefaultName(name) {
+      if (!storageBackend) throw new Error('No storage backend available');
+      await storageBackend.set(DEFAULT_KEY, name || '');
+    }
+
+    async function applyDefaultPresetIfAny() {
+      if (!storageBackend) return;
+      try {
+        const name = await getDefaultName();
+        if (!name) return;
+        const presets = await loadPresets();
+        if (presets[name]) applySettings(presets[name]);
+      } catch (e) {
+        console.log('Could not apply default preset:', e && e.message);
+      }
+    }
+
+    function getCurrentSettings() {
+      const settings = { _seed: seed };
+      for (const id of ids) settings[id] = document.getElementById(id).value;
+      return settings;
+    }
+
+    function applySettings(settings) {
+      if (settings._seed !== undefined) seed = settings._seed;
+      for (const [key, value] of Object.entries(settings)) {
+        if (key.startsWith('_')) continue;
+        const el = document.getElementById(key);
+        if (el) el.value = value;
+      }
+      updateLabels();
+      updateSliderEnabled();
+      render();
+    }
+
+    function generateThumbnail() {
+      // 80px thumbnail keeps base64 size manageable (~5–10 KB)
+      render(80);
+      const dataUrl = canvas.toDataURL('image/png');
+      render();
+      return dataUrl;
+    }
+
+    async function renderGallery() {
+      const gallery = document.getElementById('presetGallery');
+      gallery.innerHTML = '';
+      let presets, defaultName;
+      try {
+        presets = await loadPresets();
+        defaultName = await getDefaultName();
+      } catch (e) {
+        const err = document.createElement('div');
+        err.className = 'preset-empty';
+        err.textContent = 'Could not load presets: ' + e.message;
+        gallery.appendChild(err);
+        return;
+      }
+      const names = Object.keys(presets).sort();
+      if (names.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'preset-empty';
+        empty.textContent = 'No presets saved yet. Name your current settings above and click Save.';
+        gallery.appendChild(empty);
+        return;
+      }
+      for (const name of names) {
+        const preset = presets[name];
+        const isDefault = (name === defaultName);
+        const card = document.createElement('div');
+        card.className = 'preset-card';
+        card.title = 'Click to load ' + name;
+
+        const img = document.createElement('img');
+        img.className = 'preset-thumb';
+        img.src = preset._thumb || '';
+        img.alt = name;
+        card.appendChild(img);
+
+        const info = document.createElement('div');
+        info.className = 'preset-info';
+        const nameEl = document.createElement('span');
+        nameEl.className = 'preset-name';
+        nameEl.textContent = name;
+        info.appendChild(nameEl);
+
+        const defBtn = document.createElement('button');
+        defBtn.className = 'preset-default' + (isDefault ? ' is-default' : '');
+        defBtn.textContent = isDefault ? '★' : '☆';
+        defBtn.title = isDefault
+          ? 'Currently the default — click to unset'
+          : 'Set as new default (applied on next load)';
+        defBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          try {
+            await setDefaultName(isDefault ? null : name);
+            setStatus(isDefault ? 'Default cleared' : 'Default set to "' + name + '"', 'ok');
+            setTimeout(() => setStatus(''), 2500);
+            renderGallery();
+          } catch (err) {
+            setStatus('Could not update default: ' + err.message, 'err');
+          }
+        });
+        info.appendChild(defBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'preset-delete';
+        delBtn.textContent = '×';
+        delBtn.title = 'Delete preset';
+        delBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          try {
+            const fresh = await loadPresets();
+            delete fresh[name];
+            await savePresets(fresh);
+            // If this preset was the default, clear the default reference too
+            // so we don't leave a dangling pointer.
+            if (isDefault) await setDefaultName(null);
+            renderGallery();
+          } catch (err) {
+            setStatus('Delete failed: ' + err.message, 'err');
+          }
+        });
+        info.appendChild(delBtn);
+        card.appendChild(info);
+
+        card.addEventListener('click', () => {
+          applySettings(preset);
+          setStatus('Loaded "' + name + '"', 'ok');
+          setTimeout(() => setStatus(''), 2000);
+        });
+        gallery.appendChild(card);
+      }
+    }
+
+    document.getElementById('savePreset').addEventListener('click', async () => {
+      const nameInput = document.getElementById('presetName');
+      const saveBtn = document.getElementById('savePreset');
+      const name = nameInput.value.trim();
+      if (!name) {
+        nameInput.focus();
+        setStatus('Give your preset a name first.', 'err');
+        return;
+      }
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving…';
+      setStatus('');
+      try {
+        const thumb = generateThumbnail();
+        const settings = getCurrentSettings();
+        settings._thumb = thumb;
+        const presets = await loadPresets();
+        presets[name] = settings;
+        await savePresets(presets);
+        nameInput.value = '';
+        await renderGallery();
+        setStatus('Saved "' + name + '"', 'ok');
+        setTimeout(() => setStatus(''), 2500);
+      } catch (e) {
+        console.error('Save failed:', e);
+        setStatus('Save failed: ' + e.message, 'err');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save current settings';
+      }
+    });
+
+    document.getElementById('presetName').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('savePreset').click();
+    });
+
+    // Export: download every saved preset (including thumbnails) as a JSON
+    // file the user can hand to a colleague — or hand back to the developer
+    // to bake into FACTORY_PRESETS for a distribution build.
+    document.getElementById('exportPresets').addEventListener('click', async () => {
+      try {
+        const presets = await loadPresets();
+        const count = Object.keys(presets).length;
+        if (count === 0) {
+          setStatus('No presets to export', 'err');
+          return;
+        }
+        const blob = new Blob([JSON.stringify(presets, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'enso-presets.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus('Exported ' + count + ' preset' + (count === 1 ? '' : 's'), 'ok');
+        setTimeout(() => setStatus(''), 2500);
+      } catch (e) {
+        setStatus('Export failed: ' + e.message, 'err');
+      }
+    });
+
+    // Import: merge an exported JSON file into the user's preset gallery.
+    // Names that already exist get overwritten (intentional — the file is
+    // authoritative when imported, matches how the Save flow behaves).
+    document.getElementById('importPresets').addEventListener('click', () => {
+      document.getElementById('presetFileInput').click();
+    });
+    document.getElementById('presetFileInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const imported = JSON.parse(text);
+        if (!imported || typeof imported !== 'object' || Array.isArray(imported)) {
+          throw new Error('expected an object of name → settings');
+        }
+        const existing = await loadPresets();
+        let added = 0, replaced = 0;
+        for (const [name, settings] of Object.entries(imported)) {
+          if (!settings || typeof settings !== 'object') continue;
+          if (existing[name]) replaced++; else added++;
+          existing[name] = settings;
+        }
+        await savePresets(existing);
+        await renderGallery();
+        const parts = [];
+        if (added > 0) parts.push(added + ' new');
+        if (replaced > 0) parts.push(replaced + ' replaced');
+        setStatus(parts.length ? 'Imported ' + parts.join(', ') : 'No presets found in file', parts.length ? 'ok' : 'err');
+        setTimeout(() => setStatus(''), 3000);
+      } catch (err) {
+        setStatus('Import failed: ' + err.message, 'err');
+      } finally {
+        e.target.value = ''; // reset so the same file can be re-imported
+      }
+    });
+
+    updateLabels();
+    render();
+
+    // Surface storage availability immediately so we don't have to wait for a
+    // save click to learn the environment isn't supported.
+    if (!storageBackend) {
+      setStatus('No persistent storage available — presets will not save.', 'err');
+    }
+    renderGallery();
+
+    // URL handoff from the calendar's "Edit" button. Two-path boot:
+    //
+    //   A) URL has ?date=YYYY-MM-DD  → SKIP default preset entirely and load
+    //      that day's enso synchronously. This avoids any race between
+    //      applyDefaultPresetIfAny() (which is async and applies its own
+    //      settings on resolve) and the URL handler — without this guard,
+    //      a slow storage backend can fire applySettings(defaultPreset)
+    //      AFTER the URL load, clobbering the date's enso back to the
+    //      default blue.
+    //
+    //   B) No date in URL → normal boot: apply the default preset if one
+    //      is configured.
+    //
+    // Logging at each step makes the actual boot path visible in the
+    // browser dev console if anything goes sideways.
+    function readUrlDate() {
+      try {
+        const m = (new URLSearchParams(window.location.search).get('date') || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return null;
+        const ms = Date.UTC(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10));
+        return Number.isFinite(ms) ? { dateMs: ms, dateStr: m[0] } : null;
+      } catch (e) { return null; }
+    }
+    function applyUrlRitualAndDate() {
+      const urlDate = readUrlDate();
+      if (!urlDate) return false;
+      try {
+        const ritualParam = new URLSearchParams(window.location.search).get('ritual');
+        if (ritualParam === 'on' || ritualParam === 'off') {
+          ritualOn = ritualParam === 'on';
+          try { localStorage.setItem('enso-ritual-dashboard', ritualParam); } catch (e) {}
+          const btn = document.getElementById('ritualToggle');
+          if (btn) btn.classList.toggle('active', ritualOn);
+          console.log('[enso-boot] ritual set from URL →', ritualParam);
+        }
+        console.log('[enso-boot] loading enso for', urlDate.dateStr, '(ritualOn=' + ritualOn + ')');
+        randomEnso(false, urlDate.dateMs);
+        setStatus('Loaded enso of ' + urlDate.dateStr + ' for editing', 'ok');
+        setTimeout(() => setStatus(''), 3500);
+        return true;
+      } catch (e) {
+        console.error('[enso-boot] URL load failed:', e && (e.stack || e.message || e));
+        return false;
+      }
+    }
+    // Path A: URL has a date → synchronous load, no default preset.
+    // Path B: no URL date → normal async default-preset load.
+    if (!applyUrlRitualAndDate()) {
+      applyDefaultPresetIfAny();
+    }
+  </script>
+</div>
+</body>
+</html>
