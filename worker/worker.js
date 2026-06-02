@@ -31,11 +31,15 @@ const MODEL = '@cf/moonshotai/kimi-k2.6';
 // Token budget. We RE-ENABLE thinking now (chat_template_kwargs.thinking
 // = true below) because syllable counting is a real cognitive task that
 // the model performs much more reliably when it can reason silently
-// before emitting. K2.6 puts reasoning in message.reasoning and the
-// final answer in message.content; we read only .content. Thinking
-// traces are often 500–1500 tokens for a problem this concrete, plus
-// ~40 tokens for the haiku itself. 2500 leaves comfortable headroom.
-const MAX_TOKENS = 2500;
+// before emitting. K2.6 puts reasoning in message.reasoning_content
+// and the final answer in message.content; we read only .content.
+// Empirically K2.6 will use most of its budget on reasoning when the
+// task is concrete (counting syllables, checking bans, drafting and
+// rejecting candidates) — observed runs hit 2500 tokens of reasoning
+// without converging. 8000 gives the model enough room to finish a
+// real thinking pass and still write the haiku. Caching is on, so
+// each unique date pays this cost exactly once globally.
+const MAX_TOKENS = 8000;
 
 // Toggle KV caching of impressions. While iterating on the prompt, set this
 // to FALSE so every request regenerates and we don't accumulate cached
