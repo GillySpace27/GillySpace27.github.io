@@ -175,8 +175,7 @@ const html = `<!DOCTYPE html>
     color: var(--btn-text);
     border-color: var(--btn-bg);
   }
-  /* Small icon-only button for the theme switch — kept visually quiet so the
-     ritual toggle is the primary header affordance. */
+  /* Small icon-only button for the theme switch — kept visually quiet. */
   .icon-btn {
     background: transparent;
     border: none;
@@ -365,7 +364,6 @@ const html = `<!DOCTYPE html>
       <p class="subtitle">A new enso each day, deterministic from the UTC date — past days fill in, future days await.</p>
     </div>
     <div class="header-actions">
-      <button id="ritualToggle" type="button" class="theme-toggle" title="When on, every enso starts at the bottom (90°) and is drawn clockwise. Only brush, ink, and color params vary by date — closer to the traditional enso practice.">🧘 Ritual mode</button>
       <button id="themeToggle" type="button" class="icon-btn" aria-label="Toggle theme">🖥️</button>
     </div>
   </div>
@@ -445,20 +443,6 @@ ${renderSrc}
   // they need real numeric values to avoid NaN propagating into render.
   const DEFAULTS = ${JSON.stringify(DEFAULTS, null, 2)};
 
-  // Ritual mode flag. Default is ON — closer to the traditional enso practice
-  // where the stroke begins from the same place each time. When true, every
-  // date's enso starts at 90° (bottom of the canvas, given the engine's
-  // canvas-Y-down coordinate convention) and is drawn clockwise. All OTHER
-  // params still vary by date — only the geometric starting point and
-  // direction are fixed. Critically, the override is applied AFTER the prng
-  // draws complete, so toggling ritual mode never shifts the prng stream —
-  // brush, ink, color, and shape variation for any given date are unaffected.
-  let ritualOn = true;
-  try {
-    const stored = localStorage.getItem('enso-ritual');
-    if (stored !== null) ritualOn = stored === 'on';
-  } catch (e) {}
-
   // Produces { settings, seed } for the canonical enso of utcMidnightMs.
   // Draw order MUST match randomEnso(false) in the tool exactly — same
   // mulberry32 stream, same sequence of prng() calls — or outputs diverge.
@@ -478,11 +462,6 @@ ${renderSrc}
       overrides.color = RANDOM_COLORS[Math.floor(prng() * RANDOM_COLORS.length)];
     } else {
       overrides.color = hslToHex(prng(), 0.45 + prng() * 0.35, 0.28 + prng() * 0.24);
-    }
-    // Ritual override: fix start angle and direction after random draws complete.
-    if (ritualOn) {
-      overrides.startAngle = '90';
-      overrides.direction = 'cw';
     }
     // Merge: defaults under randomized overrides. getParams reads from this.
     return { settings: { ...DEFAULTS, ...overrides }, seed: shapeSeed };
@@ -733,16 +712,11 @@ ${renderSrc}
            String(d.getUTCDate()).padStart(2, '0');
   }
   // Edit: opens the dashboard (pixelated-enso.html) in a new tab with
-  // ?date=YYYY-MM-DD&ritual=on|off so it reproduces the same enso AND
-  // inherits the calendar's current ritual setting. From the user's
-  // perspective: "Edit takes me to the tool with this exact enso loaded."
-  // The dashboard then persists the synced ritual choice to its own
-  // localStorage key, so subsequent direct visits to the dashboard remember.
+  // ?date=YYYY-MM-DD so it reproduces the same enso for editing. From the
+  // user's perspective: "Edit takes me to the tool with this exact enso loaded."
   document.getElementById('modalEdit').addEventListener('click', () => {
     if (currentModalUtcMs === null) return;
-    const url = 'pixelated-enso.html'
-              + '?date=' + formatUtcDate(currentModalUtcMs)
-              + '&ritual=' + (ritualOn ? 'on' : 'off');
+    const url = 'pixelated-enso.html?date=' + formatUtcDate(currentModalUtcMs);
     window.open(url, '_blank', 'noopener');
   });
   document.getElementById('modalDownload').addEventListener('click', () => {
@@ -837,23 +811,6 @@ ${renderSrc}
     applyMode(getMode());
   })();
 
-  // ── Ritual mode toggle ───────────────────────────────────────────────────
-  // Visual state is purely via the .active class on the button. Clicking
-  // flips ritualOn, persists to localStorage, then invalidates the cell
-  // cache (its keys are utcMs:size but the rendered image differs by mode)
-  // and re-renders the current month so the change is visible immediately.
-  (function () {
-    const btn = document.getElementById('ritualToggle');
-    function apply() { btn.classList.toggle('active', ritualOn); }
-    btn.addEventListener('click', () => {
-      ritualOn = !ritualOn;
-      try { localStorage.setItem('enso-ritual', ritualOn ? 'on' : 'off'); } catch (e) {}
-      apply();
-      cellCache.clear();
-      renderMonth(viewYear, viewMonth);
-    });
-    apply();
-  })();
 <\/script>
 </body>
 </html>

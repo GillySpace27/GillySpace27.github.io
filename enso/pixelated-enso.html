@@ -125,7 +125,6 @@
         </div>
       </div>
       <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <button id="ritualToggle" type="button" class="theme-toggle" title="When on, every random enso starts at the bottom (90°) and is drawn clockwise — closer to the traditional enso practice. Only brush, ink, and color params vary by date; the geometric start is fixed.">🧘 Ritual mode</button>
         <button id="themeToggle" type="button" class="theme-toggle">🖥️ System</button>
       </div>
     </div>
@@ -1808,7 +1807,7 @@
       startSharp:              [35, 200, 1],
       endTaper:                [0, 35, 1],
       endThick:                [0, 55, 1],
-      inkRunoutStart:          [0, 70, 1],
+      inkRunoutStart:          [50, 75, 1],
       inkRunoutRate:           [100, 350, 1],
       minInk:                  [100, 200, 1],  // slider/100 = %, floor ≥1% so the dry end stays visible after binarization
       striationCoarseness:     [1.5, 6, 0.5],
@@ -1854,19 +1853,6 @@
     // A single mulberry32 stream seeded from that value drives EVERY choice
     // below — the shape seed, all slider values, direction, and color — so
     // the entire enso is reproducible from the seed alone.
-    // Dashboard's own ritual mode flag. Independent from the calendar's
-    // `enso-ritual` key — the dashboard defaults OFF (the dashboard is a
-    // free-exploration tool, not the daily-ritual viewer). The flag is
-    // synced from the calendar via a `?ritual=` URL param when the user
-    // clicks "Edit" on a day, and from then on the dashboard's own toggle
-    // takes over. Stored under `enso-ritual-dashboard` so toggling here
-    // doesn't bleed back into the calendar's state.
-    let ritualOn = false;
-    try {
-      const stored = localStorage.getItem('enso-ritual-dashboard');
-      if (stored !== null) ritualOn = stored === 'on';
-    } catch (e) {}
-
     function randomEnso(useTimeOfDay, dateOverrideMs) {
       const now = new Date();
       // Default date is today (UTC); the calendar's Edit button passes a
@@ -1893,30 +1879,10 @@
       } else {
         settings.color = hslToHex(prng(), 0.45 + prng() * 0.35, 0.28 + prng() * 0.24);
       }
-      // Ritual override applied AFTER prng draws — it never disturbs the
-      // brush/ink/color stream, only the geometric start point and direction.
-      if (ritualOn) {
-        settings.startAngle = '90';
-        settings.direction = 'cw';
-      }
       applySettings(settings);  // sets seed + all values, relabels, re-enables, renders
     }
     document.getElementById('randomEnso').addEventListener('click', () => randomEnso(false));
     document.getElementById('rerollEnso').addEventListener('click', () => randomEnso(true));
-
-    // Ritual toggle button — same shape as the calendar's. Persists to
-    // `enso-ritual-dashboard` localStorage. Does NOT re-render automatically;
-    // toggling here just changes how the next 🎲/🔄 button click will draw.
-    (function () {
-      const btn = document.getElementById('ritualToggle');
-      function apply() { btn.classList.toggle('active', ritualOn); }
-      btn.addEventListener('click', () => {
-        ritualOn = !ritualOn;
-        try { localStorage.setItem('enso-ritual-dashboard', ritualOn ? 'on' : 'off'); } catch (e) {}
-        apply();
-      });
-      apply();
-    })();
 
     document.getElementById('download').addEventListener('click', () => {
       render(800);
@@ -2299,19 +2265,11 @@
         return Number.isFinite(ms) ? { dateMs: ms, dateStr: m[0] } : null;
       } catch (e) { return null; }
     }
-    function applyUrlRitualAndDate() {
+    function applyUrlDate() {
       const urlDate = readUrlDate();
       if (!urlDate) return false;
       try {
-        const ritualParam = new URLSearchParams(window.location.search).get('ritual');
-        if (ritualParam === 'on' || ritualParam === 'off') {
-          ritualOn = ritualParam === 'on';
-          try { localStorage.setItem('enso-ritual-dashboard', ritualParam); } catch (e) {}
-          const btn = document.getElementById('ritualToggle');
-          if (btn) btn.classList.toggle('active', ritualOn);
-          console.log('[enso-boot] ritual set from URL →', ritualParam);
-        }
-        console.log('[enso-boot] loading enso for', urlDate.dateStr, '(ritualOn=' + ritualOn + ')');
+        console.log('[enso-boot] loading enso for', urlDate.dateStr);
         randomEnso(false, urlDate.dateMs);
         setStatus('Loaded enso of ' + urlDate.dateStr + ' for editing', 'ok');
         setTimeout(() => setStatus(''), 3500);
@@ -2323,7 +2281,7 @@
     }
     // Path A: URL has a date → synchronous load, no default preset.
     // Path B: no URL date → normal async default-preset load.
-    if (!applyUrlRitualAndDate()) {
+    if (!applyUrlDate()) {
       applyDefaultPresetIfAny();
     }
   </script>
