@@ -21,14 +21,16 @@
   'use strict';
 
   /* ---- 1 & 2: inject shared header/footer, then mark the active nav link ---- */
+  function norm(p) { return p.replace(/index\.html$/, '').replace(/\/$/, '') || '/'; }
+
   function markActive(root) {
-    var here = location.pathname.replace(/index\.html$/, '').replace(/\/$/, '') || '/';
-    var links = root.querySelectorAll('.site-nav a');
-    links.forEach(function (a) {
-      var path = a.getAttribute('href').split('#')[0].replace(/index\.html$/, '').replace(/\/$/, '') || '/';
-      if (path !== '/' && (here === path || here.indexOf(path) === 0)) {
-        a.setAttribute('aria-current', 'page');
-      } else if (path === '/' && here === '/') {
+    var here = norm(location.pathname);
+    root.querySelectorAll('.site-nav a').forEach(function (a) {
+      var url = new URL(a.getAttribute('href'), location.origin);
+      if (url.hash) return;                 // in-page anchors (e.g. /#about) are never "the page"
+      var path = norm(url.pathname);
+      if (path === '/') return;             // no "Home" nav item; the wordmark covers home
+      if (here === path || here.indexOf(path + '/') === 0) {
         a.setAttribute('aria-current', 'page');
       }
     });

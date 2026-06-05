@@ -53,6 +53,27 @@
 <!-- Search Console verification (keep; authorizes the new sitemap submission) -->
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 
+<!-- ===========================================================================
+     Analytics — running BOTH in parallel to A/B them, then drop the worse one.
+     Commented out until the two dashboard IDs are filled in (one-time):
+       - Cloudflare Web Analytics token:  dash.cloudflare.com -> Web Analytics
+       - GA4 Measurement ID (G-XXXXXXX):  analytics.google.com -> Admin -> Data Streams
+     Uncomment each once its __PLACEHOLDER__ is replaced.
+     =========================================================================== -->
+<!-- Cloudflare Web Analytics
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "__CF_BEACON_TOKEN__"}'></script>
+-->
+<!-- Google Analytics 4
+<script async src="https://www.googletagmanager.com/gtag/js?id=__GA4_MEASUREMENT_ID__"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '__GA4_MEASUREMENT_ID__');
+</script>
+-->
+
 <!-- Styles: one hand-authored system + the academic-icon font -->
 <link rel="stylesheet" href="/assets/css/academicons.min.css">
 <link rel="stylesheet" href="/assets/css/font-awesome.min.css">

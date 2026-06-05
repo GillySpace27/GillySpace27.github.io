@@ -1,241 +1,217 @@
-﻿<!DOCTYPE HTML>
-<!--
-    Strata by HTML5 UP
-    html5up.net | @ajlkn
-    Free for personal and commercial use under the CCA 3.0 license
--->
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Dr. Gilly's Homepage</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dr. Chris Gilbert (Gilly) — Heliophysicist · gilly.space</title>
+<meta name="description" content="Dr. Chris Gilbert (&quot;Gilly&quot;), heliophysicist at NorthWest Research Associates — solar wind, coronal heating, forward models, and a few interactive space toys.">
+<link rel="canonical" href="https://gilly.space/">
 
-    <meta property="og:image" content="images/bg.jpg" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c" />
+<!-- Pre-paint theme (shares the enso-theme key with the toys — flash-free dark mode) -->
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" href="assets/css/academicons.min.css"/>
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dr. Chris Gilbert (Gilly) — Heliophysicist">
+<meta property="og:description" content="Heliophysicist at NorthWest Research Associates — solar wind, coronal heating, and interactive space toys.">
+<meta property="og:url" content="https://gilly.space/">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="assets/css/main.css" />
+<!-- Favicons / PWA -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 
+<!-- Analytics — running BOTH to A/B, then drop the worse. Uncomment once IDs are filled in. -->
+<!-- Cloudflare Web Analytics
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "__CF_BEACON_TOKEN__"}'></script>
+-->
+<!-- Google Analytics 4
+<script async src="https://www.googletagmanager.com/gtag/js?id=__GA4_MEASUREMENT_ID__"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','__GA4_MEASUREMENT_ID__');</script>
+-->
+
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
 </head>
+<body>
 
-<body id="head">
+<!-- Shared nav (injected by site.js). No-JS visitors get the fallback below. -->
+<div data-include="header"></div>
+<noscript>
+  <nav class="wrap" style="padding-top:12px" aria-label="Primary">
+    <a href="/Research.html">Research</a> ·
+    <a href="/sun.html">The Sun</a> ·
+    <a href="/RecordedPublicTalks.html">Outreach</a> ·
+    <a href="/enso/">Play</a> ·
+    <a href="/shop.html">Store</a>
+  </nav>
+</noscript>
 
-<header id="header">
-    <br />
-    <a href="index.html" class="image avatar"><img src="images/avatar.jpg" alt="" /></a>
-    <h2>Dr. Gilly, <a href="http://www.colorado.edu/aps/" target="_blank">PhD</a></h2>
-    <h3>Heliophysicist</h3>
+<main id="main">
 
-    Forward Models <br>
-    Data Analysis <br>
-    Observation Validation <br><br>
-
-    Space Physics <br>
-    Solar Wind <br>
-    Coronal Heating <br>
-</header>
-
-<div id="main">
-
-<section id="one">
-    <h1>Welcome to gilly.space!</h1>
-
-    <p>
-        My name is Gilly, and I work at the
-        <a href="https://www.nwra.com" target="_blank">
-            NorthWest Research Associates
-        </a> (NWRA) in Boulder, CO.
-    </p>
-
-    <ul class="icons">
-        Find me all across the internet! <br />
-        <li>
-            <a href="https://arxiv.org/a/gilly_c_1.html"
-               class="ai ai-arxiv ai-2x"
-               target="_blank"
-               aria-label="arXiv"></a>
-        </li>
-        <li>
-            <a href="https://orcid.org/0000-0003-0021-9056"
-               class="ai ai-orcid ai-2x"
-               target="_blank"
-               aria-label="ORCID"></a>
-        </li>
-        <li>
-            <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0003-0021-9056"
-               class="ai ai-ads ai-2x"
-               target="_blank"
-               aria-label="NASA ADS"></a>
-        </li>
-        <li>
-            <a href="https://www.linkedin.com/in/gillyspace27/"
-               class="icon fa-linkedin-square"
-               target="_blank"
-               aria-label="LinkedIn"></a>
-        </li>
-        <li>
-            <a href="https://github.com/GillySpace27"
-               class="icon fa-github"
-               target="_blank"
-               aria-label="GitHub"></a>
-        </li>
-        <li>
-            <a href="mailto:chris.gilly@colorado.edu"
-               class="icon fa-envelope-o"
-               aria-label="Email"></a>
-        </li>
-    </ul>
-
-    <div class="row">
-        <article class="6u 12u$(xsmall) work-item">
-            <h2>Current Solar Images</h2>
-            <a href="sun.html"
-               class="image fit thumb"
-               data-poptrox="ignore"
-               target="_blank">
-                <img src="https://s3.us-east-2.amazonaws.com/the-sun-now/renders/thumbs/DrGilly_0171_ups(rhef).png" alt="" />
-            </a>
-            <h3>Look at the sun NOW!</h3>
-        </article>
-
-        <article class="6u 12u$(xsmall) work-item">
-            <h2>Useful Solar Links</h2>
-            <a href="resources.html"
-               class="image fit thumb"
-               data-poptrox="ignore"
-               target="_blank">
-                <img src="https://s3.us-east-2.amazonaws.com/the-sun-now/renders/thumbs/DrGilly_0193_ups(rhef).png" alt="" />
-            </a>
-            <h3>Resources for doing solar physics.</h3>
-        </article>
+  <!-- ───────────────────────── Hero ───────────────────────── -->
+  <section class="section wrap">
+    <div class="hero">
+      <img class="hero__avatar" src="images/avatar.jpg"
+           alt="Portrait of Dr. Chris Gilbert (Gilly)">
+      <div class="hero__body">
+        <p class="eyebrow">Welcome to gilly.space</p>
+        <h1>Dr. Chris Gilbert <span style="color:var(--muted);font-weight:500">(“Gilly”)</span></h1>
+        <p class="hero__role">Heliophysicist · NorthWest Research Associates</p>
+        <p class="hero__intro">
+          I study the Sun and the wind it blows across the solar system — coronal heating,
+          forward models, and validating what our instruments actually see — at
+          <a href="https://www.nwra.com" target="_blank" rel="noopener">NWRA</a> in Boulder, Colorado.
+          When I'm not doing that, I build small things that live on this domain. Look around.
+        </p>
+      </div>
     </div>
-</section>
+  </section>
 
-<section id="two">
-    <h2>My Work</h2>
+  <hr class="wrap rule">
 
-    <div class="row work-grid">
-        <article class="6u 12u$(xsmall) work-item">
-            <a href="files/CV_Research_2025.pdf"
-               class="image fit thumb"
-               data-poptrox="ignore"
-               target="_blank">
-                <img src="images/thumbs/CV_research.png" alt="" />
-            </a>
-            <h3>Research Résumé</h3>
-        </article>
+  <!-- ─────────────────────── Selected work ─────────────────────── -->
+  <section class="section wrap">
+    <p class="eyebrow">Selected work</p>
+    <h2 style="margin-top:0">A few things worth your time</h2>
+    <div class="grid">
 
-        <article class="6u 12u$(xsmall) work-item">
-            <a href="files/CV_Teaching_2025.pdf"
-               class="image fit thumb"
-               data-poptrox="ignore"
-               target="_blank">
-                <img src="images/thumbs/CV_Teaching.png" alt="" />
-            </a>
-            <h3>Teaching Résumé</h3>
-        </article>
+      <article class="card">
+        <a href="sun.html">
+          <img class="card__img" loading="lazy"
+               src="https://s3.us-east-2.amazonaws.com/the-sun-now/renders/thumbs/DrGilly_0171_ups(rhef).png"
+               alt="The Sun imaged at 171 ångström, radially normalized with RHE">
+          <div class="card__body">
+            <p class="card__kicker">Live</p>
+            <h3>The Sun, right now</h3>
+            <p>Up-to-the-hour SDO imagery, radially equalized with my RHE method to reveal the faint corona.</p>
+          </div>
+        </a>
+      </article>
+
+      <article class="card">
+        <a href="papers/Gilly&Cranmer2020.pdf" target="_blank" rel="noopener">
+          <img class="card__img" loading="lazy" src="images/thumbs/Paper Tile.png"
+               alt="Title figure from the GHOSTS paper on line-of-sight effects in coronal spectroscopy">
+          <div class="card__body">
+            <p class="card__kicker">Paper</p>
+            <h3>GHOSTS (Gilly &amp; Cranmer 2020)</h3>
+            <p>Line-of-sight effects in coronal spectroscopy — my first paper, in <em>ApJ</em>.</p>
+          </div>
+        </a>
+      </article>
+
+      <article class="card card--art">
+        <a href="enso/">
+          <div class="card__img" role="img" aria-label="Abstract gold-on-navy brushstroke"></div>
+          <div class="card__body">
+            <p class="card__kicker">Play · daily</p>
+            <h3>The Daily Ensō</h3>
+            <p>A new AI-narrated brushstroke circle every day, deterministic from the date. Editable, too.</p>
+          </div>
+        </a>
+      </article>
+
+      <article class="card card--sun">
+        <a href="shop.html">
+          <div class="card__img" role="img" aria-label="Solar corona print artwork"></div>
+          <div class="card__body">
+            <p class="card__kicker">Prints</p>
+            <h3>Solar Archive store</h3>
+            <p>Fine-art prints of the Sun, processed the way I process it for science.</p>
+          </div>
+        </a>
+      </article>
+
     </div>
+  </section>
 
-    <div class="row work-grid">
-        <article class="6u 12u$(xsmall) work-item">
-            <a href="files/CV.pdf"
-               class="image fit thumb"
-               data-poptrox="ignore"
-               target="_blank">
-                <img src="images/thumbs/CV_all.png" alt="" />
-            </a>
-            <h3>Complete Curriculum Vitae</h3>
-        </article>
+  <!-- ─────────────────────── Explore the rest ─────────────────────── -->
+  <section class="section wrap">
+    <p class="eyebrow">Explore</p>
+    <h2 style="margin-top:0">Everything else</h2>
+    <div class="grid">
 
-        <article class="6u 12u$(xsmall) work-item">
-            <a href="Research.html"
-               class="image fit thumb"
-               data-poptrox="ignore">
-                <img src="images/thumbs/spectrometer.png" alt="" />
-            </a>
-            <h3>Research Projects</h3>
-        </article>
+      <article class="card">
+        <a href="Research.html">
+          <img class="card__img" loading="lazy" src="images/thumbs/spectrometer.png" alt="Coronal spectrometer instrument">
+          <div class="card__body"><h3>Research</h3><p>Active projects — PUNCH, RHEF, GHOSTS, DKIST.</p></div>
+        </a>
+      </article>
+
+      <article class="card">
+        <a href="PastResearch.html">
+          <img class="card__img" loading="lazy" src="images/thumbs/khsnap3.png" alt="Kelvin–Helmholtz instability simulation snapshot">
+          <div class="card__body"><h3>Earlier work</h3><p>Student projects, including the Kelvin–Helmholtz instability.</p></div>
+        </a>
+      </article>
+
+      <article class="card">
+        <a href="RecordedPublicTalks.html">
+          <img class="card__img" loading="lazy" src="images/thumbs/fiskeinterview.png" alt="Gilly being interviewed at the Fiske Planetarium">
+          <div class="card__body"><h3>Outreach &amp; talks</h3><p>Public talks, planetarium shows, and “Space Is Full.”</p></div>
+        </a>
+      </article>
+
+      <article class="card">
+        <a href="Music-and-Theater.html">
+          <img class="card__img" loading="lazy" src="images/thumbs/Bigly.jpg" alt="Gilly performing music on stage">
+          <div class="card__body"><h3>Music &amp; theater</h3><p>The other half — songs, plays, and the occasional skit.</p></div>
+        </a>
+      </article>
+
+      <article class="card card--text">
+        <div class="card__body">
+          <p class="card__kicker">Play</p>
+          <h3>More toys</h3>
+          <p><a href="enso/pixelated-enso.html">Ensō editor</a> · <a href="sudoku/">Spectrum Sudoku</a></p>
+        </div>
+      </article>
+
+      <article class="card card--text">
+        <div class="card__body">
+          <p class="card__kicker">About</p>
+          <h3>CV &amp; résumés</h3>
+          <p><a href="files/CV_Research_2025.pdf" target="_blank" rel="noopener">Research</a> ·
+             <a href="files/CV_Teaching_2025.pdf" target="_blank" rel="noopener">Teaching</a> ·
+             <a href="files/CV.pdf" target="_blank" rel="noopener">Full CV</a></p>
+        </div>
+      </article>
+
+      <article class="card card--text">
+        <div class="card__body">
+          <p class="card__kicker">Reference</p>
+          <h3>Solar resources</h3>
+          <p>A working <a href="resources.html">directory of solar-physics links</a> I keep handy.</p>
+        </div>
+      </article>
+
     </div>
+  </section>
 
-    <div class="row work-grid">
-        <article class="6u 12u$(xsmall) work-item">
-            <a href="RecordedPublicTalks.html"
-               class="image fit thumb"
-               data-poptrox="ignore">
-                <img src="images/thumbs/fiskeinterview.png" alt="" />
-            </a>
-            <h3>Outreach & Public Talks</h3>
-        </article>
+</main>
 
-        <article class="6u 12u$(xsmall) work-item">
-            <a href="Music-and-Theater.html"
-               class="image fit thumb"
-               data-poptrox="ignore">
-                <img src="images/thumbs/Bigly.jpg" alt="" />
-            </a>
-            <h3>Music & Theater</h3>
-        </article>
-    </div>
-</section>
+<!-- Shared footer (injected by site.js) -->
+<div data-include="footer"></div>
 
-</div>
-
-<footer id="footer">
-    <ul class="icons">
-        Find me all across the internet! <br />
-        <li>
-            <a href="https://arxiv.org/a/gilly_c_1.html"
-               class="ai ai-arxiv ai-2x"
-               target="_blank"
-               aria-label="arXiv"></a>
-        </li>
-        <li>
-            <a href="https://orcid.org/0000-0003-0021-9056"
-               class="ai ai-orcid ai-2x"
-               target="_blank"
-               aria-label="ORCID"></a>
-        </li>
-        <li>
-            <a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0003-0021-9056"
-               class="ai ai-ads ai-2x"
-               target="_blank"
-               aria-label="NASA ADS"></a>
-        </li>
-        <li>
-            <a href="https://www.linkedin.com/in/gillyspace27/"
-               class="icon fa-linkedin-square"
-               target="_blank"
-               aria-label="LinkedIn"></a>
-        </li>
-        <li>
-            <a href="https://github.com/GillySpace27"
-               class="icon fa-github"
-               target="_blank"
-               aria-label="GitHub"></a>
-        </li>
-        <li>
-            <a href="mailto:chris.gilly@colorado.edu"
-               class="icon fa-envelope-o"
-               aria-label="Email"></a>
-        </li>
-    </ul>
-    <br />
-    <br />
-    <br />
-</footer>
-
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/jquery.poptrox.min.js"></script>
-<script src="assets/js/skel.min.js"></script>
-<script src="assets/js/util.js"></script>
-<script src="assets/js/main.js"></script>
-
+<script src="/assets/site.js"></script>
 </body>
 </html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hand-maintained sitemap. Lists every canonical, publicly-useful URL so
+     crawlers discover the whole section graph regardless of the JS-injected
+     nav. Excludes archived/duplicate pages (index_withvideo, shineVideo) and
+     the third-party evan/ page. Update when pages are added or renamed. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://gilly.space/</loc><priority>1.0</priority></url>
+  <url><loc>https://gilly.space/Research.html</loc><priority>0.9</priority></url>
+  <url><loc>https://gilly.space/PastResearch.html</loc><priority>0.6</priority></url>
+  <url><loc>https://gilly.space/sun.html</loc><priority>0.9</priority></url>
+  <url><loc>https://gilly.space/resources.html</loc><priority>0.5</priority></url>
+  <url><loc>https://gilly.space/RecordedPublicTalks.html</loc><priority>0.6</priority></url>
+  <url><loc>https://gilly.space/Space-Is-Full.html</loc><priority>0.6</priority></url>
+  <url><loc>https://gilly.space/Kelvin.html</loc><priority>0.5</priority></url>
+  <url><loc>https://gilly.space/Music-and-Theater.html</loc><priority>0.5</priority></url>
+  <url><loc>https://gilly.space/skitPage.html</loc><priority>0.3</priority></url>
+  <url><loc>https://gilly.space/shop.html</loc><priority>0.7</priority></url>
+  <url><loc>https://gilly.space/enso/</loc><priority>0.8</priority></url>
+  <url><loc>https://gilly.space/enso/pixelated-enso.html</loc><priority>0.6</priority></url>
+  <url><loc>https://gilly.space/sudoku/</loc><priority>0.6</priority></url>
+</urlset>

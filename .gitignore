@@ -1,3 +1,6 @@
+# Local tooling (Claude Code worktree state, preview launch config)
+.claude/
+
 # OS cruft
 .DS_Store
 
