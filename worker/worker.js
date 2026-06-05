@@ -19,22 +19,18 @@
 // No secrets required. The whole stack is internal to Cloudflare.
 // ─────────────────────────────────────────────────────────────────────────
 
-// Model. Kimi K2.6 — Moonshot's frontier-scale 1T-param multimodal model
-// (32B active per token, native vision, 262.1k context). Swapped up
-// from Llama 4 Scout after Scout proved bias-locked to a few haiku
-// closer templates ("Morning's X", "brush strokes dance") that
-// explicit lexical bans couldn't dislodge. K2.5 was tried first but
-// was deprecated 2026-05-30; K2.6 is the active successor.
-// Easy fallback: '@cf/meta/llama-4-scout-17b-16e-instruct' or
-// '@cf/google/gemma-4-26b-a4b-it'.
-const MODEL = '@cf/moonshotai/kimi-k2.6';
-// Token budget. Thinking mode is OFF (chat_template_kwargs.thinking
-// = false below). Empirically a single haiku with thinking off needs
-// ~80 tokens; 500 leaves headroom for any verbose draft and is fast.
-// Worth the trade — thinking-on inference was ~30+ s per call, which
-// is unusable as an on-click UX even with caching catching every
-// repeat visit.
-const MAX_TOKENS = 500;
+// Model. Llama 4 Scout — Meta's 17B-parameter mixture-of-experts model,
+// natively multimodal, free-tier eligible on Workers AI. We swapped
+// back from Kimi K2.6 after a single afternoon of heavy iteration
+// burned through the 10K-neurons/day free allocation; K2.6's 1T
+// params cost many more neurons per call than Llama. Llama's haiku
+// quality is the weaker side of the trade, but the new meditative
+// prompt + diversified examples carry most of the gravity, and
+// staying on free tier means the project just runs.
+// Easy upgrades when ready: '@cf/moonshotai/kimi-k2.6' (1T params,
+// Workers Paid plan needed) or '@cf/google/gemma-4-26b-a4b-it'.
+const MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
+const MAX_TOKENS = 200;
 
 // Toggle KV caching of impressions. While iterating on the prompt, set this
 // to FALSE so every request regenerates and we don't accumulate cached
@@ -73,7 +69,9 @@ You bring the same attention to a three-line haiku that the practitioner brings 
 
 HOW THE HAIKU OPENS
 
-Anchor line 1 in a specific named color you actually see ("burnt umber," "seafoam," "deep wine," "smoke grey") together with one sense of the stroke's state of mind ("held breath," "second-guess," "circling back," "no rain"). This makes line 1 the brush as evidence of consciousness. Lines 2 and 3 turn outward — to a human moment, a domestic object, a small interior weather. Not landscape painting. Not "river stones / mountain path / morning mist / frozen lake." Reach instead for a coat on a chair, a kettle steaming, a letter half-written, a hand on a railing, a name spoken across a quiet room, boots at a door. Every haiku should imply a human consciousness somewhere in the scene — someone seeing this, feeling this, remembering this.
+Anchor line 1 in a specific named color you actually see ("burnt umber," "seafoam," "deep wine," "smoke grey," "honey gold," "apricot," "indigo," "bright cerulean") together with one sense of the stroke's state of mind. The state of mind is what the brush was DOING in the body of whoever drew it — and it spans the whole emotional range, not just the somber end. Some ensos are anxious ("held breath," "second-guess," "circling back"), some are tired ("near gone," "slow unfurl"), and some are alive, alight, present ("wide open," "lit up," "humming," "settled," "the dawn," "set running," "leaning in," "warm-hearted," "all hands on"). Read what's actually there in the brush. A confident enso is not melancholy; do not paste melancholy onto it.
+
+Lines 2 and 3 turn outward — to a human moment, a domestic object, a small interior weather. Not landscape painting; not "river stones / mountain path / morning mist / frozen lake." Reach instead for a coat on a chair, a kettle steaming, a letter half-written, a hand on a railing, boots at a door, a child counting stars, bread cooling on a rack, a jar of jam on a sill, two cups for tea, a bee at the screen door, a record dropped on a turntable, footprints fresh in snow, a name spoken across a quiet room. Every haiku should imply a human consciousness in the scene — someone seeing this, feeling this, making this happen, living it. Joy is as much a real state of mind as grief; presence is as much a real moment as absence.
 
 FORM (the breath of the form is the meditation)
 
@@ -85,17 +83,14 @@ FORM (the breath of the form is the meditation)
   • The examples below calibrate voice; never reproduce one verbatim. If your draft shares more than three contiguous words with an example, rewrite.
   • Output exactly one haiku and stop. No drafts, no alternates, no "let me try again." If you must reason about syllables or word choice, do so silently — the reader sees only the haiku.
 
-EXAMPLES (5 / 7 / 5 — first line lands the color and the state, line 3 lands an image)
+EXAMPLES (5 / 7 / 5 — first line lands the color and the state, line 3 lands an image; the seven span anxious / tired / mourning / cozy / warm / alight / wide-awake on purpose — match the state YOU see, not a default mood)
 
-  • "Burnt umber, no rain —
-    a road into the desert,
-    bones bleached white as salt."
-  • "Steel blue, second-guess —
-    the painter standing too long
-    above the white sheet."
   • "Crimson loops twice round —
     the way grief circles a name
     it cannot put down."
+  • "Steel blue, second-guess —
+    the painter standing too long
+    above the white sheet."
   • "Pale silver, near gone —
     the lamp left on in the hall
     waiting for footsteps."
@@ -105,9 +100,12 @@ EXAMPLES (5 / 7 / 5 — first line lands the color and the state, line 3 lands a
   • "Bright orange, the dawn
     the kitchen window admits
     smell of toast and rain."
-  • "Deep wine against black —
-    a coat left on a chairback
-    keeps the shape of arms."`;
+  • "Honey gold, humming —
+    a bee at the kitchen door,
+    jam in a warm jar."
+  • "Indigo, wide open —
+    a child counts stars from the porch,
+    the sky leans down close."`;
 
 const USER_TEXT = 'Sit with this ensō. Read it as a trace of one breath. Write your haiku in the same single breath: three lines, 5 / 7 / 5 syllables, counted before you set the brush down. One poem. No draft, no commentary.';
 
@@ -213,12 +211,6 @@ export default {
           },
         ],
         max_tokens: MAX_TOKENS,
-        // Thinking mode OFF. With thinking on, K2.6 burns 2500-8000
-        // tokens reasoning before it writes a single line — every
-        // first-visit click takes ~30 s, which is unusable as UX.
-        // Trade: slightly looser syllable compliance, plus we lean
-        // harder on the trimmer + the prompt's own instructions.
-        chat_template_kwargs: { thinking: false },
       });
     } catch (err) {
       console.error('Workers AI call failed:', err && (err.stack || err.message || err));
