@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play · gilly.space</title>
+<meta name="description" content="Small interactive things Gilly built — a daily AI-narrated ensō calendar, an ensō editor, and Spectrum Sudoku.">
+<link rel="canonical" href="https://gilly.space/play/">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Play · gilly.space">
+<meta property="og:description" content="A daily AI-narrated ensō calendar, an ensō editor, and Spectrum Sudoku.">
+<meta property="og:url" content="https://gilly.space/play/">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<div data-include="header"></div>
+<noscript>
+  <nav class="wrap" style="padding-top:12px" aria-label="Primary">
+    <a href="/Research.html">Research</a> · <a href="/sun.html">The Sun</a> ·
+    <a href="/RecordedPublicTalks.html">Outreach</a> · <a href="/enso/">Play</a> ·
+    <a href="/shop.html">Store</a>
+  </nav>
+</noscript>
+
+<main id="main">
+  <section class="section wrap">
+    <p class="eyebrow">Play</p>
+    <h1>Things I built for fun</h1>
+    <div class="prose">
+      <p>
+        Small, self-contained web toys — no accounts, no tracking, just open and play. Each one is
+        hand-built in vanilla JavaScript and shares this site's dark mode.
+      </p>
+    </div>
+
+    <div class="grid" style="margin-top:8px">
+
+      <article class="card card--art">
+        <a href="/enso/">
+          <div class="card__img" role="img" aria-label="Gold brushstroke ensō on a dark field"></div>
+          <div class="card__body">
+            <p class="card__kicker">Daily · generative</p>
+            <h3>The Daily Ensō</h3>
+            <p>A new brushstroke circle every UTC day, deterministic from the date, with a one-line
+               AI impression of its mood. Past days fill the calendar; tomorrow is still blank.</p>
+          </div>
+        </a>
+      </article>
+
+      <article class="card card--text">
+        <div class="card__body">
+          <p class="card__kicker">Tool</p>
+          <h3>The Ensō editor</h3>
+          <p>Every brush, ink, color, and shape parameter on a slider — re-roll, save presets, and
+             open any day's ensō to tweak it. <a href="/enso/pixelated-enso.html">Open the editor →</a></p>
+        </div>
+      </article>
+
+      <article class="card card--sun">
+        <a href="/sudoku/">
+          <div class="card__img" role="img" aria-label="Colorful sudoku grid"></div>
+          <div class="card__body">
+            <p class="card__kicker">Puzzle</p>
+            <h3>Spectrum Sudoku</h3>
+            <p>Sudoku, but the digits are colors. A fresh, fully-responsive take on the classic.</p>
+          </div>
+        </a>
+      </article>
+
+      <article class="card card--text">
+        <div class="card__body">
+          <p class="card__kicker">Bonus · live</p>
+          <h3>The Sun, right now</h3>
+          <p>Not a toy exactly, but alive: up-to-the-hour solar imagery processed with my own method.
+             <a href="/sun.html">Go look at the Sun →</a></p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+</main>
+
+<div data-include="footer"></div>
+<script src="/assets/site.js"></script>
+</body>
+</html>

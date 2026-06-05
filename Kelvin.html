@@ -1,99 +1,119 @@
-﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta property="og:image" content="images/bg.jpg" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c" />
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" href="assets/css/academicons.min.css"/>
-
-    <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
-
-
-
-<!--    <link rel="stylesheet" href="assets/css/main.css" />-->
-    <title>The Kelvin-Helmholtz Instability</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Kelvin–Helmholtz Instability · gilly.space</title>
+<meta name="description" content="A review of the Kelvin–Helmholtz instability by Chris Gilbert (Gilly), with a paper, slides, and spectral Dedalus simulations of fluid shear.">
+<link rel="canonical" href="https://gilly.space/Kelvin.html">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Kelvin–Helmholtz Instability · gilly.space">
+<meta property="og:description" content="A review of the Kelvin–Helmholtz instability by Chris Gilbert (Gilly), with a paper, slides, and spectral Dedalus simulations of fluid shear.">
+<meta property="og:url" content="https://gilly.space/Kelvin.html">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
 </head>
-<body style='margin-left:30pt'>
+<body>
+<div data-include="header"></div>
+<noscript>
+  <nav class="wrap" style="padding-top:12px" aria-label="Primary">
+    <a href="/Research.html">Research</a> · <a href="/sun.html">The Sun</a> ·
+    <a href="/RecordedPublicTalks.html">Outreach</a> · <a href="/enso/">Play</a> ·
+    <a href="/shop.html">Store</a>
+  </nav>
+</noscript>
+<main id="main">
+  <section class="section wrap">
 
-    <!-- Header -->
-    <header id="header">
-        <a href="index.html" class="image avatar"><img src="images/avatar.jpg" alt="" /></a>
-        <h2>Dr. Gilly, <a href="http://www.colorado.edu/aps/" target="_blank">PhD</a></h2>
-    </header>
-<a name="Top"></a>
-<!-- Main -->
-<div id="main">
+    <h1>The Kelvin–Helmholtz Instability</h1>
 
-    <h1>The Kelvin-Helmholtz Instability</h1>
-    <h2>A review by Chris Gilbert (Gilly)</h2>
+    <div class="prose">
+      <p class="eyebrow">A review by Chris Gilbert (Gilly)</p>
+    </div>
 
-    <!--Figure links at the top-->
+    <!-- The two PDF deliverables: paper + presentation -->
+    <div class="grid">
+      <article class="card">
+        <a href="files/KHPaper.pdf" target="_blank">
+          <img class="card__img" loading="lazy" src="images/thumbs/KHpaper.png"
+               alt="Title page of Gilly's review paper on the Kelvin–Helmholtz instability">
+          <div class="card__body">
+            <p class="card__kicker">Paper</p>
+            <h3>Read my paper</h3>
+            <p>Click here to read my paper! It explains everything you need to know about the KH Instability.</p>
+          </div>
+        </a>
+      </article>
 
-        <figure>
-            <a href="files/KHPaper.pdf" target="_blank">
-                <img src="images/thumbs/KHpaper.png" width="450" height="300"
-                     alt="">
-            </a>
-            <figcaption>Click Here to read my paper! It explains everything <br /> you need to know about the KH Instability.</figcaption>
-        </figure>
-        <figure>
-            <a href="files/KHPresentation.pdf" target="_blank">
-                <img src="images/thumbs/KHpresentation.png" width="500" height="300"
-                     alt="">
-            </a>
-            <figcaption>Click Here to see my powerpoint slides!<br /> All the same information, but perhaps a better narrative.</figcaption>
-        </figure>
-    <br />
-     <a href="index.html">(Return to Home Page)</a>
-    <hr />
-    <h2>Spectral Simulation of the Instability</h2>
-    <h3>Single Stream</h3>
-    <img src="images/fulls/streamSmSlow.gif" alt="HTML5 Icon" style="width:1000px;height:284px;">
-    <h3>Double Stream</h3>
-    <img src="images/fulls/doubleStreamSmSlow.gif" alt="HTML5 Icon" style="width:1000px;height:284px;">
-    <p>
+      <article class="card">
+        <a href="files/KHPresentation.pdf" target="_blank">
+          <img class="card__img" loading="lazy" src="images/thumbs/KHpresentation.png"
+               alt="Opening slide of Gilly's presentation on the Kelvin–Helmholtz instability">
+          <div class="card__body">
+            <p class="card__kicker">Slides</p>
+            <h3>See my slides</h3>
+            <p>Click here to see my powerpoint slides! All the same information, but perhaps a better narrative.</p>
+          </div>
+        </a>
+      </article>
+    </div>
+
+    <div class="prose">
+      <p><a href="index.html">(Return to Home Page)</a></p>
+
+      <hr>
+
+      <h2>Spectral Simulation of the Instability</h2>
+
+      <h3>Single Stream</h3>
+      <figure>
+        <img loading="lazy" src="images/fulls/streamSmSlow.gif"
+             alt="Animated spectral simulation of a single-stream Kelvin–Helmholtz instability, showing shear billows rolling up at increasing Reynolds number, with a vorticity panel below">
+        <figcaption>Single-stream Kelvin–Helmholtz instability: density (top) and vorticity (bottom) at increasing Reynolds number.</figcaption>
+      </figure>
+
+      <h3>Double Stream</h3>
+      <figure>
+        <img loading="lazy" src="images/fulls/doubleStreamSmSlow.gif"
+             alt="Animated spectral simulation of a double-stream Kelvin–Helmholtz instability, with two shear layers rolling up into billows at increasing Reynolds number, with a vorticity panel below">
+        <figcaption>Double-stream Kelvin–Helmholtz instability: two shear layers, with density (top) and vorticity (bottom) at increasing Reynolds number.</figcaption>
+      </figure>
+
+      <p>
         What you are looking at is a simulation of the Kelvin-Helmholtz Instability. It was first characterized in 1868,
         and occurs when there are two fluids with relative motion, called shear, between them. This simulation was done in
         <a href="http://dedalus-project.org/" target="_blank">Dedalus, an open-source differential equations solver.</a> Each of the boxes began with the same configuration, but a single parameter,
         called the Reynolds Number, was changed for each one. As you can see, the higher the Reynolds number, the more complex the structure
         becomes. This is because the diffusion of the fluid becomes very small, and can't smear out the structure. The second row shows
         vorticity, which is a measure of the "spin" of the fluid, also called the motion's "Curl."
-    </p>
-</div>
-<!-- Footer -->
-<footer id="footer">
-    <a href="index.html">(Return to Home Page)</a>
+      </p>
 
-    <ul class="icons">
-        Find me all across the internet! </br>
-        <!--            <a href="#Work">Click here</a> to see my work. <a href="#Contact">Click here</a> to contact me.-->
-        <li><a href="https://arxiv.org/a/gilly_c_1.html" class="ai ai-arxiv ai-2x" target="_blank" title="Arxiv"><span class="label"></span></a></li>
-        <li><a href="https://orcid.org/0000-0003-0021-9056" class="ai ai-orcid ai-2x" target="_blank" title="ORCID"><span class="label"></span></a></li>
-        <li><a href="https://www.linkedin.com/in/gillyspace27/" class="icon fa-linkedin-square" target="_blank" title="Linked In"><span class="label">Linked-In</span></a></li>
-        <li><a href="https://github.com/GillySpace27" class="icon fa-github" target="_blank" title="Github"><span class="label">Github</span></a></li>
-        <li><a href="https://www.soundcloud.com/gillyspace27" class="icon fa-soundcloud" title="Sound Cloud"><span class="label">Sound Cloud</span></a></li>
-        <li><a href="https://twitter.com/GillySpace27" class="icon fa-twitter" target="_blank" title="Twitter"><span class="label">Twitter</span></a></li>
-        <li><a href="https://www.facebook.com/GillySun27" class="icon fa-facebook" target="_blank" title="Facebook"><span class="label">Facebook</span></a></li>
-        <!--            <li><a href="https://orcid.org/0000-0003-0021-9056" target="_blank" style="text-decoration: none"><img src="https://orcid.org/sites/default/files/images/orcid_32x32.png" style="width:1.3em;"></a></li>-->
-        <li><a href="mailto:chris.gilly@colorado.edu" class="icon fa-envelope-o" title="Email"><span class="label">Email</span></a></li>
+      <p><a href="index.html">(Return to Home Page)</a></p>
+    </div>
 
-    </ul>
-    <ul class="copyright">
-        <li>&copy; Chris R. Gilly</li>
-        <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-    </ul>
-</footer>
-
+  </section>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/site.js"></script>
 </body>
 </html>

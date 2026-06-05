@@ -1,100 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>The Sun Now!</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-control" content="no-cache">
+<title>The Sun, right now · gilly.space</title>
+<meta name="description" content="Up-to-the-hour images of the Sun from SDO/AIA, radially equalized with Gilly's RHE method to reveal the faint corona.">
+<link rel="canonical" href="https://gilly.space/sun.html">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Sun, right now · gilly.space">
+<meta property="og:description" content="Live SDO/AIA solar imagery, radially equalized with the RHE method to reveal the faint corona.">
+<meta property="og:url" content="https://gilly.space/sun.html">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
 
-    <meta property="og:image" content="images/bg.jpg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c" />
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" href="assets/css/academicons.min.css"/>
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
-
-
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.777.0.min.js"></script>
-    <script src="./assets/js/s3_PhotoViewer.js"></script>
+<!-- Live S3-backed solar image gallery (AWS SDK + Cognito). Preserved as-is. -->
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.777.0.min.js"></script>
+<script src="/assets/js/s3_PhotoViewer.js"></script>
 </head>
 <body>
-    <script>
-      viewAlbum('renders');
-    </script>
 
-<header id="header">
-    <br />
-    <a href="index.html" class="image avatar"><img src="images/avatar.jpg" alt="" /></a>
-    <h2>Dr. Gilly, <a href="http://www.colorado.edu/aps/" target="_blank">PhD</a></h2>
-    <h3>Heliophysicist</h3>
-    Forward Models <br>
-    Data Analysis <br>
-    Observation Validation <br><br>
-    Space Physics <br>
-    Solar Wind <br>
-    Coronal Heating <br>
-</header>
+<div data-include="header"></div>
+<noscript>
+  <nav class="wrap" style="padding-top:12px" aria-label="Primary">
+    <a href="/Research.html">Research</a> · <a href="/sun.html">The Sun</a> ·
+    <a href="/RecordedPublicTalks.html">Outreach</a> · <a href="/enso/">Play</a> ·
+    <a href="/shop.html">Store</a>
+  </nav>
+</noscript>
 
-<meta http-equiv="Cache-control" content="no-cache">
+<main id="main">
+  <section class="section wrap">
+    <p class="eyebrow">Live · updates hourly</p>
+    <h1>The Sun, right now</h1>
 
-<a href="https://www.colorado.edu/aps/" target="_blank">PhD, CU Boulder</a> <br>
-<a href="https://www.nwra.com" target="_blank">Research Scientist, NorthWest Research Associates (NWRA)</a>
+    <div class="prose">
+      <p>
+        These images were taken recently (see the timestamps below) by the Atmospheric Imaging
+        Assembly (AIA) on the Solar Dynamics Observatory (SDO), a NASA mission launched in 2010.
+        Each color represents the intensity recorded at one particular wavelength of ultraviolet
+        light. Those wavelengths were chosen because they correspond to atomic ions known to exist
+        at a range of temperatures — so these images let us read off the temperature of the solar
+        atmosphere. The wavelength of each image is printed on its top-right corner (in ångströms,
+        one-tenth of a nanometer).
+        <a href="https://en.wikipedia.org/wiki/Solar_Dynamics_Observatory" target="_blank" rel="noopener">Find out more about SDO on Wikipedia.</a>
+      </p>
+      <p>
+        The images have been radially normalized using
+        <a href="https://docs.sunpy.org/projects/sunkit-image/en/latest/api/sunkit_image.radial.rhef.html" target="_blank" rel="noopener">Radial Histogram Equalization</a>
+        (RHE) — my method (Gilly &amp; Cranmer, in prep), which now ships in sunpy's
+        <code>sunkit-image</code> — to pull the faint corona into the same dynamic range as the
+        bright disk. The unprocessed images can be seen at
+        <a href="https://www.thesuntoday.org/sun/current-observations/" target="_blank" rel="noopener">The Sun Today</a>.
+        Like one enough to hang it on a wall? Fine-art prints live in the
+        <a href="shop.html">Solar Archive store</a>.
+      </p>
+    </div>
 
-<a name="Top"></a>
+    <p style="margin-top:1.5rem"><strong>These images were taken at:</strong></p>
+    <iframe title="Capture times of the current solar images"
+            src="https://the-sun-now.s3.us-east-2.amazonaws.com/image_times_readable.txt"
+            width="225" height="195" loading="lazy"
+            style="border:1px solid var(--card-border); border-radius:8px; background:#fff; color:#000; max-width:100%;"></iframe>
 
-<div id="main">
-    <h1>The Sun Right Now!</h1>
-    These images were taken recently (See the time stamps below) by the Atmospheric Imaging Assembly (AIA) on the Solar Dynamics Observatory (SDO), a NASA mission launched in 2010.
-    Each color is representative of the intensity recorded when observing one particular wavelength
-    of ultraviolet light. These wavelengths were selected by the SDO mission because they
-    correspond to particular atomic ions which are known to exist at a range of temperatures.
-    This means we can use these images to determine the temperature of the solar atmosphere.
-    The wavelength of each image is printed on the top right of each image (in units of angstroms, which are 1/10th of a nanometer).
-    <a href="https://en.wikipedia.org/wiki/Solar_Dynamics_Observatory" target="_blank">Find out more about SDO on Wikipedia</a>
+    <div id="viewer" style="margin-top:24px"></div>
+    <script>viewAlbum('renders');</script>
+  </section>
+</main>
 
-    <br /><br>
-
-    The images have been radially normalized using
-    <a href="https://docs.sunpy.org/projects/sunkit-image/en/latest/api/sunkit_image.radial.rhef.html" target="_blank">Radial Histogram Equalization</a> (RHE)
-    (Gilly &amp; Cranmer, in prep) to maximize the dynamic range of the image.
-    The unprocessed images can be seen at
-    <a href="https://www.thesuntoday.org/sun/current-observations/" target="_blank">The Sun Today</a>.
-
-    <br /><br>
-    These images were taken at:
-    <br />
-
-    <iframe src="https://the-sun-now.s3.us-east-2.amazonaws.com/image_times_readable.txt"
-        width="225" height="195" style="background-color: white; color: black;"></iframe>
-    <br /><br>
-
-    <div id="viewer"></div>
-</div>
-
-<footer id="footer">
-    <a href="index.html">(Return to Home Page)</a>
-    <ul class="icons">
-        Find me all across the internet! <br />
-        <li><a href="https://arxiv.org/a/gilly_c_1.html" class="ai ai-arxiv ai-2x" target="_blank" title="Arxiv"></a></li>
-        <li><a href="https://orcid.org/0000-0003-0021-9056" class="ai ai-orcid ai-2x" target="_blank" title="ORCID"></a></li>
-        <li><a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0003-0021-9056" class="ai ai-ads ai-2x" target="_blank" title="ADS"></a></li>
-        <li><a href="https://www.linkedin.com/in/gillyspace27/" class="icon fa-linkedin-square" target="_blank" title="Linked In"></a></li>
-        <li><a href="https://github.com/GillySpace27" class="icon fa-github" target="_blank" title="Github"></a></li>
-        <li><a href="https://www.soundcloud.com/gillyspace27" class="icon fa-soundcloud" title="Sound Cloud"></a></li>
-        <li><a href="https://twitter.com/GillySpace27" class="icon fa-twitter" target="_blank" title="Twitter"></a></li>
-        <li><a href="https://www.facebook.com/GillySun27" class="icon fa-facebook" target="_blank" title="Facebook"></a></li>
-        <li><a href="mailto:chris.gilly@colorado.edu" class="icon fa-envelope-o" title="Email"></a></li>
-    </ul>
-    <ul class="copyright">
-        <li>&copy; Dr. Gilly</li>
-        <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-    </ul>
-</footer>
-
+<div data-include="footer"></div>
+<script src="/assets/site.js"></script>
 </body>
 </html>
