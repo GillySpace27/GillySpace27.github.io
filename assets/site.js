@@ -20,6 +20,30 @@
 (function () {
   'use strict';
 
+  /* ---- 0: scroll-reveal. Armed synchronously (this script is parser-blocking
+       at end of <body>, so it runs before first paint → no flash). Skipped
+       entirely under reduced-motion or without IntersectionObserver, so content
+       is never hidden when it can't be revealed. ---- */
+  (function armReveal() {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!('IntersectionObserver' in window) || reduce) return;
+    var targets = document.querySelectorAll('main .card, main figure, main .embed-16x9');
+    if (!targets.length) return;
+    document.documentElement.classList.add('js-reveal');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.04 });
+    targets.forEach(function (t) { t.classList.add('reveal'); io.observe(t); });
+    document.querySelectorAll('main .grid').forEach(function (g) {
+      var i = 0;
+      Array.prototype.forEach.call(g.children, function (c) {
+        if (c.classList.contains('reveal')) { c.style.transitionDelay = (Math.min(i, 5) * 70) + 'ms'; i++; }
+      });
+    });
+  })();
+
   /* ---- 1 & 2: inject shared header/footer, then mark the active nav link ---- */
   function norm(p) { return p.replace(/index\.html$/, '').replace(/\/$/, '') || '/'; }
 
