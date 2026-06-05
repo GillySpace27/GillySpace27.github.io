@@ -1,5 +1,7 @@
 {
-	"name": "Chris Gilbert",
+	"name": "gilly.space — Dr. Chris Gilbert",
+	"short_name": "gilly.space",
+	"start_url": "/",
 	"icons": [
 		{
 			"src": "\/android-chrome-192x192.png",
@@ -12,6 +14,7 @@
 			"type": "image\/png"
 		}
 	],
-	"theme_color": "#ffffff",
+	"theme_color": "#faf8f3",
+	"background_color": "#faf8f3",
 	"display": "standalone"
 }

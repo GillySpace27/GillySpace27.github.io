@@ -1,3 +1,5 @@
-*.mov filter=lfs diff=lfs merge=lfs -text -diff
-*.mp4 filter=lfs diff=lfs merge=lfs -text -diff
-
+# Git LFS was declared here for *.mov / *.mp4 but never actually activated
+# (git-lfs is not installed; the tracked MP4s are real blobs, not pointers).
+# The inert filter lines were removed so new media isn't silently mis-handled.
+# If you later want LFS for the large binaries, install git-lfs first, then
+# `git lfs track` and re-add the files.

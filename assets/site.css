@@ -1,0 +1,220 @@
+/* ============================================================================
+   gilly.space — site.css  (the "Heliostatic" design system)
+   ----------------------------------------------------------------------------
+   One hand-authored, dependency-free stylesheet for the whole site. The token
+   palette and dark mode are lifted VERBATIM from enso/index.html so the site
+   and the interactive toys share a single source of truth (and a single
+   `enso-theme` localStorage key). No Sass, no build, no jQuery.
+
+   This file is GROUNDWORK: it is not linked by any legacy page yet. Pages adopt
+   it one at a time during the redesign; until a page links it, that page renders
+   exactly as before.
+   ========================================================================== */
+
+/* ---- Tokens: light (default) ---- */
+:root {
+  --bg: #faf8f3;            /* warm paper            */
+  --text: #1a2a5a;          /* ink-navy              */
+  --muted: #555;
+  --card-bg: #ffffff;
+  --card-border: #ddd;
+  --accent: #d9a91a;        /* gold / corona         */
+  --accent-ink: #1a1814;    /* text on accent fills  */
+  --btn-bg: #1a2a5a;
+  --btn-text: #ffffff;
+  --rule: #e4ddcf;          /* hairline section rule */
+  --link: #1a2a5a;
+  --link-hover: #d9a91a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --modal-backdrop: rgba(0,0,0,0.55);
+
+  --maxw: 1080px;           /* page container        */
+  --measure: 68ch;          /* prose reading measure */
+  --radius: 12px;
+  --pad: clamp(16px, 4vw, 32px);
+}
+
+/* ---- Tokens: dark (the enso "deep space" twin) ---- */
+:root.dark {
+  --bg: #1a1814;
+  --text: #e8e2d0;
+  --muted: #a8a094;
+  --card-bg: #25221c;
+  --card-border: #3a362c;
+  --accent: #d9a91a;
+  --accent-ink: #1a1814;
+  --btn-bg: #d9a91a;
+  --btn-text: #1a1814;
+  --rule: #3a362c;
+  --link: #e8e2d0;
+  --link-hover: #d9a91a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --modal-backdrop: rgba(0,0,0,0.78);
+}
+
+/* ---- Reset / base ---- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, video, iframe { max-width: 100%; height: auto; }
+
+/* ---- Fluid type scale (the sudoku clamp() trick — responsive, no breakpoints) ---- */
+h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.15; margin: 0 0 .5em; }
+h2 { font-size: clamp(22px, 3.4vw, 30px); line-height: 1.2;  margin: 1.6em 0 .5em; }
+h3 { font-size: clamp(18px, 2.4vw, 22px); line-height: 1.25; margin: 1.3em 0 .4em; }
+p  { margin: 0 0 1em; }
+
+a { color: var(--link); text-decoration: none; }
+a:hover { color: var(--link-hover); }
+a:focus-visible,
+button:focus-visible,
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+hr,
+.rule {
+  border: 0;
+  height: 1px;
+  background: var(--rule);
+  margin: 2.5rem 0;
+}
+
+/* ---- Layout container ---- */
+.wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); }
+main { flex: 1 0 auto; width: 100%; }
+.section { padding: clamp(28px, 6vw, 56px) 0; }
+
+/* ---- Skip link (accessibility — none exists on the legacy site) ---- */
+.skip-link {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--btn-bg); color: var(--btn-text);
+  padding: 10px 16px; border-radius: 0 0 8px 0; z-index: 1000;
+}
+.skip-link:focus { left: 0; }
+
+/* ============================================================================
+   Site header / persistent nav  — the thing the legacy site never had
+   ========================================================================== */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+.site-header__inner {
+  max-width: var(--maxw); margin: 0 auto; padding: 10px var(--pad);
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+.brand {
+  font-weight: 700; font-size: 18px; letter-spacing: -0.01em;
+  color: var(--text); white-space: nowrap;
+}
+.brand:hover { color: var(--accent); }
+.brand .dot { color: var(--accent); }
+
+.site-nav { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; margin-right: auto; }
+.site-nav a {
+  color: var(--muted); font-size: 15px; padding: 6px 10px; border-radius: 6px;
+  transition: color .15s ease, background .15s ease;
+}
+.site-nav a:hover { color: var(--text); background: var(--card-bg); }
+.site-nav a[aria-current="page"] { color: var(--text); background: var(--card-bg); box-shadow: inset 0 -2px 0 var(--accent); }
+
+.site-tools { display: flex; align-items: center; gap: 8px; }
+
+/* Academic / social icon row (valid <ul><li>, fixing the bare-text-in-<ul> bug) */
+.icon-row { display: flex; gap: 10px; align-items: center; list-style: none; margin: 0; padding: 0; }
+.icon-row a { color: var(--muted); font-size: 18px; line-height: 1; }
+.icon-row a:hover { color: var(--accent); }
+
+/* Theme toggle — same icon-button treatment as the toys */
+.theme-toggle {
+  background: transparent; border: none; color: var(--muted);
+  cursor: pointer; font-size: 16px; padding: 4px 6px; border-radius: 4px;
+  opacity: 0.6; line-height: 1;
+}
+.theme-toggle:hover { opacity: 1; background: var(--card-bg); }
+
+/* ============================================================================
+   Footer
+   ========================================================================== */
+.site-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--rule);
+  margin-top: 48px;
+  padding: 32px 0;
+  color: var(--muted); font-size: 14px;
+}
+.site-footer__inner { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); display: flex; flex-direction: column; gap: 14px; }
+.site-footer .icon-row a { font-size: 20px; }
+.site-footer__meta { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+
+/* ============================================================================
+   Cards + responsive grid (replaces skel's 6u/12u$ classes)
+   ========================================================================== */
+.grid {
+  display: grid; gap: clamp(16px, 3vw, 24px);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform .15s ease, box-shadow .15s ease;
+  display: flex; flex-direction: column;
+}
+.card:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.10); }
+.card a { color: inherit; display: block; }
+.card__img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--bg); }
+.card__body { padding: 16px 18px; }
+.card__body h3 { margin: 0 0 .25em; }
+.card__body p { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-block; background: var(--btn-bg); color: var(--btn-text);
+  padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer;
+  font-size: 15px; font-weight: 600; transition: opacity .15s ease;
+}
+.btn:hover { opacity: .9; color: var(--btn-text); }
+.btn--ghost { background: transparent; color: var(--text); border: 1px solid var(--card-border); }
+
+/* ---- Responsive 16:9 embed (fixes the fixed 560x315 iframes that overflow phones) ---- */
+.embed-16x9 { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; background: #000; }
+.embed-16x9 > iframe,
+.embed-16x9 > video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ---- Prose pages (Space-Is-Full, Kelvin) get a real reading measure ---- */
+.prose { max-width: var(--measure); margin-inline: auto; }
+.prose figure { margin: 1.5rem 0; }
+.prose figcaption { color: var(--muted); font-size: 13px; margin-top: .4rem; }
+
+/* ---- Motion: respect the user's preference (hard requirement) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
+
+/* ---- Narrow screens: let the nav scroll rather than crush ---- */
+@media (max-width: 640px) {
+  .site-nav { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .site-nav a { white-space: nowrap; }
+}

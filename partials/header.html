@@ -1,0 +1,29 @@
+<!-- gilly.space shared header — single source of truth for the site nav.
+     Injected by assets/site.js into <div data-include="header"></div>.
+     Links are root-relative so they work from any page depth. Hub targets
+     marked TODO are built in redesign Phase 2; until then they point at the
+     best current destination. NOT wired into any page yet (Phase 0 groundwork). -->
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="/">gilly<span class="dot">.</span>space</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/Research.html">Research</a>
+      <a href="/sun.html">The Sun</a>
+      <a href="/RecordedPublicTalks.html">Outreach</a>
+      <a href="/enso/">Play</a> <!-- TODO Phase 2: point at /play/ hub -->
+      <a href="/shop.html">Store</a>
+      <a href="/#about">About / CV</a> <!-- TODO Phase 2: dedicated about.html -->
+    </nav>
+    <div class="site-tools">
+      <ul class="icon-row">
+        <li><a href="https://arxiv.org/a/gilly_c_1.html" class="ai ai-arxiv" target="_blank" rel="noopener" aria-label="arXiv"></a></li>
+        <li><a href="https://orcid.org/0000-0003-0021-9056" class="ai ai-orcid" target="_blank" rel="noopener" aria-label="ORCID"></a></li>
+        <li><a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0003-0021-9056" class="ai ai-ads" target="_blank" rel="noopener" aria-label="NASA ADS"></a></li>
+        <li><a href="https://github.com/GillySpace27" class="icon fa-github" target="_blank" rel="noopener" aria-label="GitHub"></a></li>
+        <li><a href="https://www.linkedin.com/in/gillyspace27/" class="icon fa-linkedin-square" target="_blank" rel="noopener" aria-label="LinkedIn"></a></li>
+      </ul>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Theme: System (click to cycle)">🖥️</button>
+    </div>
+  </div>
+</header>

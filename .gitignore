@@ -1,5 +1,20 @@
-*.mov
-*.mp4
-*.config
-*.scss
+# OS cruft
 .DS_Store
+
+# Editor / IDE project files (Visual Studio, JetBrains, VS Code)
+.vs/
+.idea/
+.vscode/
+*.suo
+*.iml
+*.sln
+*.code-workspace
+
+# Committed archives — sources are extracted in-tree where the site uses them
+*.zip
+
+# Dropbox "conflicted copy" duplicates
+*conflicted copy*
+
+# One-off vendor QR-code kit (not referenced by the site)
+Unitag_QRCode_1500407963181/

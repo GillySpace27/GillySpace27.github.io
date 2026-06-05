@@ -1,0 +1,59 @@
+<!-- ===========================================================================
+     gilly.space — canonical <head> reference block.
+     ---------------------------------------------------------------------------
+     This is NOT injected at runtime: <head> meta must be present in the initial
+     HTML for crawlers and social cards to see it. It is the SINGLE SOURCE OF
+     TRUTH that each page's <head> should be brought in line with during Phase 1
+     (by hand, or by a small node templating pass if you prefer the build path).
+
+     Authored from shop.html's head (the most complete in the repo) so the
+     favicon / PWA / Search-Console set is preserved site-wide — NOT from the
+     enso head, which carries none of these.
+
+     Per page, replace the three __PLACEHOLDER__ values.
+     =========================================================================== -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__PAGE_TITLE__ · gilly.space</title>
+<meta name="description" content="__PAGE_DESCRIPTION__">
+<link rel="canonical" href="https://gilly.space/__PAGE_PATH__">
+
+<!-- Pre-paint theme (verbatim from enso/index.html — shares the enso-theme key,
+     so a dark preference set in the toys carries to the whole site, flash-free) -->
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+
+<!-- Open Graph / Twitter (note: og:image is ABSOLUTE — the legacy relative path
+     broke every social-card preview) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="__PAGE_TITLE__ · gilly.space">
+<meta property="og:description" content="__PAGE_DESCRIPTION__">
+<meta property="og:url" content="https://gilly.space/__PAGE_PATH__">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Favicons / PWA / Windows tile / Safari pinned tab — preserved from shop.html -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+
+<!-- Search Console verification (keep; authorizes the new sitemap submission) -->
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+
+<!-- Styles: one hand-authored system + the academic-icon font -->
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
