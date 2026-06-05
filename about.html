@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About &amp; CV · gilly.space</title>
+<meta name="description" content="About Dr. Chris Gilbert (Gilly), heliophysicist at NWRA — bio, CVs, and a colophon on how this site is built.">
+<link rel="canonical" href="https://gilly.space/about.html">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="About &amp; CV · gilly.space">
+<meta property="og:description" content="About Dr. Chris Gilbert (Gilly), heliophysicist at NWRA — bio, CVs, and a colophon.">
+<meta property="og:url" content="https://gilly.space/about.html">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<div data-include="header"></div>
+<noscript>
+  <nav class="wrap" style="padding-top:12px" aria-label="Primary">
+    <a href="/Research.html">Research</a> · <a href="/sun.html">The Sun</a> ·
+    <a href="/RecordedPublicTalks.html">Outreach</a> · <a href="/play/">Play</a> ·
+    <a href="/shop.html">Store</a>
+  </nav>
+</noscript>
+
+<main id="main">
+  <section class="section wrap">
+    <p class="eyebrow">About</p>
+    <h1>Dr. Chris Gilbert <span style="color:var(--muted);font-weight:500">(“Gilly”)</span></h1>
+
+    <div class="prose">
+      <p>
+        I'm a heliophysicist at <a href="https://www.nwra.com" target="_blank" rel="noopener">NorthWest
+        Research Associates</a> in Boulder, Colorado. I study the Sun's corona and the wind it drives across
+        the solar system — coronal heating, the solar wind, forward modeling, and validating what our
+        instruments actually measure. I earned my PhD in Astrophysical and Planetary Sciences at the
+        <a href="https://www.colorado.edu/aps/" target="_blank" rel="noopener">University of Colorado Boulder</a>,
+        working with Steven Cranmer, and I'm one of the algorithm scientists on NASA's
+        <a href="files/Overview_PUNCH.pdf" target="_blank" rel="noopener">PUNCH</a> mission. Along the way I
+        developed Radial Histogram Equalization (RHE/RHEF), a coronal-contrast method now distributed in
+        sunpy's <code>sunkit-image</code>.
+      </p>
+      <p>
+        Off the clock, I make things — <a href="Music-and-Theater.html">music and theater</a>, public
+        science <a href="RecordedPublicTalks.html">talks</a>, and small
+        <a href="play/">web toys</a> that live on this domain.
+      </p>
+      <p>
+        <a class="btn" href="mailto:Gilly@NWRA.com">Email me</a>
+        <a class="btn btn--ghost" href="publications.html" style="margin-left:8px">Publications</a>
+      </p>
+    </div>
+
+    <hr class="rule">
+
+    <h2>Curriculum vitae</h2>
+    <div class="grid">
+      <article class="card card--text">
+        <div class="card__body">
+          <p class="card__kicker">2025</p>
+          <h3>Research CV</h3>
+          <p><a href="files/CV_Research_2025.pdf" target="_blank" rel="noopener">Download PDF →</a></p>
+        </div>
+      </article>
+      <article class="card card--text">
+        <div class="card__body">
+          <p class="card__kicker">2025</p>
+          <h3>Teaching CV</h3>
+          <p><a href="files/CV_Teaching_2025.pdf" target="_blank" rel="noopener">Download PDF →</a></p>
+        </div>
+      </article>
+      <article class="card card--text">
+        <div class="card__body">
+          <p class="card__kicker">2024</p>
+          <h3>Complete CV</h3>
+          <p><a href="files/CV.pdf" target="_blank" rel="noopener">Download PDF →</a></p>
+        </div>
+      </article>
+    </div>
+    <p style="color:var(--muted); font-size:14px; margin-top:12px">
+      The research and teaching CVs are the current (2025) split; the complete CV is the 2024 combined
+      version. The editable source is <a href="files/CV.docx">CV.docx</a>.
+    </p>
+
+    <hr class="rule">
+
+    <h2>Colophon</h2>
+    <div class="prose">
+      <p>
+        This site is hand-built and deliberately simple: static HTML, one CSS file, a little vanilla
+        JavaScript, and a single Cloudflare Worker (the ensō impressions endpoint). No npm, no bundler,
+        no framework — every page is something you could open and read. Deployment is just <code>git
+        push</code>.
+      </p>
+      <p>
+        The look comes from the site's own toys. The <a href="play/">ensō calendar</a> and editor settled
+        on a warm-paper-and-ink palette with a single gold accent and a flash-free dark mode; the whole
+        site now shares those exact design tokens. A small detail I'm fond of: the calendar and the editor
+        reproduce <em>the same</em> daily ensō from the same date, byte for byte, by pulling the same
+        pseudo-random draws in the same order — a determinism contract that lets the "edit this day" button
+        round-trip perfectly. Each day's ensō also gets a one-line impression from a small language model,
+        guided by a system prompt that reads the circle as a state of mind (<em>ensō, mushin, ma</em>).
+      </p>
+      <p style="color:var(--muted); font-size:14px">
+        The visual foundations began life as the <a href="https://html5up.net" target="_blank" rel="noopener">HTML5
+        UP</a> “Strata” template, used and adapted under
+        <a href="https://html5up.net/license" target="_blank" rel="noopener">CC&nbsp;BY&nbsp;3.0</a>. See also the
+        <a href="archive/">archive</a> of older pages.
+      </p>
+    </div>
+  </section>
+</main>
+
+<div data-include="footer"></div>
+<script src="/assets/site.js"></script>
+</body>
+</html>
