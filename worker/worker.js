@@ -21,7 +21,7 @@
 
 // Model. Llama 4 Scout — Meta's 17B-parameter mixture-of-experts model,
 // natively multimodal, free-tier eligible on Workers AI. We swapped
-// back from Kimi K2.6 after a single afternoon of heavy iteration
+// back from Llama 4 Scout after a single afternoon of heavy iteration
 // burned through the 10K-neurons/day free allocation; K2.6's 1T
 // params cost many more neurons per call than Llama. Llama's haiku
 // quality is the weaker side of the trade, but the new meditative
@@ -141,7 +141,7 @@ export default {
 
     // Light health-check for "is the worker live?" testing.
     if (request.method === 'GET') {
-      return new Response('enso-impressions worker is alive (Workers AI / Kimi K2.6)', {
+      return new Response('enso-impressions worker is alive (Workers AI / Llama 4 Scout)', {
         headers: { 'Content-Type': 'text/plain', ...cors },
       });
     }

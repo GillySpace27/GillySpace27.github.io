@@ -17,7 +17,7 @@ function getHtml(template) {
 function listAlbums() {
   s3.listObjects({ Delimiter: '/' }, function (err, data) {
     if (err) {
-      return alert('There was an error listing your albums: ' + err.message);
+      return (function(){var v=document.getElementById('viewer');if(v)v.innerHTML='<p>Could not list the solar albums right now.</p>';})();
     } else {
       var albums = data.CommonPrefixes.map(function (commonPrefix) {
         var prefix = commonPrefix.Prefix;
@@ -49,7 +49,7 @@ function viewAlbum(albumName) {
   var albumPhotosKey = encodeURIComponent(albumName) + '/';
   s3.listObjects({ Prefix: albumPhotosKey }, function (err, data) {
     if (err) {
-      return alert('There was an error viewing your album: ' + err.message);
+      return (function(){var v=document.getElementById('viewer');if(v)v.innerHTML='<p>The live solar gallery could not load right now. See <a href="https://www.thesuntoday.org/sun/current-observations/" target="_blank" rel="noopener">The Sun Today</a>.</p>';})();
     }
 
     var href = this.request.httpRequest.endpoint.href;

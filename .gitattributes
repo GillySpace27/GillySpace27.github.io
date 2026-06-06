@@ -3,3 +3,22 @@
 # The inert filter lines were removed so new media isn't silently mis-handled.
 # If you later want LFS for the large binaries, install git-lfs first, then
 # `git lfs track` and re-add the files.
+
+# Line-ending normalization (stop CRLF/LF drift across machines)
+* text=auto eol=lf
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+*.md   text eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.mp4 binary
+*.mov binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

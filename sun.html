@@ -34,9 +34,10 @@
 <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
 <link rel="stylesheet" href="/assets/site.css">
 
-<!-- Live S3-backed solar image gallery (AWS SDK + Cognito). Preserved as-is. -->
-<script src="https://sdk.amazonaws.com/js/aws-sdk-2.777.0.min.js"></script>
-<script src="/assets/js/s3_PhotoViewer.js"></script>
+<!-- Warm up the handshakes the live S3 gallery needs (SDK loads deferred, end of body) -->
+<link rel="preconnect" href="https://sdk.amazonaws.com">
+<link rel="preconnect" href="https://the-sun-now.s3.us-east-2.amazonaws.com" crossorigin>
+<link rel="preconnect" href="https://cognito-identity.us-east-2.amazonaws.com">
 </head>
 <body>
 
@@ -44,8 +45,9 @@
 <noscript>
   <nav class="wrap" style="padding-top:12px" aria-label="Primary">
     <a href="/Research.html">Research</a> · <a href="/sun.html">The Sun</a> ·
-    <a href="/RecordedPublicTalks.html">Outreach</a> · <a href="/enso/">Play</a> ·
-    <a href="/shop.html">Store</a>
+    <a href="/RecordedPublicTalks.html">Outreach</a> · <a href="/play/">Play</a> ·
+    <a href="/shop.html">Store</a> &middot;
+    <a href="/about.html">About / CV</a>
   </nav>
 </noscript>
 
@@ -84,11 +86,20 @@
             style="border:1px solid var(--card-border); border-radius:8px; background:#fff; color:#000; max-width:100%;"></iframe>
 
     <div id="viewer" style="margin-top:24px"></div>
-    <script>viewAlbum('renders');</script>
   </section>
 </main>
 
 <div data-include="footer"></div>
+<!-- Live gallery: deferred so it never blocks first paint; guarded so a load failure degrades gracefully -->
+<script defer src="https://sdk.amazonaws.com/js/aws-sdk-2.777.0.min.js"></script>
+<script defer src="/assets/js/s3_PhotoViewer.js"></script>
+<script>
+  window.addEventListener('load', function () {
+    var v = document.getElementById('viewer');
+    if (window.viewAlbum) { try { viewAlbum('renders'); } catch (e) {} }
+    else if (v) { v.innerHTML = '<p>The live solar gallery couldn’t load right now. See <a href="https://www.thesuntoday.org/sun/current-observations/" target="_blank" rel="noopener">The Sun Today</a>.</p>'; }
+  });
+</script>
 <script src="/assets/site.js"></script>
 </body>
 </html>

@@ -7,6 +7,12 @@
 <meta name="description" content="Dr. Gilly (&quot;Gilly&quot;), heliophysicist at NorthWest Research Associates — solar wind, coronal heating, forward models, and a few interactive space toys.">
 <link rel="canonical" href="https://gilly.space/">
 
+<!-- Warm up the cross-origins we hit, and prioritize the LCP portrait -->
+<link rel="preconnect" href="https://s3.us-east-2.amazonaws.com" crossorigin>
+<link rel="dns-prefetch" href="https://s3.us-east-2.amazonaws.com">
+<link rel="preconnect" href="https://enso-impressions.gilly-22d.workers.dev">
+<link rel="preload" as="image" href="images/avatar.jpg" fetchpriority="high">
+
 <!-- Pre-paint theme (shares the enso-theme key with the toys — flash-free dark mode) -->
 <script>
   (function () {
@@ -50,6 +56,40 @@
 <link rel="stylesheet" href="/assets/css/academicons.min.css">
 <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
 <link rel="stylesheet" href="/assets/site.css">
+
+<!-- Structured data: anchors the "Dr. Gilly" identity + authority links for crawlers -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://gilly.space/#gilly",
+      "name": "Dr. Gilly",
+      "alternateName": "Gilly",
+      "jobTitle": "Heliophysicist",
+      "image": "https://gilly.space/images/avatar.jpg",
+      "url": "https://gilly.space/",
+      "affiliation": { "@type": "Organization", "name": "NorthWest Research Associates", "url": "https://www.nwra.com" },
+      "knowsAbout": ["Heliophysics", "Solar wind", "Coronal heating", "Solar physics", "Forward modeling"],
+      "sameAs": [
+        "https://orcid.org/0000-0003-0021-9056",
+        "https://arxiv.org/a/gilly_c_1.html",
+        "https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0003-0021-9056",
+        "https://github.com/GillySpace27",
+        "https://www.linkedin.com/in/gillyspace27/"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://gilly.space/#site",
+      "url": "https://gilly.space/",
+      "name": "gilly.space",
+      "publisher": { "@id": "https://gilly.space/#gilly" }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -60,8 +100,9 @@
     <a href="/Research.html">Research</a> ·
     <a href="/sun.html">The Sun</a> ·
     <a href="/RecordedPublicTalks.html">Outreach</a> ·
-    <a href="/enso/">Play</a> ·
-    <a href="/shop.html">Store</a>
+    <a href="/play/">Play</a> ·
+    <a href="/shop.html">Store</a> &middot;
+    <a href="/about.html">About / CV</a>
   </nav>
 </noscript>
 
@@ -72,8 +113,8 @@
     <div class="hero">
       <div class="hero__portrait">
         <a class="hero__enso-link" href="enso/" aria-label="Today's ensō — open the ensō calendar">
-          <img class="hero__avatar" src="images/avatar.jpg"
-               alt="Portrait of Dr. Gilly">
+          <img class="hero__avatar" src="images/avatar.jpg" width="800" height="600"
+               fetchpriority="high" decoding="async" alt="Portrait of Dr. Gilly">
           <canvas id="heroEnso" class="hero__enso" width="360" height="360"
                   role="img" aria-label="Today's ensō, framing the portrait"></canvas>
         </a>
