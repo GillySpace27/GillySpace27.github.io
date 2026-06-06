@@ -178,8 +178,8 @@
     function setPalette() {
       var dark = document.documentElement.classList.contains('dark');
       PAL = dark
-        ? { color: '255,255,255', base: 0.40, amp: 0.45, vyMul: 0, shoot: '217,169,26' }
-        : { color: '178,128,18',  base: 0.24, amp: 0.20, vyMul: 1, shoot: '201,150,20' };
+        ? { color: '255,255,255', base: 0.40, amp: 0.45, vyMul: 0, rMul: 1,   shoot: '217,169,26' }
+        : { color: '171,120,14',  base: 0.46, amp: 0.26, vyMul: 1, rMul: 1.5, shoot: '201,150,20' };
     }
     function resize() {
       W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr;
@@ -201,11 +201,11 @@
         var a = PAL.base + PAL.amp * Math.sin(s.tw);
         if (a <= 0.01) continue;
         ctx.globalAlpha = a; ctx.fillStyle = 'rgb(' + PAL.color + ')';
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r * PAL.rMul, 0, 6.283); ctx.fill();
       }
       ctx.globalAlpha = 1;
       // occasional shooting star
-      if (!shoot && Math.random() < 0.004) shoot = { x: Math.random() * W * 0.7, y: Math.random() * H * 0.4, len: 0, sp: 7 + Math.random() * 6, life: 1 };
+      if (!shoot && Math.random() < 0.0008) shoot = { x: Math.random() * W * 0.7, y: Math.random() * H * 0.4, len: 0, sp: 7 + Math.random() * 6, life: 1 };
       if (shoot) {
         shoot.x += shoot.sp; shoot.y += shoot.sp * 0.5; shoot.len = Math.min(160, shoot.len + shoot.sp); shoot.life -= 0.012;
         var g = ctx.createLinearGradient(shoot.x, shoot.y, shoot.x - shoot.len, shoot.y - shoot.len * 0.5);
