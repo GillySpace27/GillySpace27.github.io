@@ -70,8 +70,15 @@
   <!-- ───────────────────────── Hero ───────────────────────── -->
   <section class="section wrap">
     <div class="hero">
-      <img class="hero__avatar" src="images/avatar.jpg"
-           alt="Portrait of Dr. Chris Gilbert (Gilly)">
+      <div class="hero__portrait">
+        <a class="hero__enso-link" href="enso/" aria-label="Today's ensō — open the ensō calendar">
+          <img class="hero__avatar" src="images/avatar.jpg"
+               alt="Portrait of Dr. Chris Gilbert (Gilly)">
+          <canvas id="heroEnso" class="hero__enso" width="360" height="360"
+                  role="img" aria-label="Today's ensō, framing the portrait"></canvas>
+        </a>
+        <span class="hero__enso-cap">today's ensō ↗</span>
+      </div>
       <div class="hero__body">
         <p class="eyebrow">Welcome to gilly.space</p>
         <h1><span class="gradient-text">Dr. Chris Gilbert</span> <span style="color:var(--muted);font-weight:500;-webkit-text-fill-color:var(--muted)">(“Gilly”)</span></h1>
@@ -124,9 +131,10 @@
         </a>
       </article>
 
-      <article class="card card--art">
+      <article class="card">
         <a href="enso/">
-          <div class="card__img" role="img" aria-label="Abstract gold-on-navy brushstroke"></div>
+          <img class="card__img" loading="lazy" src="images/cards/enso-calendar.png"
+               alt="The ensō calendar — a month grid of daily brushstroke circles">
           <div class="card__body">
             <p class="card__kicker">Play · daily</p>
             <h3>The Daily Ensō</h3>
@@ -135,9 +143,10 @@
         </a>
       </article>
 
-      <article class="card card--sun">
+      <article class="card">
         <a href="shop.html">
-          <div class="card__img" role="img" aria-label="Solar corona print artwork"></div>
+          <img class="card__img" loading="lazy" src="images/cards/store.png"
+               alt="The Solar Archive print store — pick a canvas of the Sun">
           <div class="card__body">
             <p class="card__kicker">Prints</p>
             <h3>Solar Archive store</h3>
@@ -183,7 +192,9 @@
         </a>
       </article>
 
-      <article class="card card--text">
+      <article class="card">
+        <a href="play/"><img class="card__img" loading="lazy" src="images/cards/sudoku.png"
+             alt="Spectrum Sudoku — a colorful sudoku grid"></a>
         <div class="card__body">
           <p class="card__kicker">Play</p>
           <h3>More toys</h3>
@@ -191,7 +202,9 @@
         </div>
       </article>
 
-      <article class="card card--text">
+      <article class="card">
+        <a href="about.html"><img class="card__img" loading="lazy" src="images/thumbs/CV_research.png"
+             alt="Curriculum vitae"></a>
         <div class="card__body">
           <p class="card__kicker">About</p>
           <h3>CV &amp; résumés</h3>
@@ -201,7 +214,9 @@
         </div>
       </article>
 
-      <article class="card card--text">
+      <article class="card">
+        <a href="resources.html"><img class="card__img" loading="lazy" src="images/cards/resources.png"
+             alt="The solar resources directory"></a>
         <div class="card__body">
           <p class="card__kicker">Reference</p>
           <h3>Solar resources</h3>
@@ -217,6 +232,21 @@
 <!-- Shared footer (injected by site.js) -->
 <div data-include="footer"></div>
 
+<!-- Today's ensō, drawn live in the hero from the same deterministic engine the
+     calendar uses (same date → same brushstroke, byte for byte). -->
+<script src="/enso/enso-engine.js"></script>
+<script>
+  (function () {
+    var c = document.getElementById('heroEnso');
+    if (!c || typeof window.renderEnso !== 'function') return;
+    var n = new Date();
+    var today = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate());
+    // Normalize the ring (large radius, capped thickness) so it always frames the
+    // portrait; the day's color/gap/taper/imperfection/texture are still its own.
+    var draw = window.renderEnsoWith || window.renderEnso;
+    try { draw(c, today, 360, { radius: '40', maxThickness: 95 }); } catch (e) { /* portrait alone is fine */ }
+  })();
+</script>
 <script src="/assets/site.js"></script>
 </body>
 </html>

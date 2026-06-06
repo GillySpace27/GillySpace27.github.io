@@ -1,0 +1,1319 @@
+/* ============================================================================
+   enso-engine.js
+   ----------------------------------------------------------------------------
+   The ensō render engine, extracted VERBATIM from enso/index.html (the calendar)
+   so it can be reused outside the calendar — e.g. to draw today's ensō in the
+   site hero. Exposes:  window.renderEnso(targetCanvas, utcMidnightMs, size)
+
+   Determinism contract: this reproduces the exact same daily ensō as the
+   calendar and editor (same mulberry32 stream, same prng() draw order). If the
+   calendar engine ever changes, re-extract this file from enso/index.html
+   (lines from the `let canvas, ctx, seed;` declaration through renderEnso()).
+   ============================================================================ */
+(function (global) {
+  'use strict';
+  // Render target + seed are module-level so the copied render() can use them
+  // unchanged — renderEnso() reassigns them per call.
+  let canvas, ctx, seed;
+
+  // Current settings object for the EL shim.
+  let _S = {};
+  const EL = id => ({ value: _S[id] });
+
+  // Stub: render(size) only consults getRenderSize() when size is omitted; we
+  // always pass size explicitly, but keep the symbol defined for safety.
+  function getRenderSize() { return 470; }
+
+    function mulberry32(a) {
+      return function() {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function lerpColor(hex1, hex2, t) {
+      const r1 = parseInt(hex1.slice(1, 3), 16);
+      const g1 = parseInt(hex1.slice(3, 5), 16);
+      const b1 = parseInt(hex1.slice(5, 7), 16);
+      const r2 = parseInt(hex2.slice(1, 3), 16);
+      const g2 = parseInt(hex2.slice(3, 5), 16);
+      const b2 = parseInt(hex2.slice(5, 7), 16);
+      const r = Math.round(r1 + (r2 - r1) * t);
+      const g = Math.round(g1 + (g2 - g1) * t);
+      const b = Math.round(b1 + (b2 - b1) * t);
+      const toHex = n => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+      return '#' + toHex(r) + toHex(g) + toHex(b);
+    }
+
+    // RGB hex <-> HSL conversions. HSL is the right space for "shades of
+    // the same color" because vary-L keeps hue and saturation fixed so all
+    // variants read as the same color family — picking gold gives a gold
+    // ramp, picking blue gives a blue ramp, no surprise hue shifts.
+    function hexToHsl(hex) {
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      const l = (max + min) / 2;
+      if (max === min) return { h: 0, s: 0, l: l };
+      const d = max - min;
+      const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      let h;
+      if (max === r) h = ((g - b) / d) + (g < b ? 6 : 0);
+      else if (max === g) h = ((b - r) / d) + 2;
+      else h = ((r - g) / d) + 4;
+      return { h: h / 6, s: s, l: l };
+    }
+    function hslToHex(h, s, l) {
+      let r, g, b;
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return p + (q - p) * 6 * t;
+          if (t < 1 / 2) return q;
+          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+          return p;
+        };
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+      }
+      const toHex = n => Math.max(0, Math.min(255, Math.round(n * 255))).toString(16).padStart(2, '0');
+      return '#' + toHex(r) + toHex(g) + toHex(b);
+    }
+
+    // Generate a palette of `numVariants` shades derived from `baseHex` by
+    // varying only the lightness (L) channel in HSL. The brighter/darker
+    // ratio biases how many variants land above vs below the base shade
+    // in L: ratio=0 → all darker, 0.5 → balanced, 1 → all brighter. The
+    // base shade itself is always present in the returned palette at
+    // `baseIdx` so that "colorVariation = 0" collapses everything to it.
+    //
+    // Approach: pick a max L offset (50 lightness points each direction,
+    // clamped to [0.05, 0.95] so we never hit pure white or pure black —
+    // those wash out and read as "not the user's color"), then evenly
+    // distribute the darker and brighter halves across their available
+    // ranges. The two halves use independent step sizes so a base color
+    // near L=0 or L=1 still gets a wide spread on the other side.
+    function generatePalette(baseHex, numVariants, brighterRatio) {
+      if (numVariants <= 1) return { palette: [baseHex], baseIdx: 0 };
+      const hsl = hexToHsl(baseHex);
+      const baseL = hsl.l;
+      const maxOffset = 0.5;
+      const darkestL = Math.max(0.05, baseL - maxOffset);
+      const brightestL = Math.min(0.95, baseL + maxOffset);
+      // Round-to-nearest split. With numVariants=1 we already returned;
+      // otherwise numBrighter + numDarker = numVariants - 1 (the rest is
+      // the base shade itself).
+      const numBrighter = Math.round((numVariants - 1) * brighterRatio);
+      const numDarker = numVariants - 1 - numBrighter;
+      const palette = [];
+      for (let i = 0; i < numDarker; i++) {
+        // Distribute evenly across (numDarker+1) intervals between
+        // darkestL and baseL; take the inner numDarker points. This
+        // mirrors the structure of the brighter loop and keeps the
+        // closest-to-base shade one step away rather than equal to base.
+        const t = (i + 1) / (numDarker + 1);
+        const L = darkestL + (baseL - darkestL) * t;
+        palette.push(hslToHex(hsl.h, hsl.s, L));
+      }
+      palette.push(baseHex);
+      const baseIdx = numDarker;
+      for (let i = 0; i < numBrighter; i++) {
+        const t = (i + 1) / (numBrighter + 1);
+        const L = baseL + (brightestL - baseL) * t;
+        palette.push(hslToHex(hsl.h, hsl.s, L));
+      }
+      return { palette, baseIdx };
+    }
+
+    // Map a 0–100 slider linearly to a value log-spaced between minVal and maxVal.
+    // Slider 0 → minVal; slider 100 → maxVal; slider 50 → geometric mean.
+    function logMap(sliderVal, minVal, maxVal) {
+      const fraction = sliderVal / 100;
+      return minVal * Math.pow(maxVal / minVal, fraction);
+    }
+
+    function getParams(scale) {
+      return {
+        renderStyle: EL('renderStyle').value,
+        startAngle: (parseFloat(EL('startAngle').value) * Math.PI) / 180,
+        direction: EL('direction').value,
+        gapDeg: parseFloat(EL('gap').value),
+        radiusFrac: parseFloat(EL('radius').value) / 100,
+        imperfection: parseFloat(EL('imperfection').value) / 100,
+        spectralTilt: parseFloat(EL('tilt').value) / 100,
+
+        maxThickness: parseFloat(EL('thickness').value) * scale,
+        startTaper: parseFloat(EL('startTaper').value) / 100,
+        startSharp: parseFloat(EL('startSharp').value) / 100,
+        endTaper: parseFloat(EL('endTaper').value) / 100,
+        endThickFrac: parseFloat(EL('endThick').value) / 100,
+
+        inkRunoutStart: parseFloat(EL('inkRunoutStart').value) / 100,
+        inkRunoutRate: parseFloat(EL('inkRunoutRate').value) / 100,
+        // minInk slider is 0–1000 displaying 0–10% in 0.01% steps; /10000 → fraction.
+        minInk: parseFloat(EL('minInk').value) / 10000,
+        brushFadeStart: parseFloat(EL('brushFadeStart').value) / 100,
+        brushFadeRate: parseFloat(EL('brushFadeRate').value) / 100,
+        striationCoarseness: parseFloat(EL('striationCoarseness').value) * scale,
+        // Log-mapped: slider 0–100 → CSS px in [0.1, 100]. Scaled to canvas px.
+        bristleSizeStd: logMap(parseFloat(EL('bristleSizeStd').value), 0.1, 100) * scale,
+        striationSpread: parseFloat(EL('striationSpread').value) / 100,
+        // Log-mapped: slider 0–100 → integer bristle count in [1, 1000].
+        bristleCount: Math.max(1, Math.round(logMap(parseFloat(EL('bristleCount').value), 1, 1000))),
+        // viscosity now lives in [-1, +1] centered at 0; sign selects mode.
+        viscosity: parseFloat(EL('viscosity').value) / 100,
+        bristleModulation: parseFloat(EL('bristleModulation').value) / 100,
+        bristlePulseRate: parseFloat(EL('bristlePulseRate').value),
+        bristlePulseSpread: parseFloat(EL('bristlePulseSpread').value) / 100,
+        // Log-mapped: slider 0–100 → Q in [0.1, 10]. Default slider 50 → Q ≈ 1 (no shaping).
+        bristleFadeRate: logMap(parseFloat(EL('bristleFadeRate').value), 0.1, 10),
+        bristleWobbleRate: parseFloat(EL('bristleWobbleRate').value),
+        bristleWobbleAmount: parseFloat(EL('bristleWobbleAmount').value) / 100,
+        bristleCorrelation: parseFloat(EL('bristleCorrelation').value) / 100,
+        edgeWobbleAmount: parseFloat(EL('edgeWobbleAmount').value) / 100,
+        edgeWobbleFreq: parseFloat(EL('edgeWobbleFreq').value),
+
+        pixelStart: parseFloat(EL('pixelStart').value) / 100,
+        transitionWidth: parseFloat(EL('transitionWidth').value) / 100,
+
+        pixelSize: Math.max(1, Math.round(parseFloat(EL('pixelSize').value) * scale)),
+        fadeStart: parseFloat(EL('fadeStart').value) / 100,
+        fadeCurve: parseFloat(EL('fadeCurve').value) / 10,
+
+        outwardBleed: parseFloat(EL('outwardBleed').value) * scale,
+        inwardBleed: parseFloat(EL('inwardBleed').value) * scale,
+        longitudinalBleed: parseFloat(EL('longitudinalBleed').value) * scale,
+        bleedOnset: parseFloat(EL('bleedOnset').value) / 100,
+        bleedStart: parseFloat(EL('bleedStart').value) / 100,
+        // Body scatter — slider 0–100 with log mapping into [0.001, 1].
+        // The hard zero at slider=0 lets the user park at "no scatter"
+        // without relying on logMap's 0.001 floor. Higher slider values
+        // give multiplicatively bigger scatter so the bottom of the dial
+        // is where the perceptual action is (per user request).
+        bleedBody: (function() {
+          const s = parseFloat(EL('bleedBody').value);
+          return s <= 0 ? 0 : logMap(s, 0.001, 1);
+        })(),
+
+        color: EL('color').value,
+        // Shade palette: numVariants 1–50 with brighterDarkerRatio mapped
+        // from slider [-100, +100] to [0, 1] (0 = all darker, 1 = all
+        // brighter, 0.5 = balanced). Palette is generated downstream in
+        // generatePalette() based on the picked base color.
+        numVariants: parseInt(EL('numVariants').value, 10),
+        brighterDarkerRatio: (parseFloat(EL('brighterDarkerRatio').value) + 100) / 200,
+        // Shade distribution across bristles: 0 = uniform random, 0.5 =
+        // brightest in middle / darkest at edges, 1 = sequential gradient
+        // across the brush width. Continuous blend between these three modes.
+        shadeDistribution: parseFloat(EL('shadeDistribution').value) / 100,
+        colorVariation: parseFloat(EL('colorVariation').value) / 100,
+        bg: EL('bg').value,
+        smoothContrast: parseFloat(EL('smoothContrast').value) / 100,
+        pixelContrast: parseFloat(EL('pixelContrast').value) / 100,
+        // Contrast cutoff: where along the arc (in arc-t units, 0..1) the
+        // contrast value transitions from smoothContrast to pixelContrast.
+        // Transition width is symmetric around the cutoff: half goes
+        // before, half after.
+        contrastCutoff: parseFloat(EL('contrastCutoff').value) / 100,
+        contrastTransitionWidth: parseFloat(EL('contrastTransitionWidth').value) / 100
+      };
+    }
+
+    function render(size) {
+      size = size || getRenderSize();
+      canvas.width = size;
+      canvas.height = size;
+
+      const scale = size / 800;
+      const p = getParams(scale);
+
+      ctx.globalAlpha = 1;
+      if (p.bg === 'white') {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, size, size);
+      } else if (p.bg === 'black') {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, size, size);
+      } else {
+        ctx.clearRect(0, 0, size, size);
+      }
+
+      const cx = size / 2;
+      const cy = size / 2;
+      const baseRadius = size * p.radiusFrac;
+
+      const gapRad = (p.gapDeg * Math.PI) / 180;
+      const totalSweep = 2 * Math.PI - gapRad;
+      const dir = p.direction === 'cw' ? 1 : -1;
+
+      const rand = mulberry32(Math.floor(seed * 1e9));
+
+      const harmonics = [];
+      const numHarmonics = 8;
+      for (let h = 0; h < numHarmonics; h++) {
+        harmonics.push({ freq: 2 + h * 2 + rand() * 1.5, phase: rand() * Math.PI * 2 });
+      }
+      const tiltK = 2.5;
+      const rawWeights = harmonics.map((_, h) => Math.pow(h + 1, -p.spectralTilt * tiltK));
+      const wSum = rawWeights.reduce((s, v) => s + v, 0);
+      const weights = rawWeights.map(v => v / wSum);
+
+      const bristlePhase = rand() * Math.PI * 2;
+
+      const driftHarmonics = [];
+      for (let h = 0; h < 3; h++) {
+        driftHarmonics.push({ freq: 4 + h * 6 + rand() * 4, phase: rand() * Math.PI * 2, amp: 1 / (h + 1) });
+      }
+      const driftNorm = driftHarmonics.reduce((s, h) => s + h.amp, 0);
+      function bristleDriftAt(t) {
+        let drift = 0;
+        for (const h of driftHarmonics) drift += h.amp * Math.sin(t * 2 * Math.PI * h.freq + h.phase);
+        return (drift / driftNorm) * p.striationCoarseness * 0.7;
+      }
+
+      const boundaryHarmonics = [];
+      for (let h = 0; h < 3; h++) {
+        boundaryHarmonics.push({ freq: p.edgeWobbleFreq * (1 + h * 0.55 + rand() * 0.3), phase: rand() * Math.PI * 2, amp: 1 / (h + 1) });
+      }
+      const boundaryNorm = boundaryHarmonics.reduce((s, h) => s + h.amp, 0);
+      function boundaryWobbleAt(t) {
+        let v = 0;
+        for (const h of boundaryHarmonics) v += h.amp * Math.sin(t * 2 * Math.PI * h.freq + h.phase);
+        return v / boundaryNorm;
+      }
+
+      // Bristle positions: directly specified count, with striationSpread
+      // ("Brush shape") interpolating between two regimes:
+      //   spread = 0 → all bristles exactly equi-spaced across bristleRange
+      //   spread = 1 → each bristle's offset drawn uniformly in
+      //               [-bristleRange, +bristleRange] (no relation to a comb)
+      //   intermediate → linear interp between the two
+      // This replaces the old ±0.5×spacing jitter, which capped at "slightly
+      // perturbed comb" no matter how high the slider went.
+      const bristleRange = p.maxThickness * 1.3;
+      const numBristles = Math.max(1, p.bristleCount);
+      const bristleSpacing = (2 * bristleRange) / numBristles;
+      const bristlePositions = new Float32Array(numBristles);
+      for (let k = 0; k < numBristles; k++) {
+        const basePos = -bristleRange + (k + 0.5) * bristleSpacing;
+        const randomPos = -bristleRange + rand() * (2 * bristleRange);
+        bristlePositions[k] = basePos * (1 - p.striationSpread) + randomPos * p.striationSpread;
+      }
+      const bristleSigma = Math.max(0.5, p.striationCoarseness * 0.55);
+      const invTwoSigmaSq = 1 / (2 * bristleSigma * bristleSigma);
+
+      // Spatial bin index: dryAt only needs bristles within ~3σ of the
+      // query offset. (Used to also pad by driftAmp for the now-removed
+      // per-bristle drift; with wobble applied globally at the centerline
+      // the bristle-to-offset distances are independent of t.) Without
+      // this, dryAt is O(N) per call and the 1000-bristle ceiling would
+      // make rendering minutes-long.
+      const binWidth = Math.max(1, bristleSigma * 3);
+      const numBins = Math.max(1, Math.ceil((2 * bristleRange) / binWidth) + 2);
+      const bins = new Array(numBins);
+      for (let b = 0; b < numBins; b++) bins[b] = [];
+      for (let k = 0; k < numBristles; k++) {
+        const b = Math.max(0, Math.min(numBins - 1,
+          Math.floor((bristlePositions[k] + bristleRange) / binWidth)));
+        bins[b].push(k);
+      }
+
+      // Per-bristle fade offset — each bristle has its OWN moment of going
+      // dry, staggered around the global inkRunoutStart. This is what gives
+      // a real brushstroke its feathered tail: bristles don't all run out
+      // simultaneously; some die early, some last to the very end of the
+      // arc. Used by bristleInkAt() in continuous-bristles render mode.
+      // Variance is ±15% in localT-space (smooth-zone-relative). Hardcoded
+      // here rather than exposing as a slider — it's a sensible default
+      // and the per-bristle modulation slider already gives the user a
+      // separate knob for variation amplitude.
+      const bristleFadeOffset = new Float32Array(numBristles);
+      for (let k = 0; k < numBristles; k++) {
+        bristleFadeOffset[k] = (rand() - 0.5) * 2; // [-1, 1]
+      }
+      // Per-bristle RATE multiplier — uniform in [0, 2]. The user's
+      // inkRunoutRate slider gets multiplied by this per-bristle, so half
+      // the bristles have effective rate < 1 and CANNOT reach alpha=0
+      // by smoothEnd no matter how high the slider goes. That's the fix
+      // for the previous behavior where runoutRate=1.0 made every bristle
+      // hit exactly zero at smoothEnd, cutting the brush off sharply.
+      // Now the slider controls the DENSITY of white-streak failures
+      // (more bristles failing earlier) without controlling the brush's
+      // physical extent — shape is left to the start/end taper sliders.
+      const bristleRateMult = new Float32Array(numBristles);
+      for (let k = 0; k < numBristles; k++) {
+        bristleRateMult[k] = rand() * 2;
+      }
+      // Per-bristle DOT SIZE — drawn width in canvas pixels for each bristle
+      // in continuous-bristles mode. Sampled from a normal distribution
+      // (Box-Muller) around p.striationCoarseness with standard deviation
+      // p.bristleSizeStd, clamped to >= 1 px. With std=0 every bristle is
+      // the same width (the mean); cranking std up gives a brush with a
+      // range of sizes — some hair-thin, some chunky — matching real
+      // brushes where individual hairs vary.
+      const bristleDotSize = new Float32Array(numBristles);
+      for (let k = 0; k < numBristles; k++) {
+        const u1 = Math.max(0.0001, rand());
+        const u2 = rand();
+        const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+        bristleDotSize[k] = Math.max(1, Math.round(p.striationCoarseness + z * p.bristleSizeStd));
+      }
+
+      // Paint palette: maps bristles to color buckets. Per-bristle
+      // assignment happens here once at setup so a given bristle has a
+      // CONSISTENT shade for its entire arc — this is what makes streaks
+      // of the same shade track individual bristles instead of twinkling
+      // randomly along the stroke.
+      //
+      // Palette is built dynamically from the user's base color so any
+      // picked color — gold, silver, bronze, dark blue, whatever — gets
+      // the same multi-shade treatment. `numVariants` controls how many
+      // shades; brighterDarkerRatio biases the L distribution above vs
+      // below the base; colorVariation lerps each bucket's rendered
+      // color between the base shade and its target shade so the slider
+      // smoothly fades from "all bristles in base color" to "full
+      // generated palette spread".
+      //
+      // `renderedPalette[i]` is what gets fed to ctx.fillStyle for shade
+      // bucket i. At colorVariation = 0 every bucket collapses to the base
+      // shade so the whole brush draws flat; as variation rises, buckets
+      // pull toward their generated palette entries. This lets the slider
+      // go smoothly from "matte" to "highly textured" without retriggering
+      // the per-bristle index roll.
+      const paletteResult = generatePalette(p.color, p.numVariants, p.brighterDarkerRatio);
+      const palette = paletteResult.palette;
+      const baseShade = palette[paletteResult.baseIdx];
+      const renderedPalette = palette.map(shade => lerpColor(baseShade, shade, p.colorVariation));
+      // Per-bristle palette index. With numVariants=1 the palette has a
+      // single entry, so all bristles get index 0 (equivalent to the old
+      // "solid" paint type). With multiple variants, the shadeDistribution
+      // slider blends between three modes based on each bristle's
+      // POSITION (not its k index) so the distribution stays sensible
+      // even with high brush-shape randomization:
+      //
+      //   ord = 0    Random: each bristle picks uniformly across the palette
+      //   ord = 0.5  Centered: bristle at the centerline gets the brightest
+      //              palette entry, bristles at ±bristleRange get the
+      //              darkest. Symmetric — both edges darken equally.
+      //   ord = 1    Sequential: palette index ramps linearly from the
+      //              left edge (index 0, darkest) to the right edge
+      //              (index palette.length-1, brightest).
+      //
+      // Linear interpolation between adjacent modes gives a continuous
+      // slider that smoothly morphs from one distribution to the next.
+      const bristlePaletteIdx = new Int8Array(numBristles);
+      if (palette.length > 1) {
+        const palMax = palette.length - 1;
+        const ord = p.shadeDistribution;
+        for (let k = 0; k < numBristles; k++) {
+          const normPos = bristlePositions[k] / bristleRange; // [-1, +1] (approximately)
+          const clampedNorm = Math.max(-1, Math.min(1, normPos));
+
+          // Random index — independent draw per bristle, same RNG seed.
+          const randomIdx = Math.floor(rand() * palette.length);
+          // Sequential index — left edge → 0, right edge → palMax.
+          const seqIdx = Math.min(palMax, Math.max(0, Math.floor(((clampedNorm + 1) / 2) * palette.length)));
+          // Centered index — center → palMax, edges → 0.
+          const centeredness = 1 - Math.abs(clampedNorm);
+          const centeredIdx = Math.round(centeredness * palMax);
+
+          // Blend: ord ∈ [0, 0.5] morphs random→centered; [0.5, 1] morphs centered→sequential.
+          let idx;
+          if (ord <= 0.5) {
+            const b = ord * 2;
+            idx = randomIdx * (1 - b) + centeredIdx * b;
+          } else {
+            const b = (ord - 0.5) * 2;
+            idx = centeredIdx * (1 - b) + seqIdx * b;
+          }
+          bristlePaletteIdx[k] = Math.min(palMax, Math.max(0, Math.round(idx)));
+        }
+      }
+
+      // Per-bristle ink modulation harmonics. Each bristle gets its own pair of
+      // sines so its wetness pulses independently along the arc — at zero
+      // correlation, adjacent bristles are uncorrelated. The bristlePulseSpread
+      // parameter controls how widely the per-bristle frequencies fan out
+      // around the mean (p.bristlePulseRate); at spread=0 every bristle pulses
+      // at exactly the same rate, at spread=1 they range from 0× to 2× the mean.
+      const bristleModFreqs = [];
+      const pulseSpread = p.bristlePulseSpread;
+      for (let k = 0; k < numBristles; k++) {
+        const mult1 = 1 + (rand() - 0.5) * 2 * pulseSpread;
+        // Second harmonic: held at ~2.4× the bristle's f1 (the old hardcoded
+        // 1.5..3.3 range averaged 2.4) so the texture stays bimodal, but it
+        // tracks the spread instead of being independently random.
+        bristleModFreqs.push({
+          f1: p.bristlePulseRate * mult1,
+          p1: rand() * Math.PI * 2,
+          f2: p.bristlePulseRate * mult1 * 2.4,
+          p2: rand() * Math.PI * 2
+        });
+      }
+      // Shared modulation basis: a few harmonics whose phase varies SMOOTHLY
+      // across bristle index k. When blended in via bristleCorrelation, this
+      // makes neighbors share wetness state (low spatial frequency in k) while
+      // distant bristles still differ. Implementation: each basis term is a
+      // sinusoid in t whose phase has a low-frequency component in k, so
+      // adjacent k's sample nearly the same phase → they pulse together.
+      const sharedModBasis = [];
+      for (let h = 0; h < 4; h++) {
+        const sharedMult = 1 + (rand() - 0.5) * 2 * pulseSpread;
+        sharedModBasis.push({
+          freqT: p.bristlePulseRate * sharedMult,
+          freqK: 0.3 + h * 0.4, // low spatial freq → smooth across k
+          phaseT: rand() * Math.PI * 2,
+          phaseK: rand() * Math.PI * 2,
+          amp: 1 / (h + 1)
+        });
+      }
+      const sharedModNorm = sharedModBasis.reduce((s, h) => s + h.amp, 0);
+      const modCache = new Float32Array(numBristles);
+      let modCacheT = -1;
+      function updateModCache(t) {
+        if (t === modCacheT) return;
+        modCacheT = t;
+        const amt = p.bristleModulation;
+        if (amt <= 0.001) {
+          for (let k = 0; k < numBristles; k++) modCache[k] = 1;
+          return;
+        }
+        const corr = p.bristleCorrelation;
+        // Q-factor on the sinusoidal mod signal — pow(mod, Q) reshapes the
+        // duty cycle of "high alpha" vs "low alpha" without changing freq.
+        //   Q = 1 → unchanged sinusoid (50/50 above/below midline)
+        //   Q > 1 → mod is small most of the time → factor near 0 →
+        //           modCache stays near (1-amt) → WIDE dropouts
+        //   Q < 1 → mod is large most of the time → factor near 1 →
+        //           modCache stays near 1 → NARROW dropouts (brief blips)
+        // Caching Q=1 fast-path saves a Math.pow call per bristle per t.
+        const Q = p.bristleFadeRate;
+        const applyQ = Math.abs(Q - 1) > 0.01;
+        for (let k = 0; k < numBristles; k++) {
+          const m = bristleModFreqs[k];
+          const indivS = Math.sin(t * 2 * Math.PI * m.f1 + m.p1) * 0.7 +
+                         Math.sin(t * 2 * Math.PI * m.f2 + m.p2) * 0.3;
+          const indivNorm = (indivS + 1) / 2;
+          let mod;
+          if (corr <= 0.001) {
+            mod = indivNorm;
+          } else {
+            let sharedS = 0;
+            for (const h of sharedModBasis) {
+              sharedS += h.amp * Math.sin(
+                t * 2 * Math.PI * h.freqT + h.phaseT +
+                k * h.freqK + h.phaseK
+              );
+            }
+            const sharedNorm = (sharedS / sharedModNorm + 1) / 2;
+            mod = indivNorm * (1 - corr) + sharedNorm * corr;
+          }
+          const factor = applyQ ? Math.pow(Math.max(0, mod), Q) : mod;
+          modCache[k] = 1 - amt * (1 - factor); // [1 - amt, 1]
+        }
+      }
+
+      function radiusAt(angle) {
+        let wobble = 0;
+        for (let h = 0; h < harmonics.length; h++) wobble += weights[h] * Math.sin(angle * harmonics[h].freq + harmonics[h].phase);
+        return baseRadius * (1 + wobble * p.imperfection);
+      }
+
+      function thicknessAt(t) {
+        const sT = p.startTaper, eT = p.endTaper;
+        let thick = p.maxThickness;
+        if (sT > 0 && t < sT) {
+          const u = t / sT; thick = p.maxThickness * Math.pow(u, p.startSharp);
+        } else if (eT > 0 && t > 1 - eT) {
+          const u = (t - (1 - eT)) / eT; thick = p.maxThickness * (1 - u) + p.maxThickness * p.endThickFrac * u;
+        }
+        return thick;
+      }
+
+      function densityAt(t) {
+        if (t < p.fadeStart) return 1.0;
+        const localT = (t - p.fadeStart) / (1 - p.fadeStart);
+        return Math.pow(1 - localT, p.fadeCurve);
+      }
+
+      function bleedAmountAt(t) {
+        // Reinterpretation: bleedOnset is now the BASELINE bleed level —
+        // a constant level present throughout the brush — rather than a
+        // threshold that gated bleed off until ink had depleted past it.
+        // The old "max(0, (raw - bleedOnset) / (1 - bleedOnset))" formula
+        // is why bleed only ever appeared at the wings: with default
+        // bleedOnset=0.05, bleed was zero everywhere inkAt was still 1,
+        // and inkAt only drops in the back half of the smooth zone. Now
+        // the slider sets a floor on bleed, and ink depletion can push it
+        // higher at the tail; bleed never drops below the baseline.
+        //
+        // bleedStart additionally gates the bleed off entirely for any
+        // t before it — for users who want a clean head and bleed only
+        // partway around the arc. Returns 0 (not the baseline) before
+        // bleedStart so the gate is hard.
+        if (t < p.bleedStart) return 0;
+        const inkLevel = inkAt(t);
+        return Math.max(p.bleedOnset, 1 - inkLevel);
+      }
+
+      function smoothFactorAt(t) {
+        const start = p.pixelStart, width = p.transitionWidth;
+        if (t < start) return 1;
+        if (width <= 0 || t >= start + width) return 0;
+        return 1 - (t - start) / width;
+      }
+
+      const smoothEnd = Math.max(0.001, p.pixelStart + p.transitionWidth);
+      function inkAt(t) {
+        // Global ink curve with a minimum floor. minInk = 0 reproduces the
+        // old "ink eventually hits zero" behavior (sharp cutoff at the
+        // brush's end); minInk > 0 prevents it from ever dropping below
+        // that level, so bleed-coverage formulas that multiply by inkAt(t)
+        // keep generating pixels past smoothEnd. Needed for the new
+        // longitudinal bleed to actually show anything past the cutoff.
+        const localT = Math.min(1, t / smoothEnd);
+        if (localT < p.inkRunoutStart) return 1;
+        const depleteFrac = (localT - p.inkRunoutStart) / Math.max(0.001, 1 - p.inkRunoutStart);
+        return Math.max(p.minInk, 1 - depleteFrac * p.inkRunoutRate);
+      }
+
+      // Whole-brush ink runout: independent of the bristle-level model.
+      // Returns the FADE AMOUNT in [0, 1] — 0 means no fade (full ink),
+      // 1 means brush is fully out of ink (every body cell drops). This
+      // feeds the same hash-keyed body-dropout mechanism as the smooth→
+      // pixel transition, taking the MAX of the two driving values, so
+      // the brush body can crumble across the whole arc (whole-brush
+      // runout) and/or across the transition zone, smoothly composed.
+      // localT (= t/smoothEnd) is used so the slider reads as "% of
+      // smooth zone" — matching the bristle ink runout slider's units.
+      // The brush polygon only exists in the smooth zone anyway, so
+      // there's nothing for this to do outside it.
+      function brushFadeAt(t) {
+        if (p.brushFadeRate <= 0) return 0;
+        const localT = Math.min(1, t / smoothEnd);
+        if (localT < p.brushFadeStart) return 0;
+        const frac = (localT - p.brushFadeStart) / Math.max(0.001, 1 - p.brushFadeStart);
+        return Math.min(1, frac * p.brushFadeRate);
+      }
+
+      // Per-bristle ink curve. Each bristle has its OWN start-of-runout
+      // (bristleFadeOffset shifts it by ±0.15 in localT) AND its own RATE
+      // multiplier in [0, 2] (bristleRateMult). The rate factor is what
+      // prevents the brush from sharp-cutoffing at smoothEnd: any bristle
+      // with rateMult < 1/p.inkRunoutRate cannot reach alpha=0 before
+      // the smooth zone ends, so a fraction of bristles always survives
+      // to the very end no matter what the user sets the rate to. The
+      // runout rate slider thus controls the DENSITY of white-streak
+      // failures (= dry bristles becoming invisible mid-arc) rather than
+      // dictating the brush's shape — shape is the start/end taper's job.
+      function bristleInkAt(k, t) {
+        const localT = Math.min(1, t / smoothEnd);
+        const startK = Math.max(0, Math.min(1,
+          p.inkRunoutStart + bristleFadeOffset[k] * 0.15));
+        if (localT < startK) return 1;
+        const frac = (localT - startK) / Math.max(0.001, 1 - startK);
+        return Math.max(0, 1 - frac * p.inkRunoutRate * bristleRateMult[k]);
+      }
+
+      // Deterministic hash of integer grid coords → [0, 1). Used by the
+      // smooth→pixel transition: each pixelSize cell has a fixed "moment of
+      // failure" h, and the cell drops out of the body when sqrtOneMinusSF
+      // exceeds h. Low-h cells fall away early in the transition, high-h
+      // cells hold on until near smoothEnd. The bit-mix below kills the
+      // linear pattern that a plain multiply-XOR produces (without it,
+      // adjacent cells along x would dropout in a left-to-right "wipe"
+      // instead of a chaotic crumble).
+      function hashCoord(ix, iy) {
+        let h = Math.imul(ix | 0, 73856093) ^ Math.imul(iy | 0, 19349663);
+        h ^= h >>> 13;
+        h = Math.imul(h, 0x5bd1e995);
+        h ^= h >>> 15;
+        h = Math.imul(h, 0xc2b2ae35);
+        h ^= h >>> 16;
+        return (h >>> 0) / 4294967296;
+      }
+
+      // For each bristle, compute its WETNESS (max contribution at this t).
+      // Position drift used to live here too — each bristle had its own
+      // m.f1*0.4 drift phase — which gave the brush the "lots of
+      // individual wobble per bristle" look. That's gone now: any wobble
+      // is applied globally at the brush centerline (px/py shifted in the
+      // main loop) so all bristles wobble together as one and the
+      // wetness lookup just compares offset to the static bristlePositions.
+      // Uses the spatial bin index so cost stays O(1) per call no matter
+      // how many bristles there are.
+      function dryAt(offset, t) {
+        if (p.viscosity <= 0.001) return 0;
+        updateModCache(t);
+        const queryBin = Math.max(0, Math.min(numBins - 1,
+          Math.floor((offset + bristleRange) / binWidth)));
+        let maxWet = 0;
+        for (let b = Math.max(0, queryBin - 1); b <= Math.min(numBins - 1, queryBin + 1); b++) {
+          const bin = bins[b];
+          for (let i = 0; i < bin.length; i++) {
+            const k = bin[i];
+            const d = offset - bristlePositions[k];
+            const dSq = d * d * invTwoSigmaSq;
+            if (dSq > 9) continue; // > 3σ, contribution negligible
+            const w = Math.exp(-dSq) * modCache[k];
+            if (w > maxWet) maxWet = w;
+          }
+        }
+        return (1 - maxWet) * p.viscosity;
+      }
+
+      const arcStep = Math.max(0.5, scale * 1.0);
+      const numSteps = Math.ceil((totalSweep * baseRadius) / arcStep);
+
+      function resolveCoverage(coverage, contrast) {
+        if (coverage <= 0) return null;
+        if (contrast >= 0.999) return rand() < coverage ? 1 : 0;
+        if (contrast <= 0.001) return coverage;
+        const prob = Math.pow(coverage, contrast);
+        if (rand() >= prob) return 0;
+        return Math.pow(coverage, 1 - contrast);
+      }
+
+      const pixelGrid = new Set();
+      // Smooth zone: collected as ONE filled polygon (outer edge forward,
+      // inner edge backward). Previously we drew ~1500 overlapping thick line
+      // segments with per-segment alpha — that produced concentric moiré bands
+      // because each segment's anti-aliased edges landed at slightly different
+      // radial positions and the cumulative source-over alpha at each pixel
+      // depended on how many edges crossed it. One polygon = one shape per
+      // pixel = no cumulative banding.
+      const outerPts = []; // flat [x0,y0,x1,y1,...] along the outer brush edge
+      const innerPts = []; // flat [x0,y0,x1,y1,...] along the inner brush edge
+      // Striation dropouts are COLLECTED here and applied after the polygon
+      // is drawn. Applying inline would let subsequent draws paint over them.
+      const striationDots = [];
+      // Continuous-bristles render mode: each bristle is traced as its own
+      // arc, sampled at every arc step, producing a source-over mark at the
+      // bristle's drifted position. Bristles fade individually via
+      // bristleInkAt + modCache. With ~60 bristles × ~1500 steps that's ~90k
+      // marks — well within performance budget for fillRect.
+      //
+      // For paint type support, dots are bucketed by palette index so each
+      // ctx.fillStyle change happens once per shade rather than once per
+      // bristle (let alone once per dot). Each bucket is a flat array
+      // [gx, gy, alpha, size, perpX, perpY, ...] in pushed order. Solid
+      // paint always pushes to bucket 0; metallics route per
+      // bristlePaletteIdx[k].
+      const bristleDotsByPaletteIdx = new Array(palette.length);
+      for (let i = 0; i < palette.length; i++) bristleDotsByPaletteIdx[i] = [];
+      // Transition-zone body dropouts: pixelSize-grid cells INSIDE the body
+      // that have crossed their hash threshold. Applied as destination-out
+      // after the polygon, so they punch holes through the body — turning
+      // the transition into "brush gradually breaks apart" rather than
+      // "brush narrows + pixel field rises". Each cell can only be dropped
+      // once (bodyDropoutGrid dedup), but the dedup happens AT DROP TIME,
+      // not at evaluation time — a cell that hasn't yet crossed its hash
+      // threshold gets re-evaluated by later arc steps with higher
+      // sqrtOneMinusSF until either it drops or smoothEnd is reached.
+      const bodyDropouts = [];   // flat [gx, gy, gx, gy, ...]
+      const bodyDropoutGrid = new Set();
+      // Outside-body bleed: source-over pixelSize rects with Gaussian falloff
+      // beyond halfThick. Collected here instead of drawn inline so they land
+      // on TOP of the polygon (in case the polygon's wobble pushes its outer
+      // edge slightly past halfThick into the bleed region).
+      const bleedPixels = [];    // flat [gx, gy, alpha, gx, gy, alpha, ...]
+      ctx.fillStyle = p.color;
+
+      // Pre-compute arc-length per unit t for the longitudinal-bleed
+      // distance calculation. Approximating with baseRadius is fine — the
+      // radial wobble (imperfection) only perturbs it by a few percent, and
+      // we're using this to scale a Gaussian falloff, not to do anything
+      // geometry-critical.
+      const arcLengthPerT = baseRadius * totalSweep;
+
+      for (let i = 0; i < numSteps; i++) {
+        const t = i / numSteps;
+
+        const angle = p.startAngle + dir * totalSweep * t;
+        const r = radiusAt(angle);
+        const thickness = thicknessAt(t);
+        const density = densityAt(t);
+        const bleed = bleedAmountAt(t);
+
+        // Smooth-vs-pixel zone factor. In STIPPLE mode this drives the
+        // existing polygon-fades-to-bleed-pixels transition. In BRISTLE
+        // mode we collapse it to 1 throughout the arc, which means
+        // bristles render to the very end (no smooth-zone cutoff). The
+        // user-visible smooth→pixel transition is now done by varying the
+        // contrast value along the arc instead (see contrastCutoff /
+        // contrastTransitionWidth in the bristle pass below).
+        const isBristleMode = p.renderStyle === 'bristles';
+        const sF = isBristleMode ? 1 : smoothFactorAt(t);
+        const sqrtSF = isBristleMode ? 1 : Math.sqrt(sF);
+        const sqrtOneMinusSF = isBristleMode ? 0 : Math.sqrt(1 - sF);
+
+        // Longitudinal scale: Gaussian falloff past smoothEnd. Only relevant
+        // for stipple mode's bleed pass; bristle mode bypasses it entirely.
+        // Forcing it to 0 in bristle mode makes the "skip if no bleed work"
+        // check below short-circuit, AND makes the bleed sampling block at
+        // the bottom of the loop see no work to do — no need for another
+        // conditional. With p.longitudinalBleed = 0 (in stipple) we get the
+        // old behavior (sharp cutoff).
+        let longitudinalScale = 1;
+        if (isBristleMode) {
+          longitudinalScale = 0;
+        } else if (sqrtSF < 0.01) {
+          if (p.longitudinalBleed > 0.01) {
+            const distPastEnd = (t - smoothEnd) * arcLengthPerT;
+            longitudinalScale = Math.exp(
+              -(distPastEnd * distPastEnd) /
+              (2 * p.longitudinalBleed * p.longitudinalBleed)
+            );
+          } else {
+            longitudinalScale = 0;
+          }
+        }
+
+        // Skip if there's nothing to do: past smoothEnd AND no longitudinal
+        // bleed AND density faded. In bristle mode sqrtSF=1 so this never
+        // fires (we always want bristles).
+        if (sqrtSF < 0.01 && longitudinalScale < 0.001 && density < 0.0005) continue;
+
+        const perpX = Math.cos(angle);
+        const perpY = Math.sin(angle);
+
+        // Global brush wobble — single coherent lateral oscillation of the
+        // ENTIRE brush centerline, replacing the per-bristle drift that used
+        // to live in dryAt and the bristle collection. Same sine driven by
+        // the new bristleWobbleRate slider, amplitude scaled to a fraction
+        // of max thickness. By shifting px/py here rather than offsetting
+        // each bristle individually, the polygon, bristles, body dropouts,
+        // and bleed pixels ALL wobble together — which is what "painter
+        // rotating the brush" actually looks like. Rate or amount = 0
+        // collapses to no wobble (clean circular arcs).
+        const brushWobble = Math.sin(t * 2 * Math.PI * p.bristleWobbleRate) *
+                            p.bristleWobbleAmount * p.maxThickness * 0.5;
+        const px = cx + r * Math.cos(angle) + perpX * brushWobble;
+        const py = cy + r * Math.sin(angle) + perpY * brushWobble;
+
+        const halfThick = thickness / 2;
+
+        // effectiveBoundary computed here (was previously inside the
+        // smooth-zone block) so the bleed pass past smoothEnd can use it.
+        // The wobble keeps applying even in the longitudinal tail, which
+        // gives the trailing scatter an irregular edge rather than a clean
+        // straight one.
+        const wobble = boundaryWobbleAt(t);
+        const wobbleScale = p.edgeWobbleAmount * p.maxThickness * 0.5;
+        const baseBoundary = halfThick + wobble * wobbleScale;
+        const effectiveBoundary = Math.max(0.5, baseBoundary);
+
+        if (sqrtSF > 0.01) {
+          const ink = inkAt(t);
+          if (ink > 0.001) {
+            // Polygon stays at FULL width all the way through the smooth zone
+            // (including the transition zone). The previous sqrtSF taper made
+            // the body narrow as we approached smoothEnd while pixels rose
+            // alongside it — that's the visual "two separate layers" problem.
+            // Now the body holds its width and the transition is enacted by
+            // destination-out punching pixelSize-grid holes through it (see
+            // the body-dropout pass below). By smoothEnd, dropoutDrive=1
+            // means every cell has dropped, so the polygon's blunt ending
+            // edge is invisible anyway.
+            // effectiveBoundary is computed earlier (hoisted out so the
+            // bleed sampling past smoothEnd can also use it).
+
+            // Collect this arc-point's outer and inner edge coords for the
+            // post-loop polygon fill. No drawing happens per-step anymore.
+            outerPts.push(px + perpX * effectiveBoundary, py + perpY * effectiveBoundary);
+            innerPts.push(px - perpX * effectiveBoundary, py - perpY * effectiveBoundary);
+
+            if (p.renderStyle === 'bristles') {
+              // Continuous-bristles mode: trace EACH bristle as its own
+              // arc by sampling all of them at this arc step. Each bristle
+              // is one source-over mark at its drifted position. Adjacent
+              // arc steps' marks for the same bristle land within ~1 px
+              // (arcStep) of each other and merge into a continuous line.
+              //
+              // Per-step contrast: smoothContrast applies BEFORE the cutoff
+              // (the "loaded brush" part of the stroke), pixelContrast
+              // applies AFTER (the "dry brush" tail where the user wants
+              // the binarized-into-pixels look). Linear blend across the
+              // transition zone. With smoothContrast=0 and pixelContrast=1
+              // (the canonical setup) bristles draw as smooth streaks
+              // early and as scattered binary pixels late — exactly the
+              // gold-leaf wet→dry brush gradient. Combined with body
+              // scatter (which fades bristle alpha), the binarization at
+              // high contrast keeps only the strongest survivors, giving
+              // the sparse-square-pixel look in the reference image.
+              updateModCache(t);
+              const halfW = p.contrastTransitionWidth * 0.5;
+              const edge0 = p.contrastCutoff - halfW;
+              const w = Math.max(0.0001, p.contrastTransitionWidth); // avoid /0 at width=0
+              const blend = Math.max(0, Math.min(1, (t - edge0) / w));
+              const localContrast = p.smoothContrast + (p.pixelContrast - p.smoothContrast) * blend;
+              // Bristle fade tied to body-scatter slider: at bleedBody=0
+              // bristles draw at their normal alpha; at bleedBody=1 they
+              // fully fade. Combined with binarizing contrast, the slider
+              // controls how dense the survivor field is.
+              const bristleFadeMult = Math.max(0, 1 - p.bleedBody);
+              for (let k = 0; k < numBristles; k++) {
+                // Per-bristle position is now STATIC. Wobble (when the
+                // brush wobble sliders are nonzero) is applied once at
+                // the brush centerline (px/py shifted upstream) so all
+                // bristles wobble together — replacing the old per-bristle
+                // m.f1*0.4 drift which gave each bristle its own
+                // uncorrelated path and made the brush look frantic.
+                const offset = bristlePositions[k];
+                if (Math.abs(offset) > effectiveBoundary) continue;
+                // sqrtSF is forced to 1 in bristle mode (set above), so
+                // it's a no-op multiplier here — kept in the expression
+                // for parity with stipple mode in case the gate ever
+                // moves. Bristle fade comes from bristleInkAt (ink
+                // depletion along the arc) + modCache (per-bristle pulse).
+                const rawAlpha = bristleInkAt(k, t) * modCache[k] * sqrtSF * bristleFadeMult;
+                if (rawAlpha < 0.01) continue;
+                const alpha = resolveCoverage(rawAlpha, localContrast);
+                if (!alpha) continue;
+                const gx = Math.round(px + perpX * offset);
+                const gy = Math.round(py + perpY * offset);
+                bristleDotsByPaletteIdx[bristlePaletteIdx[k]].push(gx, gy, alpha, bristleDotSize[k], perpX, perpY);
+              }
+            } else {
+              // Stipple mode: collect bristle striation dropout positions.
+              // Sample at RANDOM offsets each arc step (not on a fixed grid),
+              // then dedup at the canvas-pixel level before drawing.
+              // Fixed-grid sampling produced continuous radial lines at every
+              // deadzone offset — the source of moiré-like striping. Random
+              // offsets + pixel-dedup make each pixel get hit (or not) by
+              // exactly one arc step's random probe; the dropout density at
+              // a given offset is proportional to local dryness, producing
+              // a stipple instead of stripes.
+              //
+              // smoothContrast controls how the raw striation alpha gets
+              // resolved into a drawable value: at 0% the raw greyscale
+              // alpha is used directly; at 100% it's quantized to 0/1
+              // stochastically (matching pixelContrast's role on the bleed
+              // side).
+              const striationFactor = Math.sin(Math.PI * Math.min(1, Math.max(0, ink)));
+              if (p.viscosity > 0.001 && striationFactor > 0.001) {
+                const numStr = Math.max(4, Math.ceil(effectiveBoundary));
+                for (let d = 0; d < numStr; d++) {
+                  const offset = (rand() - 0.5) * 2 * effectiveBoundary;
+                  const dryness = dryAt(offset, t);
+                  const rawAlpha = dryness * striationFactor;
+                  if (rawAlpha < 0.01) continue;
+                  const dropoutAlpha = resolveCoverage(rawAlpha, p.smoothContrast);
+                  if (!dropoutAlpha) continue;
+                  const gx = Math.round(px + perpX * offset);
+                  const gy = Math.round(py + perpY * offset);
+                  striationDots.push(gx, gy, dropoutAlpha);
+                }
+              }
+            }
+          }
+        }
+
+        // Body-dropout + bleed sampling. Hoisted out of the smooth-zone
+        // block so it can fire past smoothEnd as a "longitudinal tail"
+        // of pixel scatter — the only reason it used to live inside
+        // `if (sqrtSF > 0.01)` was that everything else does, but the
+        // scatter itself doesn't depend on the polygon/bristles.
+        // Conditions:
+        //   - bodyDropActive: hash-keyed pixel dropouts inside body.
+        //     Driven by max(transition progress, whole-brush fade);
+        //     gated to the smooth zone since there's no polygon to drop
+        //     from past smoothEnd.
+        //   - bleedActive: Gaussian scatter outside body. Driven by
+        //     bleedAmountAt (which rides ink depletion). Past smoothEnd
+        //     it stays active because of the minInk floor + bleedOnset
+        //     baseline; combined with longitudinalScale's Gaussian
+        //     decay along the arc, this creates the softened cutoff.
+        const fadeAmt = brushFadeAt(t);
+        const dropoutDrive = Math.max(sqrtOneMinusSF, fadeAmt);
+        const bodyDropActive = p.renderStyle !== 'bristles' &&
+                               sqrtSF > 0.01 &&
+                               dropoutDrive > 0.001 && density > 0.0005;
+        const bleedActive = bleed > 0.001 && density > 0.0005;
+
+        if (bodyDropActive || (bleedActive && longitudinalScale > 0.001)) {
+          const sigmaOut = bleedActive ? p.outwardBleed * bleed : 0;
+          const sigmaIn = bleedActive ? p.inwardBleed * bleed : 0;
+          const extentOut = effectiveBoundary + sigmaOut * 3;
+          const extentIn = effectiveBoundary + sigmaIn * 3;
+          const numSamples = Math.ceil((extentOut + extentIn) / p.pixelSize) + 2;
+
+          for (let j = 0; j < numSamples; j++) {
+            let offset = -extentIn + j * p.pixelSize + (rand() - 0.5) * p.pixelSize * 0.7;
+            if (offset > extentOut || offset < -extentIn) continue;
+
+            const absDist = Math.abs(offset);
+            const pixelX = px + perpX * offset;
+            const pixelY = py + perpY * offset;
+            const gx = Math.round(pixelX / p.pixelSize) * p.pixelSize;
+            const gy = Math.round(pixelY / p.pixelSize) * p.pixelSize;
+            const key = gx + ',' + gy;
+
+            if (absDist <= effectiveBoundary) {
+              // INSIDE BODY.
+              //
+              // Stipple mode: hash-keyed dropout (only in smooth zone —
+              // bodyDropActive's sqrtSF gate already enforces that).
+              //
+              // Bristle mode: bleedBody-controlled inside-body scatter.
+              // Coverage scaled by longitudinalScale so the tail past
+              // smoothEnd inherits the arc-direction Gaussian decay.
+              if (bodyDropActive) {
+                if (bodyDropoutGrid.has(key)) continue;
+                const ix = (gx / p.pixelSize) | 0;
+                const iy = (gy / p.pixelSize) | 0;
+                const h = hashCoord(ix, iy);
+                if (dropoutDrive > h) {
+                  bodyDropoutGrid.add(key);
+                  bodyDropouts.push(gx, gy);
+                }
+              } else if (p.renderStyle === 'bristles' && bleedActive && p.bleedBody > 0.001) {
+                const coverage = density * inkAt(t) * p.bleedBody * longitudinalScale;
+                const drawAlpha = resolveCoverage(coverage, p.pixelContrast);
+                if (!drawAlpha) continue;
+                if (pixelGrid.has(key)) continue;
+                pixelGrid.add(key);
+                bleedPixels.push(gx, gy, drawAlpha);
+              }
+            } else {
+              // OUTSIDE BODY: Gaussian-bleed source-over pixels. Coverage
+              // is density * inkAt(t) * radialFalloff * longitudinalScale.
+              // The minInk floor on inkAt keeps this nonzero past
+              // smoothEnd; longitudinalScale provides the arc-direction
+              // Gaussian that softens the cutoff.
+              if (!bleedActive) continue;
+              const excess = absDist - effectiveBoundary;
+              const sigma = offset > 0 ? sigmaOut : sigmaIn;
+              if (sigma < 0.5) continue;
+              const falloff = Math.exp(-(excess * excess) / (2 * sigma * sigma));
+              const coverage = density * inkAt(t) * falloff * longitudinalScale;
+              const drawAlpha = resolveCoverage(coverage, p.pixelContrast);
+              if (!drawAlpha) continue;
+              if (pixelGrid.has(key)) continue;
+              pixelGrid.add(key);
+              bleedPixels.push(gx, gy, drawAlpha);
+            }
+          }
+        }
+      }
+
+      // Smooth-zone body: ONE filled polygon along all collected edges (so
+      // there's exactly one anti-aliased boundary and zero internal overlap,
+      // killing the moiré that overlapping strokes used to produce). Only
+      // drawn in stipple mode — bristle mode wants the light background to
+      // show through between bristles, so a body fill would obliterate the
+      // whole effect.
+      if (p.renderStyle !== 'bristles' && outerPts.length >= 4) {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.moveTo(outerPts[0], outerPts[1]);
+        for (let k = 2; k < outerPts.length; k += 2) {
+          ctx.lineTo(outerPts[k], outerPts[k + 1]);
+        }
+        for (let k = innerPts.length - 2; k >= 0; k -= 2) {
+          ctx.lineTo(innerPts[k], innerPts[k + 1]);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Body dropouts: pixelSize-grid holes punched through the polygon. This
+      // is the smooth→pixel transition itself — same grid resolution as the
+      // bleed below, so the body crumbling and the ink scattering read as
+      // the same visual language rather than two layered styles. Order is
+      // critical: must happen AFTER the polygon (or there's nothing to
+      // remove) and BEFORE bleed (so bleed pixels don't get holed too).
+      // Skipped in bristle mode — bodyDropouts is empty there anyway.
+      if (bodyDropouts.length > 0) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = '#000';
+        ctx.globalAlpha = 1;
+        for (let k = 0; k < bodyDropouts.length; k += 2) {
+          ctx.fillRect(bodyDropouts[k], bodyDropouts[k + 1], p.pixelSize, p.pixelSize);
+        }
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      // Outside-body bleed pixels: Gaussian-falloff scatter representing ink
+      // that's escaped past the brush boundary. Drawn after the polygon so
+      // any pixels that landed inside the polygon's wobble-expanded boundary
+      // still appear. Applies in both render modes.
+      if (bleedPixels.length > 0) {
+        ctx.fillStyle = p.color;
+        for (let k = 0; k < bleedPixels.length; k += 3) {
+          ctx.globalAlpha = bleedPixels[k + 2];
+          ctx.fillRect(bleedPixels[k], bleedPixels[k + 1], p.pixelSize, p.pixelSize);
+        }
+      }
+
+      if (p.renderStyle === 'bristles') {
+        // Continuous bristles: each dot was collected at a bristle's
+        // drifted arc position. Source-over with brush color = dark on
+        // light background. Adjacent arc-step samples of the same bristle
+        // are within ~1 px of each other, so they visually merge into a
+        // continuous stroke. Where bristles cross or cluster, multiple
+        // dots accumulate at the same pixel and the area gets DARKER —
+        // which is the "loaded brush" look from the reference.
+        //
+        // Each bristleDot entry is 6 values: (gx, gy, alpha, size, perpX,
+        // perpY). The perp pair lets us recover the arc-tangent direction
+        // at the dot's arc position (tangent ⟂ perp): tangentX = -perpY,
+        // tangentY = perpX. Used by NEGATIVE viscosity (watercolor) to
+        // smear each dot along the arc direction.
+        //
+        // Viscosity ∈ [-1, +1]:
+        //   < 0 watercolor: each dot drawn as 5 echoes spaced along tangent,
+        //                   alpha divided so total ink is conserved
+        //   = 0 neutral: single fillRect per dot (cheapest path)
+        //   > 0 acrylic: single fillRect with boosted alpha — overlapping
+        //                bristles pile up darker
+        //
+        // Outer loop iterates palette buckets so fillStyle changes at most
+        // palette.length times total (1 for solid, 5 for metallics). Inside
+        // each bucket the three viscosity paths are kept separate so the
+        // hot loop has no per-dot branch on visc sign.
+        const visc = p.viscosity;
+        for (let pi = 0; pi < palette.length; pi++) {
+          const dots = bristleDotsByPaletteIdx[pi];
+          if (dots.length === 0) continue;
+          ctx.fillStyle = renderedPalette[pi];
+
+          if (visc < -0.01) {
+            const diffusion = -visc;
+            const echoes = 2;
+            const totalEchoes = 2 * echoes + 1;
+            for (let k = 0; k < dots.length; k += 6) {
+              const x = dots[k];
+              const y = dots[k + 1];
+              const alpha = dots[k + 2];
+              const size = dots[k + 3];
+              const tx = -dots[k + 5];
+              const ty = dots[k + 4];
+              const stepSize = diffusion * size * 1.5;
+              ctx.globalAlpha = alpha / totalEchoes;
+              for (let e = -echoes; e <= echoes; e++) {
+                ctx.fillRect(x + tx * e * stepSize, y + ty * e * stepSize, size, size);
+              }
+            }
+          } else if (visc > 0.01) {
+            const alphaMult = 1 + visc;
+            for (let k = 0; k < dots.length; k += 6) {
+              ctx.globalAlpha = Math.min(1, dots[k + 2] * alphaMult);
+              const size = dots[k + 3];
+              ctx.fillRect(dots[k], dots[k + 1], size, size);
+            }
+          } else {
+            for (let k = 0; k < dots.length; k += 6) {
+              ctx.globalAlpha = dots[k + 2];
+              const size = dots[k + 3];
+              ctx.fillRect(dots[k], dots[k + 1], size, size);
+            }
+          }
+        }
+        ctx.globalAlpha = 1;
+      } else {
+        // Stipple mode: apply collected bristle striations now that the
+        // polygon and bleed are down. destination-out subtracts alpha from
+        // existing ink — physically the right model (dry bristles REMOVE
+        // ink) and visually the only ordering where the dropouts survive
+        // instead of being repainted over. Dot size scales with the canvas
+        // DPR so striations stay visible at retina resolutions rather than
+        // collapsing to half-CSS-pixel slivers.
+        if (striationDots.length > 0) {
+          const dotSize = Math.max(1, Math.round(scale));
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.fillStyle = '#000';
+          // Pixel-level dedup: each canvas pixel can be hit by at most ONE
+          // random probe across all arc steps. Without this, the cumulative
+          // destination-out at fixed offsets would saturate to fully-transparent
+          // lines exactly as before; with it, the dropout pattern is a stipple
+          // whose density (not depth) varies with local dryness.
+          const striationGrid = new Set();
+          for (let k = 0; k < striationDots.length; k += 3) {
+            const gx = striationDots[k];
+            const gy = striationDots[k + 1];
+            const key = gx * 32768 + gy;
+            if (striationGrid.has(key)) continue;
+            striationGrid.add(key);
+            ctx.globalAlpha = striationDots[k + 2];
+            ctx.fillRect(gx, gy, dotSize, dotSize);
+          }
+          ctx.globalCompositeOperation = 'source-over';
+        }
+      }
+
+      ctx.globalAlpha = 1;
+    }
+
+  // ════════════════════════════════════════════════════════════════════════
+  //  DETERMINISTIC ENSO-OF-THE-DAY GENERATOR
+  //  Same RANDOM_BOUNDS, same RANDOM_COLORS, same draw order as randomEnso()
+  //  in the tool — so calendar(date) === tool's "Random enso of the day" for
+  //  that UTC date.
+  // ════════════════════════════════════════════════════════════════════════
+
+  const RANDOM_BOUNDS = {
+      startAngle:              [0, 360, 1],
+      gap:                     [5, 45, 1],
+      radius:                  [28, 42, 1],
+      imperfection:            [0, 4, 0.1],
+      tilt:                    [-60, 80, 1],
+      thickness:               [60, 160, 1],
+      startTaper:              [0, 25, 1],
+      startSharp:              [35, 200, 1],
+      endTaper:                [0, 35, 1],
+      endThick:                [0, 55, 1],
+      inkRunoutStart:          [50, 75, 1],
+      inkRunoutRate:           [100, 350, 1],
+      minInk:                  [100, 200, 1],  // slider/100 = %, floor ≥1% so the dry end stays visible after binarization
+      striationCoarseness:     [1.5, 6, 0.5],
+      bristleSizeStd:          [20, 65, 1],
+      striationSpread:         [15, 100, 1],
+      bristleCount:            [55, 95, 1],
+      viscosity:               [-30, 60, 1],
+      bristleModulation:       [50, 100, 1],
+      bristlePulseRate:        [4, 13, 0.5],
+      bristlePulseSpread:      [20, 100, 1],
+      bristleFadeRate:         [35, 75, 1],
+      bristleWobbleRate:       [0, 6, 0.5],
+      bristleWobbleAmount:     [0, 15, 1],
+      bristleCorrelation:      [40, 100, 1],
+      edgeWobbleAmount:        [0, 6, 0.5],
+      edgeWobbleFreq:          [1, 8, 0.5],
+      bleedBody:               [30, 70, 1],
+      numVariants:             [3, 12, 1],
+      brighterDarkerRatio:     [-70, 40, 1],
+      shadeDistribution:       [0, 100, 1],
+      colorVariation:          [30, 70, 1],
+      smoothContrast:          [0, 45, 1],
+      pixelContrast:           [60, 88, 1],
+      contrastCutoff:          [40, 80, 1],
+      contrastTransitionWidth: [15, 50, 1],
+    };
+
+  const RANDOM_COLORS = ['#d9a91a', '#b8b8b8', '#a05a2c', '#0d1f4f',
+                           '#7a1f2b', '#1f4d3a', '#3a2a5a', '#155e63'];
+
+  // Defaults for every control getParams reads. Most of these are inert in
+  // bristle mode (brushFade, pixelStart/transitionWidth/pixelSize/fadeStart/
+  // fadeCurve, the radial-bleed sliders), but getParams still parses them so
+  // they need real numeric values to avoid NaN propagating into render.
+  const DEFAULTS = {
+  "startAngle": "270",
+  "gap": "30",
+  "radius": "32",
+  "imperfection": "1.5",
+  "tilt": "0",
+  "thickness": "55",
+  "startTaper": "12",
+  "startSharp": "70",
+  "endTaper": "10",
+  "endThick": "20",
+  "inkRunoutStart": "30",
+  "inkRunoutRate": "100",
+  "minInk": "0",
+  "brushFadeStart": "50",
+  "brushFadeRate": "100",
+  "bristleCount": "59",
+  "striationCoarseness": "1.5",
+  "bristleSizeStd": "0",
+  "striationSpread": "50",
+  "viscosity": "0",
+  "bristleModulation": "55",
+  "bristlePulseRate": "5",
+  "bristlePulseSpread": "50",
+  "bristleFadeRate": "50",
+  "bristleWobbleRate": "0",
+  "bristleWobbleAmount": "0",
+  "bristleCorrelation": "35",
+  "edgeWobbleAmount": "7",
+  "edgeWobbleFreq": "10",
+  "pixelStart": "28",
+  "transitionWidth": "12",
+  "pixelSize": "8",
+  "fadeStart": "52",
+  "fadeCurve": "22",
+  "outwardBleed": "14",
+  "inwardBleed": "10",
+  "longitudinalBleed": "0",
+  "bleedOnset": "5",
+  "bleedStart": "0",
+  "bleedBody": "0",
+  "numVariants": "5",
+  "brighterDarkerRatio": "0",
+  "shadeDistribution": "0",
+  "colorVariation": "50",
+  "smoothContrast": "0",
+  "pixelContrast": "100",
+  "contrastCutoff": "70",
+  "contrastTransitionWidth": "30",
+  "direction": "ccw",
+  "renderStyle": "bristles",
+  "bg": "white",
+  "color": "#0d1f4f"
+};
+
+  // Produces { settings, seed } for the canonical enso of utcMidnightMs.
+  // Draw order MUST match randomEnso(false) in the tool exactly — same
+  // mulberry32 stream, same sequence of prng() calls — or outputs diverge.
+  function dateToEnso(utcMidnightMs) {
+    const prng = mulberry32(utcMidnightMs);
+    const r = (mn, mx) => mn + prng() * (mx - mn);
+    const snap = (v, step) => Math.round(v / step) * step;
+    // First draw becomes the shape seed (matches the tool's first prng() draw assigned to _seed).
+    const shapeSeed = prng();
+    const overrides = { renderStyle: 'bristles' };
+    for (const [id, [mn, mx, step]] of Object.entries(RANDOM_BOUNDS)) {
+      overrides[id] = String(snap(r(mn, mx), step));
+    }
+    overrides.direction = prng() < 0.5 ? 'cw' : 'ccw';
+    overrides.bg = 'transparent';
+    if (prng() < 0.45) {
+      overrides.color = RANDOM_COLORS[Math.floor(prng() * RANDOM_COLORS.length)];
+    } else {
+      overrides.color = hslToHex(prng(), 0.45 + prng() * 0.35, 0.28 + prng() * 0.24);
+    }
+    // Merge: defaults under randomized overrides. getParams reads from this.
+    return { settings: { ...DEFAULTS, ...overrides }, seed: shapeSeed };
+  }
+
+  // Render the enso for utcMidnightMs into targetCanvas at size px.
+  function renderEnso(targetCanvas, utcMidnightMs, size) {
+    const { settings, seed: shapeSeed } = dateToEnso(utcMidnightMs);
+    canvas = targetCanvas;
+    ctx    = targetCanvas.getContext('2d');
+    seed   = shapeSeed;
+    _S     = settings;
+    render(size);
+  }
+  global.renderEnso = renderEnso;
+
+  // Like renderEnso, but merges `overrides` onto the day's settings before
+  // rendering — used by the hero to normalize the ring size (radius/thickness)
+  // so today's ensō reliably FRAMES the portrait instead of crossing it, while
+  // keeping the day's color, gap, taper, imperfection and bristle texture.
+  // Special key `maxThickness` caps the day's thickness (keeps thin-day variety).
+  function renderEnsoWith(targetCanvas, utcMidnightMs, size, overrides) {
+    const { settings, seed: shapeSeed } = dateToEnso(utcMidnightMs);
+    const o = Object.assign({}, overrides);
+    const maxT = o.maxThickness; delete o.maxThickness;
+    const s = Object.assign({}, settings, o);
+    if (maxT != null) s.thickness = String(Math.min(parseFloat(s.thickness), maxT));
+    canvas = targetCanvas;
+    ctx    = targetCanvas.getContext('2d');
+    seed   = shapeSeed;
+    _S     = s;
+    render(size);
+  }
+  global.renderEnsoWith = renderEnsoWith;
+})(window);

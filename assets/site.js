@@ -73,7 +73,21 @@
     var footer = document.querySelector('[data-include="footer"]');
     if (header) jobs.push(inject('header', header).then(function () { markActive(header); }));
     if (footer) jobs.push(inject('footer', footer));
-    Promise.all(jobs).then(initThemeToggle);
+    Promise.all(jobs).then(function () { initThemeToggle(); externalizeLinks(); });
+  }
+
+  /* ---- New tabs by default: every link opens in a new tab EXCEPT the primary
+       top-nav (so moving around the site doesn't spawn endless tabs), the
+       wordmark, the skip link, and same-page / mail / tel links. ---- */
+  function externalizeLinks() {
+    document.querySelectorAll('a[href]').forEach(function (a) {
+      if (a.hasAttribute('target')) return;                       // respect explicit target
+      var href = a.getAttribute('href') || '';
+      if (/^(#|mailto:|tel:|javascript:)/i.test(href)) return;
+      if (a.closest('.site-nav') || a.classList.contains('brand') || a.classList.contains('skip-link')) return;
+      a.target = '_blank';
+      a.rel = (a.rel ? a.rel + ' ' : '') + 'noopener noreferrer';
+    });
   }
 
   /* ---- 3: theme toggle (mirrors enso/index.html exactly) ---- */
