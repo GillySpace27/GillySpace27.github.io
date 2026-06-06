@@ -1,11 +1,11 @@
 # gilly.space
 
-Personal + academic website of **Dr. Chris Gilbert ("Gilly")**, heliophysicist
+Personal + academic website of **Dr. Gilly**, heliophysicist
 at [NorthWest Research Associates (NWRA)](https://www.nwra.com) — solar wind,
 coronal heating, forward models, and observation validation. Plus a creative
 wing (music, theater, public talks) and a few interactive web toys.
 
-Live at **[gilly.space](https://gilly.space)** (also `chrisgilbert.space`).
+Live at **[gilly.space](https://gilly.space)**.
 
 ## How it's built
 
