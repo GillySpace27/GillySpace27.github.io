@@ -172,6 +172,15 @@
     cv.className = 'starfield'; cv.setAttribute('aria-hidden', 'true');
     document.body.appendChild(cv);
     var ctx = cv.getContext('2d'), stars = [], shoot = null, W = 0, H = 0, dpr = Math.min(devicePixelRatio || 1, 2), raf = 0, on = false;
+    // Theme palette: white twinkling stars by night; warm gold sun-motes that
+    // gently rise by day — same engine, different mood.
+    var PAL;
+    function setPalette() {
+      var dark = document.documentElement.classList.contains('dark');
+      PAL = dark
+        ? { color: '255,255,255', base: 0.40, amp: 0.45, vyMul: 0, shoot: '217,169,26' }
+        : { color: '178,128,18',  base: 0.24, amp: 0.20, vyMul: 1, shoot: '201,150,20' };
+    }
     function resize() {
       W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr;
       cv.style.width = W + 'px'; cv.style.height = H + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -180,16 +189,18 @@
     }
     function mkStar() {
       var depth = Math.random();
-      return { x: Math.random() * W, y: Math.random() * H, r: 0.4 + depth * 1.3, vx: -(0.01 + depth * 0.03), tw: Math.random() * Math.PI * 2, ts: 0.005 + Math.random() * 0.015 };
+      return { x: Math.random() * W, y: Math.random() * H, r: 0.4 + depth * 1.3, vx: -(0.01 + depth * 0.03), vy: -(0.004 + depth * 0.012), tw: Math.random() * Math.PI * 2, ts: 0.005 + Math.random() * 0.015 };
     }
     function frame() {
       if (!on) return;
       ctx.clearRect(0, 0, W, H);
       for (var i = 0; i < stars.length; i++) {
-        var s = stars[i]; s.x += s.vx; s.tw += s.ts;
+        var s = stars[i]; s.x += s.vx; s.y += s.vy * PAL.vyMul; s.tw += s.ts;
         if (s.x < -2) { s.x = W + 2; s.y = Math.random() * H; }
-        var a = 0.4 + 0.45 * Math.sin(s.tw);
-        ctx.globalAlpha = a; ctx.fillStyle = '#fff';
+        if (s.y < -2) { s.y = H + 2; s.x = Math.random() * W; }
+        var a = PAL.base + PAL.amp * Math.sin(s.tw);
+        if (a <= 0.01) continue;
+        ctx.globalAlpha = a; ctx.fillStyle = 'rgb(' + PAL.color + ')';
         ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
       }
       ctx.globalAlpha = 1;
@@ -198,7 +209,7 @@
       if (shoot) {
         shoot.x += shoot.sp; shoot.y += shoot.sp * 0.5; shoot.len = Math.min(160, shoot.len + shoot.sp); shoot.life -= 0.012;
         var g = ctx.createLinearGradient(shoot.x, shoot.y, shoot.x - shoot.len, shoot.y - shoot.len * 0.5);
-        g.addColorStop(0, 'rgba(217,169,26,' + Math.max(0, shoot.life) + ')'); g.addColorStop(1, 'rgba(217,169,26,0)');
+        g.addColorStop(0, 'rgba(' + PAL.shoot + ',' + Math.max(0, shoot.life) + ')'); g.addColorStop(1, 'rgba(' + PAL.shoot + ',0)');
         ctx.strokeStyle = g; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(shoot.x, shoot.y); ctx.lineTo(shoot.x - shoot.len, shoot.y - shoot.len * 0.5); ctx.stroke();
         if (shoot.life <= 0 || shoot.x > W) shoot = null;
       }
@@ -207,9 +218,11 @@
     function start() { if (on) return; on = true; raf = requestAnimationFrame(frame); }
     function stop() { on = false; cancelAnimationFrame(raf); ctx.clearRect(0, 0, W, H); }
     function sync() {
-      var dark = document.documentElement.classList.contains('dark');
-      if (dark && !document.hidden) { document.documentElement.classList.add('canvas-stars'); start(); }
-      else { document.documentElement.classList.remove('canvas-stars'); stop(); }
+      setPalette();
+      // canvas-stars only matters in dark (it hides the CSS tiled stars); the day
+      // motes draw straight onto the paper backdrop. Run in BOTH themes.
+      document.documentElement.classList.toggle('canvas-stars', document.documentElement.classList.contains('dark'));
+      if (!document.hidden) start(); else stop();
     }
     var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { resize(); }, 200); }, { passive: true });
     addEventListener('themechange', sync);

@@ -113,6 +113,11 @@ main { flex: 1 0 auto; width: 100%; }
 /* ============================================================================
    Site header / persistent nav  — the thing the legacy site never had
    ========================================================================== */
+/* The header/footer are injected into these wrappers; display:contents removes
+   the wrapper box so the sticky header's containing block is <body> (otherwise
+   it would only "stick" within the wrapper's own height and scroll away). */
+[data-include="header"], [data-include="footer"] { display: contents; }
+
 .site-header {
   position: sticky; top: 0; z-index: 100;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
