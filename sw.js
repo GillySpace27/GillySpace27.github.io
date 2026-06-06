@@ -9,10 +9,9 @@
    Bump CACHE_VERSION to invalidate. Registered from assets/site.js behind a
    feature check, so no-JS / unsupported browsers are unaffected.
    ========================================================================== */
-const CACHE_VERSION = 'gilly-v1';
+const CACHE_VERSION = 'gilly-v2';
 const PRECACHE = [
   '/', '/assets/site.css', '/assets/site.js',
-  '/partials/header.html', '/partials/footer.html',
   '/assets/css/academicons.min.css', '/assets/css/font-awesome.min.css',
   '/favicon-32x32.png', '/apple-touch-icon.png', '/manifest.json', '/404.html'
 ];
@@ -40,8 +39,10 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;                 // don't touch cross-origin (S3, worker, fonts)
 
   const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
+  // Partials are the live nav/footer — keep them fresh (network-first), never stale.
+  const isPartial = url.pathname.indexOf('/partials/') === 0;
 
-  if (isHTML) {
+  if (isHTML || isPartial) {
     // network-first so content stays fresh; fall back to cache, then offline 404
     e.respondWith(
       fetch(req)

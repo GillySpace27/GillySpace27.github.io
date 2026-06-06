@@ -180,7 +180,7 @@
     }
     function mkStar() {
       var depth = Math.random();
-      return { x: Math.random() * W, y: Math.random() * H, r: 0.4 + depth * 1.3, vx: -(0.02 + depth * 0.06), tw: Math.random() * Math.PI * 2, ts: 0.01 + Math.random() * 0.03 };
+      return { x: Math.random() * W, y: Math.random() * H, r: 0.4 + depth * 1.3, vx: -(0.01 + depth * 0.03), tw: Math.random() * Math.PI * 2, ts: 0.005 + Math.random() * 0.015 };
     }
     function frame() {
       if (!on) return;
