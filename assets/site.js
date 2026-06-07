@@ -87,6 +87,7 @@
     safe(readingTime);
     safe(konami);
     safe(respectVideos);
+    safe(loadAnalytics);
     safe(registerSW);
   }
 
@@ -342,6 +343,14 @@
       var f = document.createElement('div'); f.className = 'solar-flare'; document.body.appendChild(f);
       setTimeout(function () { f.remove(); }, 1800);
     }
+  }
+
+  /* ---- Analytics: one shared source (assets/analytics.js) injected on every shell page ---- */
+  function loadAnalytics() {
+    if (document.getElementById('site-analytics')) return;
+    var s = document.createElement('script');
+    s.id = 'site-analytics'; s.defer = true; s.src = '/assets/analytics.js';
+    document.head.appendChild(s);
   }
 
   /* ---- Service worker: offline cache + faster repeat visits ---- */
