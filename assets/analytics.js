@@ -12,7 +12,7 @@
    ============================================================================ */
 (function () {
   var CF_BEACON_TOKEN = '684268c9d5304fca8d70c30737ed2be7';   // Cloudflare Web Analytics (gilly.space)
-  var GA4_ID          = '';   // ← paste GA4 Measurement ID (G-XXXXXXXXXX)
+  var GA4_ID          = 'G-QV87BEFHZ6';   // Google Analytics 4 (gilly.space)
 
   try {
     if (CF_BEACON_TOKEN) {
