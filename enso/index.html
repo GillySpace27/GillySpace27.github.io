@@ -25,6 +25,9 @@
     } catch (e) {}
   })();
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #faf8f3;
@@ -35,7 +38,7 @@
     --cell-bg: #ffffff;
     --cell-border: #d8d0c2;
     --cell-future-bg: #f0ece2;
-    --cell-future-text: #b8b0a0;
+    --cell-future-text: #7a7264;    /* was #b8b0a0; improved contrast */
     --cell-today-border: #c89b3c;
     --cell-hover-border: #1a2a5a;
     --modal-backdrop: rgba(0, 0, 0, 0.55);
@@ -46,13 +49,13 @@
   :root.dark {
     --bg: #1a1814;
     --text: #e8e2d0;
-    --muted: #a8a094;
+    --muted: #b8b0a4;              /* was #a8a094; improved contrast */
     --card-bg: #25221c;
     --card-border: #3a362c;
     --cell-bg: #2a2620;
     --cell-border: #4a4438;
     --cell-future-bg: #211e18;
-    --cell-future-text: #5a5448;
+    --cell-future-text: #706a5e;    /* was #5a5448; improved contrast */
     --cell-today-border: #d9a91a;
     --cell-hover-border: #d9a91a;
     --modal-backdrop: rgba(0, 0, 0, 0.78);
@@ -69,6 +72,13 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     min-height: 100vh;
   }
+  /* Headings and modal date get the calligraphic serif — aligns typographic
+     register with the brushstroke content without touching body text. */
+  h1, h2, .modal-date {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: 0.01em;
+  }
+  h1 { font-size: 32px; }   /* slightly larger to compensate for serif's optical weight */
   .wrap { max-width: 980px; margin: 0 auto; }
   .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 12px; }
   h1 { margin: 0 0 4px 0; font-size: 28px; }
@@ -83,19 +93,25 @@
     color: var(--btn-text);
     border-color: var(--btn-bg);
   }
-  /* Small icon-only button for the theme switch — kept visually quiet. */
+  /* Small icon-only button for the theme switch. Raised opacity slightly and
+     given a visible border so it reads as interactive without cluttering. */
   .icon-btn {
     background: transparent;
-    border: none;
+    border: 1px solid var(--card-border);
     color: var(--muted);
     cursor: pointer;
     font-size: 16px;
-    padding: 4px 6px;
-    border-radius: 4px;
-    opacity: 0.55;
+    padding: 6px 10px;
+    border-radius: 6px;
+    opacity: 0.8;
     line-height: 1;
+    min-width: 40px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  .icon-btn:hover { opacity: 1; background: var(--cell-bg); }
+  .icon-btn:hover { opacity: 1; background: var(--cell-bg); border-color: var(--cell-hover-border); }
   .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .card {
     background: var(--card-bg);
@@ -159,6 +175,12 @@
   }
   .cell.past { cursor: pointer; }
   .cell.past:hover { border-color: var(--cell-hover-border); transform: translateY(-1px); }
+  .cell.past:focus-visible {
+    border-color: var(--cell-hover-border);
+    transform: translateY(-1px);
+    outline: 2px solid var(--cell-hover-border);
+    outline-offset: 2px;
+  }
   .cell.today { border-color: var(--cell-today-border); border-width: 3px; }
   .cell.future { background: var(--cell-future-bg); border-style: dashed; cursor: default; }
   .cell.empty { background: transparent; border: none; pointer-events: none; }
@@ -227,6 +249,8 @@
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
   }
   /* Haiku impression rendered as a centered overlay on the enso. Three
      lines, preserved via white-space: pre-line so the model's newlines
@@ -292,15 +316,40 @@
   .modal-download { background: transparent; color: var(--text); border: 1px solid var(--card-border); }
   .modal-download:hover { border-color: var(--cell-hover-border); }
   .modal-download:disabled { opacity: 0.55; cursor: default; }
+  /* One-sentence contextual intro — defines ensō for visitors who don't
+     already know the word. Sits quietly below the subtitle. */
+  .enso-intro {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 6px 0 20px 0;
+    max-width: 560px;
+    line-height: 1.6;
+  }
+  .enso-intro span[lang="ja"] { font-size: 14px; }
+  /* Quiet footer closes the page composition on short months. */
+  .site-footer {
+    text-align: center;
+    padding: 28px 16px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    opacity: 0.55;
+  }
+  /* Mobile: tighten gaps to push cell size above 44 px touch target. */
+  @media (max-width: 480px) {
+    body { padding: 16px 8px; }
+    .card { padding: 12px; }
+    .grid, .weekdays { gap: 4px; }
+  }
 </style>
 <script defer src="/assets/analytics.js"></script>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <div class="topbar">
     <div>
-      <h1>Enso Calendar</h1>
-      <p class="subtitle">A new enso each day, deterministic from the UTC date — past days fill in, future days await.</p>
+      <h1>Ensō Calendar</h1>
+      <p class="subtitle">A new ensō generated fresh each day, unique to that date — past days fill in, future days await.</p>
+      <p class="enso-intro">An ensō (<span lang="ja">円相</span>) is a Japanese Zen brushstroke circle drawn in a single gesture. This calendar holds one for every day — click any past date to open it.</p>
     </div>
     <div class="header-actions">
       <button id="themeToggle" type="button" class="icon-btn" aria-label="Toggle theme">🖥️</button>
@@ -308,23 +357,33 @@
   </div>
 
   <div class="card">
-    <div class="month-nav">
+    <nav class="month-nav" aria-label="Month navigation">
       <button id="prevMonth" type="button" class="nav-btn" aria-label="Previous month">←</button>
       <h2 id="monthLabel"></h2>
       <button id="nextMonth" type="button" class="nav-btn" aria-label="Next month">→</button>
-    </div>
+    </nav>
     <div class="weekdays">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      <div><abbr title="Sunday">Sun</abbr></div>
+      <div><abbr title="Monday">Mon</abbr></div>
+      <div><abbr title="Tuesday">Tue</abbr></div>
+      <div><abbr title="Wednesday">Wed</abbr></div>
+      <div><abbr title="Thursday">Thu</abbr></div>
+      <div><abbr title="Friday">Fri</abbr></div>
+      <div><abbr title="Saturday">Sat</abbr></div>
     </div>
-    <div class="grid" id="grid"></div>
+    <div class="grid" id="grid" role="grid" aria-label="Ensō calendar"></div>
   </div>
-</div>
+</main>
+
+<footer class="site-footer" aria-label="Site footer">
+  gilly.space · an ensō for every day
+</footer>
 
 <div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalDate">
     <div class="modal-date" id="modalDate"></div>
     <div class="modal-canvas-wrap">
-      <canvas id="modalCanvas" width="640" height="640"></canvas>
+      <canvas id="modalCanvas" width="640" height="640" role="img" aria-label="Ensō brushstroke"></canvas>
       <div class="modal-impression" id="modalImpression" style="display: none;">
         <span class="impression-spinner" id="impressionSpinner"></span>
         <span class="impression-text" id="impressionText"></span>
@@ -1727,7 +1786,19 @@
         cell.classList.add('past');
         if (cellMs === todayMs) cell.classList.add('today');
         cell.dataset.utc = String(cellMs);
+        // Keyboard and screen-reader access: each past cell is a focusable
+        // button-role element. aria-label includes the full date so AT users
+        // hear meaningful context without needing to interpret the day number.
+        cell.setAttribute('tabindex', '0');
+        cell.setAttribute('role', 'button');
+        const cellLabel = new Date(cellMs).toLocaleDateString(undefined, {
+          timeZone: 'UTC', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        });
+        cell.setAttribute('aria-label', cellLabel + ' — open ensō');
         cell.addEventListener('click', () => openModal(cellMs));
+        cell.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(cellMs); }
+        });
       }
       const num = document.createElement('div');
       num.className = 'day-num';
@@ -1755,6 +1826,9 @@
   const MODAL_SIZE = 640;
   const DOWNLOAD_SIZE = 2400;   // print-quality (~8 in at 300 DPI); preserves bristle detail
   let currentModalUtcMs = null;
+  // Element that triggered the most recent openModal — restored on close so
+  // keyboard users don't lose their place in the grid.
+  let _modalOpener = null;
 
   // ── AI impression feature ───────────────────────────────────────────────
   // Set this to your deployed Cloudflare Worker URL after running
@@ -1770,6 +1844,7 @@
   const impressionCache = new Map();
 
   function openModal(utcMs) {
+    _modalOpener = document.activeElement;  // remember for focus restoration on close
     currentModalUtcMs = utcMs;
     const dateStr = new Date(utcMs).toLocaleDateString(undefined, {
       timeZone: 'UTC', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -1778,9 +1853,13 @@
     const modalCnv = document.getElementById('modalCanvas');
     modalCnv.width = MODAL_SIZE;
     modalCnv.height = MODAL_SIZE;
+    modalCnv.setAttribute('aria-label', 'Ensō brushstroke for ' + dateStr);
     // Render directly (not via cache — modal is a one-off at higher res).
     renderEnso(modalCnv, utcMs, MODAL_SIZE);
     document.getElementById('modalBackdrop').classList.add('open');
+    // Move focus into the dialog so keyboard and screen-reader users are
+    // immediately inside it. Close button is the natural first target.
+    document.getElementById('modalClose').focus();
     // Fire-and-forget the impression fetch. It owns its own UI lifecycle
     // (spinner → text or silent hide) and bails out if the modal closes
     // or changes date before the response arrives.
@@ -1797,6 +1876,12 @@
     imp.style.display = 'none';
     document.getElementById('impressionText').textContent = '';
     document.getElementById('impressionSpinner').classList.remove('hidden');
+    // Return focus to the cell that opened the modal — keeps keyboard users
+    // oriented in the grid after they dismiss the dialog.
+    if (_modalOpener && typeof _modalOpener.focus === 'function') {
+      _modalOpener.focus();
+    }
+    _modalOpener = null;
   }
   // Fetches the AI impression for the current modal date from the Worker.
   // Owns the visibility of #modalImpression entirely: it shows the slot when
