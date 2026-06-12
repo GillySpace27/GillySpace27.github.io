@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solar Corona &amp; Wind Explorer</title>
+<style>
+  :root{ color-scheme: dark; }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: radial-gradient(120% 120% at 50% 0%, #0a1030 0%, #05060f 55%, #02030a 100%);
+    color:#dfe7f7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding: 2.2rem 1rem 1.4rem;
+  }
+  .wrap{ width:100%; max-width:840px; }
+  header{ text-align:center; margin-bottom:1.4rem; }
+  h1{
+    font-size:1.7rem; font-weight:600; margin:0 0 .35rem;
+    letter-spacing:.3px;
+    background: linear-gradient(90deg,#8fd0ff,#fff3d0,#ff9e6a);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .sub{ font-size:.82rem; color:#8294b8; margin:0; }
+  .stage{ position:relative; width:100%; border-radius:14px; overflow:hidden;
+    background:#05060f; box-shadow:0 0 0 1px rgba(120,150,220,.14), 0 18px 50px -20px rgba(0,0,0,.8); }
+  canvas{ display:block; width:100%; height:440px; }
+  #readout{ position:absolute; top:12px; left:14px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px; line-height:1.6; color:#9fb4d8; letter-spacing:.3px; pointer-events:none; text-shadow:0 1px 4px #000; }
+  #badge{ position:absolute; top:12px; right:14px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px; color:#7e8db0; pointer-events:none; text-shadow:0 1px 4px #000; }
+  .controls{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:1.1rem 0 .4rem; }
+  .slider-row{ display:flex; align-items:center; gap:10px; flex:1 1 320px; min-width:280px; }
+  .slider-row label{ font-size:.78rem; color:#9fb4d8; white-space:nowrap; }
+  .slider-row .end{ font-size:.72rem; color:#6f7ea2; }
+  input[type=range]{ flex:1; accent-color:#5fb0ff; height:4px; }
+  .toggles{ display:flex; flex-wrap:wrap; gap:8px; }
+  button{
+    font:inherit; font-size:.8rem; color:#cdd9f0; cursor:pointer;
+    background:rgba(120,150,220,.07); border:1px solid rgba(120,150,220,.22);
+    border-radius:8px; padding:7px 12px; transition:.15s; }
+  button:hover{ background:rgba(120,150,220,.16); }
+  button:active{ transform:scale(.97); }
+  button.on{ background:rgba(95,176,255,.18); border-color:rgba(95,176,255,.55); color:#bfe1ff; }
+  #filter{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .caption{ font-size:.82rem; line-height:1.65; color:#8ea0c4; margin:1.1rem auto 0; max-width:760px; }
+  .caption b{ color:#bcccea; font-weight:600; }
+  .fast{ color:#7fc8ff; } .slow{ color:#ffb45a; }
+  footer{ margin-top:1.6rem; font-size:.7rem; color:#566184; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Solar Corona &amp; Wind Explorer</h1>
+    <p class="sub">An interactive heliosphere &mdash; the kind of view the PUNCH mission was built to capture</p>
+  </header>
+  <div class="stage" id="stage">
+    <canvas id="sun"></canvas>
+    <div id="readout"></div>
+    <div id="badge">PUNCH-style heliosphere view</div>
+  </div>
+  <div class="controls">
+    <div class="slider-row">
+      <label for="act">Solar cycle</label>
+      <span class="end">min</span>
+      <input id="act" type="range" min="0" max="100" step="1" value="35">
+      <span class="end">max</span>
+    </div>
+    <div class="toggles">
+      <button id="t-wind" class="on">Solar wind</button>
+      <button id="t-field" class="on">Magnetic field</button>
+      <button id="t-wave" class="on">Alfvén waves</button>
+      <button id="filter">Filter: white light</button>
+    </div>
+  </div>
+  <p class="caption">
+    Drag the <b>Solar cycle</b> slider from minimum to maximum and watch the magnetic structure
+    reorganize: large polar coronal holes and sparse loops at minimum, a busy streamer belt at maximum.
+    The <span class="fast">fast wind</span> (from the poles) and <span class="slow">slow wind</span>
+    (from the equatorial streamer belt) stream outward and <b>accelerate</b> as they go. Toggle the
+    transverse <b>Alfvén waves</b> rippling along the open field lines, and cycle the <b>Filter</b>
+    button through false-color looks the way you would flip between SDO/AIA passbands.
+  </p>
+  <footer>Built by Claude with Chris Gilly &middot; 2026-06-11 &middot; self-contained &mdash; runs fully offline</footer>
+</div>
+<script>
+(function(){
+  const cv=document.getElementById('sun'),ctx=cv.getContext('2d');
+  const stage=document.getElementById('stage'),readout=document.getElementById('readout');
+  let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
+  const state={activity:0.35,wind:true,field:true,wave:true,filter:0};
+  const filters=[
+    {name:'white light',core:['#fff7e0','#ffe8a8','#d98b2b'],corona:'rgba(180,205,255,',halo:'#cfe0ff'},
+    {name:'171 \u00c5',core:['#fff4c8','#ffcf5a','#b06a12'],corona:'rgba(255,200,90,',halo:'#ffd97a'},
+    {name:'193 \u00c5',core:['#fff0d8','#d9c46a','#7e7a2a'],corona:'rgba(210,200,120,',halo:'#e6e08a'},
+    {name:'304 \u00c5',core:['#ffe3c0','#ff8a4a','#9e2a12'],corona:'rgba(255,120,70,',halo:'#ff9e6a'}
+  ];
+  function resize(){const r=stage.getBoundingClientRect();W=r.width;H=440;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+  window.addEventListener('resize',resize);
+  let stars=[];
+  function seedStars(){stars=[];for(let i=0;i<140;i++)stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.1+0.2,t:Math.random()*6.28});}
+  let loops=[],openLines=[];
+  function rebuildField(){
+    const a=state.activity;loops=[];
+    const nL=Math.round(2+a*15);
+    for(let i=0;i<nL;i++){const base=Math.random()<0.5?0:Math.PI,lat=(Math.random()-0.5)*1.1,ang=base+lat,span=0.18+Math.random()*0.22;loops.push({ang,span,h:0.5+Math.random()*0.9*(0.4+a),ph:Math.random()*6.28});}
+    openLines=[];
+    const spread=(35-a*16)*Math.PI/180,len=1.0-a*0.32;
+    [-Math.PI/2,Math.PI/2].forEach(pole=>{const n=Math.round(7-a*2);for(let i=0;i<n;i++){const off=(i/(n-1)-0.5)*2*spread;openLines.push({ang:pole+off,len:len*(0.85+Math.random()*0.3),ph:Math.random()*6.28});}});
+  }
+  const P=[];const MAX=440;
+  function sunR(){return Math.max(34,Math.min(W,H)*0.085);}
+  function spawn(p){
+    const a=state.activity,fw=0.55-a*0.25;
+    if(Math.random()<fw){const pole=Math.random()<0.5?-Math.PI/2:Math.PI/2;p.ang=pole+(Math.random()-0.5)*0.9;p.type=1;}
+    else{p.ang=Math.random()*6.28;p.type=0;}
+    p.r=sunR()+4+Math.random()*6;p.v=p.type?0.7+Math.random()*0.4:0.35+Math.random()*0.25;p.ph=Math.random()*6.28;p.px=null;
+  }
+  function tick(time){
+    if(W===0){requestAnimationFrame(tick);return;}
+    const t=time*0.001,cx=W/2,cy=H/2,R=sunR(),F=filters[state.filter];
+    ctx.fillStyle='rgba(5,6,15,0.22)';ctx.fillRect(0,0,W,H);
+    for(const s of stars){const tw=0.5+0.5*Math.sin(t*1.5+s.t);ctx.globalAlpha=0.25+tw*0.5;ctx.fillStyle='#bcd0ff';ctx.fillRect(s.x*W,s.y*H,s.r,s.r);}
+    ctx.globalAlpha=1;
+    const maxR=Math.hypot(W,H)/2;
+    const cg=ctx.createRadialGradient(cx,cy,R*0.6,cx,cy,maxR*0.95);
+    cg.addColorStop(0,F.corona+'0.30)');cg.addColorStop(0.25,F.corona+'0.10)');cg.addColorStop(1,F.corona+'0)');
+    ctx.fillStyle=cg;ctx.fillRect(0,0,W,H);
+    if(state.field){
+      ctx.lineWidth=1;
+      for(const L of loops){const sh=0.9+0.1*Math.sin(t*2+L.ph),a1=L.ang-L.span,a2=L.ang+L.span,x1=cx+Math.cos(a1)*R,y1=cy+Math.sin(a1)*R,x2=cx+Math.cos(a2)*R,y2=cy+Math.sin(a2)*R,apex=R*(1+L.h*sh),ax=cx+Math.cos(L.ang)*apex,ay=cy+Math.sin(L.ang)*apex;ctx.beginPath();ctx.moveTo(x1,y1);ctx.quadraticCurveTo(ax,ay,x2,y2);ctx.strokeStyle=F.corona+(0.28*sh)+')';ctx.stroke();}
+      for(const O of openLines){const reach=R+(maxR-R)*0.55*O.len;ctx.beginPath();let first=true;for(let r=R;r<reach;r+=8){const wob=state.wave?Math.sin(r*0.05-t*4+O.ph)*(r-R)*0.04:0,px=cx+Math.cos(O.ang)*r+(-Math.sin(O.ang))*wob,py=cy+Math.sin(O.ang)*r+Math.cos(O.ang)*wob;if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);}ctx.strokeStyle=F.corona+'0.18)';ctx.stroke();}
+    }
+    if(state.wind){
+      while(P.length<MAX){const p={};spawn(p);P.push(p);}
+      for(const p of P){p.v+=0.012*(1+(p.type?0.6:0));p.r+=p.v*1.6;const wob=state.wave?Math.sin(p.r*0.05-t*4+p.ph)*(p.r-R)*0.05:0,px=cx+Math.cos(p.ang)*p.r+(-Math.sin(p.ang))*wob,py=cy+Math.sin(p.ang)*p.r+Math.cos(p.ang)*wob,fade=Math.max(0,1-p.r/maxR);if(p.px!==null){ctx.beginPath();ctx.moveTo(p.px,p.py);ctx.lineTo(px,py);ctx.lineWidth=p.type?1.4:1.1;ctx.strokeStyle=p.type?'rgba(120,200,255,'+(fade*0.85)+')':'rgba(255,180,90,'+(fade*0.7)+')';ctx.stroke();}p.px=px;p.py=py;if(p.r>maxR)spawn(p);}
+    } else P.length=0;
+    const core=ctx.createRadialGradient(cx-R*0.2,cy-R*0.2,R*0.1,cx,cy,R);core.addColorStop(0,F.core[0]);core.addColorStop(0.55,F.core[1]);core.addColorStop(1,F.core[2]);ctx.beginPath();ctx.arc(cx,cy,R,0,6.2832);ctx.fillStyle=core;ctx.fill();
+    for(let i=0;i<7;i++){const a=t*0.3+i*0.9,rr=R*(0.3+0.4*Math.abs(Math.sin(a*1.3+i))),gx=cx+Math.cos(a)*R*0.4,gy=cy+Math.sin(a*1.1)*R*0.4;ctx.beginPath();ctx.arc(gx,gy,rr,0,6.2832);ctx.fillStyle='rgba(255,150,40,0.06)';ctx.fill();}
+    ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,R*1.08,0,6.2832);ctx.lineWidth=R*0.18;ctx.strokeStyle=F.halo;ctx.stroke();ctx.globalAlpha=1;
+    const a=state.activity;readout.innerHTML='solar activity &nbsp;'+Math.round(a*100)+'%<br>fast wind &nbsp;&nbsp;&nbsp;~'+Math.round(650+a*120)+' km/s<br>slow wind &nbsp;&nbsp;~'+Math.round(300+a*60)+' km/s<br>Alfv\u00e9n waves '+(state.wave?'on':'off');
+    requestAnimationFrame(tick);
+  }
+  document.getElementById('act').addEventListener('input',e=>{state.activity=e.target.value/100;rebuildField();});
+  function tog(id,key){const b=document.getElementById(id);b.addEventListener('click',()=>{state[key]=!state[key];b.classList.toggle('on',state[key]);});}
+  tog('t-wind','wind');tog('t-field','field');tog('t-wave','wave');
+  document.getElementById('filter').addEventListener('click',()=>{state.filter=(state.filter+1)%filters.length;document.getElementById('filter').textContent='Filter: '+filters[state.filter].name;});
+  resize();seedStars();rebuildField();requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
