@@ -112,7 +112,7 @@ export default {
 
     // Light health-check for "is the worker live?" testing.
     if (request.method === 'GET') {
-      return new Response('enso-impressions worker is alive (Workers AI / Llama 4 Scout)', {
+      return new Response('enso-impressions worker is alive (Workers AI / Llama 4 Scout / one-line evocation)', {
         headers: { 'Content-Type': 'text/plain', ...cors },
       });
     }
