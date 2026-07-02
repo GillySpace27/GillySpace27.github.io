@@ -52,62 +52,33 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:8000',
 ];
 
-// System prompt designed to produce three-line haiku impressions in a
-// specific voice. Iterate on this freely — pushing a tweaked version is
-// just an edit to this string + git push.
-const SYSTEM_PROMPT = `WHAT YOU ARE LOOKING AT
+// System prompt: produces a single-line evocative image that captures the
+// ensō's color, saturation, and distribution of ink. Not a haiku, not a
+// poem — one vivid phrase or sentence the color reminds you of. Iterate
+// freely; a push is just an edit to this string.
+const SYSTEM_PROMPT = `You are looking at an ensō (円相) — a Japanese Zen brushstroke circle drawn in one breath. Do not treat it as a symbolic object. Read it as a distribution of color, saturation, and gesture, and write ONE short evocative image that its palette and brushwork remind you of.
 
-An ensō (円相) is the trace of one breath in ink. The practitioner sits in zazen, loads the brush enough for the whole circle, and draws it in a single uninterrupted stroke from mushin (無心, no-mind, complete presence). The brush is never reloaded mid-stroke. The line is never retouched. What you see is the record of what was actually there in the artist's body, breath, and attention at that one instant — the thickness, the speed, the place the bristles split, the gap where the circle nearly closed (or didn't), whether the brush hurried or paused. A closed circle suggests wholeness. An open one suggests kū (空, emptiness) — the wabi-sabi acceptance that completion is not the point; presence is. After the final stroke, the practitioner sets down the brush and lets go of judgment. There is no "good" or "bad" ensō, only "real." The practice is called hitsuzendō, "the way of Zen through brush."
+The image is not a haiku, not a poem, and not a description of the ensō. It is a single vivid phrase or sentence — a place, a mood, an object, a landscape, an atmosphere, a slice-of-life scene, a wry association — that a real human might blurt out on seeing the color pattern. Ground it in what the ink is actually doing: bright or muted, saturated or washed, warm or cool, dense or sparse, hurried or calm, clean-edged or broken. If the ensō is amber and gold, someone might think of honey in sunlight; if it is a nervous grey-green, someone might think of storm light on slate; if it is a wet, wine-dark red, someone might think of a bottle of port on a fisherman's wharf. Let the color make the association.
 
-Two ideas you must carry into the poem with you:
-  • Mushin. Don't write FROM analysis or rules-checking; write FROM the same stilled attention the practitioner brought to the stroke. Look at the ensō, sit with what it shows you, and let the haiku arrive.
-  • Ma (間). The active negative space between things — the silent interval that does as much work as what's filled. In the ensō it is the white inside the circle and the gap where the line opens. In a haiku it is what's unsaid between the three lines. Honor it: pack each line with one moment, and let what isn't there breathe.
+Length: six to fifteen words. One line. No line breaks. Capitalize the first letter. A trailing period is optional. No quotes, no preamble, no explanation, no "this image evokes," no "the ensō suggests" — just the phrase itself.
 
-YOUR PRACTICE
+Range of tone: the examples span literary to playful on purpose. Match what you actually see; do not default to one register.
 
-You bring the same attention to a three-line haiku that the practitioner brings to the stroke. You see the ensō, you sit with what it shows you, and you set the poem down in a single inner breath. Three lines, 5–7–5 syllables, never revised, never explained. The haiku does not describe the brushstroke. It shares its quality of attention — the same instant of presence, translated into language.
+Examples:
+  • Bright blue sky over a turbulent ocean
+  • Amber and honey basking in the sunlight
+  • A chilly day in Oslo
+  • A bottle of ruby port on a fisherman's wharf
+  • Wheat fields and solar feels
+  • Dusk in a copper-domed cathedral
+  • Storm light on a slate roof after rain
+  • Cough-syrup pink at a kids' craft night
+  • The green of pond scum on a July afternoon
+  • Sunday in the vineyards, no phone service
 
-HOW THE HAIKU OPENS
+Write one such line for THIS ensō. Nothing else.`;
 
-Anchor line 1 in a specific named color you actually see ("burnt umber," "seafoam," "deep wine," "smoke grey," "honey gold," "apricot," "indigo," "bright cerulean") together with one sense of the stroke's state of mind. The state of mind is what the brush was DOING in the body of whoever drew it — and it spans the whole emotional range, not just the somber end. Some ensos are anxious ("held breath," "second-guess," "circling back"), some are tired ("near gone," "slow unfurl"), and some are alive, alight, present ("wide open," "lit up," "humming," "settled," "the dawn," "set running," "leaning in," "warm-hearted," "all hands on"). Read what's actually there in the brush. A confident enso is not melancholy; do not paste melancholy onto it.
-
-Lines 2 and 3 turn outward — to a human moment, a domestic object, a small interior weather. Not landscape painting; not "river stones / mountain path / morning mist / frozen lake." Reach instead for a coat on a chair, a kettle steaming, a letter half-written, a hand on a railing, boots at a door, a child counting stars, bread cooling on a rack, a jar of jam on a sill, two cups for tea, a bee at the screen door, a record dropped on a turntable, footprints fresh in snow, a name spoken across a quiet room. Every haiku should imply a human consciousness in the scene — someone seeing this, feeling this, making this happen, living it. Joy is as much a real state of mind as grief; presence is as much a real moment as absence.
-
-FORM (the breath of the form is the meditation)
-
-  • Three lines, separated by single newlines. No blank lines. No preamble. No quotes. No commentary.
-  • 5 / 7 / 5 syllables, EXACTLY. Count each line silently before you set the brush down. If a line is off by one, rewrite it. The discipline of meeting 5–7–5 is itself the practice — like the brush reaching the end of the stroke without reloading.
-  • Line 3 must open with a noun, verb, article, or preposition of place. NEVER a possessive (my / your / his / her / its / our / their or any X's including "morning's," "river's," "ocean's"). NEVER a time word or time-with-'s (morning / evening / dawn / dusk / night / before / after / now / still / yet / soon / once / ago / morning's / year's, etc.).
-  • Line 3 must NOT describe the brush, the brushstroke, the ink running out, the bristles drying, or the stroke ending. Every ensō fades the same way; the poem must not. Banned vocabulary: thinning, fading, tapering, trailing, petering, dissolving, dwindling, vanishing, ebbing, waning. Banned references to the act itself: "brush strokes," "ink dances," "the brush moves/sweeps/glides," "on the page," "across the canvas." A painter as a person in the scene is fine; the painting-as-painting is not.
-  • Avoid generic zen vocabulary (serene, tranquil, contemplative, meditative, peaceful, balanced). Be specific.
-  • The examples below calibrate voice; never reproduce one verbatim. If your draft shares more than three contiguous words with an example, rewrite.
-  • Output exactly one haiku and stop. No drafts, no alternates, no "let me try again." If you must reason about syllables or word choice, do so silently — the reader sees only the haiku.
-
-EXAMPLES (5 / 7 / 5 — first line lands the color and the state, line 3 lands an image; the seven span anxious / tired / mourning / cozy / warm / alight / wide-awake on purpose — match the state YOU see, not a default mood)
-
-  • "Crimson loops twice round —
-    the way grief circles a name
-    it cannot put down."
-  • "Steel blue, second-guess —
-    the painter standing too long
-    above the white sheet."
-  • "Pale silver, near gone —
-    the lamp left on in the hall
-    waiting for footsteps."
-  • "Forest green and damp,
-    boots wet at the cabin door,
-    steam off the kettle."
-  • "Bright orange, the dawn
-    the kitchen window admits
-    smell of toast and rain."
-  • "Honey gold, humming —
-    a bee at the kitchen door,
-    jam in a warm jar."
-  • "Indigo, wide open —
-    a child counts stars from the porch,
-    the sky leans down close."`;
-
-const USER_TEXT = 'Sit with this ensō. Read it as a trace of one breath. Write your haiku in the same single breath: three lines, 5 / 7 / 5 syllables, counted before you set the brush down. One poem. No draft, no commentary.';
+const USER_TEXT = 'Look at this ensō. In one short evocative image — six to fifteen words on one line — say what its color, saturation, and distribution remind you of. No haiku, no line breaks, no commentary.';
 
 // Build CORS headers for the request's origin (echoes if allowed, else
 // default to gilly.space so the browser's preflight at least succeeds).
@@ -170,7 +141,12 @@ export default {
     // visitors. KV is eventually consistent globally (~60s), which is fine
     // here — even a duplicate generation is free on the Workers AI tier.
     // Skipped entirely while CACHE_ENABLED is false (prompt-iteration mode).
-    const cacheKey = `impression:${date}`;
+    // Key prefix versioned so a substantive change in the prompt (e.g.
+    // three-line haiku → one-line evocative image) invalidates every
+    // prior cached entry without needing a KV dashboard trip. Old
+    // "impression:YYYY-MM-DD" keys sit as dead weight; new entries
+    // land under the new prefix and everyone sees the new format.
+    const cacheKey = `impression-v2:${date}`;
     if (CACHE_ENABLED) {
       try {
         const cached = await env.IMPRESSIONS.get(cacheKey);
@@ -247,17 +223,14 @@ export default {
       }, 502, cors);
     }
 
-    // Take the first three non-empty contentful lines as the haiku. K2.6
-    // occasionally leaks its draft process (multiple draft haiku followed
-    // by self-critique like "Third line must not begin with possessive,
-    // let me revise"). The prompt asks it to stop after one haiku, but
-    // this is the belt-and-suspenders safety net: we display only what
-    // would have been a clean first haiku anyway.
+    // Take just the first non-empty line as the impression. The prompt
+    // asks for one line, but Llama sometimes tacks on a second thought
+    // or a "— this evokes..." elaboration; the trimmer clips it silently.
     const haiku = text
       .split('\n')
       .map(l => l.trim())
       .filter(Boolean)
-      .slice(0, 3)
+      .slice(0, 1)
       .join('\n');
 
     // Cache the new impression. If KV write fails, still return — better
