@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Ensō Calendar · gilly.space</title>
-<meta name="description" content="A new ensō (Japanese brushstroke circle) every day, generated deterministically from the date. Part of gilly.space.">
+<meta name="description" content="A new ensō (Japanese brushstroke circle) every day, generated deterministically from the date, each with a one-line AI impression. Part of gilly.space.">
 <link rel="canonical" href="https://gilly.space/enso/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Daily Ensō Calendar · gilly.space">
-<meta property="og:description" content="A new generative ensō every day.">
+<meta property="og:description" content="A new generative ensō every day, with a one-line AI impression.">
 <meta property="og:url" content="https://gilly.space/enso/">
 <meta property="og:image" content="https://gilly.space/images/cards/enso-calendar.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -1835,7 +1835,7 @@
   // 'wrangler deploy' on the enso-impressions Worker. Leaving it empty
   // disables the impression UI silently — the modal just doesn't show the
   // line. See enso-impressions/README.md for the full setup.
-  const IMPRESSIONS_WORKER_URL = '';  // AI haiku/impression feature retired — empty disables the modal line entirely
+  const IMPRESSIONS_WORKER_URL = 'https://enso-impressions.gilly-22d.workers.dev';
 
   // Session cache: dateStr → impression text. Prevents re-fetching when the
   // user reopens the same day's modal in the current tab session. The KV
