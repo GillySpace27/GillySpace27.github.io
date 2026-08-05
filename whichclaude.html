@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Model Sequence — a Claude field guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Martian+Mono:wght@300..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070B14;
+  --bg2:#0B1120;
+  --panel:#0F1626;
+  --panel2:#131C30;
+  --line:#1E2A44;
+  --line2:#2A3A5E;
+  --ink:#E9EDF6;
+  --mut:#93A0B8;
+  --dim:#5C6A85;
+  --haiku:#8FD0FF;
+  --sonnet:#FFDF8E;
+  --opus:#FFA65C;
+  --fable:#FF6F61;
+  --accent:#FFA65C;
+  --disp:"Bricolage Grotesque", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, sans-serif;
+  --mono:"Martian Mono", ui-monospace, monospace;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+#field{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:0 20px 120px}
+
+/* ---------- header ---------- */
+.masthead{padding:64px 0 20px}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+  color:var(--dim);text-transform:uppercase;display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+}
+.eyebrow .live{color:var(--accent);transition:color .4s}
+.eyebrow .pip{width:5px;height:5px;border-radius:50%;background:var(--line2);display:inline-block}
+h1{
+  font-family:var(--disp);font-weight:750;
+  font-size:clamp(42px,7.5vw,84px);
+  line-height:.98;letter-spacing:-.02em;margin:18px 0 16px;
+}
+h1 .thin{font-weight:300;color:var(--mut)}
+.lede{max-width:640px;color:var(--mut);font-size:17.5px}
+.lede b{color:var(--ink);font-weight:700}
+
+/* ---------- sections ---------- */
+section{margin-top:72px}
+.sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.sec-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;white-space:nowrap}
+.sec-title{font-family:var(--disp);font-weight:650;font-size:clamp(24px,3.4vw,34px);letter-spacing:-.01em}
+.sec-note{color:var(--dim);font-size:13.5px;margin-left:auto}
+
+/* ---------- hero diagram ---------- */
+.hr-frame{
+  background:linear-gradient(180deg,var(--bg2),var(--panel));
+  border:1px solid var(--line);border-radius:var(--r);
+  padding:10px 8px 4px;position:relative;
+}
+.hr-frame svg{width:100%;height:auto;display:block}
+.hr-hint{font-family:var(--mono);font-size:10.5px;color:var(--dim);text-align:center;padding:6px 0 10px;letter-spacing:.08em}
+.axis{font-family:var(--mono);font-size:10px;fill:var(--dim);letter-spacing:.14em}
+.tick{font-family:var(--mono);font-size:9px;fill:var(--dim)}
+.gridline{stroke:var(--line);stroke-width:1;stroke-dasharray:2 6}
+.seq-band{fill:url(#bandGrad);opacity:.5}
+.star{cursor:pointer;outline:none}
+.star .halo{opacity:.28;transition:opacity .3s}
+.star .ring{fill:none;stroke-width:1.5;opacity:0;transition:opacity .25s;stroke-dasharray:3 4}
+.star.sel .ring{opacity:.9}
+.star:hover .halo,.star:focus-visible .halo{opacity:.55}
+.star:focus-visible .core{stroke:var(--ink);stroke-width:2}
+.star-label{font-family:var(--mono);font-size:11px;fill:var(--mut);letter-spacing:.06em}
+.star.sel .star-label{fill:var(--ink)}
+.star-sub{font-family:var(--mono);font-size:8.5px;fill:var(--dim)}
+.mythos{opacity:.55}
+.mythos circle{fill:none;stroke:var(--fable);stroke-dasharray:2 5;stroke-width:1}
+.mythos text{font-family:var(--mono);font-size:8.5px;fill:var(--dim)}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.72}}
+.tw .core{animation:twinkle 3.2s ease-in-out infinite}
+.tw2 .core{animation:twinkle 4.1s ease-in-out infinite .8s}
+.tw3 .core{animation:twinkle 3.7s ease-in-out infinite 1.6s}
+.tw4 .core{animation:twinkle 4.6s ease-in-out infinite .4s}
+@media (prefers-reduced-motion:reduce){
+  .tw .core,.tw2 .core,.tw3 .core,.tw4 .core{animation:none}
+  html{scroll-behavior:auto}
+  *{transition:none!important;animation:none!important}
+}
+
+/* ---------- model card ---------- */
+.mcard{
+  border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);overflow:hidden;
+  border-top:3px solid var(--accent);transition:border-color .4s;
+}
+.mcard-top{display:grid;grid-template-columns:1.15fr 1fr;gap:0}
+.mcard-id{padding:28px 30px;border-right:1px solid var(--line)}
+.mclass{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;transition:color .4s}
+.mname{font-family:var(--disp);font-weight:700;font-size:clamp(30px,4.4vw,44px);letter-spacing:-.015em;margin:8px 0 4px}
+.mtag{color:var(--mut);font-size:16px;max-width:400px}
+.mid-chip{
+  display:inline-flex;align-items:center;gap:8px;margin-top:18px;
+  font-family:var(--mono);font-size:12px;color:var(--mut);
+  background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 12px;
+}
+.mid-chip i{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;transition:background .4s}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.badge{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--line2);color:var(--mut);border-radius:99px;padding:4px 11px;
+}
+.badge.hot{border-color:var(--accent);color:var(--accent);transition:all .4s}
+.specs{padding:22px 30px;display:grid;grid-template-columns:1fr 1fr;gap:2px 28px;align-content:center}
+.spec{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding:9px 0;font-size:14px}
+.spec b{font-family:var(--mono);font-weight:500;font-size:12.5px;color:var(--ink);text-align:right}
+.spec span{color:var(--dim)}
+.mcard-bottom{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+.mlist{padding:22px 30px}
+.mlist+.mlist{border-left:1px solid var(--line)}
+.mlist h4{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px}
+.mlist.go h4{color:#7BE3A8}.mlist.no h4{color:#FF8B8B}
+.mlist ul{list-style:none}
+.mlist li{padding:5px 0 5px 20px;position:relative;color:var(--mut);font-size:14.5px}
+.mlist.go li::before{content:"▲";position:absolute;left:0;top:7px;font-size:9px;color:#7BE3A8}
+.mlist.no li::before{content:"▼";position:absolute;left:0;top:7px;font-size:9px;color:#FF8B8B}
+.mcard-effort{border-top:1px solid var(--line);padding:18px 30px;background:var(--bg2);font-size:14.5px;color:var(--mut)}
+.mcard-effort b{color:var(--ink)}
+.mcard-effort .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:6px;transition:color .4s}
+
+/* ---------- decision helper ---------- */
+.helper{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:28px 30px}
+.q{margin-bottom:22px}
+.q-label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;margin-bottom:10px}
+.q-label em{color:var(--ink);font-style:normal}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{
+  font-family:var(--body);font-size:14px;color:var(--mut);
+  background:var(--bg);border:1px solid var(--line);border-radius:10px;
+  padding:9px 16px;cursor:pointer;transition:.18s;
+}
+.opt:hover{border-color:var(--line2);color:var(--ink)}
+.opt.on{background:var(--accent);border-color:var(--accent);color:#0A0E18;font-weight:700}
+.verdict{
+  margin-top:8px;border-radius:12px;border:1px solid var(--line2);
+  background:linear-gradient(135deg,var(--bg2),var(--panel2));
+  padding:24px 26px;display:none;
+}
+.verdict.show{display:block;animation:rise .45s ease}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.v-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.v-star{width:44px;height:44px;border-radius:50%;flex:none;box-shadow:0 0 24px 2px currentColor;background:currentColor}
+.v-name{font-family:var(--disp);font-weight:700;font-size:26px}
+.v-effort{
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid currentColor;border-radius:99px;padding:5px 14px;
+}
+.v-why{margin-top:14px;list-style:none}
+.v-why li{padding:3px 0 3px 18px;position:relative;color:var(--mut);font-size:14.5px}
+.v-why li::before{content:"◆";position:absolute;left:0;top:5px;font-size:8px;color:var(--accent)}
+.v-alt{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--dim);font-size:13.5px}
+.v-alt b{color:var(--mut)}
+
+/* ---------- effort console ---------- */
+.console{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden}
+.console-main{display:grid;grid-template-columns:1fr 260px;gap:0}
+.throttle{padding:28px 30px}
+.rail{display:flex;gap:6px;margin:6px 0 22px}
+.stop{
+  flex:1;text-align:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;
+  padding:12px 4px;border:1px solid var(--line);border-radius:10px;cursor:pointer;
+  color:var(--dim);background:var(--bg);transition:.18s;text-transform:uppercase;
+}
+.stop:hover{color:var(--ink);border-color:var(--line2)}
+.stop.on{color:#0A0E18;background:var(--accent);border-color:var(--accent);font-weight:700}
+.e-title{font-family:var(--disp);font-weight:700;font-size:24px;margin-bottom:4px}
+.e-desc{color:var(--mut);font-size:15px;min-height:48px}
+.e-rows{margin-top:16px;display:grid;gap:10px}
+.e-row{display:grid;grid-template-columns:118px 1fr;gap:14px;font-size:13.5px;align-items:baseline}
+.e-row .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.e-row .v{color:var(--mut)}
+.spendbar{display:flex;gap:4px;align-items:center}
+.spendbar i{width:26px;height:8px;border-radius:3px;background:var(--line)}
+.spendbar i.f{background:var(--accent);transition:background .3s}
+.support{display:flex;gap:6px;flex-wrap:wrap}
+.sup{
+  font-family:var(--mono);font-size:10px;border-radius:99px;padding:3px 10px;
+  border:1px solid var(--line2);color:var(--mut);
+}
+.sup.y{border-color:currentColor}
+.sup.n{opacity:.38;text-decoration:line-through}
+.corona-box{
+  border-left:1px solid var(--line);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:20px;background:var(--bg2);gap:10px;
+}
+.corona-box svg{width:170px;height:170px}
+.corona-cap{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;text-align:center}
+.cring{fill:none;stroke:var(--accent);transition:opacity .45s, stroke .45s}
+.ccore{fill:var(--accent);transition:fill .45s}
+.console-guides{border-top:1px solid var(--line);padding:24px 30px;background:var(--panel)}
+.g-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.g-tab{
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:7px 14px;border-radius:99px;
+  border:1px solid var(--line);background:var(--bg);color:var(--mut);cursor:pointer;transition:.18s;
+}
+.g-tab.on{color:#0A0E18;font-weight:700}
+.g-body{color:var(--mut);font-size:14.5px;max-width:760px}
+.g-body b{color:var(--ink)}
+.codebox{
+  margin-top:20px;background:#060910;border:1px solid var(--line);border-radius:10px;
+  font-family:var(--mono);font-size:12px;line-height:1.75;padding:16px 18px;overflow-x:auto;
+  position:relative;color:#B9C4DC;
+}
+.codebox .c1{color:#5C6A85}.codebox .c2{color:var(--sonnet)}.codebox .c3{color:var(--haiku)}
+.codebox .eff{color:var(--accent);font-weight:700;transition:color .3s}
+.copybtn{
+  position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  background:var(--panel2);border:1px solid var(--line2);color:var(--mut);border-radius:7px;
+  padding:5px 10px;cursor:pointer;text-transform:uppercase;
+}
+.copybtn:hover{color:var(--ink)}
+.gotchas{border-top:1px solid var(--line);padding:22px 30px;background:var(--bg2)}
+.gotchas h4{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-bottom:12px}
+.gotchas ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px 26px}
+.gotchas li{padding-left:20px;position:relative;color:var(--mut);font-size:13.5px}
+.gotchas li::before{content:"!";position:absolute;left:0;top:0;font-family:var(--mono);color:var(--accent);font-weight:700}
+.gotchas b{color:var(--ink)}
+
+/* ---------- task library ---------- */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.search{
+  flex:1;min-width:220px;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  color:var(--ink);font-family:var(--body);font-size:14.5px;padding:11px 16px;outline:none;
+}
+.search:focus{border-color:var(--accent)}
+.search::placeholder{color:var(--dim)}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  padding:8px 13px;border-radius:99px;border:1px solid var(--line);background:var(--panel);
+  color:var(--mut);cursor:pointer;transition:.18s;
+}
+.chip:hover{color:var(--ink)}
+.chip.on{background:var(--ink);color:#0A0E18;border-color:var(--ink);font-weight:700}
+.tcount{font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:auto}
+.tasks{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.tcard{
+  border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  padding:18px 20px 16px;cursor:pointer;transition:.18s;display:flex;flex-direction:column;gap:8px;
+}
+.tcard:hover{border-color:var(--line2);transform:translateY(-2px)}
+.tcat{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase}
+.ttitle{font-family:var(--disp);font-weight:600;font-size:16.5px;line-height:1.35}
+.twhy{color:var(--mut);font-size:13.5px;flex:1}
+.tfoot{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.mbadge{
+  display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;
+  border:1px solid;border-radius:99px;padding:4px 12px;
+}
+.mbadge i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+.ebadge{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--line2);color:var(--mut);border-radius:99px;padding:4px 11px;
+}
+.empty{color:var(--dim);font-size:14.5px;padding:26px 4px;display:none}
+
+/* ---------- table ---------- */
+.tbl-frame{border:1px solid var(--line);border-radius:var(--r);overflow:auto;background:var(--panel)}
+table{width:100%;border-collapse:collapse;min-width:820px}
+th,td{padding:13px 16px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);cursor:pointer;user-select:none;background:var(--bg2);position:sticky;top:0;
+}
+th:hover{color:var(--ink)}
+th .arr{opacity:.35;font-size:9px}
+th.sorted{color:var(--accent)}
+td{color:var(--mut);font-family:var(--mono);font-size:12px}
+td.mcell{font-family:var(--body);font-size:14px;color:var(--ink);font-weight:700}
+td .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:9px;vertical-align:baseline}
+tr:last-child td{border-bottom:none}
+.tbl-note{color:var(--dim);font-size:12.5px;margin-top:10px;font-family:var(--mono)}
+
+/* ---------- footer ---------- */
+footer{margin-top:90px;border-top:1px solid var(--line);padding-top:26px;color:var(--dim);font-size:13px}
+footer a{color:var(--mut)}
+footer a:hover{color:var(--ink)}
+footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var(--mono);font-size:11.5px}
+
+/* ---------- responsive ---------- */
+@media(max-width:840px){
+  .mcard-top,.mcard-bottom{grid-template-columns:1fr}
+  .mcard-id{border-right:none;border-bottom:1px solid var(--line)}
+  .mlist+.mlist{border-left:none;border-top:1px solid var(--line)}
+  .specs{grid-template-columns:1fr;padding-top:16px}
+  .console-main{grid-template-columns:1fr}
+  .corona-box{border-left:none;border-top:1px solid var(--line)}
+  .gotchas ul{grid-template-columns:1fr}
+  .sec-note{margin-left:0;width:100%}
+}
+@media(max-width:560px){
+  .rail{flex-wrap:wrap}
+  .stop{flex:1 1 30%}
+}
+</style>
+</head>
+<body>
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="wrap">
+
+<!-- ============ MASTHEAD ============ -->
+<header class="masthead">
+  <div class="eyebrow">
+    <span>Field guide · Claude lineup</span><span class="pip"></span>
+    <span>Specs verified 2026-08-02</span><span class="pip"></span>
+    <span class="live" id="liveModel">Selected: Claude Opus 5</span>
+  </div>
+  <h1>The Model<br>Sequence<span class="thin">.</span></h1>
+  <p class="lede">Four models, plotted the way an astronomer would: <b>capability against latency</b>, priced by point size. It's not quite a main sequence — more of a giant branch — but the physics of the tradeoff is real. Pick a star and the whole guide follows.</p>
+</header>
+
+<!-- ============ H-R DIAGRAM ============ -->
+<section id="diagram">
+  <div class="hr-frame">
+    <svg viewBox="0 0 780 470" role="group" aria-label="Capability versus latency diagram of the four current Claude models">
+      <defs>
+        <linearGradient id="bandGrad" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#8FD0FF" stop-opacity=".05"/>
+          <stop offset=".5" stop-color="#FFDF8E" stop-opacity=".07"/>
+          <stop offset="1" stop-color="#FF6F61" stop-opacity=".08"/>
+        </linearGradient>
+        <filter id="glowH" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="7"/></filter>
+        <filter id="glowB" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="12"/></filter>
+      </defs>
+
+      <!-- grid -->
+      <g>
+        <line class="gridline" x1="70" y1="110" x2="740" y2="110"/>
+        <line class="gridline" x1="70" y1="200" x2="740" y2="200"/>
+        <line class="gridline" x1="70" y1="290" x2="740" y2="290"/>
+        <line class="gridline" x1="70" y1="380" x2="740" y2="380"/>
+      </g>
+
+      <!-- sequence band -->
+      <polygon class="seq-band" points="95,395 240,330 640,95 705,45 705,140 250,395"/>
+
+      <!-- axes -->
+      <line x1="70" y1="30" x2="70" y2="410" stroke="#2A3A5E" stroke-width="1.5"/>
+      <line x1="70" y1="410" x2="740" y2="410" stroke="#2A3A5E" stroke-width="1.5"/>
+      <text class="axis" x="405" y="446" text-anchor="middle">◀ FASTER · RESPONSE LATENCY · SLOWER ▶</text>
+      <text class="axis" transform="rotate(-90 30 220)" x="30" y="220" text-anchor="middle">CAPABILITY ▶</text>
+      <text class="tick" x="150" y="428" text-anchor="middle">FASTEST</text>
+      <text class="tick" x="330" y="428" text-anchor="middle">FAST</text>
+      <text class="tick" x="520" y="428" text-anchor="middle">MODERATE</text>
+      <text class="tick" x="660" y="428" text-anchor="middle">SLOWER</text>
+
+      <!-- Mythos ghost -->
+      <g class="mythos">
+        <circle cx="660" cy="78" r="34"/>
+        <text x="660" y="34" text-anchor="middle">CLAUDE MYTHOS 5 · SAME SPECS ·</text>
+        <text x="660" y="45" text-anchor="middle">INVITATION-ONLY (PROJECT GLASSWING)</text>
+      </g>
+
+      <!-- stars -->
+      <g class="star tw" id="st-haiku" data-m="haiku" role="button" tabindex="0" aria-label="Select Claude Haiku 4.5 — fastest model">
+        <circle class="halo" cx="150" cy="340" r="24" fill="#8FD0FF" filter="url(#glowB)"/>
+        <circle class="ring" cx="150" cy="340" r="19" stroke="#8FD0FF"/>
+        <circle class="core" cx="150" cy="340" r="11" fill="#8FD0FF" filter="url(#glowH)"/>
+        <circle cx="150" cy="340" r="11" fill="#8FD0FF"/>
+        <text class="star-label" x="150" y="308" text-anchor="middle">HAIKU 4.5</text>
+        <text class="star-sub" x="150" y="372" text-anchor="middle">$1 / $5</text>
+      </g>
+      <g class="star tw2" id="st-sonnet" data-m="sonnet" role="button" tabindex="0" aria-label="Select Claude Sonnet 5 — best speed-to-intelligence blend">
+        <circle class="halo" cx="330" cy="255" r="30" fill="#FFDF8E" filter="url(#glowB)"/>
+        <circle class="ring" cx="330" cy="255" r="24" stroke="#FFDF8E"/>
+        <circle class="core" cx="330" cy="255" r="14" fill="#FFDF8E" filter="url(#glowH)"/>
+        <circle cx="330" cy="255" r="14" fill="#FFDF8E"/>
+        <text class="star-label" x="330" y="216" text-anchor="middle">SONNET 5</text>
+        <text class="star-sub" x="330" y="294" text-anchor="middle">$3 / $15</text>
+      </g>
+      <g class="star tw3" id="st-opus" data-m="opus" role="button" tabindex="0" aria-label="Select Claude Opus 5 — the recommended starting point">
+        <circle class="halo" cx="520" cy="160" r="36" fill="#FFA65C" filter="url(#glowB)"/>
+        <circle class="ring" cx="520" cy="160" r="29" stroke="#FFA65C"/>
+        <circle class="core" cx="520" cy="160" r="17" fill="#FFA65C" filter="url(#glowH)"/>
+        <circle cx="520" cy="160" r="17" fill="#FFA65C"/>
+        <text class="star-label" x="520" y="116" text-anchor="middle">OPUS 5</text>
+        <text class="star-sub" x="520" y="203" text-anchor="middle">$5 / $25</text>
+      </g>
+      <g class="star tw4" id="st-fable" data-m="fable" role="button" tabindex="0" aria-label="Select Claude Fable 5 — the most capable widely released model">
+        <circle class="halo" cx="660" cy="78" r="44" fill="#FF6F61" filter="url(#glowB)"/>
+        <circle class="ring" cx="660" cy="78" r="35" stroke="#FF6F61"/>
+        <circle class="core" cx="660" cy="78" r="22" fill="#FF6F61" filter="url(#glowH)"/>
+        <circle cx="660" cy="78" r="22" fill="#FF6F61"/>
+        <text class="star-label" x="660" y="128" text-anchor="middle">FABLE 5</text>
+        <text class="star-sub" x="660" y="141" text-anchor="middle">$10 / $50</text>
+      </g>
+
+      <!-- legend -->
+      <g>
+        <text class="tick" x="86" y="52">POINT SIZE ∝ PRICE PER MTOK</text>
+        <text class="tick" x="86" y="66">DASHED RING = INVITATION-ONLY TWIN</text>
+      </g>
+    </svg>
+    <div class="hr-hint">CLICK OR TAB TO A STAR — THE CARD, CONSOLE &amp; SNIPPET BELOW FOLLOW YOUR SELECTION</div>
+  </div>
+</section>
+
+<!-- ============ MODEL CARD ============ -->
+<section id="card">
+  <div class="sec-head">
+    <span class="sec-kicker">01 · Object of interest</span>
+    <span class="sec-title">Spectral card</span>
+    <span class="sec-note">Pricing &amp; specs from the Claude Platform docs</span>
+  </div>
+  <div class="mcard" id="mcard"><!-- injected --></div>
+</section>
+
+<!-- ============ DECISION HELPER ============ -->
+<section id="helper-sec">
+  <div class="sec-head">
+    <span class="sec-kicker">02 · Spectrograph</span>
+    <span class="sec-title">Feed in a task, read out a model</span>
+    <span class="sec-note">Answer all three; the verdict updates live</span>
+  </div>
+  <div class="helper">
+    <div class="q">
+      <div class="q-label">Q1 — <em>How hard is the task, honestly?</em></div>
+      <div class="opts" data-q="q1">
+        <button class="opt" data-v="0">Quick &amp; simple</button>
+        <button class="opt" data-v="1">Solid build or draft</button>
+        <button class="opt" data-v="2">Hard, multi-step</button>
+        <button class="opt" data-v="3">Frontier / long-horizon</button>
+      </div>
+    </div>
+    <div class="q">
+      <div class="q-label">Q2 — <em>What are you optimizing?</em></div>
+      <div class="opts" data-q="q2">
+        <button class="opt" data-v="cost">Speed &amp; cost</button>
+        <button class="opt" data-v="bal">A sensible balance</button>
+        <button class="opt" data-v="best">Best possible answer</button>
+      </div>
+    </div>
+    <div class="q">
+      <div class="q-label">Q3 — <em>Any scale factors?</em></div>
+      <div class="opts" data-q="q3">
+        <button class="opt" data-v="none">None</button>
+        <button class="opt" data-v="ctx">Huge context (&gt;200k tokens)</button>
+        <button class="opt" data-v="batch">High-volume batch</button>
+        <button class="opt" data-v="auto">Runs unattended for hours</button>
+      </div>
+    </div>
+    <div class="verdict" id="verdict" aria-live="polite"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ============ EFFORT CONSOLE ============ -->
+<section id="effort-sec">
+  <div class="sec-head">
+    <span class="sec-kicker">03 · Throttle</span>
+    <span class="sec-title">The effort parameter</span>
+    <span class="sec-note">One dial, five stops — it shapes <b style="color:var(--mut)">every</b> token, thinking and tool calls included</span>
+  </div>
+  <div class="console">
+    <div class="console-main">
+      <div class="throttle">
+        <div class="rail" id="rail" role="radiogroup" aria-label="Effort level">
+          <button class="stop" data-e="low" role="radio" aria-checked="false">low</button>
+          <button class="stop" data-e="medium" role="radio" aria-checked="false">med</button>
+          <button class="stop on" data-e="high" role="radio" aria-checked="true">high</button>
+          <button class="stop" data-e="xhigh" role="radio" aria-checked="false">xhigh</button>
+          <button class="stop" data-e="max" role="radio" aria-checked="false">max</button>
+        </div>
+        <div class="e-title" id="eTitle">high</div>
+        <p class="e-desc" id="eDesc"></p>
+        <div class="e-rows">
+          <div class="e-row"><span class="k">Typical use</span><span class="v" id="eUse"></span></div>
+          <div class="e-row"><span class="k">Token spend</span><span class="v"><span class="spendbar" id="eSpend"></span></span></div>
+          <div class="e-row"><span class="k">Tool behavior</span><span class="v" id="eTool"></span></div>
+          <div class="e-row"><span class="k">Available on</span><span class="v support" id="eSup"></span></div>
+        </div>
+      </div>
+      <div class="corona-box" aria-hidden="true">
+        <svg viewBox="0 0 200 200" id="coronaViz">
+          <circle class="cring" cx="100" cy="100" r="88" stroke-width="1"/>
+          <circle class="cring" cx="100" cy="100" r="70" stroke-width="1"/>
+          <circle class="cring" cx="100" cy="100" r="54" stroke-width="1.5"/>
+          <circle class="cring" cx="100" cy="100" r="40" stroke-width="2"/>
+          <circle class="ccore" cx="100" cy="100" r="24"/>
+        </svg>
+        <div class="corona-cap" id="coronaCap">Solar analogue: active region</div>
+      </div>
+    </div>
+    <div class="console-guides">
+      <div class="g-tabs" id="gTabs">
+        <button class="g-tab" data-m="fable">Fable 5</button>
+        <button class="g-tab on" data-m="opus">Opus 5</button>
+        <button class="g-tab" data-m="sonnet">Sonnet 5</button>
+        <button class="g-tab" data-m="haiku">Haiku 4.5</button>
+      </div>
+      <p class="g-body" id="gBody"></p>
+      <div class="codebox" id="codebox">
+        <button class="copybtn" id="copyBtn">copy</button>
+<pre>response = client.messages.create(
+    model=<span class="c2" id="cModel">"claude-opus-5"</span>,
+    max_tokens=<span class="c3">4096</span>,
+    messages=[{<span class="c2">"role"</span>: <span class="c2">"user"</span>, <span class="c2">"content"</span>: prompt}],
+    output_config={<span class="c2">"effort"</span>: <span class="eff" id="cEffort">"high"</span>},  <span class="c1"># the whole trick</span>
+)</pre>
+      </div>
+    </div>
+    <div class="gotchas">
+      <h4>Gotchas worth memorizing</h4>
+      <ul>
+        <li><b>"high" is the default</b> — setting it explicitly behaves exactly like omitting the parameter.</li>
+        <li><b>Hold effort constant within a conversation</b> — changing it between requests invalidates prompt caching.</li>
+        <li><b>It's a behavioral signal, not a hard budget</b> — at low effort, Claude still thinks on genuinely hard problems, just less.</li>
+        <li><b>Lower effort means fewer, terser tool calls</b> — operations get combined and preambles vanish.</li>
+        <li><b>On Opus 5, effort tunes thinking volume, not reply length</b> — if you want shorter answers, prompt for length. And at xhigh/max, thinking can't be disabled.</li>
+        <li><b>Where you set it:</b> the API (<span style="font-family:var(--mono);font-size:12px">output_config</span>) and Claude Code. In claude.ai it mostly stays behind the curtain.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TASK LIBRARY ============ -->
+<section id="tasks-sec">
+  <div class="sec-head">
+    <span class="sec-kicker">04 · Observing proposals</span>
+    <span class="sec-title">Thirty tasks from your actual week</span>
+    <span class="sec-note">Recommendations are this guide's judgment, applying the official guidance</span>
+  </div>
+  <div class="toolbar">
+    <input class="search" id="tSearch" type="search" placeholder="Search tasks — try 'fluxpype', 'proposal', 'batch'…" aria-label="Search tasks">
+    <span class="tcount" id="tCount"></span>
+  </div>
+  <div class="chips" id="tChips" style="margin-bottom:18px">
+    <button class="chip on" data-c="all">All</button>
+    <button class="chip" data-c="ops">Quick ops</button>
+    <button class="chip" data-c="code">Code &amp; pipelines</button>
+    <button class="chip" data-c="sci">Science &amp; analysis</button>
+    <button class="chip" data-c="write">Writing &amp; proposals</button>
+    <button class="chip" data-c="web">Web &amp; outreach</button>
+    <button class="chip" data-c="agent">Agents &amp; batch</button>
+  </div>
+  <div class="tasks" id="tGrid"></div>
+  <div class="empty" id="tEmpty">Nothing matches — clear the search or switch category.</div>
+</section>
+
+<!-- ============ COMPARISON TABLE ============ -->
+<section id="table-sec">
+  <div class="sec-head">
+    <span class="sec-kicker">05 · The catalog</span>
+    <span class="sec-title">Side by side</span>
+    <span class="sec-note">Click a column header to sort</span>
+  </div>
+  <div class="tbl-frame">
+    <table id="cmp">
+      <thead><tr>
+        <th data-k="name">Model <span class="arr">↕</span></th>
+        <th data-k="pin">$ In/MTok <span class="arr">↕</span></th>
+        <th data-k="pout">$ Out/MTok <span class="arr">↕</span></th>
+        <th data-k="ctx">Context <span class="arr">↕</span></th>
+        <th data-k="maxo">Max output <span class="arr">↕</span></th>
+        <th data-k="lat">Latency <span class="arr">↕</span></th>
+        <th data-k="cut">Knowledge cutoff <span class="arr">↕</span></th>
+        <th data-k="think">Thinking</th>
+        <th data-k="eff">Effort levels</th>
+      </tr></thead>
+      <tbody id="cmpBody"></tbody>
+    </table>
+  </div>
+  <p class="tbl-note">* Sonnet 5 intro pricing — $2 in / $10 out — runs through Aug 31, 2026, then $3 / $15. Batch API discounts apply on top for all models.</p>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <p>Built for Gilly, 2026-08-02. Specs, pricing, and effort guidance pulled from the Claude Platform documentation on that date; the task-by-task recommendations are editorial judgment layered on top. Model lineups drift — when this feels stale, re-verify against the sources.</p>
+  <div class="srcs">
+    <a href="https://platform.claude.com/docs/en/about-claude/models/overview">docs · models overview</a>
+    <a href="https://platform.claude.com/docs/en/build-with-claude/effort">docs · effort</a>
+    <a href="https://platform.claude.com/docs/en/about-claude/pricing">docs · pricing</a>
+  </div>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+/* ==================== DATA ==================== */
+const MODELS = {
+  haiku:{
+    name:"Claude Haiku 4.5", cls:"B-class dwarf · speed tier", color:"var(--haiku)", hex:"#8FD0FF",
+    tag:"The fastest model, with near-frontier intelligence.",
+    id:"claude-haiku-4-5", pin:"$1", pout:"$5", ctx:"200k tokens", maxo:"64k tokens",
+    lat:"Fastest", cut:"Feb 2025", think:"Extended thinking (opt-in)", eff:"— not supported",
+    badges:["Cheapest per token","Latency king","No effort param"],
+    go:["High-volume or batch classification jobs","Subagent workers inside larger pipelines","Instant lookups, triage, and throwaway drafts","Latency-critical interactive tools"],
+    no:["Contexts beyond 200k tokens","Frontier multi-step reasoning","Anything leaning on post-Feb-2025 knowledge without web search"],
+    effNote:"Haiku 4.5 sits outside the effort system entirely. To control its reasoning depth, enable extended thinking and set a thinking token budget (budget_tokens) instead. For everything else in the lineup, effort is the dial."
+  },
+  sonnet:{
+    name:"Claude Sonnet 5", cls:"G-class · the workhorse", color:"var(--sonnet)", hex:"#FFDF8E",
+    tag:"The best combination of speed and intelligence.",
+    id:"claude-sonnet-5", pin:"$3 ($2*)", pout:"$15 ($10*)", ctx:"1M tokens", maxo:"128k tokens",
+    lat:"Fast", cut:"Jan 2026", think:"Adaptive", eff:"low · med · high · xhigh · max",
+    badges:["Intro pricing thru Aug 31","1M context","Fast iteration"],
+    go:["Fast iteration loops on code and canvas toys","Interactive data exploration and quick-look plots","Precision editing under deadline","Cost-conscious quality — especially during intro pricing"],
+    no:["The very hardest multi-step problems (step up to Opus)","Unattended long-horizon runs","Frontier-stakes critique"],
+    effNote:"Defaults to high. The documented ladder: xhigh for the hardest coding and agentic work; medium as the cost step-down (roughly Sonnet 4.6 at high); low for high-volume, latency-sensitive traffic; max when nothing but the ceiling will do."
+  },
+  opus:{
+    name:"Claude Opus 5", cls:"K-class giant · the default", color:"var(--opus)", hex:"#FFA65C",
+    tag:"For complex agentic coding and enterprise work — the docs' recommended starting point.",
+    id:"claude-opus-5", pin:"$5", pout:"$25", ctx:"1M tokens", maxo:"128k tokens",
+    lat:"Moderate", cut:"May 2026", think:"Adaptive (on by default)", eff:"low · med · high · xhigh · max",
+    badges:["Docs: start here","Newest knowledge — May 2026","Near-Fable capability, half the price"],
+    go:["Serious agentic coding and multi-file refactors","Long documents and whole-paper stacks via 1M context","Anything that benefits from the freshest built-in knowledge","Your everyday driver for real work"],
+    no:["High-volume cheap calls (that's Haiku)","Sub-second latency needs","Casual questions where Sonnet is plenty"],
+    effNote:"Defaults to high — start there and let evals move you. Step up to xhigh for demanding coding and agentic runs, reserve max for tasks that justify unconstrained spend, and use low/medium liberally as your cost lever where quality holds. Note: effort shapes thinking volume, not visible reply length — prompt for length instead — and thinking can't be disabled at xhigh or max."
+  },
+  fable:{
+    name:"Claude Fable 5", cls:"M-class supergiant · Mythos tier", color:"var(--fable)", hex:"#FF6F61",
+    tag:"Next-generation intelligence for long-running agents — the most capable widely released model.",
+    id:"claude-fable-5", pin:"$10", pout:"$50", ctx:"1M tokens", maxo:"128k tokens",
+    lat:"Slower", cut:"Jan 2026", think:"Adaptive (always on)", eff:"low · med · high · xhigh · max",
+    badges:["Most capable available","Thinking always on","Twin: Mythos 5 (invite-only)"],
+    go:["The hardest scientific and conceptual reasoning","Autonomous agents running 30+ minutes","Frontier-stakes critique, review, and writing","Problems where a wrong answer is expensive"],
+    no:["Interactive quick loops — the latency will grate","Cost-sensitive volume work","Tasks Opus 5 handles at half the price"],
+    effNote:"Effort is the primary control here for trading intelligence, latency, and cost. Start at high; go xhigh only for the most capability-sensitive work; drop to medium or low for routine tasks — Fable at lower effort often still beats prior models at xhigh. At high and above, set a generous max_tokens: it caps thinking plus response combined."
+  }
+};
+
+const EFFORT = {
+  low:{ d:"Most efficient. Significant token savings with some capability reduction — Claude scopes work tightly to what was asked.",
+        use:"Subagents, classification, quick lookups, high-volume traffic where speed and cost dominate.",
+        spend:1, tool:"Combines operations, fewer calls, no preamble, terse confirmations.",
+        sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: quiet sun"},
+  medium:{ d:"The balanced middle — solid performance with moderate token savings. On Sonnet 5, roughly Sonnet 4.6 at high.",
+        use:"Everyday agentic work balancing speed, cost, and quality; the sensible cost step-down.",
+        spend:2, tool:"Leaner call patterns; explanations trimmed but present.",
+        sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: coronal hole breeze"},
+  high:{ d:"The default — identical to omitting the parameter. Claude spends what it needs for excellent results.",
+        use:"Complex reasoning, difficult coding, agentic tasks — quality over speed or cost.",
+        spend:3, tool:"Plans before acting; explains changes; comments code properly.",
+        sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: active region"},
+  xhigh:{ d:"Extended capability for long-horizon work: 30-minute-plus agentic and coding runs with token budgets in the millions.",
+        use:"Demanding multi-file refactors, repeated tool calling, deep search and exploration. Set a large max_tokens.",
+        spend:4, tool:"More calls, wider exploration, comprehensive summaries.",
+        sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: M-class flare"},
+  max:{ d:"Absolute maximum capability, no constraints on token spending. Reserve it — on routine work it mostly adds cost.",
+        use:"Genuinely frontier problems demanding the deepest possible reasoning and most thorough analysis.",
+        spend:5, tool:"Exhaustive exploration; expect meaningfully higher spend.",
+        sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: X-class flare"}
+};
+
+const CATS = {ops:"Quick ops", code:"Code & pipelines", sci:"Science & analysis", write:"Writing & proposals", web:"Web & outreach", agent:"Agents & batch"};
+
+const TASKS = [
+ {c:"ops", t:"Sanity-check a bash one-liner before it touches the vault", m:"haiku", e:"—", w:"Zero-latency answer; the stakes are low and reversible."},
+ {c:"ops", t:"Look up a solar constant or unit conversion mid-calculation", m:"haiku", e:"—", w:"Instant recall beats waiting — verify anything critical."},
+ {c:"ops", t:"Summarize today's DKIST observing log into a daily note", m:"haiku", e:"—", w:"Straight compression; no deep reasoning required."},
+ {c:"ops", t:"Draft a two-line Slack reply to Cherilynn", m:"haiku", e:"—", w:"The fastest model for throwaway text."},
+ {c:"ops", t:"Tidy the research-tasks inbox with Claude Code", m:"sonnet", e:"low", w:"Tool-heavy but simple — low effort means fewer, terser tool calls."},
+ {c:"code", t:"Debug a fluxpype traceback", m:"sonnet", e:"high", w:"Fast iteration with real reasoning; escalate to Opus if it resists."},
+ {c:"code", t:"Refactor the RHEF module and add tests", m:"opus", e:"xhigh", w:"The documented sweet spot for demanding agentic coding."},
+ {c:"code", t:"Add a tool endpoint to the spectral-line MCP server", m:"sonnet", e:"high", w:"Well-scoped feature work, squarely in Sonnet's lane."},
+ {c:"code", t:"Vectorize a slow NumPy loop in GHOSTS", m:"sonnet", e:"high", w:"Focused optimization with a quick feedback loop."},
+ {c:"code", t:"Review a PR before it lands in fluxpype", m:"opus", e:"high", w:"Careful multi-file judgment at moderate latency."},
+ {c:"code", t:"Untangle a cross-repo bug spanning fluxpype and GHOSTS", m:"opus", e:"xhigh", w:"Extended exploration across files and repeated tool calls."},
+ {c:"code", t:"Overnight autonomous refactor across the whole pipeline", m:"fable", e:"xhigh", w:"Built for long-running agents; xhigh exists for exactly this."},
+ {c:"write", t:"Iterate LaTeX on the next HFR-style proposal", m:"opus", e:"high", w:"Enterprise-grade drafting — and its May 2026 cutoff knows the current landscape."},
+ {c:"write", t:"Convene a virtual review panel to red-team the proposal", m:"fable", e:"max", w:"The deepest available critique, no token constraints."},
+ {c:"write", t:"Draft the Zahavy rebuttal for gilly.space", m:"fable", e:"high", w:"Frontier reasoning about reasoning — fitting."},
+ {c:"write", t:"Squeeze the SHINE abstract under the word limit", m:"sonnet", e:"high", w:"Precision editing at conversational speed."},
+ {c:"write", t:"Caption a PUNCH nugget for Sarah and Joan", m:"sonnet", e:"medium", w:"Light writing; medium trims cost without losing polish."},
+ {c:"write", t:"Turn the DKIST waves notes into a progress report", m:"opus", e:"high", w:"Long synthesis needing structure and judgment."},
+ {c:"sci", t:"Interpret a weird Cryo-NIRSP artifact from a figure", m:"fable", e:"high", w:"Hardest-case scientific reasoning on vision input."},
+ {c:"sci", t:"Sanity-check the Alfvén-wave detection statistics", m:"opus", e:"high", w:"Careful quantitative reasoning worth the latency."},
+ {c:"sci", t:"First-look plots on a fresh FITS dataset", m:"sonnet", e:"high", w:"Exploratory analysis at interactive speed."},
+ {c:"sci", t:"Digest 40 papers on solar wind heating in one pass", m:"opus", e:"high", w:"The 1M-token context swallows the whole stack."},
+ {c:"sci", t:"Batch-classify 10,000 NIST line identifications", m:"haiku", e:"—", w:"Cheapest per token; run it through the Batch API for the discount."},
+ {c:"web", t:"Add a feature to the corona explorer sim", m:"sonnet", e:"high", w:"Canvas iteration thrives on a fast loop."},
+ {c:"web", t:"Design a brand-new gilly.space toy from scratch", m:"opus", e:"xhigh", w:"First passes benefit from deep design exploration; iterate in Sonnet after."},
+ {c:"web", t:"Compress a VOCAL session into a 7-minute planetarium script", m:"opus", e:"high", w:"Pedagogical restructuring under real constraints."},
+ {c:"web", t:"Write alt text for the AGU ECLAC page update", m:"haiku", e:"—", w:"Simple, high-volume accessibility text."},
+ {c:"agent", t:"Spawn subagent workers inside a bigger pipeline", m:"sonnet", e:"low", w:"The docs' canonical low-effort role — Haiku 4.5 works here too."},
+ {c:"agent", t:"Long-horizon literature sweep that runs unattended", m:"fable", e:"xhigh", w:"Millions-of-tokens budgets are exactly xhigh territory."},
+ {c:"agent", t:"Keep a week-long Claude Code session on the vault", m:"opus", e:"high", w:"The everyday driver — hold effort constant to keep the prompt cache warm."}
+];
+
+const ROWS = [
+ {k:"fable", name:"Fable 5", pin:10, pout:50, ctx:1000, maxo:128, lat:4, cut:"2026-01", think:"Adaptive · always on", eff:"low→max"},
+ {k:"opus", name:"Opus 5", pin:5, pout:25, ctx:1000, maxo:128, lat:3, cut:"2026-05", think:"Adaptive · default on", eff:"low→max"},
+ {k:"sonnet", name:"Sonnet 5", pin:3, pout:15, ctx:1000, maxo:128, lat:2, cut:"2026-01", think:"Adaptive", eff:"low→max"},
+ {k:"haiku", name:"Haiku 4.5", pin:1, pout:5, ctx:200, maxo:64, lat:1, cut:"2025-02", think:"Extended (opt-in)", eff:"n/a"}
+];
+const LATNAME = {1:"Fastest",2:"Fast",3:"Moderate",4:"Slower"};
+const CUTNAME = {"2026-05":"May 2026","2026-01":"Jan 2026","2025-02":"Feb 2025"};
+
+/* ==================== STARFIELD ==================== */
+(function(){
+  const cv = document.getElementById("field"), cx = cv.getContext("2d");
+  let stars=[];
+  const rm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function size(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars = Array.from({length:110},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.1+.2,p:Math.random()*Math.PI*2,s:.4+Math.random()*.8}));
+    if(rm) draw(0,true);
+  }
+  function draw(t,still){
+    cx.clearRect(0,0,cv.width,cv.height);
+    for(const s of stars){
+      const a = still? .5 : .25+.35*Math.abs(Math.sin(t/1600*s+s.p));
+      cx.globalAlpha=a; cx.fillStyle="#AFC4E8";
+      cx.beginPath(); cx.arc(s.x,s.y,s.r,0,7); cx.fill();
+    }
+    cx.globalAlpha=1;
+    if(!still) requestAnimationFrame(draw);
+  }
+  addEventListener("resize",size); size();
+  if(!rm) requestAnimationFrame(draw);
+})();
+
+/* ==================== STATE ==================== */
+let selModel="opus", selEffort="high", guideModel="opus";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+function setAccent(m){ document.documentElement.style.setProperty("--accent", MODELS[m].hex); }
+
+/* ==================== MODEL CARD ==================== */
+function renderCard(){
+  const M=MODELS[selModel];
+  $("#mcard").innerHTML = `
+  <div class="mcard-top">
+    <div class="mcard-id">
+      <div class="mclass">${M.cls}</div>
+      <div class="mname">${M.name}</div>
+      <p class="mtag">${M.tag}</p>
+      <span class="mid-chip"><i></i>${M.id}</span>
+      <div class="badges">${M.badges.map(b=>`<span class="badge hot">${b}</span>`).join("")}</div>
+    </div>
+    <div class="specs">
+      <div class="spec"><span>Input / MTok</span><b>${M.pin}</b></div>
+      <div class="spec"><span>Output / MTok</span><b>${M.pout}</b></div>
+      <div class="spec"><span>Context window</span><b>${M.ctx}</b></div>
+      <div class="spec"><span>Max output</span><b>${M.maxo}</b></div>
+      <div class="spec"><span>Latency</span><b>${M.lat}</b></div>
+      <div class="spec"><span>Knowledge cutoff</span><b>${M.cut}</b></div>
+      <div class="spec"><span>Thinking</span><b>${M.think}</b></div>
+      <div class="spec"><span>Effort levels</span><b>${M.eff}</b></div>
+    </div>
+  </div>
+  <div class="mcard-bottom">
+    <div class="mlist go"><h4>Reach for it when</h4><ul>${M.go.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+    <div class="mlist no"><h4>Skip it when</h4><ul>${M.no.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+  </div>
+  <div class="mcard-effort"><span class="lbl">Effort guidance for this model</span>${M.effNote}</div>`;
+  $("#liveModel").textContent = "Selected: "+M.name;
+}
+
+function selectModel(m, scroll){
+  selModel=m; setAccent(m);
+  $$(".star").forEach(s=>s.classList.toggle("sel", s.dataset.m===m));
+  renderCard();
+  setGuide(m);
+  if(scroll) $("#card").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$$(".star").forEach(s=>{
+  s.addEventListener("click",()=>selectModel(s.dataset.m,true));
+  s.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();selectModel(s.dataset.m,true);} });
+});
+
+/* ==================== DECISION HELPER ==================== */
+const ans={q1:null,q2:null,q3:null};
+$$(".opts").forEach(g=>{
+  g.addEventListener("click",e=>{
+    const b=e.target.closest(".opt"); if(!b) return;
+    [...g.children].forEach(o=>o.classList.remove("on"));
+    b.classList.add("on");
+    ans[g.dataset.q]= g.dataset.q==="q1" ? +b.dataset.v : b.dataset.v;
+    if(ans.q1!==null&&ans.q2&&ans.q3) verdict();
+  });
+});
+const ORDER=["haiku","sonnet","opus","fable"];
+function verdict(){
+  const {q1,q2,q3}=ans;
+  let m, e, why=[];
+  if(q3==="batch" && q1<=1){
+    m="haiku"; e="—";
+    why=["Cheapest tokens in the lineup for volume work","Run it through the Batch API for the discount","Haiku skips the effort system — use extended thinking budgets if depth is needed"];
+  } else if(q3==="auto"){
+    m = q2==="cost" ? "opus" : "fable"; e="xhigh";
+    why=[ m==="fable" ? "Fable 5 is positioned precisely for long-running agents" : "Opus 5 handles long-horizon runs near Fable capability at half the price",
+      "xhigh is built for 30-minute-plus runs with token budgets in the millions",
+      "Set a large max_tokens so it has room to think and act"];
+  } else {
+    let i = q1;
+    if(q2==="cost" && i>0) i-=1;
+    if(q2==="best" && i<3) i+=1;
+    m = ORDER[i];
+    if(q3==="ctx" && m==="haiku") { m="sonnet"; why.push("Haiku tops out at 200k context — Sonnet's 1M window covers you"); }
+    if(q3==="batch") { m="sonnet"; why.push("For heavier batch work, Sonnet at low effort beats Haiku on quality per dollar"); }
+    // effort
+    if(m==="haiku") e="—";
+    else if(m==="sonnet") e = q3==="batch" ? "low" : (q2==="cost" ? (q1<=1?"low":"medium") : (q2==="best"&&q1>=2 ? "xhigh":"high"));
+    else if(m==="opus") e = (q1===3||q2==="best") ? "xhigh" : (q2==="cost" ? "medium" : "high");
+    else e = q2==="best" ? (q1===3?"max":"xhigh") : "high";
+    // reasons
+    const R={
+      haiku:["Fastest and cheapest — right-sized for the job","Near-frontier intelligence covers simple tasks fine"],
+      sonnet:["The speed-to-intelligence sweet spot for this workload","Intro pricing ($2/$10) sweetens it through Aug 31"],
+      opus:["The docs' recommended starting point for serious work","May 2026 knowledge cutoff — the freshest in the lineup"],
+      fable:["The most capable widely released model — this task earns it","Adaptive thinking is always on; expect depth, accept latency"]
+    };
+    why=R[m].concat(why);
+    if(e==="max") why.push("max removes all token constraints — reserve it for exactly this");
+    if(e==="xhigh") why.push("xhigh unlocks extended exploration and repeated tool calls");
+    if(e==="low"||e==="medium") why.push("Lower effort trims tool calls and cost while quality holds on routine work");
+  }
+  const alt = m==="fable" ? ["opus","Opus 5 at xhigh gets close at half the price — worth an eval."]
+    : m==="opus" ? ["fable","If the answer really matters, Fable 5 is the ceiling."]
+    : m==="sonnet" ? ["opus","Hitting its limits? Opus 5 at high is the natural escalation."]
+    : ["sonnet","Need more headroom? Sonnet 5 at low keeps costs sane with more brains."];
+  const M=MODELS[m], A=MODELS[alt[0]];
+  const v=$("#verdict");
+  v.className="verdict show";
+  v.style.borderColor=M.hex;
+  v.innerHTML=`
+    <div class="v-top" style="color:${M.hex}">
+      <span class="v-star"></span>
+      <span class="v-name" style="color:var(--ink)">${M.name}</span>
+      <span class="v-effort">${e==="—" ? "no effort param" : "effort: "+e}</span>
+    </div>
+    <ul class="v-why">${why.slice(0,4).map(x=>`<li>${x}</li>`).join("")}</ul>
+    <div class="v-alt">Runner-up — <b style="color:${A.hex}">${A.name}</b>: ${alt[1]}</div>`;
+  selectModel(m,false);
+  if(e!=="—") setEffort(e);
+}
+
+/* ==================== EFFORT CONSOLE ==================== */
+function setEffort(e){
+  selEffort=e;
+  $$(".stop").forEach(s=>{ const on=s.dataset.e===e; s.classList.toggle("on",on); s.setAttribute("aria-checked",on); });
+  const E=EFFORT[e];
+  $("#eTitle").textContent=e;
+  $("#eDesc").textContent=E.d;
+  $("#eUse").textContent=E.use;
+  $("#eTool").textContent=E.tool;
+  $("#eSpend").innerHTML=[1,2,3,4,5].map(i=>`<i class="${i<=E.spend?"f":""}"></i>`).join("");
+  $("#eSup").innerHTML=["fable","opus","sonnet","haiku"].map(k=>{
+    const ok=E.sup[k];
+    return `<span class="sup ${ok?"y":"n"}" style="color:${MODELS[k].hex}">${MODELS[k].name.replace("Claude ","")}</span>`;
+  }).join("");
+  $("#cEffort").textContent=`"${e}"`;
+  // corona rings: show rings up to spend level
+  const rings=$$("#coronaViz .cring");
+  rings.forEach((r,i)=>{ r.style.opacity = (4-i)<E.spend ? (0.25+0.18*(i)) : 0.06; });
+  $("#coronaCap").textContent=E.cap;
+}
+$("#rail").addEventListener("click",e=>{
+  const b=e.target.closest(".stop"); if(b) setEffort(b.dataset.e);
+});
+
+function setGuide(m){
+  guideModel=m;
+  $$(".g-tab").forEach(t=>{
+    const on=t.dataset.m===m;
+    t.classList.toggle("on",on);
+    t.style.background = on? MODELS[m].hex : "";
+    t.style.borderColor = on? MODELS[m].hex : "";
+  });
+  $("#gBody").innerHTML = `<b>${MODELS[m].name}:</b> ${MODELS[m].effNote}`;
+  $("#cModel").textContent = `"${MODELS[m].id}"`;
+}
+$("#gTabs").addEventListener("click",e=>{
+  const t=e.target.closest(".g-tab"); if(t) setGuide(t.dataset.m);
+});
+$("#copyBtn").addEventListener("click",()=>{
+  const txt=$("#codebox pre").innerText;
+  navigator.clipboard && navigator.clipboard.writeText(txt).then(()=>{
+    $("#copyBtn").textContent="copied";
+    setTimeout(()=>$("#copyBtn").textContent="copy",1400);
+  });
+});
+
+/* ==================== TASK LIBRARY ==================== */
+let tCat="all", tQ="";
+function renderTasks(){
+  const grid=$("#tGrid");
+  const list=TASKS.filter(t=>(tCat==="all"||t.c===tCat) && (t.t+" "+t.w+" "+MODELS[t.m].name).toLowerCase().includes(tQ));
+  grid.innerHTML=list.map((t,i)=>`
+    <div class="tcard" data-m="${t.m}" data-e="${t.e}" tabindex="0" role="button" aria-label="${t.t} — recommended ${MODELS[t.m].name}">
+      <div class="tcat">${CATS[t.c]}</div>
+      <div class="ttitle">${t.t}</div>
+      <div class="twhy">${t.w}</div>
+      <div class="tfoot">
+        <span class="mbadge" style="color:${MODELS[t.m].hex};border-color:${MODELS[t.m].hex}55"><i></i>${MODELS[t.m].name.replace("Claude ","")}</span>
+        ${t.e!=="—" ? `<span class="ebadge">effort: ${t.e}</span>` : `<span class="ebadge">no effort param</span>`}
+      </div>
+    </div>`).join("");
+  $("#tCount").textContent = list.length+" / "+TASKS.length;
+  $("#tEmpty").style.display = list.length? "none":"block";
+}
+$("#tGrid").addEventListener("click",e=>{
+  const c=e.target.closest(".tcard"); if(!c) return;
+  selectModel(c.dataset.m,false);
+  if(c.dataset.e!=="—") setEffort(c.dataset.e);
+  $("#card").scrollIntoView({behavior:"smooth"});
+});
+$("#tGrid").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){ const c=e.target.closest(".tcard"); if(c){ selectModel(c.dataset.m,false); if(c.dataset.e!=="—") setEffort(c.dataset.e); $("#card").scrollIntoView({behavior:"smooth"}); } }
+});
+$("#tChips").addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c) return;
+  $$("#tChips .chip").forEach(x=>x.classList.remove("on"));
+  c.classList.add("on"); tCat=c.dataset.c; renderTasks();
+});
+$("#tSearch").addEventListener("input",e=>{ tQ=e.target.value.toLowerCase(); renderTasks(); });
+
+/* ==================== COMPARISON TABLE ==================== */
+let sortK="pin", sortDir=1;
+function renderTable(){
+  const rows=[...ROWS].sort((a,b)=>{
+    let x=a[sortK],y=b[sortK];
+    if(typeof x==="string"){ return x<y? -sortDir : x>y? sortDir:0; }
+    return (x-y)*sortDir;
+  });
+  $("#cmpBody").innerHTML=rows.map(r=>`
+    <tr>
+      <td class="mcell"><span class="dot" style="background:${MODELS[r.k].hex}"></span>${r.name}</td>
+      <td>$${r.pin}${r.k==="sonnet"?" ($2*)":""}</td>
+      <td>$${r.pout}${r.k==="sonnet"?" ($10*)":""}</td>
+      <td>${r.ctx>=1000?"1M":r.ctx+"k"}</td>
+      <td>${r.maxo}k</td>
+      <td>${LATNAME[r.lat]}</td>
+      <td>${CUTNAME[r.cut]}</td>
+      <td>${r.think}</td>
+      <td>${r.eff}</td>
+    </tr>`).join("");
+  $$("#cmp th").forEach(th=>{
+    th.classList.toggle("sorted", th.dataset.k===sortK);
+    const arr=th.querySelector(".arr"); if(arr) arr.textContent = th.dataset.k===sortK ? (sortDir>0?"↑":"↓") : "↕";
+  });
+}
+$$("#cmp th").forEach(th=>{
+  if(!["name","pin","pout","ctx","maxo","lat","cut"].includes(th.dataset.k)) return;
+  th.addEventListener("click",()=>{
+    if(sortK===th.dataset.k) sortDir*=-1; else {sortK=th.dataset.k; sortDir=1;}
+    renderTable();
+  });
+});
+
+/* ==================== INIT ==================== */
+selectModel("opus",false);
+setEffort("high");
+setGuide("opus");
+renderTasks();
+renderTable();
+</script>
+</body>
+</html>
