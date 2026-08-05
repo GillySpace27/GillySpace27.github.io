@@ -299,6 +299,20 @@ footer a{color:var(--mut)}
 footer a:hover{color:var(--ink)}
 footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var(--mono);font-size:11.5px}
 
+/* ---------- site nav (matches gilly.space header, restyled for this page's
+   palette; site.css is deliberately NOT loaded — it would override this
+   page's bespoke type and color system) ---------- */
+.skip-link{position:absolute;left:-9999px;top:0;z-index:20;background:var(--panel);color:var(--ink);padding:10px 14px}
+.skip-link:focus{left:0}
+.sitebar{position:relative;z-index:2;border-bottom:1px solid var(--line);background:rgba(7,11,20,.72);backdrop-filter:blur(8px)}
+.sitebar__inner{max-width:1060px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.sitebar .brand{font-family:var(--disp);font-weight:700;font-size:17px;color:var(--ink);text-decoration:none}
+.sitebar .brand .dot{color:var(--accent)}
+.sitebar nav{display:flex;gap:4px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+.sitebar nav a{color:var(--mut);text-decoration:none;padding:6px 9px;border-radius:8px}
+.sitebar nav a:hover{color:var(--ink);background:var(--panel2)}
+.sitebar nav a[aria-current="page"]{color:var(--ink);background:var(--panel2);box-shadow:inset 0 -2px 0 var(--accent)}
+
 /* ---------- responsive ---------- */
 @media(max-width:840px){
   .mcard-top,.mcard-bottom{grid-template-columns:1fr}
@@ -318,6 +332,20 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
 </head>
 <body>
 <canvas id="field" aria-hidden="true"></canvas>
+<a class="skip-link" href="#diagram">Skip to content</a>
+<div class="sitebar">
+  <div class="sitebar__inner">
+    <a class="brand" href="/">gilly<span class="dot">.</span>space</a>
+    <nav aria-label="Primary">
+      <a href="/Research.html">Research</a>
+      <a href="/sun.html">The Sun</a>
+      <a href="/RecordedPublicTalks.html">Outreach</a>
+      <a href="/play/" aria-current="page">Play</a>
+      <a href="/shop.html">Store</a>
+      <a href="/about.html">About / CV</a>
+    </nav>
+  </div>
+</div>
 <div class="wrap">
 
 <!-- ============ MASTHEAD ============ -->
@@ -369,8 +397,10 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
       <!-- Mythos ghost -->
       <g class="mythos">
         <circle cx="660" cy="78" r="34"/>
-        <text x="660" y="34" text-anchor="middle">CLAUDE MYTHOS 5 · SAME SPECS ·</text>
-        <text x="660" y="45" text-anchor="middle">INVITATION-ONLY (PROJECT GLASSWING)</text>
+        <!-- annotation sits left of the star: centred above it would land on the
+             r=44 halo and run past the right edge of the viewBox -->
+        <text x="606" y="70" text-anchor="end">CLAUDE MYTHOS 5 · SAME SPECS ·</text>
+        <text x="606" y="82" text-anchor="end">INVITATION-ONLY (PROJECT GLASSWING)</text>
       </g>
 
       <!-- stars -->

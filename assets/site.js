@@ -293,6 +293,7 @@
       { t: 'Ensō calendar', u: '/enso/', k: 'brushstroke daily' },
       { t: 'Ensō editor', u: '/enso/pixelated-enso.html', k: 'sliders' },
       { t: 'Spectrum Sudoku', u: '/sudoku/', k: 'puzzle color' },
+      { t: 'Which Claude? — model field guide', u: '/whichclaude.html', k: 'ai models opus sonnet haiku fable' },
       { t: 'Store — Solar Archive', u: '/shop.html', k: 'prints buy' },
       { t: 'About & CV', u: '/about.html', k: 'bio resume contact' },
       { t: 'Email Gilly', u: 'mailto:Gilly@NWRA.com', k: 'contact' },
