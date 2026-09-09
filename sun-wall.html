@@ -1,0 +1,63 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>The Sun Now</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;
+            font:14px -apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#c8c8c8}
+  video{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+  #cap{position:fixed;left:2.2vw;bottom:2.2vh;line-height:1.5;text-shadow:0 1px 6px #000;
+       opacity:0;transition:opacity 1.2s}
+  #cap.on{opacity:.72}
+  #cap b{display:block;font-size:1.6em;font-weight:500;color:#fff}
+  #cap span{font-variant-numeric:tabular-nums}
+</style>
+<video id="v" autoplay muted playsinline></video>
+<div id="cap"><b></b><span></span></div>
+<script>
+const BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/";
+const IDS = ["rainbow","171","193","211","304","335","94","131",
+             "1600","1700","composite_uv","dem"];
+const LOOPS_PER_PRODUCT = 2;      // how many 48 h passes before moving on
+const RATE = 0.5;                 // each 48 h clip is only 8 s at native 18 fps
+const REFRESH_MS = 20 * 60 * 1000; // pipeline cadence
+
+const v = document.getElementById("v"), cap = document.getElementById("cap");
+// One product per screen: injected by the wall app, or ?p= in a browser.
+const PIN = window.WALL_PRODUCT || new URLSearchParams(location.search).get("p");
+let items = [], i = 0, loops = 0;
+
+async function refresh(){
+  // ponytail: fetch all 12 manifests; they are ~200 bytes each and this runs
+  // once every 20 min. Ordered results, failures dropped rather than retried.
+  const got = await Promise.all(IDS.map(id =>
+    fetch(BUCKET + "manifest/" + id + ".json", {cache:"no-store"})
+      .then(r => r.ok ? r.json() : null).catch(() => null)));
+  const fresh = got.filter(Boolean);
+  const want = PIN ? fresh.filter(m => m.id === PIN) : fresh;
+  if (want.length) items = want;       // keep the old list if the network is down
+}
+
+function play(){
+  if (!items.length) return;
+  const m = items[i % items.length];
+  v.src = BUCKET + m.video + "?v=" + encodeURIComponent(m.updated);
+  v.playbackRate = RATE;
+  v.play().catch(()=>{});
+  cap.querySelector("b").textContent = m.label;
+  cap.querySelector("span").textContent =
+    "48 h to " + new Date(m.updated).toLocaleString([], {
+      month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"});
+  cap.classList.add("on");
+  setTimeout(() => cap.classList.remove("on"), 6000);
+}
+
+v.addEventListener("ended", () => {
+  if (++loops >= LOOPS_PER_PRODUCT) { loops = 0; i++; }
+  play();
+});
+// A dead or 404 video must not freeze the wall: step past it.
+v.addEventListener("error", () => { loops = 0; i++; setTimeout(play, 1000); });
+
+(async () => { await refresh(); play(); })();
+setInterval(refresh, REFRESH_MS);
+</script>
