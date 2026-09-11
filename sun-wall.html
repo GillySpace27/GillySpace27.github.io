@@ -27,12 +27,25 @@ const PIN = window.WALL_PRODUCT || new URLSearchParams(location.search).get("p")
 let items = [], i = 0, loops = 0;
 
 async function refresh(){
-  // ponytail: fetch all 12 manifests; they are ~200 bytes each and this runs
-  // once every 20 min. Ordered results, failures dropped rather than retried.
-  const got = await Promise.all(IDS.map(id =>
-    fetch(BUCKET + "manifest/" + id + ".json", {cache:"no-store"})
-      .then(r => r.ok ? r.json() : null).catch(() => null)));
-  const fresh = got.filter(Boolean);
+  // A local manifest.json means we are being served out of the wall app's cache:
+  // play those files and never touch the network, which is what lets a kiosk
+  // survive indefinitely without one. In a browser there is no such file, so
+  // fall through to the bucket.
+  const local = await fetch("manifest.json", {cache:"no-store"})
+    .then(r => r.ok ? r.json() : null).catch(() => null);
+
+  let fresh;
+  if (local && local.length) {
+    fresh = local.map(m => ({...m, base: ""}));
+  } else {
+    // ponytail: fetch all 12 manifests; they are ~200 bytes each and this runs
+    // once every 20 min. Ordered results, failures dropped rather than retried.
+    const got = await Promise.all(IDS.map(id =>
+      fetch(BUCKET + "manifest/" + id + ".json", {cache:"no-store"})
+        .then(r => r.ok ? r.json() : null).catch(() => null)));
+    fresh = got.filter(Boolean).map(m => ({...m, base: BUCKET}));
+  }
+
   const want = PIN ? fresh.filter(m => m.id === PIN) : fresh;
   if (want.length) items = want;       // keep the old list if the network is down
 }
@@ -40,7 +53,7 @@ async function refresh(){
 function play(){
   if (!items.length) return;
   const m = items[i % items.length];
-  v.src = BUCKET + m.video + "?v=" + encodeURIComponent(m.updated);
+  v.src = (m.base ?? BUCKET) + m.video + "?v=" + encodeURIComponent(m.updated);
   v.playbackRate = RATE;
   v.play().catch(()=>{});
   cap.querySelector("b").textContent = m.label;
