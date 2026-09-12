@@ -10,9 +10,14 @@
   #cap.on{opacity:.72}
   #cap b{display:block;font-size:1.6em;font-weight:500;color:#fff}
   #cap span{font-variant-numeric:tabular-nums}
+  /* The funnel: a screen in a lobby has to say where to go. Only shown when the
+     host app asks for it; a personal screen saver never does. */
+  #attr{position:fixed;right:2.2vw;bottom:2.2vh;display:none;opacity:.55;
+        letter-spacing:.04em;text-shadow:0 1px 6px #000;font-size:1.05em}
 </style>
 <video id="v" autoplay muted playsinline></video>
 <div id="cap"><b></b><span></span></div>
+<div id="attr"></div>
 <script>
 const BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/";
 const IDS = ["rainbow","171","193","211","304","335","94","131",
@@ -22,6 +27,10 @@ const RATE = 0.5;                 // each 48 h clip is only 8 s at native 18 fps
 const REFRESH_MS = 20 * 60 * 1000; // pipeline cadence
 
 const v = document.getElementById("v"), cap = document.getElementById("cap");
+if (window.WALL_ATTRIBUTION) {
+  const a = document.getElementById("attr");
+  a.textContent = window.WALL_ATTRIBUTION; a.style.display = "block";
+}
 // One product per screen: injected by the wall app, or ?p= in a browser.
 const PIN = window.WALL_PRODUCT || new URLSearchParams(location.search).get("p");
 let items = [], i = 0, loops = 0;
