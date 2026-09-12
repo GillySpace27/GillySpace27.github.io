@@ -12,14 +12,7 @@
            screen showed it. */
         dynamic-range-limit:standard}
   video.on{opacity:1}
-  /* On an HDR-capable panel the native video layer goes through the display's
-     extended-dynamic-range pipeline and SDR video comes out with the wrong
-     colours (dynamic-range-limit did not help). A canvas is ordinary sRGB
-     content and gets colour-matched like everything else, so there the frames
-     are drawn into one instead and the video elements stay invisible. */
-  #screen{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;display:none}
-  body.canvas #screen{display:block}
-  body.canvas video{opacity:0 !important}
+
   #cap{position:fixed;left:2.2vw;bottom:2.2vh;line-height:1.5;text-shadow:0 1px 6px #000;
        opacity:0;transition:opacity 1.2s}
   #cap.on{opacity:.72}
@@ -31,7 +24,6 @@
         letter-spacing:.04em;text-shadow:0 1px 6px #000;font-size:1.05em}
 </style>
 <div id="stage"></div>
-<canvas id="screen"></canvas>
 <div id="cap"><b></b><span></span></div>
 <div id="attr"></div>
 <script>
@@ -54,28 +46,6 @@ const stage = document.getElementById("stage"), cap = document.getElementById("c
 // clip on the first-play path, and a crossfade replaces the black gap.
 let v = null;
 
-// Canvas rendering on HDR-capable displays only; SDR panels keep the native
-// layer, which is cheaper and renders correctly there.
-const HDR = matchMedia("(dynamic-range: high)").matches;
-const screen = document.getElementById("screen");
-let prev = null, fadeStart = 0;
-if (HDR) {
-  document.body.classList.add("canvas");
-  const ctx = screen.getContext("2d");
-  const draw = (el) => { try { ctx.drawImage(el, 0, 0, screen.width, screen.height); } catch (e) {} };
-  (function frame(now){
-    if (v && v.videoWidth) {
-      if (screen.width !== v.videoWidth) { screen.width = v.videoWidth; screen.height = v.videoHeight; }
-      const t = (now - fadeStart) / 600;
-      if (prev && t < 1) {
-        draw(prev);
-        ctx.globalAlpha = Math.max(0, Math.min(1, t)); draw(v); ctx.globalAlpha = 1;
-      } else { prev = null; draw(v); }
-    }
-    requestAnimationFrame(frame);
-  })(performance.now());
-}
-
 function freshVideo(){
   const el = document.createElement("video");
   el.autoplay = true; el.muted = true; el.playsInline = true;
@@ -85,8 +55,7 @@ function freshVideo(){
     el.classList.add("on");
     for (const old of stage.querySelectorAll("video")) if (old !== el) {
       old.classList.remove("on");
-      if (HDR) { prev = old; fadeStart = performance.now(); }
-      setTimeout(() => { if (prev === old) prev = null; old.pause(); old.removeAttribute("src"); old.load(); old.remove(); }, 700);
+      setTimeout(() => { old.pause(); old.removeAttribute("src"); old.load(); old.remove(); }, 700);
     }
   }, {once:true});
   stage.appendChild(el);
