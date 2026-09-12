@@ -5,7 +5,12 @@
   html,body{margin:0;height:100%;background:#000;overflow:hidden;
             font:14px -apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#c8c8c8}
   video{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;
-        opacity:0;transition:opacity .6s}
+        opacity:0;transition:opacity .6s;
+        /* Pin the video to SDR. On an XDR panel WebKit otherwise hands it to the
+           extended-dynamic-range pipeline and the colours come out wrong; an SDR
+           monitor never enters that path, which is why only the MacBook's own
+           screen showed it. */
+        dynamic-range-limit:standard}
   video.on{opacity:1}
   #cap{position:fixed;left:2.2vw;bottom:2.2vh;line-height:1.5;text-shadow:0 1px 6px #000;
        opacity:0;transition:opacity 1.2s}
