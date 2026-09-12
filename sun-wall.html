@@ -22,7 +22,11 @@
 const BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/";
 const IDS = ["rainbow","171","193","211","304","335","94","131",
              "1600","1700","composite_uv","dem"];
-const LOOPS_PER_PRODUCT = 2;      // how many 48 h passes before moving on
+const Q = new URLSearchParams(location.search);
+// How many passes of each clip before moving on, and whether the order is
+// shuffled. The host app injects these; a browser can pass ?loops=2&shuffle=1.
+const LOOPS_PER_PRODUCT = Math.max(1, +(window.WALL_LOOPS ?? Q.get("loops") ?? 1));
+const SHUFFLE = !!(window.WALL_SHUFFLE ?? (Q.get("shuffle") === "1"));
 const RATE = 0.5;                 // each 48 h clip is only 8 s at native 18 fps
 const REFRESH_MS = 20 * 60 * 1000; // pipeline cadence
 
@@ -32,7 +36,8 @@ if (window.WALL_ATTRIBUTION) {
   a.textContent = window.WALL_ATTRIBUTION; a.style.display = "block";
 }
 // One product per screen: injected by the wall app, or ?p= in a browser.
-const PIN = window.WALL_PRODUCT || new URLSearchParams(location.search).get("p");
+let PIN = window.WALL_PRODUCT || Q.get("p");
+if (PIN === "all") PIN = null;   // a screen set to cycle through everything
 let items = [], i = 0, loops = 0;
 
 async function refresh(){
@@ -55,14 +60,23 @@ async function refresh(){
     fresh = got.filter(Boolean).map(m => ({...m, base: BUCKET}));
   }
 
-  const want = PIN ? fresh.filter(m => m.id === PIN) : fresh;
+  let want = PIN ? fresh.filter(m => m.id === PIN) : fresh;
+  if (SHUFFLE) {                       // Fisher-Yates; a fresh order every refresh
+    for (let k = want.length - 1; k > 0; k--) {
+      const j = Math.floor(Math.random() * (k + 1)); [want[k], want[j]] = [want[j], want[k]];
+    }
+  }
   if (want.length) items = want;       // keep the old list if the network is down
 }
 
 function play(){
   if (!items.length) return;
   const m = items[i % items.length];
-  v.src = (m.base ?? BUCKET) + m.video + "?v=" + encodeURIComponent(m.updated);
+  const src = (m.base ?? BUCKET) + m.video + "?v=" + encodeURIComponent(m.updated);
+  // Replaying the same clip: rewind rather than reassign src, which makes WebKit
+  // tear down and rebuild the decoder between passes.
+  if (v.src === src || v.src.endsWith(src)) { v.currentTime = 0; }
+  else { v.src = src; }
   v.playbackRate = RATE;
   v.play().catch(()=>{});
   cap.querySelector("b").textContent = m.label;
