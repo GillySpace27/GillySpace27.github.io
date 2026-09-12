@@ -4,7 +4,9 @@
 <style>
   html,body{margin:0;height:100%;background:#000;overflow:hidden;
             font:14px -apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#c8c8c8}
-  video{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+  video{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;
+        opacity:0;transition:opacity .6s}
+  video.on{opacity:1}
   #cap{position:fixed;left:2.2vw;bottom:2.2vh;line-height:1.5;text-shadow:0 1px 6px #000;
        opacity:0;transition:opacity 1.2s}
   #cap.on{opacity:.72}
@@ -15,7 +17,7 @@
   #attr{position:fixed;right:2.2vw;bottom:2.2vh;display:none;opacity:.55;
         letter-spacing:.04em;text-shadow:0 1px 6px #000;font-size:1.05em}
 </style>
-<video id="v" autoplay muted playsinline></video>
+<div id="stage"></div>
 <div id="cap"><b></b><span></span></div>
 <div id="attr"></div>
 <script>
@@ -30,7 +32,28 @@ const SHUFFLE = !!(window.WALL_SHUFFLE ?? (Q.get("shuffle") === "1"));
 const RATE = 0.5;                 // each 48 h clip is only 8 s at native 18 fps
 const REFRESH_MS = 20 * 60 * 1000; // pipeline cadence
 
-const v = document.getElementById("v"), cap = document.getElementById("cap");
+const stage = document.getElementById("stage"), cap = document.getElementById("cap");
+// One <video> element per clip, never reused. The first play on an element is
+// the one that renders right; on untagged H.264, WebKit's later render path
+// after a src change makes a different colour guess and everything after the
+// first clip comes out oversaturated. A fresh element each time keeps every
+// clip on the first-play path, and a crossfade replaces the black gap.
+let v = null;
+function freshVideo(){
+  const el = document.createElement("video");
+  el.autoplay = true; el.muted = true; el.playsInline = true;
+  el.addEventListener("ended", onEnded);
+  el.addEventListener("error", onError);
+  el.addEventListener("playing", () => {
+    el.classList.add("on");
+    for (const old of stage.querySelectorAll("video")) if (old !== el) {
+      old.classList.remove("on");
+      setTimeout(() => { old.pause(); old.removeAttribute("src"); old.load(); old.remove(); }, 700);
+    }
+  }, {once:true});
+  stage.appendChild(el);
+  return el;
+}
 if (window.WALL_ATTRIBUTION) {
   const a = document.getElementById("attr");
   a.textContent = window.WALL_ATTRIBUTION; a.style.display = "block";
@@ -73,10 +96,8 @@ function play(){
   if (!items.length) return;
   const m = items[i % items.length];
   const src = (m.base ?? BUCKET) + m.video + "?v=" + encodeURIComponent(m.updated);
-  // Replaying the same clip: rewind rather than reassign src, which makes WebKit
-  // tear down and rebuild the decoder between passes.
-  if (v.src === src || v.src.endsWith(src)) { v.currentTime = 0; }
-  else { v.src = src; }
+  v = freshVideo();
+  v.src = src;
   v.playbackRate = RATE;
   v.play().catch(()=>{});
   cap.querySelector("b").textContent = m.label;
@@ -87,12 +108,12 @@ function play(){
   setTimeout(() => cap.classList.remove("on"), 6000);
 }
 
-v.addEventListener("ended", () => {
+function onEnded(){
   if (++loops >= LOOPS_PER_PRODUCT) { loops = 0; i++; }
   play();
-});
+}
 // A dead or 404 video must not freeze the wall: step past it.
-v.addEventListener("error", () => { loops = 0; i++; setTimeout(play, 1000); });
+function onError(){ loops = 0; i++; setTimeout(play, 1000); }
 
 (async () => { await refresh(); play(); })();
 setInterval(refresh, REFRESH_MS);
