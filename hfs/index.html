@@ -3,22 +3,61 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HelioFITS Studio — downloads</title>
-<link rel="canonical" href="https://github.com/GillySpace27/HelioFITS-Studio/releases">
 <meta name="robots" content="noindex">
-<meta http-equiv="refresh" content="0; url=https://github.com/GillySpace27/HelioFITS-Studio/releases">
+<title>HFStudio</title>
 <style>
+  :root { color-scheme: dark; }
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-       background:#0b0f1a;color:#e6e8ee;display:flex;min-height:100vh;margin:0;
-       align-items:center;justify-content:center;text-align:center;padding:2rem}
-  a{color:#7db3ff}
+       background:#0b0f1a;color:#e6e8ee;margin:0;display:flex;min-height:100vh;
+       align-items:center;justify-content:center;padding:2rem;line-height:1.55;
+       box-sizing:border-box}
+  .card{max-width:34rem;text-align:center}
+  h1{font-size:2rem;margin:0 0 .4rem}
+  .tag{color:#aab2c5;margin:0 0 1.6rem}
+  .cta{display:inline-block;background:#e0932b;color:#140c02;text-decoration:none;
+       font-size:1.05rem;font-weight:600;padding:.85rem 1.6rem;border-radius:10px}
+  .cta:hover,.cta:focus-visible{background:#f0a640}
+  .ver{margin:.8rem 0 0;font-size:.9rem;color:#8d94a6;min-height:1.4em}
+  ul{text-align:left;display:inline-block;color:#aab2c5;font-size:.95rem;margin:1.6rem 0 0;padding-left:1.1rem}
+  li{margin:.25rem 0}
+  .alt{margin-top:1.4rem;font-size:.85rem;color:#8d94a6}
+  ul a,.alt a{color:#aab2c5}
+  ul a:hover,.alt a:hover{color:#e6e8ee}
 </style>
 </head>
 <body>
-  <div>
-    <p>Taking you to <strong>HelioFITS Studio</strong>&hellip;</p>
-    <p>If nothing happens, <a href="https://github.com/GillySpace27/HelioFITS-Studio/releases">open it here</a>.</p>
+  <div class="card">
+    <h1>HFStudio</h1>
+    <p class="tag">A desktop viewer for the Sun's outer corona, built for PUNCH, LASCO
+       and other coronagraph data.</p>
+    <a class="cta" id="dmg" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-0.8.1.dmg">Download for Mac</a>
+    <p class="ver" id="ver">Version 0.8.1 · Apple Silicon Macs · pre-release</p>
+    <ul>
+      <li>Open the disk image and drag HFStudio to Applications. Java comes with it.</li>
+      <li>Intel Mac, Linux or Windows: get the
+          <a id="zip" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-0.8.1.zip">zip</a>,
+          install <a href="https://adoptium.net">Java 25</a>, and start run.command, run.sh
+          or run.bat. Linux and Windows are new, so please tell us how it goes.</li>
+      <li>The <a id="guide" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-Guide.pdf">field guide</a>
+          (PDF) walks through the tools.</li>
+    </ul>
+    <p class="alt">Built on JHelioviewer, from the ESA/NASA Helioviewer Project, and not
+       affiliated with it. <a href="https://github.com/GillySpace27/HelioFITS-Studio">Source and release notes</a>
+       · problems to <a href="https://github.com/GillySpace27/HelioFITS-Studio/issues">GitHub</a>
+       or <a href="mailto:gilly@nwra.com">gilly@nwra.com</a></p>
   </div>
-  <script>location.replace("https://github.com/GillySpace27/HelioFITS-Studio/releases");</script>
+<script>
+// Every release so far is a pre-release, which GitHub's releases/latest skips, so ask for the
+// newest one outright. The links above are the fallback when this cannot reach GitHub.
+fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_page=1")
+  .then(r => r.json()).then(([rel]) => {
+    const url = end => rel.assets.find(a => a.name.endsWith(end))?.browser_download_url;
+    if (!url(".dmg")) return; // leave the fallback whole rather than mix versions
+    for (const [id, end] of [["dmg", ".dmg"], ["zip", ".zip"], ["guide", "Guide.pdf"]])
+      if (url(end)) document.getElementById(id).href = url(end);
+    document.getElementById("ver").textContent = "Version " + rel.tag_name.replace(/^v/, "") +
+      " · Apple Silicon Macs · " + (rel.prerelease ? "pre-release" : "release");
+  }).catch(() => {});
+</script>
 </body>
 </html>
