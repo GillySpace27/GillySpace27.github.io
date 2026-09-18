@@ -34,27 +34,27 @@
     <h1>HFStudio</h1>
     <p class="tag">A desktop viewer for the Sun's outer corona, built for PUNCH, LASCO
        and other coronagraph data.</p>
-    <a class="cta" id="dmg" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-0.8.1.dmg">Download for Mac</a>
+    <a class="cta" id="dmg" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.dmg">Download for Mac</a>
     <p class="ver" id="ver">Version 0.8.1 · Apple Silicon Macs · pre-release</p>
     <p class="links">
-      <a class="sec" id="guide" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-Guide.pdf">Field guide (PDF)</a>
-      <a class="sec" href="https://github.com/GillySpace27/HelioFITS-Studio">GitHub repository</a>
+      <a class="sec" id="guide" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-Guide.pdf">Field guide (PDF)</a>
+      <a class="sec" href="https://github.com/GillySpace27/HFStudio">GitHub repository</a>
     </p>
     <ul>
       <li>Open the disk image and drag HFStudio to Applications. Java comes with it.</li>
       <li>Intel Mac, Linux or Windows: get the
-          <a id="zip" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-0.8.1.zip">zip</a>,
+          <a id="zip" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.zip">zip</a>,
           install <a href="https://adoptium.net">Java 25</a>, and start run.command, run.sh
           or run.bat. Linux and Windows are new, so please tell us how it goes.</li>
     </ul>
     <p class="alt">Built on JHelioviewer, from the ESA/NASA Helioviewer Project, and not
-       affiliated with it. Problems to <a href="https://github.com/GillySpace27/HelioFITS-Studio/issues">GitHub</a>
+       affiliated with it. Problems to <a href="https://github.com/GillySpace27/HFStudio/issues">GitHub</a>
        or <a href="mailto:gilly@nwra.com">gilly@nwra.com</a></p>
   </div>
 <script>
 // Every release so far is a pre-release, which GitHub's releases/latest skips, so ask for the
 // newest one outright. The links above are the fallback when this cannot reach GitHub.
-fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_page=1")
+fetch("https://api.github.com/repos/GillySpace27/HFStudio/releases?per_page=1")
   .then(r => r.json()).then(([rel]) => {
     const url = end => rel.assets.find(a => a.name.endsWith(end))?.browser_download_url;
     if (!url(".dmg")) return; // leave the fallback whole rather than mix versions
