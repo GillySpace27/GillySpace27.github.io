@@ -5,63 +5,189 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>HFStudio</title>
+<meta name="description" content="HFStudio: a desktop viewer for the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.">
 <style>
-  :root { color-scheme: dark; }
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-       background:#0b0f1a;color:#e6e8ee;margin:0;display:flex;min-height:100vh;
-       align-items:center;justify-content:center;padding:2rem;line-height:1.55;
-       box-sizing:border-box}
-  .card{max-width:34rem;text-align:center}
-  h1{font-size:2rem;margin:0 0 .4rem}
-  .tag{color:#aab2c5;margin:0 0 1.6rem}
-  .cta{display:inline-block;background:#e0932b;color:#140c02;text-decoration:none;
-       font-size:1.05rem;font-weight:600;padding:.85rem 1.6rem;border-radius:10px}
-  .cta:hover,.cta:focus-visible{background:#f0a640}
-  .ver{margin:.8rem 0 0;font-size:.9rem;color:#8d94a6;min-height:1.4em}
-  ul{text-align:left;display:inline-block;color:#aab2c5;font-size:.95rem;margin:1.6rem 0 0;padding-left:1.1rem}
-  li{margin:.25rem 0}
-  .alt{margin-top:1.4rem;font-size:.85rem;color:#8d94a6}
-  .links{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;margin:1.2rem 0 0}
-  .sec{color:#e6e8ee;text-decoration:none;font-size:.95rem;padding:.55rem 1.1rem;
-       border:1px solid #3a4256;border-radius:10px}
-  .sec:hover,.sec:focus-visible{border-color:#e0932b}
-  ul a,.alt a{color:#aab2c5}
-  ul a:hover,.alt a:hover{color:#e6e8ee}
+  :root {
+    color-scheme: dark;
+    --bg: #0b0f1a;
+    --ink: #e6e8ee;
+    --muted: #aab2c5;
+    --faint: #8d94a6;
+    --line: #2a3144;
+    --tile: #121828;
+    --amber: #e0932b;
+    --amber-hi: #f0a640;
+    --amber-ink: #140c02;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 2.5rem 1rem; line-height: 1.55; color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    /* A low corona behind the card: the product's subject, and the only ornament on the page. */
+    background:
+      radial-gradient(60rem 36rem at 50% -8rem, rgba(224,147,43,.16), transparent 62%),
+      radial-gradient(26rem 26rem at 50% -4rem, rgba(240,166,64,.10), transparent 70%),
+      var(--bg);
+  }
+  main { width: 100%; max-width: 47rem; text-align: center; }
+  h1 { font-size: clamp(2rem, 6vw, 2.6rem); letter-spacing: -.01em; margin: 0 0 .5rem; }
+  .tag { color: var(--muted); margin: 0 auto 2rem; max-width: 30rem; }
+
+  .platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+  @media (max-width: 34rem) { .platforms { grid-template-columns: 1fr; } }
+  .dl {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .15rem;
+    min-height: 5.2rem; padding: .9rem 1rem; border-radius: 12px; text-decoration: none;
+    background: var(--tile); color: var(--ink); border: 1px solid var(--line);
+    transition: border-color .15s, background .15s;
+  }
+  .dl b { font-size: 1.02rem; font-weight: 600; white-space: nowrap; }
+  .dl small { font-size: .82rem; color: var(--faint); }
+  a.dl:hover, a.dl:focus-visible { border-color: var(--amber); }
+  a.dl:focus-visible { outline: 2px solid var(--amber-hi); outline-offset: 2px; }
+  a.dl.primary { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }
+  a.dl.primary small { color: rgba(20,12,2,.72); }
+  a.dl.primary:hover, a.dl.primary:focus-visible { background: var(--amber-hi); border-color: var(--amber-hi); }
+  .dl[aria-disabled="true"] { cursor: not-allowed; border-style: dashed; color: var(--faint); background: transparent; }
+  .dl[aria-disabled="true"] b { font-weight: 500; }
+  @media (prefers-reduced-motion: reduce) { .dl { transition: none; } }
+
+  .ver { margin: 1rem 0 0; font-size: .9rem; color: var(--faint); min-height: 1.4em; }
+  .note { margin: .6rem auto 0; max-width: 30rem; font-size: .9rem; color: var(--muted); }
+  .note:empty { display: none; }
+
+  .links { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin: 1.6rem 0 0; }
+  .sec { color: var(--ink); text-decoration: none; font-size: .92rem; padding: .5rem 1rem;
+         border: 1px solid var(--line); border-radius: 999px; }
+  .sec:hover, .sec:focus-visible { border-color: var(--amber); }
+
+  details { margin: 1.8rem auto 0; max-width: 32rem; text-align: left; color: var(--muted); font-size: .93rem;
+            border-top: 1px solid var(--line); padding-top: 1rem; }
+  summary { cursor: pointer; color: var(--ink); }
+  details ul { margin: .6rem 0 0; padding-left: 1.1rem; }
+  details li { margin: .3rem 0; }
+  details a, .alt a { color: var(--muted); }
+  details a:hover, .alt a:hover { color: var(--ink); }
+  .alt { margin-top: 1.8rem; font-size: .84rem; color: var(--faint); }
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>HFStudio</h1>
-    <p class="tag">A desktop viewer for the Sun's outer corona, built for PUNCH, LASCO
-       and other coronagraph data.</p>
-    <a class="cta" id="dmg" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.dmg">Download for Mac</a>
-    <p class="ver" id="ver">Version 0.8.1 · Apple Silicon Macs · pre-release</p>
-    <p class="links">
-      <a class="sec" id="guide" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-Guide.pdf">Field guide (PDF)</a>
-      <a class="sec" href="https://github.com/GillySpace27/HFStudio">GitHub repository</a>
-    </p>
-    <ul>
-      <li>Open the disk image and drag HFStudio to Applications. Java comes with it.</li>
-      <li>Intel Mac, Linux or Windows: get the
-          <a id="zip" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.zip">zip</a>,
-          install <a href="https://adoptium.net">Java 25</a>, and start run.command, run.sh
-          or run.bat. Linux and Windows are new, so please tell us how it goes.</li>
-    </ul>
-    <p class="alt">Built on JHelioviewer, from the ESA/NASA Helioviewer Project, and not
-       affiliated with it. Problems to <a href="https://github.com/GillySpace27/HFStudio/issues">GitHub</a>
-       or <a href="mailto:gilly@nwra.com">gilly@nwra.com</a></p>
+<main>
+  <h1>HFStudio</h1>
+  <p class="tag">A desktop viewer for the Sun's outer corona, built for PUNCH, LASCO
+     and other coronagraph data.</p>
+
+  <!-- Correct without JavaScript: Mac live at the last known release, the other two off.
+       The script below only ever moves these forward, never switches one on by itself. -->
+  <div class="platforms">
+    <a class="dl primary" id="mac" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.dmg">
+      <b>Download for Mac</b><small id="mac-note">Apple Silicon · Java included</small>
+    </a>
+    <a class="dl" id="windows" role="link" aria-disabled="true" title="Not yet tested on Windows">
+      <b>Download for Windows</b><small id="windows-note">Not yet available</small>
+    </a>
+    <a class="dl" id="linux" role="link" aria-disabled="true" title="Not yet tested on Linux">
+      <b>Download for Linux</b><small id="linux-note">Not yet available</small>
+    </a>
   </div>
+
+  <p class="ver" id="ver">Version 0.8.1 · pre-release</p>
+  <p class="note" id="note"></p>
+
+  <p class="links">
+    <a class="sec" id="guide" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-Guide.pdf">Field guide (PDF)</a>
+    <a class="sec" id="notes" href="https://github.com/GillySpace27/HFStudio/releases/tag/v0.8.1">What's new</a>
+    <a class="sec" href="https://github.com/GillySpace27/HFStudio">GitHub</a>
+  </p>
+
+  <details>
+    <summary>Installing, and other platforms</summary>
+    <ul>
+      <li><b>Mac:</b> open the disk image and drag HFStudio to Applications. Java comes with it.
+          Apple Silicon only for now.</li>
+      <li><b>Intel Mac, Windows or Linux, if you want to try early:</b> get the
+          <a id="zip" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.zip">cross-platform zip</a>,
+          install <a href="https://adoptium.net">Java 25</a>, and start <code>run.command</code>,
+          <code>run.sh</code> or <code>run.bat</code>. Those launchers have not been tested yet,
+          so please tell us how it goes.</li>
+      <li>Older versions stay available on the
+          <a href="https://github.com/GillySpace27/HFStudio/releases">releases page</a>.</li>
+    </ul>
+  </details>
+
+  <p class="alt">Built on JHelioviewer, from the ESA/NASA Helioviewer Project, and not
+     affiliated with it. Problems to <a href="https://github.com/GillySpace27/HFStudio/issues">GitHub</a>
+     or <a href="mailto:gilly@nwra.com">gilly@nwra.com</a></p>
+</main>
 <script>
+// A platform's button goes live only when BOTH hold:
+//   confirmed: someone has installed and run that platform's build on that OS. Set by hand,
+//              after testing; a release appearing never flips this on its own.
+//   asset:     the newest release carries a file for that platform.
+// The cross-platform zip deliberately matches neither Windows nor Linux: it needs Java installed
+// and its launchers are untested, so it stays the "try early" route under Installing.
+const PLATFORMS = {
+  mac:     { confirmed: true,  asset: /\.dmg$/i,                                  note: "Apple Silicon · Java included" },
+  // note: fill in the real requirements when the build is confirmed; nothing is known yet.
+  windows: { confirmed: false, asset: /-windows\.(zip|msi|exe)$/i,              note: "" },
+  linux:   { confirmed: false, asset: /-linux\.(tar\.gz|zip|AppImage|deb|rpm)$/i, note: "" },
+};
+
+const os = (() => {
+  // Phones and tablets get no guess: Android reports "Linux" and an iPad reports "MacIntel", and
+  // neither can run the desktop app, so steering them to a tile would only mislead.
+  const ua = navigator.userAgent.toLowerCase();
+  if (/android|iphone|ipad|mobile/.test(ua) || (/mac/.test(ua) && navigator.maxTouchPoints > 1)) return null;
+  const p = (navigator.userAgentData?.platform || navigator.platform || ua).toLowerCase();
+  if (p.includes("win")) return "windows";
+  if (p.includes("linux") || p.includes("x11")) return "linux";
+  if (p.includes("mac")) return "mac";
+  return null;
+})();
+
+function setState(id, href) {
+  const el = document.getElementById(id);
+  if (href) {
+    el.href = href;
+    el.removeAttribute("aria-disabled");
+    el.removeAttribute("role");
+    el.removeAttribute("title");
+    document.getElementById(id + "-note").textContent = PLATFORMS[id].note;
+  }
+}
+
+function highlight() {
+  // The visitor's own platform leads when it is live; otherwise the Mac keeps the colour and
+  // the visitor is told plainly rather than left looking at a greyed-out button.
+  const live = id => !document.getElementById(id).hasAttribute("aria-disabled");
+  const lead = os && live(os) ? os : "mac";
+  for (const id of Object.keys(PLATFORMS))
+    document.getElementById(id).classList.toggle("primary", id === lead);
+  if (os && os !== "mac" && !live(os)) {
+    const name = os === "windows" ? "Windows" : "Linux";
+    document.getElementById("note").textContent =
+      "HFStudio isn't ready for " + name + " yet. You can try the untested cross-platform zip under Installing below.";
+  }
+}
+
+highlight();
+
 // Every release so far is a pre-release, which GitHub's releases/latest skips, so ask for the
 // newest one outright. The links above are the fallback when this cannot reach GitHub.
 fetch("https://api.github.com/repos/GillySpace27/HFStudio/releases?per_page=1")
   .then(r => r.json()).then(([rel]) => {
-    const url = end => rel.assets.find(a => a.name.endsWith(end))?.browser_download_url;
-    if (!url(".dmg")) return; // leave the fallback whole rather than mix versions
-    for (const [id, end] of [["dmg", ".dmg"], ["zip", ".zip"], ["guide", "Guide.pdf"]])
-      if (url(end)) document.getElementById(id).href = url(end);
-    document.getElementById("ver").textContent = "Version " + rel.tag_name.replace(/^v/, "") +
-      " · Apple Silicon Macs · " + (rel.prerelease ? "pre-release" : "release");
+    const find = test => rel.assets.find(a => test instanceof RegExp ? test.test(a.name) : a.name.endsWith(test))?.browser_download_url;
+    if (!find(PLATFORMS.mac.asset)) return; // leave the fallback whole rather than mix versions
+    for (const [id, p] of Object.entries(PLATFORMS))
+      setState(id, p.confirmed ? find(p.asset) : null);
+    // Exact, so a later HFStudio-x-windows.zip cannot take over the cross-platform link.
+    for (const [id, test] of [["zip", /^HFStudio-[\d.]+\.zip$/], ["guide", /Guide\.pdf$/]])
+      if (find(test)) document.getElementById(id).href = find(test);
+    document.getElementById("notes").href = rel.html_url;
+    document.getElementById("ver").textContent =
+      "Version " + rel.tag_name.replace(/^v/, "") + " · " + (rel.prerelease ? "pre-release" : "release");
+    highlight();
   }).catch(() => {});
 </script>
 </body>
