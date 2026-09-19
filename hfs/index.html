@@ -34,7 +34,9 @@
   h1 { font-size: clamp(2rem, 6vw, 2.6rem); letter-spacing: -.01em; margin: 0 0 .5rem; }
   .tag { color: var(--muted); margin: 0 auto 2rem; max-width: 30rem; }
 
-  .platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+  /* Two by two: four tiles in a row would crush "Download for Windows" at this width. */
+  .platforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem;
+               max-width: 34rem; margin: 0 auto; }
   @media (max-width: 34rem) { .platforms { grid-template-columns: 1fr; } }
   .dl {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .15rem;
@@ -84,6 +86,9 @@
     <a class="dl primary" id="mac" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.dmg">
       <b>Download for Mac</b><small id="mac-note">Apple Silicon · Java included</small>
     </a>
+    <a class="dl" id="intel" role="link" aria-disabled="true" title="Not yet tested on an Intel Mac">
+      <b>Download for Intel Mac</b><small id="intel-note">Not yet available</small>
+    </a>
     <a class="dl" id="windows" role="link" aria-disabled="true" title="Not yet tested on Windows">
       <b>Download for Windows</b><small id="windows-note">Not yet available</small>
     </a>
@@ -127,8 +132,11 @@
 //   asset:     the newest release carries a file for that platform.
 // The cross-platform zip deliberately matches neither Windows nor Linux: it needs Java installed
 // and its launchers are untested, so it stays the "try early" route under Installing.
+// Mac and Intel Mac are matched by exact name: the Apple Silicon dmg is the bare one, so a pattern
+// like /\.dmg$/ would also pick up HFStudio-x-intel.dmg and could hand it to the wrong machine.
 const PLATFORMS = {
-  mac:     { confirmed: true,  asset: /\.dmg$/i,                                  note: "Apple Silicon · Java included" },
+  mac:     { confirmed: true,  asset: /^HFStudio-[\d.]+\.dmg$/,                    note: "Apple Silicon · Java included" },
+  intel:   { confirmed: false, asset: /^HFStudio-[\d.]+-intel\.dmg$/,              note: "Intel processors · Java included" },
   // note: fill in the real requirements when the build is confirmed; nothing is known yet.
   windows: { confirmed: false, asset: /-windows\.(zip|msi|exe)$/i,              note: "" },
   linux:   { confirmed: false, asset: /-linux\.(tar\.gz|zip|AppImage|deb|rpm)$/i, note: "" },
