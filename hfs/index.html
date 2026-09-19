@@ -83,39 +83,48 @@
   <!-- Correct without JavaScript: Mac live at the last known release, the other two off.
        The script below only ever moves these forward, never switches one on by itself. -->
   <div class="platforms">
-    <a class="dl primary" id="mac" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.dmg">
+    <a class="dl primary" id="mac" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.2/HFStudio-0.8.2.dmg">
       <b>Download for Mac</b><small id="mac-note">Apple Silicon · Java included</small>
     </a>
     <a class="dl" id="intel" role="link" aria-disabled="true" title="Not yet tested on an Intel Mac">
-      <b>Download for Intel Mac</b><small id="intel-note">Not yet available</small>
+      <b>Download for Intel Mac</b><small id="intel-note">Untested: try it under Installing</small>
     </a>
     <a class="dl" id="windows" role="link" aria-disabled="true" title="Not yet tested on Windows">
-      <b>Download for Windows</b><small id="windows-note">Not yet available</small>
+      <b>Download for Windows</b><small id="windows-note">Untested: try it under Installing</small>
     </a>
     <a class="dl" id="linux" role="link" aria-disabled="true" title="Not yet tested on Linux">
-      <b>Download for Linux</b><small id="linux-note">Not yet available</small>
+      <b>Download for Linux</b><small id="linux-note">Untested: try it under Installing</small>
     </a>
   </div>
 
-  <p class="ver" id="ver">Version 0.8.1 · pre-release</p>
+  <p class="ver" id="ver">Version 0.8.2 · pre-release</p>
   <p class="note" id="note"></p>
 
   <p class="links">
-    <a class="sec" id="guide" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-Guide.pdf">Field guide (PDF)</a>
-    <a class="sec" id="notes" href="https://github.com/GillySpace27/HFStudio/releases/tag/v0.8.1">What's new</a>
+    <a class="sec" id="guide" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.2/HFStudio-Guide.pdf">Field guide (PDF)</a>
+    <a class="sec" id="notes" href="https://github.com/GillySpace27/HFStudio/releases/tag/v0.8.2">What's new</a>
     <a class="sec" href="https://github.com/GillySpace27/HFStudio">GitHub</a>
   </p>
 
   <details>
     <summary>Installing, and other platforms</summary>
     <ul>
-      <li><b>Mac:</b> open the disk image and drag HFStudio to Applications. Java comes with it.
-          Apple Silicon only for now.</li>
-      <li><b>Intel Mac, Windows or Linux, if you want to try early:</b> get the
-          <a id="zip" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.1/HFStudio-0.8.1.zip">cross-platform zip</a>,
-          install <a href="https://adoptium.net">Java 25</a>, and start <code>run.command</code>,
-          <code>run.sh</code> or <code>run.bat</code>. Those launchers have not been tested yet,
-          so please tell us how it goes.</li>
+      <li><b>Mac:</b> open the disk image and drag HFStudio to Applications. Java comes with it.</li>
+      <li><b>Intel Mac, Windows or Linux, if you want to try early:</b> these packages carry their
+          own Java and pass our automated checks, but nobody has run them on a real machine yet,
+          so please tell us how it goes.
+        <ul>
+          <li><a id="try-intel" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.2/HFStudio-0.8.2-intel.dmg">Intel Mac disk image</a>: install as above.</li>
+          <li><a id="try-windows" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.2/HFStudio-0.8.2-windows.zip">Windows zip</a>: unzip it anywhere
+              and run <code>HFStudio\HFStudio.exe</code>. It is not code-signed yet, so Windows may
+              warn about an unknown publisher; choose <i>More info</i>, then <i>Run anyway</i>.</li>
+          <li><a id="try-linux" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.2/HFStudio-0.8.2-linux.tar.gz">Linux archive</a>: unpack it
+              anywhere and run <code>HFStudio/bin/HFStudio</code>.</li>
+        </ul></li>
+      <li><b>Anything else:</b> the
+          <a id="zip" href="https://github.com/GillySpace27/HFStudio/releases/download/v0.8.2/HFStudio-0.8.2.zip">cross-platform zip</a> runs wherever
+          <a href="https://adoptium.net">Java 25</a> is installed: start <code>run.command</code>,
+          <code>run.sh</code> or <code>run.bat</code>.</li>
       <li>Older versions stay available on the
           <a href="https://github.com/GillySpace27/HFStudio/releases">releases page</a>.</li>
     </ul>
@@ -131,7 +140,7 @@
 //              after testing; a release appearing never flips this on its own.
 //   asset:     the newest release carries a file for that platform.
 // The cross-platform zip deliberately matches neither Windows nor Linux: it needs Java installed
-// and its launchers are untested, so it stays the "try early" route under Installing.
+// and is the fallback for anything else, under Installing. Unconfirmed packages are linked there too.
 // Mac and Intel Mac are matched by exact name: the Apple Silicon dmg is the bare one, so a pattern
 // like /\.dmg$/ would also pick up HFStudio-x-intel.dmg and could hand it to the wrong machine.
 const PLATFORMS = {
@@ -175,7 +184,7 @@ function highlight() {
   if (os && os !== "mac" && !live(os)) {
     const name = os === "windows" ? "Windows" : "Linux";
     document.getElementById("note").textContent =
-      "HFStudio isn't ready for " + name + " yet. You can try the untested cross-platform zip under Installing below.";
+      "HFStudio isn't confirmed on " + name + " yet. You can try the untested " + name + " package under Installing below.";
   }
 }
 
@@ -190,7 +199,9 @@ fetch("https://api.github.com/repos/GillySpace27/HFStudio/releases?per_page=1")
     for (const [id, p] of Object.entries(PLATFORMS))
       setState(id, p.confirmed ? find(p.asset) : null);
     // Exact, so a later HFStudio-x-windows.zip cannot take over the cross-platform link.
-    for (const [id, test] of [["zip", /^HFStudio-[\d.]+\.zip$/], ["guide", /Guide\.pdf$/]])
+    for (const [id, test] of [["zip", /^HFStudio-[\d.]+\.zip$/], ["guide", /Guide\.pdf$/],
+                              ["try-intel", PLATFORMS.intel.asset], ["try-windows", PLATFORMS.windows.asset],
+                              ["try-linux", PLATFORMS.linux.asset]])
       if (find(test)) document.getElementById(id).href = find(test);
     document.getElementById("notes").href = rel.html_url;
     document.getElementById("ver").textContent =
