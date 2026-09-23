@@ -3,213 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HelioFITS Studio</title>
+<link rel="canonical" href="https://gilly.space/heliofits-studio/">
 <meta name="robots" content="noindex">
-<title>PUNCHStudio</title>
-<meta name="description" content="PUNCHStudio: a desktop viewer for the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.">
+<meta http-equiv="refresh" content="0; url=https://gilly.space/heliofits-studio/">
 <style>
-  :root {
-    color-scheme: dark;
-    --bg: #0b0f1a;
-    --ink: #e6e8ee;
-    --muted: #aab2c5;
-    --faint: #8d94a6;
-    --line: #2a3144;
-    --tile: #121828;
-    --amber: #e0932b;
-    --amber-hi: #f0a640;
-    --amber-ink: #140c02;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 2.5rem 1rem; line-height: 1.55; color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    /* A low corona behind the card: the product's subject, and the only ornament on the page. */
-    background:
-      radial-gradient(60rem 36rem at 50% -8rem, rgba(224,147,43,.16), transparent 62%),
-      radial-gradient(26rem 26rem at 50% -4rem, rgba(240,166,64,.10), transparent 70%),
-      var(--bg);
-  }
-  main { width: 100%; max-width: 47rem; text-align: center; }
-  h1 { font-size: clamp(2rem, 6vw, 2.6rem); letter-spacing: -.01em; margin: 0 0 .5rem; }
-  .tag { color: var(--muted); margin: 0 auto 2rem; max-width: 30rem; }
-
-  /* Two by two: four tiles in a row would crush "Download for Windows" at this width. */
-  .platforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem;
-               max-width: 34rem; margin: 0 auto; }
-  @media (max-width: 34rem) { .platforms { grid-template-columns: 1fr; } }
-  .dl {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .15rem;
-    min-height: 5.2rem; padding: .9rem 1rem; border-radius: 12px; text-decoration: none;
-    background: var(--tile); color: var(--ink); border: 1px solid var(--line);
-    transition: border-color .15s, background .15s;
-  }
-  .dl b { font-size: 1.02rem; font-weight: 600; white-space: nowrap; }
-  .dl small { font-size: .82rem; color: var(--faint); }
-  a.dl:hover, a.dl:focus-visible { border-color: var(--amber); }
-  a.dl:focus-visible { outline: 2px solid var(--amber-hi); outline-offset: 2px; }
-  a.dl.primary { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }
-  a.dl.primary small { color: rgba(20,12,2,.72); }
-  a.dl.primary:hover, a.dl.primary:focus-visible { background: var(--amber-hi); border-color: var(--amber-hi); }
-  .dl[aria-disabled="true"] { cursor: not-allowed; border-style: dashed; color: var(--faint); background: transparent; }
-  .dl[aria-disabled="true"] b { font-weight: 500; }
-  @media (prefers-reduced-motion: reduce) { .dl { transition: none; } }
-
-  .ver { margin: 1rem 0 0; font-size: .9rem; color: var(--faint); min-height: 1.4em; }
-  .note { margin: .6rem auto 0; max-width: 30rem; font-size: .9rem; color: var(--muted); }
-  .note:empty { display: none; }
-
-  .links { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin: 1.6rem 0 0; }
-  .sec { color: var(--ink); text-decoration: none; font-size: .92rem; padding: .5rem 1rem;
-         border: 1px solid var(--line); border-radius: 999px; }
-  .sec:hover, .sec:focus-visible { border-color: var(--amber); }
-
-  details { margin: 1.8rem auto 0; max-width: 32rem; text-align: left; color: var(--muted); font-size: .93rem;
-            border-top: 1px solid var(--line); padding-top: 1rem; }
-  summary { cursor: pointer; color: var(--ink); }
-  details ul { margin: .6rem 0 0; padding-left: 1.1rem; }
-  details li { margin: .3rem 0; }
-  details a, .alt a { color: var(--muted); }
-  details a:hover, .alt a:hover { color: var(--ink); }
-  .alt { margin-top: 1.8rem; font-size: .84rem; color: var(--faint); }
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       background:#0b0f1a;color:#e6e8ee;display:flex;min-height:100vh;margin:0;
+       align-items:center;justify-content:center;text-align:center;padding:2rem}
+  a{color:#7db3ff}
 </style>
 </head>
 <body>
-<main>
-  <h1>PUNCHStudio</h1>
-  <p class="tag">A desktop viewer for the Sun's outer corona, built for PUNCH, LASCO
-     and other coronagraph data.</p>
-
-  <!-- Correct without JavaScript: Mac live at the last known release, the other two off.
-       The script below only ever moves these forward, never switches one on by itself. -->
-  <div class="platforms">
-    <a class="dl primary" id="mac" href="https://github.com/GillySpace27/PUNCHStudio/releases/download/v0.8.2/HFStudio-0.8.2.dmg">
-      <b>Download for Mac</b><small id="mac-note">Apple Silicon · Java included</small>
-    </a>
-    <a class="dl" id="intel" role="link" aria-disabled="true" title="Not yet tested on an Intel Mac">
-      <b>Download for Intel Mac</b><small id="intel-note">Untested: try it under Installing</small>
-    </a>
-    <a class="dl" id="windows" role="link" aria-disabled="true" title="Not yet tested on Windows">
-      <b>Download for Windows</b><small id="windows-note">Untested: try it under Installing</small>
-    </a>
-    <a class="dl" id="linux" role="link" aria-disabled="true" title="Not yet tested on Linux">
-      <b>Download for Linux</b><small id="linux-note">Untested: try it under Installing</small>
-    </a>
+  <div>
+    <p>Taking you to <strong>HelioFITS Studio</strong>&hellip;</p>
+    <p>If nothing happens, <a href="https://gilly.space/heliofits-studio/">open it here</a>.</p>
   </div>
-
-  <p class="ver" id="ver">Version 0.8.2 · pre-release</p>
-  <p class="note" id="note"></p>
-
-  <p class="links">
-    <a class="sec" id="guide" href="https://github.com/GillySpace27/PUNCHStudio/releases/download/v0.8.2/HFStudio-Guide.pdf">Field guide (PDF)</a>
-    <a class="sec" id="notes" href="https://github.com/GillySpace27/PUNCHStudio/releases/tag/v0.8.2">What's new</a>
-    <a class="sec" href="https://github.com/GillySpace27/PUNCHStudio">GitHub</a>
-  </p>
-
-  <details>
-    <summary>Installing, and other platforms</summary>
-    <ul>
-      <li><b>Mac:</b> open the disk image and drag the application to Applications. Java comes with it.</li>
-      <li><b>Intel Mac, Windows or Linux, if you want to try early:</b> these packages carry their
-          own Java and pass our automated checks, but nobody has run them on a real machine yet,
-          so please tell us how it goes.
-        <ul>
-          <li><a id="try-intel" href="https://github.com/GillySpace27/PUNCHStudio/releases/download/v0.8.2/HFStudio-0.8.2-intel.dmg">Intel Mac disk image</a>: install as above.</li>
-          <li><a id="try-windows" href="https://github.com/GillySpace27/PUNCHStudio/releases/download/v0.8.2/HFStudio-0.8.2-windows.zip">Windows zip</a>: unzip it anywhere
-              and run the <code>.exe</code> inside the folder it makes. It is not code-signed yet, so Windows may
-              warn about an unknown publisher; choose <i>More info</i>, then <i>Run anyway</i>.</li>
-          <li><a id="try-linux" href="https://github.com/GillySpace27/PUNCHStudio/releases/download/v0.8.2/HFStudio-0.8.2-linux.tar.gz">Linux archive</a>: unpack it
-              anywhere and run the launcher in its <code>bin</code> folder.</li>
-        </ul></li>
-      <li><b>Anything else:</b> the
-          <a id="zip" href="https://github.com/GillySpace27/PUNCHStudio/releases/download/v0.8.2/HFStudio-0.8.2.zip">cross-platform zip</a> runs wherever
-          <a href="https://adoptium.net">Java 25</a> is installed: start <code>run.command</code>,
-          <code>run.sh</code> or <code>run.bat</code>.</li>
-      <li>The 0.8.2 files are named HFStudio. The application was renamed to PUNCHStudio
-          on 21 September 2026, and 0.8.3 onwards carries the new name.</li>
-      <li>Older versions stay available on the
-          <a href="https://github.com/GillySpace27/PUNCHStudio/releases">releases page</a>.</li>
-    </ul>
-  </details>
-
-  <p class="alt">Built on JHelioviewer, from the ESA/NASA Helioviewer Project, and not
-     affiliated with it. Problems to <a href="https://github.com/GillySpace27/PUNCHStudio/issues">GitHub</a>
-     or <a href="mailto:gilly@nwra.com">gilly@nwra.com</a></p>
-</main>
-<script>
-// A platform's button goes live only when BOTH hold:
-//   confirmed: someone has installed and run that platform's build on that OS. Set by hand,
-//              after testing; a release appearing never flips this on its own.
-//   asset:     the newest release carries a file for that platform.
-// The cross-platform zip deliberately matches neither Windows nor Linux: it needs Java installed
-// and is the fallback for anything else, under Installing. Unconfirmed packages are linked there too.
-// Mac and Intel Mac are matched by exact name: the Apple Silicon dmg is the bare one, so a pattern
-// like /\.dmg$/ would also pick up PUNCHStudio-x-intel.dmg and could hand it to the wrong machine.
-const PLATFORMS = {
-  mac:     { confirmed: true,  asset: /^(?:PUNCHStudio|HFStudio)-[\d.]+\.dmg$/,                    note: "Apple Silicon · Java included" },
-  intel:   { confirmed: false, asset: /^(?:PUNCHStudio|HFStudio)-[\d.]+-intel\.dmg$/,              note: "Intel processors · Java included" },
-  // note: fill in the real requirements when the build is confirmed; nothing is known yet.
-  windows: { confirmed: false, asset: /-windows\.(zip|msi|exe)$/i,              note: "" },
-  linux:   { confirmed: false, asset: /-linux\.(tar\.gz|zip|AppImage|deb|rpm)$/i, note: "" },
-};
-
-const os = (() => {
-  // Phones and tablets get no guess: Android reports "Linux" and an iPad reports "MacIntel", and
-  // neither can run the desktop app, so steering them to a tile would only mislead.
-  const ua = navigator.userAgent.toLowerCase();
-  if (/android|iphone|ipad|mobile/.test(ua) || (/mac/.test(ua) && navigator.maxTouchPoints > 1)) return null;
-  const p = (navigator.userAgentData?.platform || navigator.platform || ua).toLowerCase();
-  if (p.includes("win")) return "windows";
-  if (p.includes("linux") || p.includes("x11")) return "linux";
-  if (p.includes("mac")) return "mac";
-  return null;
-})();
-
-function setState(id, href) {
-  const el = document.getElementById(id);
-  if (href) {
-    el.href = href;
-    el.removeAttribute("aria-disabled");
-    el.removeAttribute("role");
-    el.removeAttribute("title");
-    document.getElementById(id + "-note").textContent = PLATFORMS[id].note;
-  }
-}
-
-function highlight() {
-  // The visitor's own platform leads when it is live; otherwise the Mac keeps the colour and
-  // the visitor is told plainly rather than left looking at a greyed-out button.
-  const live = id => !document.getElementById(id).hasAttribute("aria-disabled");
-  const lead = os && live(os) ? os : "mac";
-  for (const id of Object.keys(PLATFORMS))
-    document.getElementById(id).classList.toggle("primary", id === lead);
-  if (os && os !== "mac" && !live(os)) {
-    const name = os === "windows" ? "Windows" : "Linux";
-    document.getElementById("note").textContent =
-      "PUNCHStudio isn't confirmed on " + name + " yet. You can try the untested " + name + " package under Installing below.";
-  }
-}
-
-highlight();
-
-// Every release so far is a pre-release, which GitHub's releases/latest skips, so ask for the
-// newest one outright. The links above are the fallback when this cannot reach GitHub.
-fetch("https://api.github.com/repos/GillySpace27/PUNCHStudio/releases?per_page=1")
-  .then(r => r.json()).then(([rel]) => {
-    const find = test => rel.assets.find(a => test instanceof RegExp ? test.test(a.name) : a.name.endsWith(test))?.browser_download_url;
-    if (!find(PLATFORMS.mac.asset)) return; // leave the fallback whole rather than mix versions
-    for (const [id, p] of Object.entries(PLATFORMS))
-      setState(id, p.confirmed ? find(p.asset) : null);
-    // Exact, so a later PUNCHStudio-x-windows.zip cannot take over the cross-platform link.
-    for (const [id, test] of [["zip", /^(?:PUNCHStudio|HFStudio)-[\d.]+\.zip$/], ["guide", /Guide\.pdf$/],
-                              ["try-intel", PLATFORMS.intel.asset], ["try-windows", PLATFORMS.windows.asset],
-                              ["try-linux", PLATFORMS.linux.asset]])
-      if (find(test)) document.getElementById(id).href = find(test);
-    document.getElementById("notes").href = rel.html_url;
-    document.getElementById("ver").textContent =
-      "Version " + rel.tag_name.replace(/^v/, "") + " · " + (rel.prerelease ? "pre-release" : "release");
-    highlight();
-  }).catch(() => {});
-</script>
+  <script>location.replace("https://gilly.space/heliofits-studio/");</script>
 </body>
 </html>
