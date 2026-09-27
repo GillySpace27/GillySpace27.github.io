@@ -9,7 +9,7 @@
    Bump CACHE_VERSION to invalidate. Registered from assets/site.js behind a
    feature check, so no-JS / unsupported browsers are unaffected.
    ========================================================================== */
-const CACHE_VERSION = 'gilly-v2';
+const CACHE_VERSION = 'gilly-v3';
 const PRECACHE = [
   '/', '/assets/site.css', '/assets/site.js',
   '/assets/css/academicons.min.css', '/assets/css/font-awesome.min.css',
@@ -39,13 +39,14 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;                 // don't touch cross-origin (S3, worker, fonts)
 
   const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
-  // Partials are the live nav/footer — keep them fresh (network-first), never stale.
-  const isPartial = url.pathname.indexOf('/partials/') === 0;
+  // Partials are the live nav/footer, and the site's own CSS/JS style them: all network-first
+  // and revalidated (cheap 304s), so markup and styles can never come from different deploys.
+  const isShell = url.pathname.indexOf('/partials/') === 0 || /^\/assets\/[^/]+\.(css|js)$/.test(url.pathname);
 
-  if (isHTML || isPartial) {
+  if (isHTML || isShell) {
     // network-first so content stays fresh; fall back to cache, then offline 404
     e.respondWith(
-      fetch(req)
+      fetch(req, isShell ? { cache: 'no-cache' } : undefined)
         .then((res) => { const copy = res.clone(); caches.open(CACHE_VERSION).then((c) => c.put(req, copy)); return res; })
         .catch(() => caches.match(req).then((m) => m || caches.match('/404.html')))
     );
