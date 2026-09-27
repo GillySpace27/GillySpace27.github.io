@@ -493,3 +493,9 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
 .timeline { list-style: none; padding: 0; margin: 1.2rem 0; max-width: var(--measure); }
 .timeline li { display: flex; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
 .timeline span { color: var(--accent-text); font-variant-numeric: tabular-nums; min-width: 3em; }
+
+/* ---- Publications list ---- */
+.pubs { list-style: none; padding: 0; margin: 0 0 2rem; max-width: 60rem; }
+.pubs li { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.pubs .pub__yr { color: var(--accent-text); font-variant-numeric: tabular-nums; min-width: 3em; font-weight: 600; }
+.pubs a { text-decoration: underline; text-underline-offset: 2px; word-break: break-word; }
