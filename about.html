@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About &amp; CV · gilly.space</title>
-<meta name="description" content="About Dr. Gilly, heliophysicist at NWRA — bio, CVs, and a colophon on how this site is built.">
+<meta name="description" content="About Dr. Gilly, heliophysicist at NWRA: career, CVs, service, and how this site is built.">
 <link rel="canonical" href="https://gilly.space/about.html">
 <script>
   (function () {
@@ -17,7 +17,7 @@
 </script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="About &amp; CV · gilly.space">
-<meta property="og:description" content="About Dr. Gilly, heliophysicist at NWRA — bio, CVs, and a colophon.">
+<meta property="og:description" content="About Dr. Gilly, heliophysicist at NWRA: career, CVs, service, and how this site is built.">
 <meta property="og:url" content="https://gilly.space/about.html">
 <meta property="og:image" content="https://gilly.space/images/bg.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -31,7 +31,7 @@
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <link rel="stylesheet" href="/assets/css/academicons.min.css">
 <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css?v=202609271633">
+<link rel="stylesheet" href="/assets/site.css?v=202609271656">
 </head>
 <body>
 
@@ -46,67 +46,96 @@
 </noscript>
 
 <main id="main">
-  <section class="section wrap">
-    <p class="eyebrow">About</p>
-    <h1>Dr. Gilly</h1>
-
-    <div class="prose">
-      <p>
-        I'm a heliophysicist at <a href="https://www.nwra.com" target="_blank" rel="noopener">NorthWest
-        Research Associates</a> in Boulder, Colorado. I study the Sun's corona and the wind it drives across
-        the solar system — coronal heating, the solar wind, forward modeling, and validating what our
-        instruments actually measure. I earned my PhD in Astrophysical and Planetary Sciences at the
-        <a href="https://www.colorado.edu/aps/" target="_blank" rel="noopener">University of Colorado Boulder</a>,
-        working with Steven Cranmer, and I'm one of the algorithm scientists on NASA's
-        <a href="files/Overview_PUNCH.pdf" target="_blank" rel="noopener">PUNCH</a> mission. Along the way I
-        developed Radial Histogram Equalization (RHE/RHEF), a coronal-contrast method now distributed in
-        sunpy's <code>sunkit-image</code>.
-      </p>
-      <p>
-        Off the clock, I make things — <a href="Music-and-Theater.html">music and theater</a>, public
-        science <a href="RecordedPublicTalks.html">talks</a>, and small
-        <a href="play/">web toys</a> that live on this domain.
-      </p>
-      <p>
+  <section class="section wrap about-hero">
+    <img class="about-hero__photo" src="images/avatar.jpg" width="800" height="600" alt="Portrait of Dr. Gilly">
+    <div>
+      <p class="eyebrow">About</p>
+      <h1><span class="gradient-text">Dr. Gilly</span></h1>
+      <p class="hero__role">Heliophysicist · NorthWest Research Associates · Boulder, Colorado</p>
+      <p class="hero__intro">I study the Sun's corona and the wind it drives across the solar system: how the
+        corona is heated, how waves carry energy through it, and how the solar wind gets up to speed. My work
+        pairs forward models with observations from imagers, spectrometers, spectropolarimeters and
+        coronagraphs, and I'm a Co-Investigator on NASA's <a href="Research.html#punch" data-no-blank>PUNCH</a> mission.</p>
+      <p class="hero__intro">I earned my PhD at the University of Colorado Boulder with Steve Cranmer. Along the
+        way I build open tools for the field, like the <a href="/rhef/" data-no-blank>RHEF</a> filter in SunPy's
+        <code>sunkit-image</code> and the <a href="/heliosoftware/" data-no-blank>HelioSoftware</a> apps.</p>
+      <p class="about-cta" data-no-blank>
         <a class="btn" href="mailto:Gilly@NWRA.com">Email me</a>
-        <a class="btn btn--ghost" href="publications.html" style="margin-left:8px">Publications</a>
+        <a class="btn btn--ghost" href="files/CV_Research_2025.pdf">Research CV (PDF)</a>
+        <a class="btn btn--ghost" href="publications.html">Publications</a>
       </p>
     </div>
+  </section>
 
-    <hr class="rule">
+  <section class="wrap">
+    <div class="facts">
+      <div><b>Instruments</b><span>SDO/AIA · PUNCH · CoMP · DKIST/Cryo-NIRSP</span></div>
+      <div><b>Models</b><span>GHOSTS · FLUX · ZEPHYR · FORWARD · WSA · PFSS/NLFFF</span></div>
+      <div><b>Code</b><span>Python &amp; SunPy · IDL · C · MATLAB</span></div>
+    </div>
+  </section>
 
-    <h2>Curriculum vitae</h2>
-    <div class="grid">
-      <article class="card card--text">
-        <div class="card__body">
-          <p class="card__kicker">2025</p>
-          <h3>Research CV</h3>
-          <p><a href="files/CV_Research_2025.pdf" target="_blank" rel="noopener">Download PDF →</a></p>
-        </div>
+  <section class="section wrap">
+    <h2 style="margin-top:0">Path so far</h2>
+    <ol class="timeline timeline--cv">
+      <li><span>Now</span><div><b>Heliophysicist, NorthWest Research Associates</b> · Boulder</div></li>
+      <li><span>2025&ndash;</span><div><b>PUNCH Co-Investigator</b>, with Craig DeForest (SwRI)
+        <small>Bringing funded research onto PUNCH data, working alongside the mission's Science Operations Center.</small></div></li>
+      <li><span>2023&ndash;26</span><div><b>Postdoctoral researcher, SwRI</b>, with Chris Lowder
+        <small>Coronal magnetic topology with the fluxon framework (FLUX), and solar wind acceleration along field lines.</small></div></li>
+      <li><span>2021&ndash;25</span><div><b>PUNCH Associate Investigator, HAO</b>, with Sarah Gibson
+        <small>Forward models of heliospheric white-light imagery and the processing steps behind it.</small></div></li>
+      <li><span>2016&ndash;22</span><div><b>Graduate researcher, LASP / CU Boulder</b>, with Steve Cranmer
+        <small>GHOSTS: line-of-sight effects and non-equilibrium ionization in coronal spectroscopy.</small></div></li>
+      <li><span>2022</span><div><b>PhD</b>, Astrophysical and Planetary Sciences, CU Boulder
+        <small><a href="files/thesis/Chris_R__Gilly_Thesis_Full-protected.pdf">Spectroscopic Analysis and Image Processing of the Optically-Thin Solar Corona</a></small></div></li>
+      <li><span>2018</span><div><b>MS</b>, Astrophysical and Planetary Sciences, CU Boulder</div></li>
+      <li><span>2015</span><div><b>BS</b>, Physics (Astrophysics concentration), Georgia Tech</div></li>
+    </ol>
+  </section>
+
+  <section class="wrap">
+    <div class="grid about-cols">
+      <article class="thread-card">
+        <p class="card__kicker">Service</p>
+        <ul class="plain">
+          <li>Early Career Committee, AGU Space Physics &amp; Aeronomy (2023&ndash;)</li>
+          <li>Webmaster, AGU SPA section (2020&ndash;)</li>
+          <li>Student Representative, SHINE Steering Committee (2020&ndash;22)</li>
+          <li>Organizer and host, SHINE Student Day (2017&ndash;22)</li>
+        </ul>
       </article>
-      <article class="card card--text">
-        <div class="card__body">
-          <p class="card__kicker">2025</p>
-          <h3>Teaching CV</h3>
-          <p><a href="files/CV_Teaching_2025.pdf" target="_blank" rel="noopener">Download PDF →</a></p>
-        </div>
+      <article class="thread-card">
+        <p class="card__kicker">Outreach</p>
+        <ul class="plain">
+          <li>Production manager and public-talk facilitator, Fiske Planetarium (2018&ndash;22)</li>
+          <li>Public observatory host, Sommers-Bausch Observatory (2015&ndash;22) and Georgia Tech (2013&ndash;15)</li>
+          <li><a href="RecordedPublicTalks.html" data-no-blank>Recorded public talks</a></li>
+        </ul>
       </article>
-      <article class="card card--text">
-        <div class="card__body">
-          <p class="card__kicker">2024</p>
-          <h3>Complete CV</h3>
-          <p><a href="files/CV.pdf" target="_blank" rel="noopener">Download PDF →</a></p>
-        </div>
+      <article class="thread-card">
+        <p class="card__kicker">Off the clock</p>
+        <ul class="plain">
+          <li><a href="Music-and-Theater.html" data-no-blank>Music and theater</a></li>
+          <li><a href="play/" data-no-blank>Web toys</a> that live on this domain</li>
+          <li><a href="enso/" data-no-blank>A new ensō every day</a></li>
+        </ul>
       </article>
     </div>
-    <p style="color:var(--muted); font-size:14px; margin-top:12px">
-      The research and teaching CVs are the current (2025) split; the complete CV is the 2024 combined
-      version. The editable source is <a href="files/CV.docx">CV.docx</a>.
+  </section>
+
+  <section class="section wrap">
+    <h2 style="margin-top:0">CV</h2>
+    <p class="cv-links">
+      <a href="files/CV_Research_2025.pdf">Research CV (2025)</a> ·
+      <a href="files/CV_Teaching_2025.pdf">Teaching CV (2025)</a> ·
+      <a href="files/CV.pdf">Complete CV (2024)</a> ·
+      <a href="files/CV.docx">editable source</a>
     </p>
 
-    <hr class="rule">
-
-    <h2>Colophon</h2>
+    <details class="colophon">
+      <summary>About this site</summary>
+      <div class="prose" style="margin-inline:0">
     <div class="prose">
       <p>
         This site is hand-built and deliberately simple: static HTML, one CSS file, a little vanilla
@@ -129,10 +158,12 @@
         <a href="archive/">archive</a> of older pages.
       </p>
     </div>
+      </div>
+    </details>
   </section>
 </main>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202609271633"></script>
+<script src="/assets/site.js?v=202609271656"></script>
 </body>
 </html>
