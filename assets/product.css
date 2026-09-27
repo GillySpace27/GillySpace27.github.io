@@ -60,3 +60,12 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 .sw-pick-title { margin: 3rem 0 .2em; font-size: clamp(18px, 2.4vw, 22px); }
 .product .sw-pick { margin-top: .6rem; }
 .product .sw-pick a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+.sw-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+
+/* ---- RHEF page: comparison figure and install snippets ---- */
+.product .shot { margin: 0 auto 1.8rem; }
+.product .shot img { display: block; width: 100%; border-radius: var(--radius); box-shadow: var(--shadow); background: #000; }
+.product .shot figcaption { color: var(--muted); font-size: 13px; margin-top: .6rem; }
+.product .code { text-align: left; margin: 0 auto .7rem; max-width: 32rem; padding: .8rem 1rem; overflow-x: auto;
+                 background: #14110d; color: #f1e7cf; border-radius: 10px; font-size: 14px; line-height: 1.5; }
+.product .code code { font-size: inherit; }

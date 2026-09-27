@@ -417,26 +417,27 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
 /* ============================================================================
    HelioSoftware: nav dropdown + the three product marks
    ========================================================================== */
-/* Each product gets a tiny Sun on a night-sky tile, same in both themes:
-   Heliograph the visible disk, HelioFITS a disk seen through a pixel grid,
-   Studio a coronagraph (occulted disk, bright corona). */
+/* Products without a branded app icon get a tiny Sun on a night-sky tile, the same in both themes:
+   HelioFITS a disk seen through a pixel grid, RHEF a disk with the streamers it reveals. */
+.sw-mark, .sw-icon { --s: 30px; flex: none; width: var(--s); height: var(--s); display: inline-block; }
 .sw-mark {
-  --s: 30px; flex: none; width: var(--s); height: var(--s); display: inline-block;
-  border-radius: 28%; background-color: #14110d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  border-radius: 22.5%; background-color: #14110d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
   background-repeat: no-repeat; background-position: center;
 }
 .sw-mark--lg { --s: 84px; display: block; margin: 0 auto 1.1rem; }
-.sw-mark--sun {
-  background-image: radial-gradient(circle, #fff7dc 0 16%, #f6c84c 30%, #d98a1a 36%, rgba(217,138,26,.35) 40%, transparent 52%);
-}
 .sw-mark--fits {
   background-image:
     repeating-linear-gradient(0deg, rgba(20,17,13,.55) 0 1px, transparent 1px 16.66%),
     repeating-linear-gradient(90deg, rgba(20,17,13,.55) 0 1px, transparent 1px 16.66%),
     radial-gradient(circle, #ffe7a0 0 14%, #d9a91a 28%, #8a5a08 36%, transparent 38%);
 }
-.sw-mark--corona {
-  background-image: radial-gradient(circle, #14110d 0 20%, #fff 22%, rgba(236,242,255,.75) 26%, rgba(170,195,255,.28) 36%, transparent 50%);
+
+/* RHEF: a small Sun with the streamers it pulls out of the dark. */
+.sw-mark--rhef {
+  background-image:
+    radial-gradient(circle, #f6c84c 0 17%, #d98a1a 21%, transparent 22%),
+    radial-gradient(circle, transparent 24%, #14110d 47%),
+    repeating-conic-gradient(from 4deg, rgba(246,200,76,.75) 0 5deg, transparent 5deg 22.5deg);
 }
 
 .nav-drop { position: relative; }
@@ -470,3 +471,25 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
 @media (hover: none), (max-width: 640px) {
   .nav-drop__menu, .nav-drop__caret { display: none; }
 }
+
+/* ============================================================================
+   Research page: one section per line of work
+   ========================================================================== */
+.thread { display: grid; gap: clamp(20px, 4vw, 44px); align-items: center; padding: clamp(24px, 5vw, 48px) var(--pad); }
+@media (min-width: 860px) { .thread { grid-template-columns: 1fr 1fr; } }
+.thread h2, .thread-card h2 { margin: 0 0 .5em; }
+.thread__fig { margin: 0; }
+.thread__fig img { display: block; width: 100%; border-radius: var(--radius); box-shadow: var(--shadow); background: #000; }
+.thread__fig figcaption { color: var(--muted); font-size: 13px; margin-top: .5rem; }
+.thread__cite { font-size: 14px; color: var(--muted); }
+.thread__cite a, .thread__text p a, .thread-card p a, #earlier a { text-decoration: underline; text-underline-offset: 2px; }
+.thread-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 22px 22px 8px; box-shadow: var(--shadow); }
+.tool-strip { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.tool-strip a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--card-border); border-radius: var(--radius); background: var(--card-bg); color: var(--text); }
+.tool-strip a:hover { border-color: var(--accent); color: var(--text); }
+.tool-strip .sw-mark, .tool-strip .sw-icon { --s: 40px; }
+.tool-strip b { display: block; }
+.tool-strip small { color: var(--muted); font-size: 13px; }
+.timeline { list-style: none; padding: 0; margin: 1.2rem 0; max-width: var(--measure); }
+.timeline li { display: flex; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+.timeline span { color: var(--accent-text); font-variant-numeric: tabular-nums; min-width: 3em; }
