@@ -1,5 +1,8 @@
 # CLAUDE.md — gilly.space / enso project
 
+> **Site-wide:** after editing `assets/site.css`, `assets/product.css`, `assets/site.js` or
+> anything in `partials/`, run `python3 bump-assets.py` so every page requests the new files.
+
 > This file documents the **daily-enso project** under `enso/` and `worker/`. If
 > this repo has other site content with its own context, that's separate from
 > what's described here. Place this at the repo root or merge into an existing

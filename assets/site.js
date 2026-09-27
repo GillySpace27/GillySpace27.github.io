@@ -16,6 +16,8 @@
 
   var REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var FINE = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+  // The ?v= stamp this script was loaded with (see bump-assets.py), reused for the partials.
+  var VERSION = (document.currentScript && document.currentScript.src.match(/\?v=\w+/) || [''])[0];
   var safe = function (fn) { try { fn(); } catch (e) { /* never let one module break the rest */ } };
 
   /* ---- Scroll-reveal: armed synchronously (script is parser-blocking at end of
@@ -62,7 +64,7 @@
   function inject(name, target, fallback) {
     var done = false;
     var to = setTimeout(function () { if (!done) { done = true; target.innerHTML = fallback; } }, 4000); // never hang headless/offline
-    return fetch('/partials/' + name + '.html', { cache: 'no-cache' })
+    return fetch('/partials/' + name + '.html' + VERSION, { cache: 'no-cache' })
       .then(function (r) { return r.ok ? r.text() : ''; })
       .then(function (html) { if (!done) { done = true; clearTimeout(to); target.innerHTML = html || fallback; } })
       .catch(function () { if (!done) { done = true; clearTimeout(to); target.innerHTML = fallback; } });
