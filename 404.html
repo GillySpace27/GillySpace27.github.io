@@ -6,6 +6,11 @@
 <title>Lost in space (404) · gilly.space</title>
 <meta name="robots" content="noindex">
 <script>
+  // Old uppercase addresses (/HFS/, /HelioFITS/, ...) live on as their lowercase twins.
+  // ponytail: one rule instead of duplicate folders, which collide on case-insensitive disks.
+  if (location.pathname !== location.pathname.toLowerCase()) location.replace(location.pathname.toLowerCase() + location.search + location.hash);
+</script>
+<script>
   (function () {
     try {
       var mode = localStorage.getItem('enso-theme') || 'system';
