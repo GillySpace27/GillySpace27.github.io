@@ -1,0 +1,47 @@
+/* Shared layout for the software download pages (/heliograph/, /heliofits/,
+   /heliofits-studio/). Loaded after site.css and built only on its tokens, so the
+   pages follow the site's light/dark theme and sit under the shared header. */
+.product { max-width: 47rem; margin: 0 auto; padding: clamp(40px, 8vw, 80px) var(--pad) 0; text-align: center; }
+.product h1 { margin: 0 0 .3em; }
+.product .mark { width: 112px; height: 112px; display: block; margin: 0 auto 1.1rem; }
+.product .tag { color: var(--muted); margin: 0 auto 2rem; max-width: 32rem; font-size: 1.05rem; }
+.product code { font-size: .92em; }
+
+/* Download tiles. One tile or a two-by-two grid; four in a row would crush the labels. */
+.platforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; max-width: 34rem; margin: 0 auto; }
+.platforms--one { grid-template-columns: minmax(0, 20rem); justify-content: center; }
+@media (max-width: 34rem) { .platforms { grid-template-columns: 1fr; } }
+.dl {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .15rem;
+  min-height: 5.2rem; padding: .9rem 1rem; border-radius: var(--radius); text-decoration: none;
+  background: var(--card-bg); color: var(--text); border: 1px solid var(--card-border);
+  box-shadow: var(--shadow); transition: border-color .15s, background .15s;
+}
+/* site.css adds an "opens in new tab" arrow to external links; it breaks the tile layout. */
+.dl::after { content: none !important; }
+.dl b { font-size: 1.02rem; font-weight: 600; white-space: nowrap; }
+.dl small { font-size: .82rem; color: var(--muted); }
+a.dl:hover, a.dl:focus-visible { border-color: var(--accent); color: var(--text); }
+a.dl.primary { background: var(--btn-bg); border-color: var(--btn-bg); color: var(--btn-text); }
+a.dl.primary small { color: inherit; opacity: .75; }
+a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-text); }
+.dl[aria-disabled="true"] { cursor: not-allowed; border-style: dashed; color: var(--muted); background: transparent; box-shadow: none; }
+.dl[aria-disabled="true"] b { font-weight: 500; }
+
+.ver { margin: 1rem 0 0; font-size: .9rem; color: var(--muted); min-height: 1.4em; }
+.note { margin: .6rem auto 0; max-width: 30rem; font-size: .9rem; color: var(--muted); }
+.note:empty { display: none; }
+
+.links { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin: 1.6rem 0 0; }
+.sec { color: var(--text); font-size: .92rem; padding: .5rem 1rem; border: 1px solid var(--card-border); border-radius: 999px; }
+.sec:hover, .sec:focus-visible { border-color: var(--accent); color: var(--text); }
+
+.product details, .product .points { margin: 1.8rem auto 0; max-width: 32rem; text-align: left; color: var(--muted); font-size: .95rem; }
+.product details { border-top: 1px solid var(--rule); padding-top: 1rem; }
+.product summary { cursor: pointer; color: var(--text); }
+.product details ul, .product .points { padding-left: 1.1rem; }
+.product details ul { margin: .6rem 0 0; }
+.product li { margin: .3rem 0; }
+.product details a, .product .alt a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+.product details a:hover, .product .alt a:hover { color: var(--link-hover); }
+.product .alt { margin: 1.8rem auto 0; max-width: 32rem; font-size: .88rem; color: var(--muted); }

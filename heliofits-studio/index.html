@@ -6,76 +6,26 @@
 <meta name="robots" content="noindex">
 <title>HelioFITS Studio</title>
 <meta name="description" content="HelioFITS Studio: a desktop viewer for the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.">
-<style>
-  :root {
-    color-scheme: dark;
-    --bg: #0b0f1a;
-    --ink: #e6e8ee;
-    --muted: #aab2c5;
-    --faint: #8d94a6;
-    --line: #2a3144;
-    --tile: #121828;
-    --amber: #e0932b;
-    --amber-hi: #f0a640;
-    --amber-ink: #140c02;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 2.5rem 1rem; line-height: 1.55; color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    /* A low corona behind the card: the product's subject, and the only ornament on the page. */
-    background:
-      radial-gradient(60rem 36rem at 50% -8rem, rgba(224,147,43,.16), transparent 62%),
-      radial-gradient(26rem 26rem at 50% -4rem, rgba(240,166,64,.10), transparent 70%),
-      var(--bg);
-  }
-  main { width: 100%; max-width: 47rem; text-align: center; }
-  h1 { font-size: clamp(2rem, 6vw, 2.6rem); letter-spacing: -.01em; margin: 0 0 .5rem; }
-  .tag { color: var(--muted); margin: 0 auto 2rem; max-width: 30rem; }
-
-  /* Two by two: four tiles in a row would crush "Download for Windows" at this width. */
-  .platforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem;
-               max-width: 34rem; margin: 0 auto; }
-  @media (max-width: 34rem) { .platforms { grid-template-columns: 1fr; } }
-  .dl {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .15rem;
-    min-height: 5.2rem; padding: .9rem 1rem; border-radius: 12px; text-decoration: none;
-    background: var(--tile); color: var(--ink); border: 1px solid var(--line);
-    transition: border-color .15s, background .15s;
-  }
-  .dl b { font-size: 1.02rem; font-weight: 600; white-space: nowrap; }
-  .dl small { font-size: .82rem; color: var(--faint); }
-  a.dl:hover, a.dl:focus-visible { border-color: var(--amber); }
-  a.dl:focus-visible { outline: 2px solid var(--amber-hi); outline-offset: 2px; }
-  a.dl.primary { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }
-  a.dl.primary small { color: rgba(20,12,2,.72); }
-  a.dl.primary:hover, a.dl.primary:focus-visible { background: var(--amber-hi); border-color: var(--amber-hi); }
-  .dl[aria-disabled="true"] { cursor: not-allowed; border-style: dashed; color: var(--faint); background: transparent; }
-  .dl[aria-disabled="true"] b { font-weight: 500; }
-  @media (prefers-reduced-motion: reduce) { .dl { transition: none; } }
-
-  .ver { margin: 1rem 0 0; font-size: .9rem; color: var(--faint); min-height: 1.4em; }
-  .note { margin: .6rem auto 0; max-width: 30rem; font-size: .9rem; color: var(--muted); }
-  .note:empty { display: none; }
-
-  .links { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin: 1.6rem 0 0; }
-  .sec { color: var(--ink); text-decoration: none; font-size: .92rem; padding: .5rem 1rem;
-         border: 1px solid var(--line); border-radius: 999px; }
-  .sec:hover, .sec:focus-visible { border-color: var(--amber); }
-
-  details { margin: 1.8rem auto 0; max-width: 32rem; text-align: left; color: var(--muted); font-size: .93rem;
-            border-top: 1px solid var(--line); padding-top: 1rem; }
-  summary { cursor: pointer; color: var(--ink); }
-  details ul { margin: .6rem 0 0; padding-left: 1.1rem; }
-  details li { margin: .3rem 0; }
-  details a, .alt a { color: var(--muted); }
-  details a:hover, .alt a:hover { color: var(--ink); }
-  .alt { margin-top: 1.8rem; font-size: .84rem; color: var(--faint); }
-</style>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/product.css">
 </head>
 <body>
-<main>
+<div data-include="header"></div>
+<main id="main" class="product">
   <h1>HelioFITS Studio</h1>
   <p class="tag">A desktop viewer for the Sun's outer corona, built for PUNCH, LASCO
      and other coronagraph data.</p>
@@ -135,6 +85,7 @@
      affiliated with it. Problems to <a href="https://github.com/GillySpace27/HelioFITS-Studio/issues">GitHub</a>
      or <a href="mailto:gilly@nwra.com">gilly@nwra.com</a></p>
 </main>
+<div data-include="footer"></div>
 <script>
 // A platform's button goes live only when BOTH hold:
 //   confirmed: someone has installed and run that platform's build on that OS. Set by hand,
@@ -210,5 +161,6 @@ fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_p
     highlight();
   }).catch(() => {});
 </script>
+<script src="/assets/site.js"></script>
 </body>
 </html>

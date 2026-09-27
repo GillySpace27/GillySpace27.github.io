@@ -3,56 +3,53 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HelioFITS — solar FITS files, previewable on your Mac</title>
+<title>HelioFITS: solar FITS files, previewable on your Mac</title>
 <link rel="canonical" href="https://apps.apple.com/app/id6790952544">
-<meta name="description" content="HelioFITS renders solar FITS files as real images on macOS — the right instrument colormap, real coordinates, and searchable metadata.">
+<meta name="description" content="HelioFITS renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.">
 <link rel="icon" type="image/png" href="icon.png">
 <meta property="og:image" content="https://gilly.space/heliofits/icon.png">
-<style>
-  :root { color-scheme: dark; }
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-       background:#0b0f1a;color:#e6e8ee;margin:0;display:flex;min-height:100vh;
-       align-items:center;justify-content:center;padding:2rem;line-height:1.55}
-  .card{max-width:34rem;text-align:center}
-  .mark{width:112px;height:112px;display:block;margin:0 auto 1.1rem}
-  h1{font-size:2rem;margin:0 0 .4rem}
-  .tag{color:#aab2c5;margin:0 0 1.6rem}
-  .cta{display:inline-block;background:#0a84ff;color:#fff;text-decoration:none;
-       font-size:1.05rem;font-weight:600;padding:.85rem 1.6rem;border-radius:10px}
-  .cta:hover{background:#0a6fd8}
-  .alt{margin-top:1.4rem;font-size:.9rem;color:#8d94a6}
-  .alt a{color:#7db3ff}
-  ul{text-align:left;display:inline-block;color:#aab2c5;font-size:.95rem;margin:1.6rem 0 0;padding-left:1.1rem}
-  li{margin:.2rem 0}
-  code{color:#cdd4e4}
-</style>
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/product.css">
 </head>
 <body>
-  <div class="card">
-    <img class="mark" src="icon.png" width="112" height="112" alt="">
-    <h1>HelioFITS</h1>
-    <p class="tag">Solar FITS files, rendered as the Sun — in the right instrument
-       colormap, with real coordinates, right where your data already lives.</p>
-
-    <a class="cta" href="https://apps.apple.com/app/id6790952544">Get it on the Mac App Store</a>
-
-    <ul>
-      <li>Thumbnails on every <code>.fits</code> icon</li>
-      <li>Press Space for an interactive preview — pixel values, coordinates, region stats</li>
-      <li>Telescope, instrument and wavelength searchable in Spotlight</li>
-      <li>A viewer with the full header and a ready-to-run sunpy snippet</li>
-    </ul>
-
-    <p class="alt">
-      Free and open source · no account · no network access<br>
-      <a href="https://github.com/GillySpace27/HelioFITS">Source on GitHub</a>
-    </p>
-
-    <p class="alt">
-      HelioFITS previews solar FITS files in Finder and Quick Look.
-      <a href="/heliofits-studio/">HelioFITS Studio</a> is the full desktop application for working
-      with coronagraph and wide-field solar imagery.
-    </p>
+<div data-include="header"></div>
+<main id="main" class="product">
+  <img class="mark" src="icon.png" width="112" height="112" alt="">
+  <h1>HelioFITS</h1>
+  <p class="tag">Solar FITS files, rendered as the Sun: in the right instrument
+     colormap, with real coordinates, right where your data already lives.</p>
+  <div class="platforms platforms--one">
+    <a class="dl primary" href="https://apps.apple.com/app/id6790952544"><b>Get it on the Mac App Store</b><small>Free · macOS</small></a>
   </div>
+  <p class="links">
+    <a class="sec" href="https://github.com/GillySpace27/HelioFITS">Source on GitHub</a>
+    <a class="sec" href="/heliofits-studio/">HelioFITS Studio</a>
+  </p>
+  <ul class="points">
+    <li>Thumbnails on every <code>.fits</code> icon</li>
+    <li>Press Space for an interactive preview: pixel values, coordinates, region stats</li>
+    <li>Telescope, instrument and wavelength searchable in Spotlight</li>
+    <li>A viewer with the full header and a ready-to-run sunpy snippet</li>
+  </ul>
+  <p class="alt">Free and open source · no account · no network access</p>
+  <p class="alt">HelioFITS previews solar FITS files in Finder and Quick Look.
+    <a href="/heliofits-studio/">HelioFITS Studio</a> is the full desktop application for working
+    with coronagraph and wide-field solar imagery.</p>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/site.js"></script>
 </body>
 </html>
