@@ -45,3 +45,18 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 .product details a, .product .alt a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
 .product details a:hover, .product .alt a:hover { color: var(--link-hover); }
 .product .alt { margin: 1.8rem auto 0; max-width: 32rem; font-size: .88rem; color: var(--muted); }
+
+/* ---- /heliosoftware/ family page ---- */
+.product .eyebrow a { color: var(--accent-text); }
+.product--wide { max-width: var(--maxw); }
+.sw-grid { text-align: left; margin-top: 2.2rem; }
+.sw-card > a { display: flex; flex-direction: column; height: 100%; padding: 24px 22px 20px; }
+.sw-card .sw-mark--lg { --s: 64px; margin: 0 0 1rem; }
+.sw-card h3 { margin: 0 0 .35em; }
+.sw-card p { color: var(--muted); font-size: 15px; margin: 0 0 1rem; }
+.sw-card .sw-meta { margin: auto 0 0; font-size: 13px; color: var(--accent-text); }
+.sw-card .sw-meta::after { content: " →"; transition: margin .15s ease; }
+.sw-card:hover .sw-meta::after { margin-left: 4px; }
+.sw-pick-title { margin: 3rem 0 .2em; font-size: clamp(18px, 2.4vw, 22px); }
+.product .sw-pick { margin-top: .6rem; }
+.product .sw-pick a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }

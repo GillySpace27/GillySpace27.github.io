@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HelioSoftware · gilly.space</title>
+<meta name="description" content="Three programs for putting the Sun where you already work: Heliograph, HelioFITS and HelioFITS Studio.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/assets/css/academicons.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/product.css">
+</head>
+<body>
+<div data-include="header"></div>
+<main id="main" class="product product--wide" data-no-blank>
+  <p class="eyebrow">Software from gilly.space</p>
+  <h1><span class="gradient-text">HelioSoftware</span></h1>
+  <p class="tag">Three programs that put the Sun where you already work: on your screen,
+     in your file browser, and at your research desk.</p>
+
+  <div class="grid sw-grid">
+    <article class="card sw-card"><a href="/heliograph/">
+      <span class="sw-mark sw-mark--sun sw-mark--lg" aria-hidden="true"></span>
+      <p class="card__kicker">For your screens</p>
+      <h3>Heliograph</h3>
+      <p>The live Sun as your desktop picture, your screen saver, or a wall of video.
+         Imagery from NASA's Solar Dynamics Observatory.</p>
+      <p class="sw-meta">macOS · direct download</p>
+    </a></article>
+    <article class="card sw-card"><a href="/heliofits/">
+      <span class="sw-mark sw-mark--fits sw-mark--lg" aria-hidden="true"></span>
+      <p class="card__kicker">For your Finder</p>
+      <h3>HelioFITS</h3>
+      <p>Solar FITS files rendered as the Sun, right in Finder and Quick Look: the instrument's
+         colormap, real coordinates, and metadata you can search in Spotlight.</p>
+      <p class="sw-meta">macOS · free on the Mac App Store</p>
+    </a></article>
+    <article class="card sw-card"><a href="/heliofits-studio/">
+      <span class="sw-mark sw-mark--corona sw-mark--lg" aria-hidden="true"></span>
+      <p class="card__kicker">For your science</p>
+      <h3>HelioFITS Studio</h3>
+      <p>A desktop viewer for the Sun's outer corona, built for PUNCH, LASCO and other
+         coronagraph data.</p>
+      <p class="sw-meta">macOS now · Windows and Linux in testing</p>
+    </a></article>
+  </div>
+
+  <h2 class="sw-pick-title">Which one do I want?</h2>
+  <ul class="points sw-pick">
+    <li>You'd like to look up and see today's Sun: <a href="/heliograph/">Heliograph</a>.</li>
+    <li>You have a folder full of <code>.fits</code> files and no idea which is which: <a href="/heliofits/">HelioFITS</a>.</li>
+    <li>You're following a CME out through the coronagraphs: <a href="/heliofits-studio/">HelioFITS Studio</a>.</li>
+    <li>All three: they get along fine.</li>
+  </ul>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/site.js"></script>
+</body>
+</html>
