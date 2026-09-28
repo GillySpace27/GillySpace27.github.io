@@ -5,44 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Heliograph for Mac</title>
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<script>
-  (function () {
-    try {
-      var mode = localStorage.getItem('enso-theme') || 'system';
-      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
-    } catch (e) {}
-  })();
-</script>
-<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
-<link rel="stylesheet" href="/assets/css/academicons.min.css">
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css?v=202609272028">
-<link rel="stylesheet" href="/assets/product.css?v=202609272028">
+<style>
+  :root { color-scheme: dark; }
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       background:#0b0f1a;color:#e6e8ee;margin:0;display:flex;min-height:100vh;
+       align-items:center;justify-content:center;padding:2rem;line-height:1.55}
+  .card{max-width:34rem;text-align:center}
+  h1{font-size:2rem;margin:0 0 .4rem}
+  .tag{color:#aab2c5;margin:0 0 1.6rem}
+  .cta{display:inline-block;background:#e0932b;color:#140c02;text-decoration:none;
+       font-size:1.05rem;font-weight:600;padding:.85rem 1.6rem;border-radius:10px}
+  .cta:hover,.cta:focus-visible{background:#f0a640}
+  .ver{margin:.8rem 0 0;font-size:.9rem;color:#8d94a6;min-height:1.4em}
+  ul{text-align:left;display:inline-block;color:#aab2c5;font-size:.95rem;margin:1.6rem 0 0;padding-left:1.1rem}
+  li{margin:.25rem 0}
+  .alt{margin-top:1.4rem;font-size:.85rem;color:#8d94a6}
+  .notes{margin-top:2rem;text-align:left}
+  .notes h2{font-size:1.05rem;margin:0;color:#e6e8ee}
+  .notes ul{margin-top:.5rem}
+</style>
 </head>
 <body>
-<div data-include="header"></div>
-<main id="main" class="product">
-  <img class="sw-icon sw-mark--lg" src="/assets/sw/heliograph.png" alt="">
-  <p class="eyebrow" data-no-blank><a href="/heliosoftware/">HelioSoftware</a></p>
-  <h1>Heliograph</h1>
-  <p class="tag">The live Sun on your Mac's screens: as your desktop picture,
-     your screen saver, or a wall of video.</p>
-  <div class="platforms platforms--one">
-    <a class="dl primary" href="Heliograph.dmg"><b>Download for Mac</b><small>Apple Silicon and Intel</small></a>
+  <div class="card">
+    <h1>Heliograph</h1>
+    <p class="tag">The live Sun on your Mac's screens: as your desktop picture,
+       your screen saver, or a wall of video.</p>
+    <a class="cta" href="Heliograph.dmg">Download for Mac</a>
+    <p class="ver" id="ver">macOS 13 or later · Apple Silicon and Intel</p>
+    <ul>
+      <li>Open the disk image and drag Heliograph to Applications.</li>
+      <li>Already have it? Drag the new one over the old; your settings stay.</li>
+      <li>From 0.7 on, Heliograph keeps itself up to date. Earlier versions show a
+          notice in the menu bar Sun; download this one over them.</li>
+    </ul>
+    <!-- notes: ship.sh copies this block into the update feed, and refuses to
+         run unless its heading names the version being shipped -->
+    <section class="notes">
+      <h2>What's new in 0.7</h2>
+      <ul>
+        <li>Heliograph now updates itself. It checks once a day, downloads in the
+            background and installs when you quit; a kiosk installs overnight.</li>
+        <li>Lighter on your network: imagery is checked once a day, or twice if you
+            choose, only what your screens show is downloaded, and nothing is
+            fetched unless it has changed.</li>
+        <li>What you pick is what you see. Un-ticking a product takes it off every
+            screen; ticking one fetches it at once.</li>
+        <li>On a wall, the arrow keys step through the clips, and no wavelength
+            appears on two screens at once or twice in a row.</li>
+        <li>A redesigned Settings window that follows dark mode, shows the version,
+            and has a Turn Off and Quit button that undoes what Heliograph set up.</li>
+        <li>A new icon.</li>
+      </ul>
+    </section>
+    <!-- /notes -->
+    <p class="alt">Live imagery from NASA's Solar Dynamics Observatory, processed by gilly.space.</p>
   </div>
-  <p class="ver" id="ver">macOS 13 or later · Apple Silicon and Intel</p>
-  <ul class="points">
-    <li>Open the disk image and drag Heliograph to Applications.</li>
-    <li>Already have it? Drag the new one over the old; your settings stay.</li>
-    <li>When a newer version is out, Heliograph says so in its menu bar Sun.</li>
-  </ul>
-  <p class="alt">Live imagery from NASA's Solar Dynamics Observatory, processed by gilly.space.</p>
-</main>
-<div data-include="footer"></div>
-<script src="/assets/site.js?v=202609272028"></script>
 <script>
 fetch("version.json", {cache: "no-store"}).then(r => r.json()).then(v => {
   document.getElementById("ver").textContent =

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
+IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>Heliograph</title>
+    <item>
+      <title>Heliograph 0.7</title>
+      <pubDate>Mon, 28 Sep 2026 05:55:31 +0000</pubDate>
+      <sparkle:version>7</sparkle:version>
+      <sparkle:shortVersionString>0.7</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<section class="notes">
+      <h2>What's new in 0.7</h2>
+      <ul>
+        <li>Heliograph now updates itself. It checks once a day, downloads in the
+            background and installs when you quit; a kiosk installs overnight.</li>
+        <li>Lighter on your network: imagery is checked once a day, or twice if you
+            choose, only what your screens show is downloaded, and nothing is
+            fetched unless it has changed.</li>
+        <li>What you pick is what you see. Un-ticking a product takes it off every
+            screen; ticking one fetches it at once.</li>
+        <li>On a wall, the arrow keys step through the clips, and no wavelength
+            appears on two screens at once or twice in a row.</li>
+        <li>A redesigned Settings window that follows dark mode, shows the version,
+            and has a Turn Off and Quit button that undoes what Heliograph set up.</li>
+        <li>A new icon.</li>
+      </ul>
+    </section>]]></description>
+      <enclosure url="https://gilly.space/heliograph/Heliograph-0.7.dmg" sparkle:edSignature="LpMFBEkAzJTk2676BxyJ89BZp+MUCY6UV4Vhu/KnhC53MVQQA9hcV7AqrEM/XW77/3KoWKkmHaQ8Lsse7TEvAw==" length="12226044" type="application/octet-stream"></enclosure>
+    </item>
+  </channel>
+</rss><!-- sparkle-signatures:
+edSignature: aynCrnMdgwwzkLqQAravrmn0h8i3dmjjkLRwVuhvIB8CL7qgk0gUNMkcphPZhu5yzW5CmsYBCx+1DDO/V/7RBQ==
+length: 1989
+-->
