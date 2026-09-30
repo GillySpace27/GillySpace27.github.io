@@ -1,4 +1,4 @@
-/* Shared layout for the software download pages (/heliograph/, /heliofits/,
+/* Shared layout for the software download pages (/heliogram/, /heliofits/,
    /heliofits-studio/). Loaded after site.css and built only on its tokens, so the
    pages follow the site's light/dark theme and sit under the shared header. */
 .product { max-width: 47rem; margin: 0 auto; padding: clamp(40px, 8vw, 80px) var(--pad) 0; text-align: center; }
