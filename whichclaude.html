@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Model Sequence — a Claude field guide</title>
+<title>The Model Sequence: a Claude field guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Martian+Mono:wght@300..700&display=swap" rel="stylesheet">
@@ -300,7 +300,7 @@ footer a:hover{color:var(--ink)}
 footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var(--mono);font-size:11.5px}
 
 /* ---------- site nav (matches gilly.space header, restyled for this page's
-   palette; site.css is deliberately NOT loaded — it would override this
+   palette; site.css is deliberately NOT loaded, it would override this
    page's bespoke type and color system) ---------- */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:20;background:var(--panel);color:var(--ink);padding:10px 14px}
 .skip-link:focus{left:0}
@@ -312,6 +312,22 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
 .sitebar nav a{color:var(--mut);text-decoration:none;padding:6px 9px;border-radius:8px}
 .sitebar nav a:hover{color:var(--ink);background:var(--panel2)}
 .sitebar nav a[aria-current="page"]{color:var(--ink);background:var(--panel2);box-shadow:inset 0 -2px 0 var(--accent)}
+
+/* ---------- cost estimator ---------- */
+.calc{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:24px 30px;display:grid;grid-template-columns:minmax(220px,1fr) 2fr;gap:28px}
+.calc-in{display:grid;gap:12px;align-content:start}
+.calc-in label{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);display:grid;gap:5px}
+.calc-in input{background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--mono);font-size:14px;padding:8px 10px;outline:none}
+.calc-in input:focus{border-color:var(--accent)}
+.calc-out{display:grid;gap:10px;align-content:start}
+.crow{display:grid;grid-template-columns:120px 1fr auto;gap:14px;align-items:center;font-size:13.5px}
+.crow .nm{font-weight:700;color:var(--ink)}
+.crow .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.crow .bar i{display:block;height:100%;border-radius:4px}
+.crow .amt{font-family:var(--mono);font-size:12.5px;color:var(--ink);min-width:72px;text-align:right}
+.crow .amt small{display:block;color:var(--dim);font-size:10px}
+.stop.def:not(.on)::after{content:" ●";font-size:7px;vertical-align:middle;color:var(--accent)}
+@media(max-width:700px){.calc{grid-template-columns:1fr}}
 
 /* ---------- responsive ---------- */
 @media(max-width:840px){
@@ -352,11 +368,11 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
 <header class="masthead">
   <div class="eyebrow">
     <span>Field guide · Claude lineup</span><span class="pip"></span>
-    <span>Specs verified 2026-08-02</span><span class="pip"></span>
-    <span class="live" id="liveModel">Selected: Claude Opus 5</span>
+    <span>Specs verified 2026-10-01</span><span class="pip"></span>
+    <span class="live" id="liveModel">Selected: Claude Opus 5.5</span>
   </div>
   <h1>The Model<br>Sequence<span class="thin">.</span></h1>
-  <p class="lede">Four models, plotted the way an astronomer would: <b>capability against latency</b>, priced by point size. It's not quite a main sequence — more of a giant branch — but the physics of the tradeoff is real. Pick a star and the whole guide follows.</p>
+  <p class="lede">Four models, plotted the way an astronomer would: <b>capability against latency</b>, priced by point size. It's not quite a main sequence (more of a giant branch), but the physics of the tradeoff is real. Pick a star and the whole guide follows.</p>
 </header>
 
 <!-- ============ H-R DIAGRAM ============ -->
@@ -399,12 +415,12 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
         <circle cx="660" cy="78" r="34"/>
         <!-- annotation sits left of the star: centred above it would land on the
              r=44 halo and run past the right edge of the viewBox -->
-        <text x="606" y="70" text-anchor="end">CLAUDE MYTHOS 5 · SAME SPECS ·</text>
+        <text x="606" y="70" text-anchor="end">CLAUDE MYTHOS 5.1 · SAME SPECS ·</text>
         <text x="606" y="82" text-anchor="end">INVITATION-ONLY (PROJECT GLASSWING)</text>
       </g>
 
       <!-- stars -->
-      <g class="star tw" id="st-haiku" data-m="haiku" role="button" tabindex="0" aria-label="Select Claude Haiku 4.5 — fastest model">
+      <g class="star tw" id="st-haiku" data-m="haiku" role="button" tabindex="0" aria-label="Select Claude Haiku 4.5: fastest model">
         <circle class="halo" cx="150" cy="340" r="24" fill="#8FD0FF" filter="url(#glowB)"/>
         <circle class="ring" cx="150" cy="340" r="19" stroke="#8FD0FF"/>
         <circle class="core" cx="150" cy="340" r="11" fill="#8FD0FF" filter="url(#glowH)"/>
@@ -412,28 +428,28 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
         <text class="star-label" x="150" y="308" text-anchor="middle">HAIKU 4.5</text>
         <text class="star-sub" x="150" y="372" text-anchor="middle">$1 / $5</text>
       </g>
-      <g class="star tw2" id="st-sonnet" data-m="sonnet" role="button" tabindex="0" aria-label="Select Claude Sonnet 5 — best speed-to-intelligence blend">
+      <g class="star tw2" id="st-sonnet" data-m="sonnet" role="button" tabindex="0" aria-label="Select Claude Sonnet 5.5: best speed-to-intelligence blend">
         <circle class="halo" cx="330" cy="255" r="30" fill="#FFDF8E" filter="url(#glowB)"/>
         <circle class="ring" cx="330" cy="255" r="24" stroke="#FFDF8E"/>
         <circle class="core" cx="330" cy="255" r="14" fill="#FFDF8E" filter="url(#glowH)"/>
         <circle cx="330" cy="255" r="14" fill="#FFDF8E"/>
-        <text class="star-label" x="330" y="216" text-anchor="middle">SONNET 5</text>
-        <text class="star-sub" x="330" y="294" text-anchor="middle">$3 / $15</text>
+        <text class="star-label" x="330" y="216" text-anchor="middle">SONNET 5.5</text>
+        <text class="star-sub" x="330" y="294" text-anchor="middle">$2 / $10</text>
       </g>
-      <g class="star tw3" id="st-opus" data-m="opus" role="button" tabindex="0" aria-label="Select Claude Opus 5 — the recommended starting point">
-        <circle class="halo" cx="520" cy="160" r="36" fill="#FFA65C" filter="url(#glowB)"/>
-        <circle class="ring" cx="520" cy="160" r="29" stroke="#FFA65C"/>
-        <circle class="core" cx="520" cy="160" r="17" fill="#FFA65C" filter="url(#glowH)"/>
-        <circle cx="520" cy="160" r="17" fill="#FFA65C"/>
-        <text class="star-label" x="520" y="116" text-anchor="middle">OPUS 5</text>
-        <text class="star-sub" x="520" y="203" text-anchor="middle">$5 / $25</text>
+      <g class="star tw3" id="st-opus" data-m="opus" role="button" tabindex="0" aria-label="Select Claude Opus 5.5: the recommended starting point">
+        <circle class="halo" cx="520" cy="160" r="34" fill="#FFA65C" filter="url(#glowB)"/>
+        <circle class="ring" cx="520" cy="160" r="27" stroke="#FFA65C"/>
+        <circle class="core" cx="520" cy="160" r="16" fill="#FFA65C" filter="url(#glowH)"/>
+        <circle cx="520" cy="160" r="16" fill="#FFA65C"/>
+        <text class="star-label" x="520" y="116" text-anchor="middle">OPUS 5.5</text>
+        <text class="star-sub" x="520" y="201" text-anchor="middle">$4 / $20</text>
       </g>
-      <g class="star tw4" id="st-fable" data-m="fable" role="button" tabindex="0" aria-label="Select Claude Fable 5 — the most capable widely released model">
+      <g class="star tw4" id="st-fable" data-m="fable" role="button" tabindex="0" aria-label="Select Claude Fable 5.1: the most capable widely released model">
         <circle class="halo" cx="660" cy="78" r="44" fill="#FF6F61" filter="url(#glowB)"/>
         <circle class="ring" cx="660" cy="78" r="35" stroke="#FF6F61"/>
         <circle class="core" cx="660" cy="78" r="22" fill="#FF6F61" filter="url(#glowH)"/>
         <circle cx="660" cy="78" r="22" fill="#FF6F61"/>
-        <text class="star-label" x="660" y="128" text-anchor="middle">FABLE 5</text>
+        <text class="star-label" x="660" y="128" text-anchor="middle">FABLE 5.1</text>
         <text class="star-sub" x="660" y="141" text-anchor="middle">$10 / $50</text>
       </g>
 
@@ -443,7 +459,7 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
         <text class="tick" x="86" y="66">DASHED RING = INVITATION-ONLY TWIN</text>
       </g>
     </svg>
-    <div class="hr-hint">CLICK OR TAB TO A STAR — THE CARD, CONSOLE &amp; SNIPPET BELOW FOLLOW YOUR SELECTION</div>
+    <div class="hr-hint">CLICK OR TAB TO A STAR · THE CARD, CONSOLE &amp; SNIPPET BELOW FOLLOW YOUR SELECTION</div>
   </div>
 </section>
 
@@ -466,7 +482,7 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
   </div>
   <div class="helper">
     <div class="q">
-      <div class="q-label">Q1 — <em>How hard is the task, honestly?</em></div>
+      <div class="q-label">Q1 · <em>How hard is the task, honestly?</em></div>
       <div class="opts" data-q="q1">
         <button class="opt" data-v="0">Quick &amp; simple</button>
         <button class="opt" data-v="1">Solid build or draft</button>
@@ -475,7 +491,7 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
       </div>
     </div>
     <div class="q">
-      <div class="q-label">Q2 — <em>What are you optimizing?</em></div>
+      <div class="q-label">Q2 · <em>What are you optimizing?</em></div>
       <div class="opts" data-q="q2">
         <button class="opt" data-v="cost">Speed &amp; cost</button>
         <button class="opt" data-v="bal">A sensible balance</button>
@@ -483,7 +499,7 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
       </div>
     </div>
     <div class="q">
-      <div class="q-label">Q3 — <em>Any scale factors?</em></div>
+      <div class="q-label">Q3 · <em>Any scale factors?</em></div>
       <div class="opts" data-q="q3">
         <button class="opt" data-v="none">None</button>
         <button class="opt" data-v="ctx">Huge context (&gt;200k tokens)</button>
@@ -500,7 +516,7 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
   <div class="sec-head">
     <span class="sec-kicker">03 · Throttle</span>
     <span class="sec-title">The effort parameter</span>
-    <span class="sec-note">One dial, five stops — it shapes <b style="color:var(--mut)">every</b> token, thinking and tool calls included</span>
+    <span class="sec-note">One dial, five stops; it shapes <b style="color:var(--mut)">every</b> token, thinking and tool calls included</span>
   </div>
   <div class="console">
     <div class="console-main">
@@ -534,15 +550,16 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
     </div>
     <div class="console-guides">
       <div class="g-tabs" id="gTabs">
-        <button class="g-tab" data-m="fable">Fable 5</button>
-        <button class="g-tab on" data-m="opus">Opus 5</button>
-        <button class="g-tab" data-m="sonnet">Sonnet 5</button>
+        <button class="g-tab" data-m="fable">Fable 5.1</button>
+        <button class="g-tab on" data-m="opus">Opus 5.5</button>
+        <button class="g-tab" data-m="sonnet">Sonnet 5.5</button>
         <button class="g-tab" data-m="haiku">Haiku 4.5</button>
       </div>
       <p class="g-body" id="gBody"></p>
       <div class="codebox" id="codebox">
         <button class="copybtn" id="copyBtn">copy</button>
-<pre>response = client.messages.create(
+<pre><span class="c1"># ● on the rail marks the selected model's default</span>
+response = client.messages.create(
     model=<span class="c2" id="cModel">"claude-opus-5"</span>,
     max_tokens=<span class="c3">4096</span>,
     messages=[{<span class="c2">"role"</span>: <span class="c2">"user"</span>, <span class="c2">"content"</span>: prompt}],
@@ -553,11 +570,13 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
     <div class="gotchas">
       <h4>Gotchas worth memorizing</h4>
       <ul>
-        <li><b>"high" is the default</b> — setting it explicitly behaves exactly like omitting the parameter.</li>
-        <li><b>Hold effort constant within a conversation</b> — changing it between requests invalidates prompt caching.</li>
-        <li><b>It's a behavioral signal, not a hard budget</b> — at low effort, Claude still thinks on genuinely hard problems, just less.</li>
-        <li><b>Lower effort means fewer, terser tool calls</b> — operations get combined and preambles vanish.</li>
-        <li><b>On Opus 5, effort tunes thinking volume, not reply length</b> — if you want shorter answers, prompt for length. And at xhigh/max, thinking can't be disabled.</li>
+        <li><b>The default is per model now:</b> high on Fable 5.1 and Sonnet 5.5, <b>medium on Opus 5.5</b>. Omitting the parameter runs Opus 5.5 one notch lower than Opus 5 did.</li>
+        <li><b>Change effort mid-conversation with a per-message <span style="font-family:var(--mono);font-size:12px">output_config</span></b> (beta header <span style="font-family:var(--mono);font-size:12px">mid-conversation-output-config-2026-07-01</span>); it keeps the prompt cache. Changing the top-level value between requests still restarts it.</li>
+        <li><b>It's a behavioral signal, not a hard budget:</b> at low effort, Claude still thinks on genuinely hard problems, just less.</li>
+        <li><b>Lower effort means fewer, terser tool calls:</b> operations get combined and preambles vanish.</li>
+        <li><b>Thinking is always on for Opus 5.5 and Fable 5.1</b>; <span style="font-family:var(--mono);font-size:12px">thinking: disabled</span> returns a 400. Sonnet 5.5's floor is <span style="font-family:var(--mono);font-size:12px">between_tools</span>, and that one is only legal at low, medium, and high.</li>
+        <li><b>Sonnet 5.5's levels are recalibrated</b>: a level does not buy the same thinking it did on Sonnet 5. Re-run the effort sweep instead of carrying settings over.</li>
+        <li><b>Set max_tokens generously at high and above</b>: it caps thinking plus reply combined. For agentic coding on Sonnet 5.5 the docs say 128k and stream.</li>
         <li><b>Where you set it:</b> the API (<span style="font-family:var(--mono);font-size:12px">output_config</span>) and Claude Code. In claude.ai it mostly stays behind the curtain.</li>
       </ul>
     </div>
@@ -572,7 +591,7 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
     <span class="sec-note">Recommendations are this guide's judgment, applying the official guidance</span>
   </div>
   <div class="toolbar">
-    <input class="search" id="tSearch" type="search" placeholder="Search tasks — try 'fluxpype', 'proposal', 'batch'…" aria-label="Search tasks">
+    <input class="search" id="tSearch" type="search" placeholder="Search tasks: try 'fluxpype', 'proposal', 'batch'…" aria-label="Search tasks">
     <span class="tcount" id="tCount"></span>
   </div>
   <div class="chips" id="tChips" style="margin-bottom:18px">
@@ -585,7 +604,7 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
     <button class="chip" data-c="agent">Agents &amp; batch</button>
   </div>
   <div class="tasks" id="tGrid"></div>
-  <div class="empty" id="tEmpty">Nothing matches — clear the search or switch category.</div>
+  <div class="empty" id="tEmpty">Nothing matches; clear the search or switch category.</div>
 </section>
 
 <!-- ============ COMPARISON TABLE ============ -->
@@ -601,26 +620,48 @@ footer .srcs{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-family:var
         <th data-k="name">Model <span class="arr">↕</span></th>
         <th data-k="pin">$ In/MTok <span class="arr">↕</span></th>
         <th data-k="pout">$ Out/MTok <span class="arr">↕</span></th>
+        <th data-k="pcache">$ Cache hit <span class="arr">↕</span></th>
         <th data-k="ctx">Context <span class="arr">↕</span></th>
         <th data-k="maxo">Max output <span class="arr">↕</span></th>
         <th data-k="lat">Latency <span class="arr">↕</span></th>
         <th data-k="cut">Knowledge cutoff <span class="arr">↕</span></th>
+        <th data-k="def">Default effort</th>
         <th data-k="think">Thinking</th>
         <th data-k="eff">Effort levels</th>
       </tr></thead>
       <tbody id="cmpBody"></tbody>
     </table>
   </div>
-  <p class="tbl-note">* Sonnet 5 intro pricing — $2 in / $10 out — runs through Aug 31, 2026, then $3 / $15. Batch API discounts apply on top for all models.</p>
+  <p class="tbl-note">Cache hit = price per MTok read back from the prompt cache (0.025× input on Fable 5.1, 0.05× on Opus 5.5, 0.1× elsewhere). Batch API discounts stack on top. Claude 4.7+ models use a tokenizer that yields roughly 30% more tokens for the same text.</p>
+  <p class="tbl-note">Still callable, previous generation (Claude API, tentative retirement not sooner than): Fable 5 $10/$50 (2027-06-09) · Opus 5 $5/$25 (2027-07-24) · Sonnet 5 $2/$10 (2027-06-30) · Opus 4.8 / 4.7 / 4.6 $5/$25 · Sonnet 4.6 $3/$15. Haiku 4.5 itself is the oldest current model: not sooner than 2026-10-15.</p>
+</section>
+
+<!-- ============ COST ESTIMATOR ============ -->
+<section id="cost-sec">
+  <div class="sec-head">
+    <span class="sec-kicker">06 · Photometry</span>
+    <span class="sec-title">What will it cost?</span>
+    <span class="sec-note">Per request, list prices; Batch API would halve it</span>
+  </div>
+  <div class="calc">
+    <div class="calc-in">
+      <label>Input tokens (k)<input id="cIn" type="number" min="0" step="1" value="40"></label>
+      <label>of which cached (%)<input id="cHit" type="number" min="0" max="100" step="5" value="0"></label>
+      <label>Output tokens (k)<input id="cOut" type="number" min="0" step="1" value="8"></label>
+      <label>Requests<input id="cN" type="number" min="1" step="1" value="1"></label>
+    </div>
+    <div class="calc-out" id="calcOut"></div>
+  </div>
 </section>
 
 <!-- ============ FOOTER ============ -->
 <footer>
-  <p>Built for Gilly, 2026-08-02. Specs, pricing, and effort guidance pulled from the Claude Platform documentation on that date; the task-by-task recommendations are editorial judgment layered on top. Model lineups drift — when this feels stale, re-verify against the sources.</p>
+  <p>Built for Gilly, 2026-08-02; lineup refreshed 2026-10-01 (Fable 5.1, Opus 5.5, Sonnet 5.5). Specs, pricing, and effort guidance pulled from the Claude Platform documentation on that date; the task-by-task recommendations are editorial judgment layered on top. Model lineups drift: when this feels stale, re-verify against the sources.</p>
   <div class="srcs">
     <a href="https://platform.claude.com/docs/en/about-claude/models/overview">docs · models overview</a>
     <a href="https://platform.claude.com/docs/en/build-with-claude/effort">docs · effort</a>
     <a href="https://platform.claude.com/docs/en/about-claude/pricing">docs · pricing</a>
+    <a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">docs · deprecations</a>
   </div>
 </footer>
 
@@ -632,63 +673,63 @@ const MODELS = {
   haiku:{
     name:"Claude Haiku 4.5", cls:"B-class dwarf · speed tier", color:"var(--haiku)", hex:"#8FD0FF",
     tag:"The fastest model, with near-frontier intelligence.",
-    id:"claude-haiku-4-5", pin:"$1", pout:"$5", ctx:"200k tokens", maxo:"64k tokens",
-    lat:"Fastest", cut:"Feb 2025", think:"Extended thinking (opt-in)", eff:"— not supported",
-    badges:["Cheapest per token","Latency king","No effort param"],
+    id:"claude-haiku-4-5-20251001", pin:"$1", pout:"$5", pcache:"$0.10", ctx:"200k tokens", maxo:"64k tokens",
+    lat:"Fastest", cut:"Feb 2025", think:"Extended thinking (opt-in)", eff:"not supported", def:null,
+    badges:["Cheapest per token","Latency king","No effort param","Oldest in the lineup"],
     go:["High-volume or batch classification jobs","Subagent workers inside larger pipelines","Instant lookups, triage, and throwaway drafts","Latency-critical interactive tools"],
     no:["Contexts beyond 200k tokens","Frontier multi-step reasoning","Anything leaning on post-Feb-2025 knowledge without web search"],
-    effNote:"Haiku 4.5 sits outside the effort system entirely. To control its reasoning depth, enable extended thinking and set a thinking token budget (budget_tokens) instead. For everything else in the lineup, effort is the dial."
+    effNote:"Haiku 4.5 sits outside the effort system entirely. To control its reasoning depth, enable extended thinking and set a thinking token budget (budget_tokens) instead. For everything else in the lineup, effort is the dial. Its tentative retirement floor is the earliest of the four (not sooner than 2026-10-15), so do not build anything new that assumes it stays."
   },
   sonnet:{
-    name:"Claude Sonnet 5", cls:"G-class · the workhorse", color:"var(--sonnet)", hex:"#FFDF8E",
+    name:"Claude Sonnet 5.5", cls:"G-class · the workhorse", color:"var(--sonnet)", hex:"#FFDF8E",
     tag:"The best combination of speed and intelligence.",
-    id:"claude-sonnet-5", pin:"$3 ($2*)", pout:"$15 ($10*)", ctx:"1M tokens", maxo:"128k tokens",
-    lat:"Fast", cut:"Jan 2026", think:"Adaptive", eff:"low · med · high · xhigh · max",
-    badges:["Intro pricing thru Aug 31","1M context","Fast iteration"],
-    go:["Fast iteration loops on code and canvas toys","Interactive data exploration and quick-look plots","Precision editing under deadline","Cost-conscious quality — especially during intro pricing"],
+    id:"claude-sonnet-5-5", pin:"$2", pout:"$10", pcache:"$0.20", ctx:"1M tokens", maxo:"128k tokens",
+    lat:"Fast", cut:"Jun 2026", think:"Adaptive (floor: between_tools)", eff:"low · med · high · xhigh · max", def:"high",
+    badges:["$2 / $10 is now the list price","1M context","Jun 2026 knowledge"],
+    go:["Fast iteration loops on code and canvas toys","Interactive data exploration and quick-look plots","Precision editing under deadline","Chat and latency-sensitive tools at medium or low effort"],
     no:["The very hardest multi-step problems (step up to Opus)","Unattended long-horizon runs","Frontier-stakes critique"],
-    effNote:"Defaults to high. The documented ladder: xhigh for the hardest coding and agentic work; medium as the cost step-down (roughly Sonnet 4.6 at high); low for high-volume, latency-sensitive traffic; max when nothing but the ceiling will do."
+    effNote:"Defaults to high on the API. The levels are recalibrated relative to Sonnet 5, so re-run your effort sweep. Documented ladder: high for most work; medium for well-specified agentic coding, moving to high as tasks get harder or longer; medium or low for chat; xhigh or max only where evals show a gain. For agentic coding set max_tokens to 128k and stream. To skip up-front thinking send thinking: between_tools (legal at low, medium, high only)."
   },
   opus:{
-    name:"Claude Opus 5", cls:"K-class giant · the default", color:"var(--opus)", hex:"#FFA65C",
-    tag:"For complex agentic coding and enterprise work — the docs' recommended starting point.",
-    id:"claude-opus-5", pin:"$5", pout:"$25", ctx:"1M tokens", maxo:"128k tokens",
-    lat:"Moderate", cut:"May 2026", think:"Adaptive (on by default)", eff:"low · med · high · xhigh · max",
-    badges:["Docs: start here","Newest knowledge — May 2026","Near-Fable capability, half the price"],
-    go:["Serious agentic coding and multi-file refactors","Long documents and whole-paper stacks via 1M context","Anything that benefits from the freshest built-in knowledge","Your everyday driver for real work"],
+    name:"Claude Opus 5.5", cls:"K-class giant · the default", color:"var(--opus)", hex:"#FFA65C",
+    tag:"For long-running agentic coding and knowledge work; the docs' recommended starting point.",
+    id:"claude-opus-5-5", pin:"$4", pout:"$20", pcache:"$0.20", ctx:"1M tokens", maxo:"128k tokens",
+    lat:"Moderate", cut:"Jun 2026", think:"Adaptive (always on)", eff:"low · med · high · xhigh · max", def:"medium",
+    badges:["Docs: start here","Cheaper than Opus 5 ($4 / $20)","Default effort is medium","Fast mode: $8 / $40"],
+    go:["Serious agentic coding and multi-file refactors","Long documents and whole-paper stacks via 1M context","Prompt-cache-heavy sessions (5% cache reads)","Your everyday driver for real work"],
     no:["High-volume cheap calls (that's Haiku)","Sub-second latency needs","Casual questions where Sonnet is plenty"],
-    effNote:"Defaults to high — start there and let evals move you. Step up to xhigh for demanding coding and agentic runs, reserve max for tasks that justify unconstrained spend, and use low/medium liberally as your cost lever where quality holds. Note: effort shapes thinking volume, not visible reply length — prompt for length instead — and thinking can't be disabled at xhigh or max."
+    effNote:"Defaults to medium, one notch below Opus 5, so an omitted effort now runs lighter than it used to. Adaptive thinking is always on and cannot be disabled, which makes effort the one control over reasoning depth and cost. Run an effort sweep on your own evals rather than carrying Opus 5 settings over, set a large max_tokens at the higher levels, and use per-message effort changes to keep the cache warm. Fast mode (research preview) doubles the price for faster output."
   },
   fable:{
-    name:"Claude Fable 5", cls:"M-class supergiant · Mythos tier", color:"var(--fable)", hex:"#FF6F61",
-    tag:"Next-generation intelligence for long-running agents — the most capable widely released model.",
-    id:"claude-fable-5", pin:"$10", pout:"$50", ctx:"1M tokens", maxo:"128k tokens",
-    lat:"Slower", cut:"Jan 2026", think:"Adaptive (always on)", eff:"low · med · high · xhigh · max",
-    badges:["Most capable available","Thinking always on","Twin: Mythos 5 (invite-only)"],
+    name:"Claude Fable 5.1", cls:"M-class supergiant · Mythos tier", color:"var(--fable)", hex:"#FF6F61",
+    tag:"For demanding reasoning and long-horizon agentic work; the most capable widely released model.",
+    id:"claude-fable-5-1", pin:"$10", pout:"$50", pcache:"$0.25", ctx:"1M tokens", maxo:"128k tokens",
+    lat:"Slower", cut:"Jun 2026", think:"Adaptive (always on)", eff:"low · med · high · xhigh · max", def:"high",
+    badges:["Most capable available","Thinking always on","2.5% cache reads","Twin: Mythos 5.1 (invite-only)"],
     go:["The hardest scientific and conceptual reasoning","Autonomous agents running 30+ minutes","Frontier-stakes critique, review, and writing","Problems where a wrong answer is expensive"],
-    no:["Interactive quick loops — the latency will grate","Cost-sensitive volume work","Tasks Opus 5 handles at half the price"],
-    effNote:"Effort is the primary control here for trading intelligence, latency, and cost. Start at high; go xhigh only for the most capability-sensitive work; drop to medium or low for routine tasks — Fable at lower effort often still beats prior models at xhigh. At high and above, set a generous max_tokens: it caps thinking plus response combined."
+    no:["Interactive quick loops: the latency will grate","Cost-sensitive volume work","Tasks Opus 5.5 handles at 40% of the price"],
+    effNote:"Start at high, the default. Step up to xhigh or max for the most capability-sensitive agentic and coding work; step down to medium or low for routine or latency-sensitive work once evals show quality holds. At high and above set a large max_tokens (it caps thinking plus reply). Prefer per-message effort changes over flipping the top-level value: the latter restarts the cache and steers less reliably, because earlier replies were written at the old level. Same guidance applies to Mythos 5.1."
   }
 };
 
 const EFFORT = {
-  low:{ d:"Most efficient. Significant token savings with some capability reduction — Claude scopes work tightly to what was asked.",
+  low:{ d:"Most efficient. Significant token savings with some capability reduction; Claude scopes work tightly to what was asked.",
         use:"Subagents, classification, quick lookups, high-volume traffic where speed and cost dominate.",
         spend:1, tool:"Combines operations, fewer calls, no preamble, terse confirmations.",
         sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: quiet sun"},
-  medium:{ d:"The balanced middle — solid performance with moderate token savings. On Sonnet 5, roughly Sonnet 4.6 at high.",
+  medium:{ d:"The balanced middle: solid performance with moderate token savings. The default on Opus 5.5, and the docs' starting point for well-specified agentic coding on Sonnet 5.5.",
         use:"Everyday agentic work balancing speed, cost, and quality; the sensible cost step-down.",
         spend:2, tool:"Leaner call patterns; explanations trimmed but present.",
         sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: coronal hole breeze"},
-  high:{ d:"The default — identical to omitting the parameter. Claude spends what it needs for excellent results.",
-        use:"Complex reasoning, difficult coding, agentic tasks — quality over speed or cost.",
+  high:{ d:"The default on Fable 5.1 and Sonnet 5.5 (Opus 5.5 defaults to medium). Setting a model's default explicitly is identical to omitting the parameter.",
+        use:"Complex reasoning, difficult coding, agentic tasks; quality over speed or cost.",
         spend:3, tool:"Plans before acting; explains changes; comments code properly.",
         sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: active region"},
   xhigh:{ d:"Extended capability for long-horizon work: 30-minute-plus agentic and coding runs with token budgets in the millions.",
         use:"Demanding multi-file refactors, repeated tool calling, deep search and exploration. Set a large max_tokens.",
         spend:4, tool:"More calls, wider exploration, comprehensive summaries.",
         sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: M-class flare"},
-  max:{ d:"Absolute maximum capability, no constraints on token spending. Reserve it — on routine work it mostly adds cost.",
+  max:{ d:"Absolute maximum capability, no constraints on token spending. Reserve it; on routine work it mostly adds cost.",
         use:"Genuinely frontier problems demanding the deepest possible reasoning and most thorough analysis.",
         spend:5, tool:"Exhaustive exploration; expect meaningfully higher spend.",
         sup:{fable:1,opus:1,sonnet:1,haiku:0}, cap:"Solar analogue: X-class flare"}
@@ -697,46 +738,46 @@ const EFFORT = {
 const CATS = {ops:"Quick ops", code:"Code & pipelines", sci:"Science & analysis", write:"Writing & proposals", web:"Web & outreach", agent:"Agents & batch"};
 
 const TASKS = [
- {c:"ops", t:"Sanity-check a bash one-liner before it touches the vault", m:"haiku", e:"—", w:"Zero-latency answer; the stakes are low and reversible."},
- {c:"ops", t:"Look up a solar constant or unit conversion mid-calculation", m:"haiku", e:"—", w:"Instant recall beats waiting — verify anything critical."},
- {c:"ops", t:"Summarize today's DKIST observing log into a daily note", m:"haiku", e:"—", w:"Straight compression; no deep reasoning required."},
- {c:"ops", t:"Draft a two-line Slack reply to Cherilynn", m:"haiku", e:"—", w:"The fastest model for throwaway text."},
- {c:"ops", t:"Tidy the research-tasks inbox with Claude Code", m:"sonnet", e:"low", w:"Tool-heavy but simple — low effort means fewer, terser tool calls."},
+ {c:"ops", t:"Sanity-check a bash one-liner before it touches the vault", m:"haiku", e:"none", w:"Zero-latency answer; the stakes are low and reversible."},
+ {c:"ops", t:"Look up a solar constant or unit conversion mid-calculation", m:"haiku", e:"none", w:"Instant recall beats waiting; verify anything critical."},
+ {c:"ops", t:"Summarize today's DKIST observing log into a daily note", m:"haiku", e:"none", w:"Straight compression; no deep reasoning required."},
+ {c:"ops", t:"Draft a two-line Slack reply to Cherilynn", m:"haiku", e:"none", w:"The fastest model for throwaway text."},
+ {c:"ops", t:"Tidy the research-tasks inbox with Claude Code", m:"sonnet", e:"low", w:"Tool-heavy but simple; low effort means fewer, terser tool calls."},
  {c:"code", t:"Debug a fluxpype traceback", m:"sonnet", e:"high", w:"Fast iteration with real reasoning; escalate to Opus if it resists."},
  {c:"code", t:"Refactor the RHEF module and add tests", m:"opus", e:"xhigh", w:"The documented sweet spot for demanding agentic coding."},
- {c:"code", t:"Add a tool endpoint to the spectral-line MCP server", m:"sonnet", e:"high", w:"Well-scoped feature work, squarely in Sonnet's lane."},
+ {c:"code", t:"Add a tool endpoint to the spectral-line MCP server", m:"sonnet", e:"medium", w:"Well-specified agentic coding: the docs' Sonnet 5.5 starting point is medium."},
  {c:"code", t:"Vectorize a slow NumPy loop in GHOSTS", m:"sonnet", e:"high", w:"Focused optimization with a quick feedback loop."},
- {c:"code", t:"Review a PR before it lands in fluxpype", m:"opus", e:"high", w:"Careful multi-file judgment at moderate latency."},
+ {c:"code", t:"Review a PR before it lands in fluxpype", m:"opus", e:"high", w:"Careful multi-file judgment at moderate latency; one notch above Opus 5.5's medium default."},
  {c:"code", t:"Untangle a cross-repo bug spanning fluxpype and GHOSTS", m:"opus", e:"xhigh", w:"Extended exploration across files and repeated tool calls."},
  {c:"code", t:"Overnight autonomous refactor across the whole pipeline", m:"fable", e:"xhigh", w:"Built for long-running agents; xhigh exists for exactly this."},
- {c:"write", t:"Iterate LaTeX on the next HFR-style proposal", m:"opus", e:"high", w:"Enterprise-grade drafting — and its May 2026 cutoff knows the current landscape."},
+ {c:"write", t:"Iterate LaTeX on the next HFR-style proposal", m:"opus", e:"high", w:"Knowledge-work drafting at 40% of Fable's price, with Jun 2026 knowledge."},
  {c:"write", t:"Convene a virtual review panel to red-team the proposal", m:"fable", e:"max", w:"The deepest available critique, no token constraints."},
- {c:"write", t:"Draft the Zahavy rebuttal for gilly.space", m:"fable", e:"high", w:"Frontier reasoning about reasoning — fitting."},
+ {c:"write", t:"Draft the Zahavy rebuttal for gilly.space", m:"fable", e:"high", w:"Frontier reasoning about reasoning; fitting."},
  {c:"write", t:"Squeeze the SHINE abstract under the word limit", m:"sonnet", e:"high", w:"Precision editing at conversational speed."},
  {c:"write", t:"Caption a PUNCH nugget for Sarah and Joan", m:"sonnet", e:"medium", w:"Light writing; medium trims cost without losing polish."},
  {c:"write", t:"Turn the DKIST waves notes into a progress report", m:"opus", e:"high", w:"Long synthesis needing structure and judgment."},
  {c:"sci", t:"Interpret a weird Cryo-NIRSP artifact from a figure", m:"fable", e:"high", w:"Hardest-case scientific reasoning on vision input."},
  {c:"sci", t:"Sanity-check the Alfvén-wave detection statistics", m:"opus", e:"high", w:"Careful quantitative reasoning worth the latency."},
  {c:"sci", t:"First-look plots on a fresh FITS dataset", m:"sonnet", e:"high", w:"Exploratory analysis at interactive speed."},
- {c:"sci", t:"Digest 40 papers on solar wind heating in one pass", m:"opus", e:"high", w:"The 1M-token context swallows the whole stack."},
- {c:"sci", t:"Batch-classify 10,000 NIST line identifications", m:"haiku", e:"—", w:"Cheapest per token; run it through the Batch API for the discount."},
+ {c:"sci", t:"Digest 40 papers on solar wind heating in one pass", m:"opus", e:"medium", w:"The 1M-token context swallows the whole stack; the default effort is plenty for synthesis."},
+ {c:"sci", t:"Batch-classify 10,000 NIST line identifications", m:"haiku", e:"none", w:"Cheapest per token; run it through the Batch API for the discount."},
  {c:"web", t:"Add a feature to the corona explorer sim", m:"sonnet", e:"high", w:"Canvas iteration thrives on a fast loop."},
  {c:"web", t:"Design a brand-new gilly.space toy from scratch", m:"opus", e:"xhigh", w:"First passes benefit from deep design exploration; iterate in Sonnet after."},
  {c:"web", t:"Compress a VOCAL session into a 7-minute planetarium script", m:"opus", e:"high", w:"Pedagogical restructuring under real constraints."},
- {c:"web", t:"Write alt text for the AGU ECLAC page update", m:"haiku", e:"—", w:"Simple, high-volume accessibility text."},
- {c:"agent", t:"Spawn subagent workers inside a bigger pipeline", m:"sonnet", e:"low", w:"The docs' canonical low-effort role — Haiku 4.5 works here too."},
+ {c:"web", t:"Write alt text for the AGU ECLAC page update", m:"haiku", e:"none", w:"Simple, high-volume accessibility text."},
+ {c:"agent", t:"Spawn subagent workers inside a bigger pipeline", m:"sonnet", e:"low", w:"The docs' canonical low-effort role; Haiku 4.5 works here too."},
  {c:"agent", t:"Long-horizon literature sweep that runs unattended", m:"fable", e:"xhigh", w:"Millions-of-tokens budgets are exactly xhigh territory."},
- {c:"agent", t:"Keep a week-long Claude Code session on the vault", m:"opus", e:"high", w:"The everyday driver — hold effort constant to keep the prompt cache warm."}
+ {c:"agent", t:"Keep a week-long Claude Code session on the vault", m:"opus", e:"medium", w:"The everyday driver at its default; raise effort per message when a turn needs it, which keeps the cache warm."}
 ];
 
 const ROWS = [
- {k:"fable", name:"Fable 5", pin:10, pout:50, ctx:1000, maxo:128, lat:4, cut:"2026-01", think:"Adaptive · always on", eff:"low→max"},
- {k:"opus", name:"Opus 5", pin:5, pout:25, ctx:1000, maxo:128, lat:3, cut:"2026-05", think:"Adaptive · default on", eff:"low→max"},
- {k:"sonnet", name:"Sonnet 5", pin:3, pout:15, ctx:1000, maxo:128, lat:2, cut:"2026-01", think:"Adaptive", eff:"low→max"},
- {k:"haiku", name:"Haiku 4.5", pin:1, pout:5, ctx:200, maxo:64, lat:1, cut:"2025-02", think:"Extended (opt-in)", eff:"n/a"}
+ {k:"fable", name:"Fable 5.1", pin:10, pout:50, pcache:0.25, ctx:1000, maxo:128, lat:4, cut:"2026-06", def:"high", think:"Adaptive · always on", eff:"low→max"},
+ {k:"opus", name:"Opus 5.5", pin:4, pout:20, pcache:0.20, ctx:1000, maxo:128, lat:3, cut:"2026-06", def:"medium", think:"Adaptive · always on", eff:"low→max"},
+ {k:"sonnet", name:"Sonnet 5.5", pin:2, pout:10, pcache:0.20, ctx:1000, maxo:128, lat:2, cut:"2026-06", def:"high", think:"Adaptive · floor between_tools", eff:"low→max"},
+ {k:"haiku", name:"Haiku 4.5", pin:1, pout:5, pcache:0.10, ctx:200, maxo:64, lat:1, cut:"2025-02", def:"n/a", think:"Extended (opt-in)", eff:"n/a"}
 ];
 const LATNAME = {1:"Fastest",2:"Fast",3:"Moderate",4:"Slower"};
-const CUTNAME = {"2026-05":"May 2026","2026-01":"Jan 2026","2025-02":"Feb 2025"};
+const CUTNAME = {"2026-06":"Jun 2026","2025-02":"Feb 2025"};
 
 /* ==================== STARFIELD ==================== */
 (function(){
@@ -782,12 +823,14 @@ function renderCard(){
     <div class="specs">
       <div class="spec"><span>Input / MTok</span><b>${M.pin}</b></div>
       <div class="spec"><span>Output / MTok</span><b>${M.pout}</b></div>
+      <div class="spec"><span>Cache hit / MTok</span><b>${M.pcache}</b></div>
       <div class="spec"><span>Context window</span><b>${M.ctx}</b></div>
       <div class="spec"><span>Max output</span><b>${M.maxo}</b></div>
       <div class="spec"><span>Latency</span><b>${M.lat}</b></div>
       <div class="spec"><span>Knowledge cutoff</span><b>${M.cut}</b></div>
       <div class="spec"><span>Thinking</span><b>${M.think}</b></div>
       <div class="spec"><span>Effort levels</span><b>${M.eff}</b></div>
+      <div class="spec"><span>Default effort</span><b>${M.def||"n/a"}</b></div>
     </div>
   </div>
   <div class="mcard-bottom">
@@ -826,11 +869,11 @@ function verdict(){
   const {q1,q2,q3}=ans;
   let m, e, why=[];
   if(q3==="batch" && q1<=1){
-    m="haiku"; e="—";
-    why=["Cheapest tokens in the lineup for volume work","Run it through the Batch API for the discount","Haiku skips the effort system — use extended thinking budgets if depth is needed"];
+    m="haiku"; e="none";
+    why=["Cheapest tokens in the lineup for volume work","Run it through the Batch API for the discount","Haiku skips the effort system; use extended thinking budgets if depth is needed"];
   } else if(q3==="auto"){
     m = q2==="cost" ? "opus" : "fable"; e="xhigh";
-    why=[ m==="fable" ? "Fable 5 is positioned precisely for long-running agents" : "Opus 5 handles long-horizon runs near Fable capability at half the price",
+    why=[ m==="fable" ? "Fable 5.1 is positioned precisely for long-running agents" : "Opus 5.5 handles long-horizon runs near Fable capability at 40% of the price",
       "xhigh is built for 30-minute-plus runs with token budgets in the millions",
       "Set a large max_tokens so it has room to think and act"];
   } else {
@@ -838,29 +881,29 @@ function verdict(){
     if(q2==="cost" && i>0) i-=1;
     if(q2==="best" && i<3) i+=1;
     m = ORDER[i];
-    if(q3==="ctx" && m==="haiku") { m="sonnet"; why.push("Haiku tops out at 200k context — Sonnet's 1M window covers you"); }
+    if(q3==="ctx" && m==="haiku") { m="sonnet"; why.push("Haiku tops out at 200k context; Sonnet's 1M window covers you"); }
     if(q3==="batch") { m="sonnet"; why.push("For heavier batch work, Sonnet at low effort beats Haiku on quality per dollar"); }
     // effort
-    if(m==="haiku") e="—";
+    if(m==="haiku") e="none";
     else if(m==="sonnet") e = q3==="batch" ? "low" : (q2==="cost" ? (q1<=1?"low":"medium") : (q2==="best"&&q1>=2 ? "xhigh":"high"));
     else if(m==="opus") e = (q1===3||q2==="best") ? "xhigh" : (q2==="cost" ? "medium" : "high");
     else e = q2==="best" ? (q1===3?"max":"xhigh") : "high";
     // reasons
     const R={
-      haiku:["Fastest and cheapest — right-sized for the job","Near-frontier intelligence covers simple tasks fine"],
-      sonnet:["The speed-to-intelligence sweet spot for this workload","Intro pricing ($2/$10) sweetens it through Aug 31"],
-      opus:["The docs' recommended starting point for serious work","May 2026 knowledge cutoff — the freshest in the lineup"],
-      fable:["The most capable widely released model — this task earns it","Adaptive thinking is always on; expect depth, accept latency"]
+      haiku:["Fastest and cheapest; right-sized for the job","Near-frontier intelligence covers simple tasks fine"],
+      sonnet:["The speed-to-intelligence sweet spot for this workload","$2 / $10 list price with 1M context and Jun 2026 knowledge"],
+      opus:["The docs' recommended starting point for serious work","$4 / $20 and 5% cache reads: the cheapest frontier-class tokens"],
+      fable:["The most capable widely released model; this task earns it","Adaptive thinking is always on; expect depth, accept latency"]
     };
     why=R[m].concat(why);
-    if(e==="max") why.push("max removes all token constraints — reserve it for exactly this");
+    if(e==="max") why.push("max removes all token constraints; reserve it for exactly this");
     if(e==="xhigh") why.push("xhigh unlocks extended exploration and repeated tool calls");
     if(e==="low"||e==="medium") why.push("Lower effort trims tool calls and cost while quality holds on routine work");
   }
-  const alt = m==="fable" ? ["opus","Opus 5 at xhigh gets close at half the price — worth an eval."]
-    : m==="opus" ? ["fable","If the answer really matters, Fable 5 is the ceiling."]
-    : m==="sonnet" ? ["opus","Hitting its limits? Opus 5 at high is the natural escalation."]
-    : ["sonnet","Need more headroom? Sonnet 5 at low keeps costs sane with more brains."];
+  const alt = m==="fable" ? ["opus","Opus 5.5 at xhigh gets close at 40% of the price; worth an eval."]
+    : m==="opus" ? ["fable","If the answer really matters, Fable 5.1 is the ceiling."]
+    : m==="sonnet" ? ["opus","Hitting its limits? Opus 5.5 at high is the natural escalation."]
+    : ["sonnet","Need more headroom? Sonnet 5.5 at low keeps costs sane with more brains."];
   const M=MODELS[m], A=MODELS[alt[0]];
   const v=$("#verdict");
   v.className="verdict show";
@@ -869,12 +912,12 @@ function verdict(){
     <div class="v-top" style="color:${M.hex}">
       <span class="v-star"></span>
       <span class="v-name" style="color:var(--ink)">${M.name}</span>
-      <span class="v-effort">${e==="—" ? "no effort param" : "effort: "+e}</span>
+      <span class="v-effort">${e==="none" ? "no effort param" : "effort: "+e}</span>
     </div>
     <ul class="v-why">${why.slice(0,4).map(x=>`<li>${x}</li>`).join("")}</ul>
-    <div class="v-alt">Runner-up — <b style="color:${A.hex}">${A.name}</b>: ${alt[1]}</div>`;
+    <div class="v-alt">Runner-up: <b style="color:${A.hex}">${A.name}</b>: ${alt[1]}</div>`;
   selectModel(m,false);
-  if(e!=="—") setEffort(e);
+  if(e!=="none") setEffort(e);
 }
 
 /* ==================== EFFORT CONSOLE ==================== */
@@ -910,6 +953,7 @@ function setGuide(m){
     t.style.borderColor = on? MODELS[m].hex : "";
   });
   $("#gBody").innerHTML = `<b>${MODELS[m].name}:</b> ${MODELS[m].effNote}`;
+  $$(".stop").forEach(s=>s.classList.toggle("def", s.dataset.e===MODELS[m].def));
   $("#cModel").textContent = `"${MODELS[m].id}"`;
 }
 $("#gTabs").addEventListener("click",e=>{
@@ -929,13 +973,13 @@ function renderTasks(){
   const grid=$("#tGrid");
   const list=TASKS.filter(t=>(tCat==="all"||t.c===tCat) && (t.t+" "+t.w+" "+MODELS[t.m].name).toLowerCase().includes(tQ));
   grid.innerHTML=list.map((t,i)=>`
-    <div class="tcard" data-m="${t.m}" data-e="${t.e}" tabindex="0" role="button" aria-label="${t.t} — recommended ${MODELS[t.m].name}">
+    <div class="tcard" data-m="${t.m}" data-e="${t.e}" tabindex="0" role="button" aria-label="${t.t}: recommended ${MODELS[t.m].name}">
       <div class="tcat">${CATS[t.c]}</div>
       <div class="ttitle">${t.t}</div>
       <div class="twhy">${t.w}</div>
       <div class="tfoot">
         <span class="mbadge" style="color:${MODELS[t.m].hex};border-color:${MODELS[t.m].hex}55"><i></i>${MODELS[t.m].name.replace("Claude ","")}</span>
-        ${t.e!=="—" ? `<span class="ebadge">effort: ${t.e}</span>` : `<span class="ebadge">no effort param</span>`}
+        ${t.e!=="none" ? `<span class="ebadge">effort: ${t.e}</span>` : `<span class="ebadge">no effort param</span>`}
       </div>
     </div>`).join("");
   $("#tCount").textContent = list.length+" / "+TASKS.length;
@@ -944,11 +988,11 @@ function renderTasks(){
 $("#tGrid").addEventListener("click",e=>{
   const c=e.target.closest(".tcard"); if(!c) return;
   selectModel(c.dataset.m,false);
-  if(c.dataset.e!=="—") setEffort(c.dataset.e);
+  if(c.dataset.e!=="none") setEffort(c.dataset.e);
   $("#card").scrollIntoView({behavior:"smooth"});
 });
 $("#tGrid").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){ const c=e.target.closest(".tcard"); if(c){ selectModel(c.dataset.m,false); if(c.dataset.e!=="—") setEffort(c.dataset.e); $("#card").scrollIntoView({behavior:"smooth"}); } }
+  if(e.key==="Enter"){ const c=e.target.closest(".tcard"); if(c){ selectModel(c.dataset.m,false); if(c.dataset.e!=="none") setEffort(c.dataset.e); $("#card").scrollIntoView({behavior:"smooth"}); } }
 });
 $("#tChips").addEventListener("click",e=>{
   const c=e.target.closest(".chip"); if(!c) return;
@@ -968,12 +1012,14 @@ function renderTable(){
   $("#cmpBody").innerHTML=rows.map(r=>`
     <tr>
       <td class="mcell"><span class="dot" style="background:${MODELS[r.k].hex}"></span>${r.name}</td>
-      <td>$${r.pin}${r.k==="sonnet"?" ($2*)":""}</td>
-      <td>$${r.pout}${r.k==="sonnet"?" ($10*)":""}</td>
+      <td>$${r.pin}</td>
+      <td>$${r.pout}</td>
+      <td>$${r.pcache.toFixed(2)}</td>
       <td>${r.ctx>=1000?"1M":r.ctx+"k"}</td>
       <td>${r.maxo}k</td>
       <td>${LATNAME[r.lat]}</td>
       <td>${CUTNAME[r.cut]}</td>
+      <td>${r.def}</td>
       <td>${r.think}</td>
       <td>${r.eff}</td>
     </tr>`).join("");
@@ -983,12 +1029,31 @@ function renderTable(){
   });
 }
 $$("#cmp th").forEach(th=>{
-  if(!["name","pin","pout","ctx","maxo","lat","cut"].includes(th.dataset.k)) return;
+  if(!["name","pin","pout","pcache","ctx","maxo","lat","cut"].includes(th.dataset.k)) return;
   th.addEventListener("click",()=>{
     if(sortK===th.dataset.k) sortDir*=-1; else {sortK=th.dataset.k; sortDir=1;}
     renderTable();
   });
 });
+
+/* ==================== COST ESTIMATOR ==================== */
+function renderCost(){
+  const inK=+$("#cIn").value||0, hit=Math.min(100,Math.max(0,+$("#cHit").value||0))/100,
+        outK=+$("#cOut").value||0, n=Math.max(1,+$("#cN").value||1);
+  const rows=ROWS.map(r=>{
+    const perReq=(inK*(1-hit)*r.pin + inK*hit*r.pcache + outK*r.pout)/1000; // $/MTok × k tokens
+    return {r, perReq, total:perReq*n};
+  });
+  const top=Math.max(...rows.map(x=>x.total))||1;
+  const fmt=v=>v<0.01?"$"+v.toFixed(4):v<1?"$"+v.toFixed(3):"$"+v.toFixed(2);
+  $("#calcOut").innerHTML=rows.map(({r,perReq,total})=>`
+    <div class="crow">
+      <span class="nm" style="color:${MODELS[r.k].hex}">${r.name}</span>
+      <span class="bar"><i style="width:${(100*total/top).toFixed(1)}%;background:${MODELS[r.k].hex}"></i></span>
+      <span class="amt">${fmt(total)}${n>1?`<small>${fmt(perReq)} each</small>`:""}</span>
+    </div>`).join("");
+}
+$$(".calc-in input").forEach(i=>i.addEventListener("input",renderCost));
 
 /* ==================== INIT ==================== */
 selectModel("opus",false);
@@ -996,6 +1061,7 @@ setEffort("high");
 setGuide("opus");
 renderTasks();
 renderTable();
+renderCost();
 </script>
 </body>
 </html>
