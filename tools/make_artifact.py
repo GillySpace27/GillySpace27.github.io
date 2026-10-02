@@ -4,8 +4,11 @@
   python3 tools/make_artifact.py --content DIR --out DIR [--ref REF] [--now YYYY-MM-DDTHH:MM:SSZ]
 
 --content is a git checkout of the commit to publish (its HEAD). Only tracked
-files are staged ("git archive"), minus .github/, .gitattributes and .gitignore:
-the branch source never served dotfiles. Refuses a tree without CNAME,
+files are staged ("git archive"), minus every path with a component that starts
+with a dot or an underscore (.github/, .mailmap, .editorconfig, .gitattributes,
+.nojekyll, _*.scss, ...) and minus __pycache__ and *.pyc: the branch source never
+served them under Jekyll. The artifact is not run through Jekyll, so .nojekyll is
+not needed here. Refuses a tree without CNAME,
 google690400622efc7ebc.html or index.html, and an --out that is not empty.
 Writes <out>/build.json and prints it. Never writes inside --content.
 Standard library only; no tarfile extract filters, so it runs on Python 3.9.
@@ -22,7 +25,9 @@ import subprocess
 import sys
 import tarfile
 
-EXCLUDE = (".github", ".gitattributes", ".gitignore")
+# Never published: a path component starting with "." or "_" (Jekyll's own rule
+# on the branch source), and Python build output.
+HIDDEN_PREFIXES = (".", "_")
 REQUIRED = ("CNAME", "google690400622efc7ebc.html", "index.html")
 STAMP_RE = re.compile(r"/assets/site\.css\?v=(\d{12})\b")
 NOW_RE = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -57,7 +62,8 @@ def build_json(content, ref: str = "", now: str = None) -> dict:
 
 
 def skipped(name: str) -> bool:
-    return any(name == e or name.startswith(e + "/") for e in EXCLUDE)
+    parts = [p for p in name.split("/") if p]
+    return any(p.startswith(HIDDEN_PREFIXES) or p == "__pycache__" for p in parts) or name.endswith(".pyc")
 
 
 def stage(content, out) -> int:

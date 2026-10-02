@@ -115,8 +115,41 @@ class ArtifactTest(unittest.TestCase):
         m = ma()
         self.assertTrue(m.skipped(".github/workflows/x.yml"))
         self.assertTrue(m.skipped(".gitignore"))
-        self.assertFalse(m.skipped(".github-not-really/x"))
-        self.assertFalse(m.skipped("tools/.github/y"))
+        for hidden in (".mailmap", ".editorconfig", ".gitattributes", ".nojekyll",
+                       "tools/.github/y", ".github-not-really/x", "bkk/lib/.gitattributes", ".well-known/x"):
+            self.assertTrue(m.skipped(hidden), hidden)
+        for private in ("assets/sass/libs/_vars.scss", "_config.yml", "_site/index.html", "a/_b/c.txt"):
+            self.assertTrue(m.skipped(private), private)
+        for build in ("__pycache__/x.py", "tools/__pycache__/x.cpython-311.pyc",
+                      "tools/tests/__pycache__/test_x.cpython-311.pyc", "stray.pyc", "tools/mod.pyc"):
+            self.assertTrue(m.skipped(build), build)
+        for served in ("CNAME", "index.html", "a.txt", "dir with space/b.txt", "assets/site.css",
+                       "heliosoftware/spec/agent-preamble.md", "my_file.txt", "a/b_c/d.txt", "x.pycx", "pyc"):
+            self.assertFalse(m.skipped(served), served)
+
+    def test_stage_drops_every_dot_underscore_and_build_path(self):
+        root = make_repo(self.base)
+        extra = {
+            ".mailmap": "Gilly <x@example.com>\n",
+            ".editorconfig": "root = true\n",
+            ".nojekyll": "",
+            "sub/.gitattributes": "* text=auto\n",
+            "assets/sass/libs/_vars.scss": "$a: 1;\n",
+            "assets/site.css": "a{}\n",
+            "tools/tests/__pycache__/t.cpython-311.pyc": "x",
+            "stray.pyc": "x",
+            "heliosoftware/spec/agent-preamble.md": "preamble\n",
+        }
+        for rel, body in extra.items():
+            f = root / rel
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text(body)
+        git(root, "add", "-f", "--", *extra)
+        git(root, "commit", "-q", "-m", "more")
+        out = self.base / "out"
+        ma().stage(root, out)
+        self.assertEqual(tree(out), {"CNAME", GOOGLE, "index.html", "a.txt", "dir with space/b.txt",
+                                     "assets/site.css", "heliosoftware/spec/agent-preamble.md"})
 
     def test_cli_writes_build_json_and_prints_it(self):
         root = make_repo(self.base)
