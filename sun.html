@@ -30,7 +30,7 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/assets/css/academicons.min.css">
 <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css?v=202610020555">
+<link rel="stylesheet" href="/assets/site.css?v=202610020557">
 <style>
   .sun-lead { font-size: 1.05rem; color: var(--muted); max-width: 62ch; margin: 0 0 1em; }
   .sun-times { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted);
@@ -161,6 +161,7 @@
   </section>
 </main>
 
+<div id="sun-toast" role="status" aria-live="polite"></div>
 <div id="lb">
   <button class="x" type="button" aria-label="Close">&times;</button>
   <button class="lb-nav prev" type="button" aria-label="Previous">&#8249;</button>
@@ -170,8 +171,8 @@
 </div>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610020555"></script>
-<script src="/assets/sun.js?v=202610020555"></script>
+<script src="/assets/site.js?v=202610020557"></script>
+<script src="/assets/sun.js?v=202610020557"></script>
 <script>
   const BUCKET = SunData.BUCKET;
   const PRODUCTS = [
@@ -312,6 +313,7 @@
         <div class="sun-links">
           <a href="${u(m.img1k, v)}" target="_blank" rel="noopener">Full size</a>
           <button type="button" data-action="open" data-mode="video" data-idx="${idx}">&#9658; 48 h</button>
+          <button type="button" class="ghost" data-action="share" data-idx="${idx}" aria-label="Share ${label}">Share</button>
           ${id === "dem" ? `<button type="button" class="ghost" data-action="open" data-mode="tscan" data-idx="${idx}">&#9658; T-scan</button>` : ""}
         </div>
       </div>`;
@@ -382,7 +384,37 @@
     grid.addEventListener("contextmenu", e => { if (held && e.target.closest(".sun-thumb")) e.preventDefault(); });
   }
 
-  // One delegated listener for every card button (open, retry).
+  // Share this Sun: the per-channel short link https://gilly.space/s/<id>/ unfurls as that channel's image.
+  let toastTimer = 0;
+  function toast(msg) {
+    const el = document.getElementById("sun-toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+  }
+  async function shareCard(card, p){
+    const url = SunData.shareUrl(p[0]);
+    const r = await SunData.share({ title: "The Sun: " + p[1], url });
+    if (r === "shared") toast("Shared");
+    else if (r === "copied") toast("Link copied: " + url);
+    else if (r === "failed") toast("Could not copy. The link is " + url);
+  }
+
+  // A link to /sun.html#<id> (or /s/<id>/, which redirects to it) scrolls to that card and marks it.
+  let hlTimer = 0;
+  function highlightFromHash(){
+    const id = SunData.parseHash(location.hash).card;
+    const el = id && PRODUCTS.some(p => p[0] === id) ? document.getElementById(id) : null;
+    if (!el) return;
+    document.querySelectorAll(".card--sun.is-hl").forEach(x => x.classList.remove("is-hl"));
+    el.classList.add("is-hl");
+    el.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "center" });
+    clearTimeout(hlTimer);
+    hlTimer = setTimeout(() => el.classList.remove("is-hl"), 6000);
+  }
+
+  // One delegated listener for every card button (open, share, retry).
   function onGridClick(e){
     const b = e.target.closest("[data-action]");
     if (!b) return;
@@ -390,6 +422,7 @@
     const card = b.closest(".card--sun");
     const idx = PRODUCTS.findIndex(p => p[0] === card.dataset.id);
     if (b.dataset.action === "retry") { fillCard(card, PRODUCTS[idx], idx, true); return; }
+    if (b.dataset.action === "share") { shareCard(card, PRODUCTS[idx]); return; }
     if (b.dataset.action !== "open") return;
     const i = +b.dataset.idx;
     if (b.dataset.mode === "tscan") { if (ITEMS[i] && ITEMS[i].tscan) openTscan(ITEMS[i].tscan); }
@@ -409,10 +442,12 @@
     PRODUCTS.forEach(p => { labels[p[0]] = p[1]; });
     SunStage.init(document.getElementById("stage"), SunData.stageIds(PRODUCTS.map(p => p[0])), labels);
     grid.addEventListener("click", onGridClick);
+    window.addEventListener("hashchange", highlightFromHash);
     wirePreviews(grid);
     loadTimes();
     Promise.allSettled(PRODUCTS.map((p, i) => fillCard(cards[i], p, i))).then(() => {
       showIntegration();
+      highlightFromHash();
       document.dispatchEvent(new CustomEvent("sun:ready", { detail: { manifests: { ...MANIFESTS } } }));
     });
   })();

@@ -70,6 +70,45 @@
     return g ? { card: g[1] } : {};
   }
 
+  // ---- Share this Sun (WS-16) --------------------------------------------------------------
+  // share({title, url}) -> "shared" | "copied" | "cancelled" | "failed". The native sheet when the
+  // browser has one, else the clipboard. Call it straight from the click handler: the share sheet
+  // needs the click's user activation, so nothing may be awaited first.
+  function legacyCopy(text) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return !!ok;
+    } catch (e) {
+      return false;
+    }
+  }
+  async function share(opts) {
+    const data = { title: opts.title, url: opts.url };
+    if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
+      try {
+        await navigator.share(data);
+        return "shared";
+      } catch (e) {
+        if (e && e.name === "AbortError") return "cancelled";   // the person closed the sheet
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(opts.url);
+      return "copied";
+    } catch (e) { /* no clipboard API, or permission refused: try the old way */ }
+    return legacyCopy(opts.url) ? "copied" : "failed";
+  }
+  // Lowercase only: GitHub Pages is case-sensitive. The stubs under s/ are made by tools/bake.py.
+  const shareUrl = (id) => "https://gilly.space/s/" + String(id).toLowerCase() + "/";
+
   // ---- Stage data: channel metadata, slot clock, id order (WS-15) -------------------------
   // Characteristic log T per AIA channel is copied from instruments/AIA.md section 4, table
   // "Channels" (lines 65-73 of that vault file), which cites the LMSAL AIA instrument page,
@@ -153,6 +192,7 @@
     BUCKET, u, loadManifest, loadAll, loadCaptureTime, freshness,
     FRESH_OK_MIN, FRESH_STALE_MIN, FPS, SLOTS, parseHash,
     CHANNELS, CHANNEL_ORDER, SLOT_MIN, stageIds, tempText, slotTime, alignSlot, slotVideoTime,
+    share, shareUrl,
   };
 
   // ---- The Stage: one large 48 hour clip, a 144 step scrubber, a channel strip (WS-15) ----

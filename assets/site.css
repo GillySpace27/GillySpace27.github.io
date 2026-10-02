@@ -585,3 +585,14 @@ main .video-tile::after { content: none !important; }
   .stage-videos video { transition: none; }
   .stage-videos.is-loading { animation: none; }
 }
+
+/* ---- Share this Sun: card button, linked-card highlight, toast (sun.html, WS-16) ---- */
+.card--sun { scroll-margin-top: 88px; }
+.card--sun.is-hl { outline: 3px solid var(--accent); outline-offset: 3px; }
+.card button[data-action="share"] { font-weight: 600; }
+#sun-toast { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 1100;
+  max-width: min(92vw, 560px); padding: .7rem 1.1rem; border-radius: 10px; font-size: 14px; overflow-wrap: anywhere;
+  background: var(--btn-bg); color: var(--btn-text); box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none; transition: opacity 300ms ease; }
+#sun-toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #sun-toast { transition: none; } }
