@@ -299,6 +299,10 @@
       { t: 'Which Claude? — model field guide', u: '/whichclaude.html', k: 'ai models opus sonnet haiku fable' },
       { t: 'Store — Solar Archive', u: '/shop.html', k: 'prints buy' },
       { t: 'About & CV', u: '/about.html', k: 'bio resume contact' },
+      { t: 'HelioSoftware', u: '/heliosoftware/', k: 'software apps heliograph heliogram heliofits studio rhef' },
+      { t: 'HelioFITS', u: '/heliofits/', k: 'fits finder quick look mac preview' },
+      { t: 'HelioFITS Studio', u: '/heliofits-studio/', k: 'compositor corona coronagraph work surface' },
+      { t: 'RHEF', u: '/rhef/', k: 'filter corona python sunkit-image histogram' },
       { t: 'Email Gilly', u: 'mailto:Gilly@NWRA.com', k: 'contact' },
       { t: 'Toggle theme', u: '#theme', k: 'dark light mode' }
       /* /bake */

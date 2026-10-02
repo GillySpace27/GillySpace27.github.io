@@ -245,8 +245,8 @@
       "path": "heliosoftware/index.html",
       "url": "/heliosoftware/",
       "title": "HelioSoftware",
-      "palette": null,
-      "keywords": "",
+      "palette": "HelioSoftware",
+      "keywords": "software apps heliograph heliogram heliofits studio rhef",
       "sitemap": true,
       "priority": "0.8",
       "archived": false
@@ -255,8 +255,8 @@
       "path": "heliofits/index.html",
       "url": "/heliofits/",
       "title": "HelioFITS: solar FITS files, previewable on your Mac",
-      "palette": null,
-      "keywords": "",
+      "palette": "HelioFITS",
+      "keywords": "fits finder quick look mac preview",
       "sitemap": true,
       "priority": "0.7",
       "archived": false
@@ -265,8 +265,8 @@
       "path": "heliofits-studio/index.html",
       "url": "/heliofits-studio/",
       "title": "HelioFITS Studio",
-      "palette": null,
-      "keywords": "",
+      "palette": "HelioFITS Studio",
+      "keywords": "compositor corona coronagraph work surface",
       "sitemap": true,
       "priority": "0.7",
       "archived": false
@@ -275,8 +275,8 @@
       "path": "rhef/index.html",
       "url": "/rhef/",
       "title": "RHEF: the Radial Histogram Equalizing Filter",
-      "palette": null,
-      "keywords": "",
+      "palette": "RHEF",
+      "keywords": "filter corona python sunkit-image histogram",
       "sitemap": true,
       "priority": "0.7",
       "archived": false
