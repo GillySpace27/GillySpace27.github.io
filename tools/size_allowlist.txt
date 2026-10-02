@@ -1,0 +1,9 @@
+# Tracked files over 10 MB that tools/check_site.py rule "size" accepts.
+# One repo-relative path or fnmatch glob per line. Seeded 2026-10-01 with the
+# six files over the limit at c272b93 (computed). Adding a line needs Gilly's yes.
+files/Space is Full.pptx
+files/thesis/Chris_R__Gilly_Thesis_Full-protected.pdf
+images/fulls/doubleStreamSmSlow.gif
+images/fulls/streamSmSlow.gif
+heliograph/Heliograph-0.7.dmg
+heliograph/Heliograph.dmg

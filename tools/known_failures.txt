@@ -1,0 +1,21 @@
+# FAILs that print as KNOWN (exit 0) until fixed: "<rule> <path> <target>".
+# Seeded 2026-10-01 from the first run on master. Fix a line's cause, then
+# drop only that line in the same commit.
+link evan/index.html assets/css/main.css
+link evan/index.html images/avatar_gs.jpg
+link evan/index.html ./posters/spd2016_poster.pdf
+link evan/index.html ./posters/spd2016_thumbnail.png
+link evan/index.html resume/cv/EvanAnders_cv.pdf
+link evan/index.html assets/js/jquery.min.js
+link evan/index.html assets/js/jquery.poptrox.min.js
+link evan/index.html assets/js/skel.min.js
+link evan/index.html assets/js/util.js
+link evan/index.html assets/js/main.js
+link index_withvideo.html images/thumbs/CV.png
+# Four live links to /heliogram/ (b3806ba, 2026-09-29) before that folder is tracked.
+# Open Gilly question (register): they 404 until the next Heliogram publish. Do not rewrite the copy here.
+link RecordedPublicTalks.html /heliogram/
+link Research.html /heliogram/
+link heliosoftware/index.html /heliogram/
+# partials/header.html:18 (the shared nav, mirrored in 45af7e5) links /heliogram/ for the same reason as above.
+link partials/header.html /heliogram/
