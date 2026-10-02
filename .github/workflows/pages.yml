@@ -1,0 +1,141 @@
+# Gated GitHub Pages deploy (WS-9). A push to master stays the deploy loop,
+# but check.yml must pass first and every build carries a receipt, build.json
+# (commit, ref, stamp, UTC time). Rollback is one run of this workflow with a ref
+# (SITE.md, "Rollback").
+#
+# Inert on push until Gilly sets the repository variable PAGES_VIA_ACTIONS to
+# true and switches Settings > Pages > Source to "GitHub Actions". Until then the
+# branch source keeps publishing master and a push here only runs the checks.
+# workflow_dispatch always runs; dry_run stops before the deploy job.
+name: pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Commit, tag or branch already on master to publish (rollback). Empty: this run's commit."
+        type: string
+        default: ""
+      skip_checks:
+        description: "Rollback only: skip check.yml, for when master itself is red. Needs ref."
+        type: boolean
+        default: false
+      dry_run:
+        description: "Run the checks and build the artifact, but do not deploy."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  check:
+    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.skip_checks) }}
+    uses: ./.github/workflows/check.yml
+
+  build:
+    needs: check
+    if: >-
+      ${{ !cancelled()
+          && (needs.check.result == 'success' || needs.check.result == 'skipped')
+          && (github.event_name == 'workflow_dispatch' || vars.PAGES_VIA_ACTIONS == 'true') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.stage.outputs.sha }}
+    steps:
+      - name: Refuse skip_checks without a ref
+        if: ${{ inputs.skip_checks && inputs.ref == '' }}
+        run: |
+          echo "::error::skip_checks is for rollback and needs a ref"
+          exit 1
+      # Tooling comes from the commit this run started on; content comes from the
+      # requested ref. A rollback to a commit that predates tools/ still works.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          path: content
+          persist-credentials: false
+      - name: Gate, only commits already on master
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          sha=$(git -C content rev-parse HEAD)
+          if [ "$DRY" = "true" ]; then
+            echo "GATE ancestor SKIP (dry run): $sha"
+            exit 0
+          fi
+          state=$(gh api "repos/$GITHUB_REPOSITORY/compare/master...$sha" --jq .status)
+          case "$state" in
+            identical|behind)
+              echo "GATE ancestor PASS ($state): $sha is on master" ;;
+            *)
+              echo "GATE ancestor REFUSE: $sha is $state relative to master; only commits already on master are published"
+              exit 1 ;;
+          esac
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Stage the artifact and write build.json
+        id: stage
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          python3 tools/make_artifact.py --content content --out "$RUNNER_TEMP/site" --ref "$REF"
+          sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$RUNNER_TEMP/site/build.json")
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/site/build.json"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/site
+
+  deploy:
+    needs: build
+    if: ${{ !inputs.dry_run }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  verify:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Wait for build.json to name the commit, then probe the live site
+        env:
+          SHA: ${{ needs.build.outputs.sha }}
+        run: |
+          set +e
+          python3 tools/verify_deploy.py --expect-sha "$SHA" --timeout 900
+          code=$?
+          if [ "$code" -eq 1 ]; then
+            echo "::warning::the deploy is live but a watch probe failed; see the Live-site watch issue"
+            exit 0
+          fi
+          exit "$code"
