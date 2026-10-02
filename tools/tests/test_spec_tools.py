@@ -278,6 +278,140 @@ class SpecFolderTests(unittest.TestCase):
         self.assertEqual(bad, [])
 
 
+
+def load_site_tool(rel):
+    """Import tools/<rel> by path (the stdlib tools that live beside the spec folder)."""
+    path = ROOT / "tools" / rel
+    spec = importlib.util.spec_from_file_location(path.stem, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+class RhefCopyTests(unittest.TestCase):
+    """tools/copy_rhef_golden.py against a synthetic bundle shaped like fastRHEF golden/."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tool = load_site_tool("copy_rhef_golden.py")
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.base = pathlib.Path(self.tmp.name)
+        self.dest = self.base / "dest"
+        self.src, self.raw = self.make_bundle(self.base / "golden")
+
+    @staticmethod
+    def make_bundle(root, version="1.0.0", payload=b"\x02" * 16):
+        import json
+        files = {
+            "README.md": b"readme\n",
+            "read_golden.py": b"# reader\n",
+            "ties_zero_fill_64/case.properties": b"case_id=ties_zero_fill_64\n",
+            "ties_zero_fill_64/input.f64": b"\x00" * 16,
+            "ties_zero_fill_64/expected_oRHEF-2.0.f64": b"\x01" * 16,
+            "ties_zero_fill_64/expected_sunkit-0.7.f64": payload,
+            "geometry_hpc_32/header.json": b"{}\n",
+            "equal_width_128/input.f64": b"\x03" * 16,
+        }
+        for rel, data in files.items():
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        manifest = {"bundle_version": version, "generator": "tools/make_golden.py", "generator_git_sha": "abc123",
+                    "files": {rel: sha(data) for rel, data in files.items()}}
+        raw = (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode()
+        (root / "manifest.json").write_bytes(raw)
+        return root, raw
+
+    def copy(self, *extra):
+        return run(self.tool, "--src", str(self.src), "--dest", str(self.dest),
+                   "--cases", "ties_zero_fill_64,geometry_hpc_32", *extra)
+
+    def published(self):
+        gold = self.dest / "golden"
+        return sorted(p.relative_to(gold).as_posix() for p in gold.rglob("*") if p.is_file())
+
+    def test_default_copy_withholds_orhef_and_private_cases(self):
+        code, out = self.copy()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.published(), [
+            "README.md", "SOURCE.txt", "geometry_hpc_32/header.json", "read_golden.py",
+            "ties_zero_fill_64/case.properties", "ties_zero_fill_64/expected_sunkit-0.7.f64",
+            "ties_zero_fill_64/input.f64"])
+        self.assertEqual((self.dest / "vectors.json").read_bytes(), self.raw, "the manifest is copied byte for byte")
+        first = (self.dest / "golden" / "SOURCE.txt").read_text().splitlines()[0]
+        self.assertRegex(first, r"^fastRHEF abc123 bundle 1\.0\.0 manifest-sha256 [0-9a-f]{64}$")
+        self.assertIn("withheld: expected_oRHEF-2.0.*", (self.dest / "golden" / "SOURCE.txt").read_text())
+        self.assertIn("copied 6 files", out)
+        code, out = run(self.tool, "--verify", "--dest", str(self.dest))
+        self.assertEqual(code, 0, out)
+        self.assertIn("6 files checked, 0 problem(s); 2 manifest files not published", out)
+
+    def test_include_orhef_copies_the_expectation(self):
+        code, out = self.copy("--include-orhef")
+        self.assertEqual(code, 0, out)
+        self.assertIn("ties_zero_fill_64/expected_oRHEF-2.0.f64", self.published())
+        self.assertIn("withheld: none", (self.dest / "golden" / "SOURCE.txt").read_text())
+
+    def test_corrupt_source_file_writes_nothing(self):
+        (self.src / "ties_zero_fill_64" / "input.f64").write_bytes(b"\xff" * 16)
+        code, out = self.copy()
+        self.assertEqual(code, 1)
+        self.assertIn("CORRUPT ties_zero_fill_64/input.f64: sha256 differs from manifest.json", out)
+        self.assertFalse((self.dest / "vectors.json").exists())
+
+    def test_verify_finds_a_flipped_byte_and_an_extra_file(self):
+        self.copy()
+        target = self.dest / "golden" / "ties_zero_fill_64" / "input.f64"
+        target.write_bytes(b"\x09" + target.read_bytes()[1:])
+        (self.dest / "golden" / "stray.bin").write_bytes(b"x")
+        code, out = run(self.tool, "--verify", "--dest", str(self.dest))
+        self.assertEqual(code, 1)
+        self.assertIn("MISMATCH ties_zero_fill_64/input.f64", out)
+        self.assertIn("EXTRA stray.bin", out)
+
+    def test_second_identical_copy_is_fine_and_a_tampered_file_is_a_conflict(self):
+        self.assertEqual(self.copy()[0], 0)
+        self.assertEqual(self.copy()[0], 0)
+        target = self.dest / "golden" / "geometry_hpc_32" / "header.json"
+        target.write_bytes(b"{ }\n")
+        code, out = self.copy()
+        self.assertEqual(code, 1)
+        self.assertIn("CONFLICT geometry_hpc_32/header.json", out)
+        self.assertEqual(target.read_bytes(), b"{ }\n", "nothing was overwritten")
+
+    def test_changed_content_with_the_same_version_is_a_conflict(self):
+        self.copy()
+        other, _ = self.make_bundle(self.base / "golden2", payload=b"\x07" * 16)
+        code, out = run(self.tool, "--src", str(other), "--dest", str(self.dest),
+                        "--cases", "ties_zero_fill_64,geometry_hpc_32")
+        self.assertEqual(code, 1)
+        self.assertIn("CONFLICT vectors.json differs from this bundle's manifest.json", out)
+
+    def test_a_new_bundle_version_needs_a_new_destination(self):
+        self.copy()
+        newer, _ = self.make_bundle(self.base / "golden3", version="1.1.0")
+        code, out = run(self.tool, "--src", str(newer), "--dest", str(self.dest),
+                        "--cases", "ties_zero_fill_64,geometry_hpc_32")
+        self.assertEqual(code, 1)
+        self.assertIn("NEW BUNDLE VERSION 1.1.0 (published: 1.0.0)", out)
+
+    def test_size_limit_and_unknown_case(self):
+        code, out = self.copy("--max-bytes", "10")
+        self.assertEqual(code, 1)
+        self.assertIn("TOO LARGE", out)
+        code, out = run(self.tool, "--src", str(self.src), "--dest", str(self.dest), "--cases", "nope_64")
+        self.assertEqual(code, 1)
+        self.assertIn("NOT IN BUNDLE nope_64", out)
+
+    def test_verify_without_a_copy(self):
+        code, out = run(self.tool, "--verify", "--dest", str(self.dest))
+        self.assertEqual(code, 1)
+        self.assertIn("MISSING vectors.json", out)
+
+
 # end of spec tool tests
 if __name__ == "__main__":
     unittest.main()
