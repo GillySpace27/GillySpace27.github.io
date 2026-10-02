@@ -257,17 +257,28 @@
 
 <!-- Today's ensō, drawn live in the hero from the same deterministic engine the
      calendar uses (same date → same brushstroke, byte for byte). -->
-<script src="/enso/enso-engine.js"></script>
 <script>
   (function () {
     var c = document.getElementById('heroEnso');
-    if (!c || typeof window.renderEnso !== 'function') return;
-    var n = new Date();
-    var today = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate());
-    // Normalize the ring (large radius, capped thickness) so it always frames the
-    // portrait; the day's color/gap/taper/imperfection/texture are still its own.
-    var draw = window.renderEnsoWith || window.renderEnso;
-    try { draw(c, today, 360, { radius: '40', maxThickness: 95 }); } catch (e) { /* portrait alone is fine */ }
+    if (!c) return;
+    function draw() {
+      if (typeof window.renderEnso !== 'function') return;
+      var n = new Date();
+      var today = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate());
+      // Normalize the ring (large radius, capped thickness) so it always frames the
+      // portrait; the day's color/gap/taper/imperfection/texture are still its own.
+      var render = window.renderEnsoWith || window.renderEnso;
+      try { render(c, today, 360, { radius: '40', maxThickness: 95 }); } catch (e) { /* portrait alone is fine */ }
+    }
+    function load() {
+      var s = document.createElement('script');
+      s.src = '/enso/enso-engine.js';
+      s.onload = draw;
+      document.body.appendChild(s);
+    }
+    // After first paint: the portrait is the LCP element, the ring is decoration.
+    if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 2500 });
+    else addEventListener('load', function () { setTimeout(load, 0); });
   })();
 </script>
 <script src="/assets/site.js?v=202610020557"></script>
