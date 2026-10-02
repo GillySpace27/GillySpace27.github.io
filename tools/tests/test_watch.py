@@ -205,5 +205,15 @@ class VerifyDeployTests(unittest.TestCase):
         self.assertEqual(verify_deploy.live_url("https://x", "sun.html"), "https://x/sun.html")
 
 
+class WorkflowTests(unittest.TestCase):
+    def test_watch_yml_is_scheduled_and_read_only(self):
+        y = (REPO / ".github" / "workflows" / "watch.yml").read_text()
+        for need in ('cron: "17 */6 * * *"', "workflow_dispatch:", "page_build:", "issues: write",
+                     "contents: read", "python3 tools/watch.py --issue", "python3 tools/verify_deploy.py"):
+            self.assertIn(need, y)
+        for never in ("contents: write", "pages: write", "DELETE", "git push"):
+            self.assertNotIn(never, y)
+
+
 if __name__ == "__main__":
     unittest.main()

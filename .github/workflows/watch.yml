@@ -1,0 +1,49 @@
+# Live-site watch (WS-7): read-only probes of gilly.space every 6 hours, after
+# every Pages build, and on demand. Keeps one "Live-site watch" issue; closes
+# it, never deletes it. GitHub disables schedules on repos inactive 60 days.
+name: watch
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  page_build:
+  workflow_dispatch:
+    inputs:
+      expect:
+        description: "Override one short-link expectation, PATH=FINAL (to prove the issue opens)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: live-site-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Wait until the build just published is served
+        if: github.event_name == 'page_build'
+        run: |
+          mapfile -t paths < <(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- . ':(exclude).github' ':(exclude)worker' | head -n 20)
+          if [ "${#paths[@]}" -eq 0 ]; then echo "UNCHECKED: no served file changed in HEAD"; exit 0; fi
+          python3 tools/verify_deploy.py --timeout 900 --paths "${paths[@]}" || true
+      - name: Probe the live site and sync the issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECT: ${{ inputs.expect }}
+        run: |
+          set --
+          if [ -n "$EXPECT" ]; then set -- --expect "$EXPECT"; fi
+          python3 tools/watch.py --issue "$@"
