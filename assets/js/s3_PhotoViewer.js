@@ -1,3 +1,4 @@
+// Retired (see ATTIC.md): referenced by no page; kept in place.
 var albumBucketName = 'the-sun-now';
 
 AWS.config.region = 'us-east-2';
