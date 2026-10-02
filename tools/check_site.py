@@ -24,7 +24,9 @@ import posixpath
 import re
 import subprocess
 import sys
+import urllib.error
 import urllib.parse
+import urllib.request
 import xml.etree.ElementTree as ET
 
 IGNORED_PREFIXES = ("tools/tests/fixtures/", ".claude/")
@@ -474,6 +476,107 @@ def check_icons(ctx: Ctx) -> list[Finding]:
     return out
 
 
+# ---- SU-10: short links, case twins, the 404 lowercaser ----
+
+SITE_ORIGIN = "https://gilly.space"
+SHORTLINKS = "heliosoftware/spec/shortlinks.json"
+LOWERCASER_NEEDLES = ("location.pathname.toLowerCase()", "location.replace(")
+_REFRESH_TAG = re.compile(r"""<meta[^>]+http-equiv=["']?refresh["']?""", re.I)
+
+
+def tracked_stubs(ctx: Ctx) -> dict[str, tuple[str, int]]:
+    """Folder ("jhv/") -> (absolute redirect target, line) for each tracked */index.html with a meta refresh."""
+    out: dict[str, tuple[str, int]] = {}
+    for f in sorted(ctx.files):
+        if not f.endswith("/index.html"):
+            continue
+        text = (ctx.root / f).read_text(encoding="utf-8", errors="replace")
+        if not _REFRESH_TAG.search(text):
+            continue
+        raw = parse_redirect_target(text)
+        if raw:
+            folder = f[: -len("index.html")]
+            out[folder] = (urllib.parse.urljoin(f"{SITE_ORIGIN}/{folder}", raw), line_of(text, "http-equiv"))
+    return out
+
+
+@check("shortlinks")
+def check_shortlinks(ctx: Ctx) -> list[Finding]:
+    p = ctx.root / SHORTLINKS
+    if not p.exists():
+        return [Finding("SKIP", "shortlinks", SHORTLINKS, 0, "-", "no shortlinks.json in this tree")]
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        listed = {e["path"]: e for e in data["links"]}
+    except (ValueError, KeyError, TypeError) as exc:
+        return [Finding("FAIL", "shortlinks", SHORTLINKS, 0, "-", f"unreadable: {exc!r}")]
+    actual = tracked_stubs(ctx)
+    out: list[Finding] = []
+    for path, e in sorted(listed.items()):
+        page = path + "index.html"
+        target = e.get("target", "")
+        if page not in ctx.files:
+            out.append(Finding("FAIL", "shortlinks", page, 0, target, "listed short link has no tracked page"))
+        elif path not in actual:
+            out.append(Finding("FAIL", "shortlinks", page, 0, target, "listed short link is no longer a redirect stub"))
+        elif actual[path][0] != target:
+            out.append(Finding("FAIL", "shortlinks", page, actual[path][1], target,
+                               f"stub redirects to {actual[path][0]} but shortlinks.json says {target}"))
+    for path, (target, line) in sorted(actual.items()):
+        if path not in listed:
+            out.append(Finding("WARN", "shortlinks", path + "index.html", line, target,
+                               "redirect stub is not in shortlinks.json "
+                               "(run python3 tools/check_site.py --write-shortlinks)"))
+    return out
+
+
+def write_shortlinks(root: pathlib.Path) -> int:
+    """Regenerate shortlinks.json from the tracked stubs (a file derived from tracked sources)."""
+    ctx = build_ctx(root)
+    links = [{"path": p, "target": t, "kind": "redirect"} for p, (t, _) in sorted(tracked_stubs(ctx).items())]
+    dest = root / SHORTLINKS
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(json.dumps({"version": 1, "links": links}, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {SHORTLINKS}: {len(links)} links")
+    return 0
+
+
+def case_twins(files) -> list[tuple[str, str]]:
+    """(kept, twin) for tracked paths that differ only by case; the first in sorted order is kept."""
+    seen: dict[str, str] = {}
+    twins: list[tuple[str, str]] = []
+    for f in sorted(files):
+        low = f.lower()
+        if low in seen:
+            twins.append((seen[low], f))
+        else:
+            seen[low] = f
+    return twins
+
+
+@check("case")
+def check_case_twins(ctx: Ctx) -> list[Finding]:
+    return [Finding("FAIL", "case", twin, 0, kept,
+                    f"differs from {kept} only by case; a case-insensitive disk holds one, GitHub Pages serves both")
+            for kept, twin in case_twins(ctx.files)]
+
+
+def lowercases(text: str) -> bool:
+    return all(n in text for n in LOWERCASER_NEEDLES)
+
+
+@check("lowercaser")
+def check_lowercaser(ctx: Ctx) -> list[Finding]:
+    if "404.html" not in ctx.files:
+        return [Finding("SKIP", "lowercaser", "404.html", 0, "-", "no 404.html in this tree")]
+    text = (ctx.root / "404.html").read_text(encoding="utf-8", errors="replace")
+    if lowercases(text):
+        return []
+    return [Finding("FAIL", "lowercaser", "404.html", 0, "-",
+                    "no longer sends a cased address to its lowercase twin; Pages is case-sensitive and the cased "
+                    "duplicate folders are gone (Website f378bbf, 2026-09-27)")]
+
+
 def run_external(ctx: Ctx, rule: str, script: str, argv: list[str]) -> list[Finding]:
     if not (ctx.root / script).exists():
         return [Finding("SKIP", rule, script, 0, "-", "script not present yet")]
@@ -532,7 +635,11 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="gilly.space site checks")
     ap.add_argument("--root", type=pathlib.Path, default=pathlib.Path(__file__).resolve().parents[1])
     ap.add_argument("--only", nargs="+", action="extend", metavar="RULE")
+    ap.add_argument("--write-shortlinks", action="store_true",
+                    help="rewrite heliosoftware/spec/shortlinks.json from the tracked redirect stubs")
     args = ap.parse_args(argv)
+    if args.write_shortlinks:
+        return write_shortlinks(args.root.resolve())
     code, findings = run(args.root.resolve(), args.only)
     for f in findings:
         print(f"{f.level} {f.rule} {f.path}:{f.line} {f.target} :: {f.msg}")
