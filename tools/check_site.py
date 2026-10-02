@@ -434,6 +434,7 @@ CONTRACT_SUN = "contracts/sun-bucket.md"
 CONTRACT_HELIOGRAM = "contracts/heliogram-publish.md"
 CONTRACT_STUDIO = "contracts/studio-release-assets.md"
 SUN_FIXTURES = "fixtures/sun/"
+SUN_READERS = ("sun.html", "assets/sun.js")  # files whose m.<field> reads and BUCKET line are checked (WS-5)
 STUDIO_PAGE = "heliofits-studio/index.html"
 ISO_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?$")
 MANIFEST_FIELD_RE = re.compile(r"\bm\.([A-Za-z_]\w*)")
@@ -481,14 +482,17 @@ def check_sun_contract(ctx):
     if ids != page_ids:
         out.append(Finding("FAIL", "contract", CONTRACT_SUN, 0, "ids",
                            f"ids block {ids} differs from sun.html PRODUCTS {page_ids}"))
-    for n, line in enumerate(sun.splitlines(), 1):
-        for name in MANIFEST_FIELD_RE.findall(line):
-            if name not in known:
-                out.append(Finding("FAIL", "contract", "sun.html", n, "m." + name,
-                                   f"sun.html reads m.{name}, which {CONTRACT_SUN} does not list"))
-        if "/fixtures/" in line and 'location.hostname === "localhost"' not in line:
-            out.append(Finding("FAIL", "contract", "sun.html", n, "BUCKET",
-                               "fixture path not gated on localhost"))
+    for src in SUN_READERS:
+        if src not in ctx.files:
+            continue
+        for n, line in enumerate(_text(ctx, src).splitlines(), 1):
+            for name in MANIFEST_FIELD_RE.findall(line):
+                if name not in known:
+                    out.append(Finding("FAIL", "contract", src, n, "m." + name,
+                                       f"{src} reads m.{name}, which {CONTRACT_SUN} does not list"))
+            if "/fixtures/" in line and 'location.hostname === "localhost"' not in line:
+                out.append(Finding("FAIL", "contract", src, n, "BUCKET",
+                                   "fixture path not gated on localhost"))
     for pid in ids:
         rel = f"{SUN_FIXTURES}manifest/{pid}.json"
         if rel not in ctx.files:

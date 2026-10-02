@@ -227,6 +227,38 @@ class ContractTests(unittest.TestCase):
         self.assertNotIn("FAIL contract", out)
         self.assertNotIn("SKIP contract", out)
         self.assertEqual(code, 0, out)
+    def _restored_fixture(self, tmp):
+        site = self.copy_fixture(tmp)
+        p = site / "fixtures" / "sun" / "manifest" / "171.json"
+        p.write_text(p.read_text().replace('"img_1k"', '"img1k"'))
+        (site / "assets").mkdir(exist_ok=True)
+        return site
+
+    def test_sun_js_reads_unknown_field_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self._restored_fixture(tmp)
+            (site / "assets" / "sun.js").write_text("const x = m.img_1k;\n")
+            code, out = self.run_contract(site)
+            self.assertIn("FAIL contract assets/sun.js:1 m.img_1k", out)
+            self.assertEqual(code, 1, out)
+
+    def test_sun_js_ungated_fixture_bucket_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self._restored_fixture(tmp)
+            (site / "assets" / "sun.js").write_text('  const BUCKET = "/fixtures/sun/";\n')
+            code, out = self.run_contract(site)
+            self.assertIn("FAIL contract assets/sun.js:1 BUCKET", out)
+            self.assertIn("fixture path not gated on localhost", out)
+            self.assertEqual(code, 1, out)
+
+    def test_real_sun_js_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self._restored_fixture(tmp)
+            shutil.copy(self.REPO / "assets" / "sun.js", site / "assets" / "sun.js")
+            code, out = self.run_contract(site)
+            self.assertNotIn("FAIL", out)
+            self.assertEqual(code, 0, out)
+
     # end of ContractTests
 
 
