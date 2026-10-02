@@ -194,7 +194,9 @@ Post-merge checklist (Gilly, after the merge to `master` and Pages finishing):
   colours, the Search Console meta) is `partials/head.html` between its
   `<!-- bake:template -->` markers. `python3 tools/bake.py` writes it into each
   page between `<!-- bake:head -->` markers, with the values from `site.json`
-  (`title`, `description`; optional `head_title`, `canonical`, `og_image`).
+  (`title`, `description`; optional `head_title`, `canonical`, `og_image`,
+  `og_url` to make og:url say what the canonical says, and `no_canonical: true`
+  for a page served at many URLs such as `404.html`, which then carries neither).
   Anything page-specific (preconnect, JSON-LD, extra CSS) stays after the closing
   marker. A new shell page: add it to `site.json`, put the two marker lines right
   after `<head>`, run `python3 tools/bake.py`.

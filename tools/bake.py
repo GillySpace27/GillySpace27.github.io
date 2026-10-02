@@ -323,20 +323,32 @@ def render_head(ctx: Ctx, page: dict) -> str:
     out = out.replace("__PAGE_PATH__", page["url"].lstrip("/"))
     out = out.replace("__CANONICAL__", page.get("canonical") or SITE_ORIGIN + page["url"])
     out = out.replace("__OG_IMAGE__", page.get("og_image") or DEFAULT_OG_IMAGE)
+    if page.get("og_url"):   # og:url that should say what the canonical says (shop: /shop, not /shop.html)
+        out = re.sub(r'(<meta property="og:url" content=")[^"]*(")',
+                     lambda m: m.group(1) + page["og_url"] + m.group(2), out)
+    if page.get("no_canonical"):   # a page served for many URLs (404.html) names none
+        out = "\n".join(ln for ln in out.split("\n")
+                        if 'rel="canonical"' not in ln and 'property="og:url"' not in ln)
     left = re.findall(r"__[A-Z0-9_]+__", out)
     if left:
         raise BakeError(f"{page['path']}: unfilled placeholder {left[0]} in the head template")
     return out
 
 
-def head_problems(page_text: str) -> list:
-    """What a shell page's head must have exactly once: title, description, canonical, og:image; lang en."""
+def head_problems(page_text: str, canonical: bool = True) -> list:
+    """What a shell page's head must have exactly once: title, description, canonical, og:image; lang en.
+
+    With canonical=False (site.json "no_canonical") the canonical link and og:url must be absent."""
     head = page_text.split("</head>", 1)[0]
     bad = [] if re.search(r'<html[^>]*\blang="en"', page_text) else ['<html> lacks lang="en"']
-    for label, rx in (("<title>", r"<title>"), ("meta description", r'<meta name="description"'),
-                      ("canonical link", r'<link rel="canonical"'), ("og:image", r'<meta property="og:image"')):
+    want = [("<title>", r"<title>", 1), ("meta description", r'<meta name="description"', 1),
+            ("canonical link", r'<link rel="canonical"', 1 if canonical else 0),
+            ("og:image", r'<meta property="og:image"', 1)]
+    if not canonical:
+        want.append(("og:url", r'<meta property="og:url"', 0))
+    for label, rx, count in want:
         n = len(re.findall(rx, head))
-        if n != 1:
+        if n != count:
             bad.append(f"{label} appears {n} times in <head>")
     return bad
 
@@ -348,7 +360,7 @@ def t_head(ctx: Ctx) -> dict:
         if HEAD_OPEN not in text:
             continue
         new = replace_region(text, "head", render_head(ctx, p), "html")
-        problems = head_problems(new)
+        problems = head_problems(new, canonical=not p.get("no_canonical"))
         if problems:
             raise BakeError(f"{p['path']}: " + "; ".join(problems))
         out[p["path"]] = new

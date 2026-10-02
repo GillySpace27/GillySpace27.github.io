@@ -73,6 +73,29 @@ class HeadTest(unittest.TestCase):
         self.assertIn('<meta property="og:image" content="https://example.org/i.png">', out)
         self.assertIn('<meta property="og:url" content="https://gilly.space/a.html">', out)
 
+    def test_og_url_override_replaces_only_the_og_url(self):
+        page = dict(PAGE, canonical="https://gilly.space/a", og_url="https://gilly.space/a")
+        out = bake().render_head(self.ctx(), page)
+        self.assertIn('<meta property="og:url" content="https://gilly.space/a">', out)
+        self.assertIn('<link rel="canonical" href="https://gilly.space/a">', out)
+        self.assertNotIn("a.html", out)
+
+    def test_no_canonical_drops_the_canonical_and_og_url_lines(self):
+        out = bake().render_head(self.ctx(), dict(PAGE, no_canonical=True))
+        self.assertNotIn("canonical", out)
+        self.assertNotIn("og:url", out)
+        self.assertIn('<meta property="og:image"', out)
+        self.assertIn('<meta name="description"', out)
+
+    def test_head_problems_without_a_canonical_wants_none(self):
+        head = ('<html lang="en"><head><title>t</title><meta name="description" content="d">'
+                '<meta property="og:image" content="i"></head>')
+        self.assertEqual(bake().head_problems(head, canonical=False), [])
+        self.assertEqual(bake().head_problems(head), ["canonical link appears 0 times in <head>"])
+        both = head.replace("</head>", '<link rel="canonical" href="c"><meta property="og:url" content="u"></head>')
+        self.assertEqual(bake().head_problems(both, canonical=False),
+                         ["canonical link appears 1 times in <head>", "og:url appears 1 times in <head>"])
+
     def test_the_home_page_has_an_empty_path(self):
         out = bake().render_head(self.ctx(), dict(PAGE, path="index.html", url="/"))
         self.assertIn('<meta property="og:url" content="https://gilly.space/">', out)

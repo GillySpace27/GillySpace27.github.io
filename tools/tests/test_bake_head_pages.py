@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import re
 import pathlib
 import shutil
 import subprocess
@@ -32,6 +33,9 @@ def shell_pages() -> list:
     return [p["path"] for p in pages if "<!-- bake:head -->" in read(p["path"])]
 
 
+NO_CANONICAL = ("404.html",)   # served for every missing path: no single URL to name
+
+
 class ShellPagesTest(unittest.TestCase):
     def test_twentyone_pages_carry_the_marker(self):
         self.assertEqual(len(shell_pages()), 21, shell_pages())
@@ -40,7 +44,17 @@ class ShellPagesTest(unittest.TestCase):
         pages = shell_pages()
         self.assertEqual(len(pages), 21)
         for rel in pages:
-            self.assertEqual(bake().head_problems(read(rel)), [], rel)
+            self.assertEqual(bake().head_problems(read(rel), canonical=rel not in NO_CANONICAL), [], rel)
+
+    def test_shop_og_url_matches_its_canonical(self):
+        shop = read("shop.html")
+        self.assertEqual(re.findall(r'<link rel="canonical" href="([^"]*)"', shop), ["https://gilly.space/shop"])
+        self.assertEqual(re.findall(r'<meta property="og:url" content="([^"]*)"', shop), ["https://gilly.space/shop"])
+
+    def test_404_names_no_canonical_and_no_og_url(self):
+        page = read("404.html").split("</head>", 1)[0]
+        self.assertNotIn('rel="canonical"', page)
+        self.assertNotIn('property="og:url"', page)
 
     def test_the_search_console_meta_is_on_every_shell_page_exactly_once(self):
         pages = shell_pages()

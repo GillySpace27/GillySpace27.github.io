@@ -222,7 +222,8 @@
       "priority": "0.7",
       "archived": false,
       "description": "Fine-art prints of the Sun, processed the way Gilly processes it for science.",
-      "canonical": "https://gilly.space/shop"
+      "canonical": "https://gilly.space/shop",
+      "og_url": "https://gilly.space/shop"
     },
     {
       "path": "about.html",
@@ -348,7 +349,8 @@
       "priority": "0.1",
       "archived": false,
       "noscript": "home",
-      "description": "This page does not exist on gilly.space. Go back to the home page."
+      "description": "This page does not exist on gilly.space. Go back to the home page.",
+      "no_canonical": true
     }
   ],
   "palette_extra": [
