@@ -29,10 +29,12 @@ jobs:
         run: python3 tools/check_site.py
       - name: JavaScript syntax
         run: |
-          for f in assets/site.js assets/analytics.js assets/sun.js sw.js enso/*.js; do
+          for f in assets/site.js assets/product.js assets/analytics.js assets/sun.js sw.js enso/*.js; do
             echo "node --check $f"
             node --check "$f"
           done
+      - name: product.js tests
+        run: node --test tools/tests/test_product_js.mjs
       - name: Worker syntax (ES module)
         run: cp worker/worker.js "$RUNNER_TEMP/worker.mjs" && node --check "$RUNNER_TEMP/worker.mjs"
       - name: Worker tests (stubbed AI and KV)
