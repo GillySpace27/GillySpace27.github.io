@@ -45,6 +45,13 @@ waits on Gilly's yes for that one action.
   finding Gilly has seen, never to silence a new failure.
 - A red check does not stop Pages from publishing until WS-9 lands and Gilly
   switches the Pages source.
+- Job `em-dash` (`heliosoftware/spec/tools/no_em_dash.py`) fails when a change adds a
+  line containing U+2014; older lines are never flagged, but a line you edit counts
+  as added. It skips `heliogram/` and `heliograph/` (the publish step writes them).
+  Locally: `python3 heliosoftware/spec/tools/no_em_dash.py --base origin/master`.
+  `pages.yml` reuses `check.yml`, so this job also gates the Pages deploy.
+  Every `uses:` in `.github/workflows/` is pinned to a commit SHA with the tag in a
+  comment (`test_workflows_su10.py`).
 
 ## Worker
 
@@ -175,6 +182,8 @@ waits on Gilly's yes for that one action.
 - After deploy, follow the redirect and check the destination page's content.
   A 200 alone proves nothing (GitHub served 200 for an empty tag page in the
   2026-08-24 `/jhv` incident).
+- `heliosoftware/spec/shortlinks.json` lists every tracked redirect stub and where it must end. `python3 tools/check_site.py` fails when a stub drifts from it and warns about an unlisted stub (`--write-shortlinks` regenerates the file; new stubs must be `git add`ed first).
+- `python3 tools/check_site.py --online` follows each stub on the live site to its destination (read-only GETs), and checks that the live 404 page still lowercases the address. The `site-checks` workflow runs it daily at 06:23 UTC.
 
 ## Heliogram publish
 

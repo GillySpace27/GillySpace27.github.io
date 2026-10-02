@@ -52,6 +52,9 @@ template licence only; a licence for Gilly's own content is his decision (open).
 | Stamp shared assets | `python3 bump-assets.py` (`--dry-run` lists, `--check` verifies) |
 | Check the site | `python3 tools/check_site.py` |
 | Run the tests | `python3 -m unittest discover -s tools/tests -p 'test_*.py'` |
+| Check the live short links | `python3 tools/check_site.py --online` (read-only GETs of gilly.space; the daily `site-checks` workflow runs it) |
+| Regenerate the short-link list | `python3 tools/check_site.py --write-shortlinks`, then `git add heliosoftware/spec/shortlinks.json` |
+| No new em dashes | `python3 heliosoftware/spec/tools/no_em_dash.py --base origin/master` (CI runs it on every push; it reads added lines only) |
 | Worker health | `curl -s https://enso-impressions.gilly-22d.workers.dev` |
 
 ## Before you push
