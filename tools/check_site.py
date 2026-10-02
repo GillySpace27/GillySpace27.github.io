@@ -50,6 +50,7 @@ Finding = collections.namedtuple("Finding", "level rule path line target msg")
 CHECKS: list = []           # callables (ctx: Ctx) -> list[Finding], run in order
 EXTERNAL_CHECKS: list = [   # (rule, script, argv); argv runs with cwd = root
     ("stamp", "bump-assets.py", ["python3", "bump-assets.py", "--check"]),
+    ("enso", "enso/build_calendar.js", ["node", "enso/build_calendar.js", "--check"]),
     ("bake", "tools/bake.py", ["python3", "tools/bake.py", "--check"]),
 ]
 

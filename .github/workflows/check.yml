@@ -37,3 +37,7 @@ jobs:
         run: cp worker/worker.js "$RUNNER_TEMP/worker.mjs" && node --check "$RUNNER_TEMP/worker.mjs"
       - name: Worker tests (stubbed AI and KV)
         run: node --test tools/tests/test_worker.mjs
+      - name: Enso build is reproducible and deterministic
+        run: |
+          node enso/build_calendar.js --check
+          node --test tools/tests/test_enso_golden.mjs
