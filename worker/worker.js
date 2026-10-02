@@ -131,8 +131,16 @@ export default {
       return new Response(null, { headers: cors });
     }
 
-    // Light health-check for "is the worker live?" testing.
+    // Light health-check for "is the worker live?" testing. GET /status adds
+    // the model, the cache flag and today's AI call count (read by the live-site watch).
     if (request.method === 'GET') {
+      if (new URL(request.url).pathname === '/status') {
+        const today = utcDay(Date.now());
+        let aiCallsToday = null;
+        try { aiCallsToday = Number(await env.IMPRESSIONS.get(`quota:${today}`)) || 0; }
+        catch (err) { console.warn('KV read failed (status):', err.message); }
+        return jsonResponse({ model: MODEL, cacheEnabled: CACHE_ENABLED, today, aiCallsToday }, 200, cors);
+      }
       return new Response('enso-impressions worker is alive (Workers AI / Llama 4 Scout / one-line evocation)', {
         headers: { 'Content-Type': 'text/plain', ...cors },
       });

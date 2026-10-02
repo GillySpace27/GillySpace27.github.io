@@ -181,3 +181,17 @@ test("a KV failure on the counter fails open: the ceiling is soft", async () => 
     assert.equal(env.calls.ai, 1);
   } finally { console.warn = quiet; }
 });
+// ---- WS-6 Task 4: GET /status ----
+test("GET /status reports model, cache flag, UTC day and AI calls today", async () => {
+  const env = makeEnv({ kv: { [`quota:${TODAY}`]: "7" } });
+  const { res, json } = await call(new Request(BASE + "/status"), env);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get("Content-Type"), "application/json");
+  assert.deepEqual(Object.keys(json), ["model", "cacheEnabled", "today", "aiCallsToday"]);
+  assert.match(json.model, /^@cf\//);
+  assert.equal(json.cacheEnabled, CACHE_ON);
+  assert.equal(json.today, TODAY);
+  assert.equal(json.aiCallsToday, 7);
+  const fresh = await call(new Request(BASE + "/status"), makeEnv());
+  assert.equal(fresh.json.aiCallsToday, 0);
+});
