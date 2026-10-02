@@ -1,4 +1,4 @@
-"""WS-11: the 20 shell pages carry a baked head and nothing was lost on the way
+"""WS-11: the 21 shell pages carry a baked head and nothing was lost on the way
 (run: python3 -m unittest discover -s tools/tests -p 'test_*.py').
 """
 from __future__ import annotations
@@ -33,18 +33,18 @@ def shell_pages() -> list:
 
 
 class ShellPagesTest(unittest.TestCase):
-    def test_twenty_pages_carry_the_marker(self):
-        self.assertEqual(len(shell_pages()), 20, shell_pages())
+    def test_twentyone_pages_carry_the_marker(self):
+        self.assertEqual(len(shell_pages()), 21, shell_pages())
 
     def test_each_has_one_title_description_canonical_og_image_and_lang(self):
         pages = shell_pages()
-        self.assertEqual(len(pages), 20)
+        self.assertEqual(len(pages), 21)
         for rel in pages:
             self.assertEqual(bake().head_problems(read(rel)), [], rel)
 
     def test_the_search_console_meta_is_on_every_shell_page_exactly_once(self):
         pages = shell_pages()
-        self.assertEqual(len(pages), 20)
+        self.assertEqual(len(pages), 21)
         for rel in pages:
             self.assertEqual(read(rel).count(VERIFICATION), 1, rel)
 
@@ -58,7 +58,7 @@ class ShellPagesTest(unittest.TestCase):
 
     def test_no_og_image_is_missing_on_any_shell_page(self):
         pages = shell_pages()
-        self.assertEqual(len(pages), 20)
+        self.assertEqual(len(pages), 21)
         self.assertEqual([r for r in pages if 'property="og:image"' not in read(r)], [])
 
     def test_bake_check_is_clean(self):

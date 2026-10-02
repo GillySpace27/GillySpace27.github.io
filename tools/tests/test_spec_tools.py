@@ -248,6 +248,36 @@ class CheckSpecTests(unittest.TestCase):
         self.assertIn("NOMARKER ", out)
 
 
+
+class SpecFolderTests(unittest.TestCase):
+    """Checks on the real heliosoftware/spec/ folder (the CI hook for every later initiative)."""
+
+    TEXT_SUFFIXES = {".html", ".md", ".py", ".json", ".txt", ".mjs", ".js", ".xml", ".css"}
+
+    def test_sums_match_the_folder(self):
+        code, out = run(load_tool("spec_sums.py"), "--check")
+        self.assertEqual(code, 0, out)
+
+    def test_every_top_level_entry_is_linked_from_index_html(self):
+        html = (SPEC / "index.html").read_text(encoding="utf-8")
+        linked = set()
+        for href in re.findall(r'href="([^"#?]+)"', html):
+            if re.match(r"^(?:[a-z]+:|/)", href):
+                continue
+            linked.add(href.split("/")[0])
+        entries = {p.name for p in SPEC.iterdir()
+                   if not p.name.startswith(".") and p.name not in ("__pycache__", "index.html")}
+        self.assertEqual(sorted(entries - linked), [], "files in spec/ that index.html does not link")
+
+    def test_no_em_dash_in_text_files(self):
+        bad = []
+        for path in SPEC.rglob("*"):
+            if path.is_file() and (path.suffix in self.TEXT_SUFFIXES or path.name == "SHA256SUMS"):
+                if b"\xe2\x80\x94" in path.read_bytes():
+                    bad.append(path.relative_to(SPEC).as_posix())
+        self.assertEqual(bad, [])
+
+
 # end of spec tool tests
 if __name__ == "__main__":
     unittest.main()

@@ -269,6 +269,17 @@
       "description": "Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio."
     },
     {
+      "path": "heliosoftware/spec/index.html",
+      "url": "/heliosoftware/spec/",
+      "title": "HelioSoftware spec",
+      "palette": null,
+      "keywords": "",
+      "sitemap": true,
+      "priority": "0.4",
+      "archived": false,
+      "description": "The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check."
+    },
+    {
       "path": "heliofits/index.html",
       "url": "/heliofits/",
       "title": "HelioFITS: solar FITS files, previewable on your Mac",
