@@ -1,0 +1,4 @@
+fastRHEF b5fbeaed641e73d111aa488832a276b55fc07765 bundle 1.0.0 manifest-sha256 cf9e02c2ea2ae872344d579fed47223fd9ab91615bada8e0f309701a856732dc
+cases: geometry_hpc_32,nan_holes_64,negatives_64,single_and_empty_annulus_64,ties_zero_fill_64
+withheld: expected_oRHEF-2.0.* (suite-decisions Q18)
+not published: application_radius_128,equal_width_128,equal_width_none_128,offcentre_sun_128,upsilon_pair_128

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- bake:head -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Kelvin–Helmholtz Instability · gilly.space</title>
@@ -11,7 +12,9 @@
     try {
       var mode = localStorage.getItem('enso-theme') || 'system';
       var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
     } catch (e) {}
   })();
 </script>
@@ -29,9 +32,8 @@
 <meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
-<link rel="stylesheet" href="/assets/css/academicons.min.css">
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css?v=202610020557">
+<!-- /bake -->
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
 </head>
 <body>
 <div data-include="header"></div>
@@ -93,7 +95,7 @@
 
       <h3>Single Stream</h3>
       <figure>
-        <video src="images/fulls/streamSmSlow.mp4" autoplay loop muted playsinline controls preload="metadata"
+        <video src="images/fulls/streamSmSlow.mp4" poster="images/fulls/streamSmSlow-poster.jpg" autoplay loop muted playsinline controls preload="metadata"
                style="width:100%;height:auto;border-radius:var(--radius)"
                aria-label="Animated spectral simulation of a single-stream Kelvin–Helmholtz instability, showing shear billows rolling up at increasing Reynolds number, with a vorticity panel below"></video>
         <figcaption>Single-stream Kelvin–Helmholtz instability: density (top) and vorticity (bottom) at increasing Reynolds number.</figcaption>
@@ -101,7 +103,7 @@
 
       <h3>Double Stream</h3>
       <figure>
-        <video src="images/fulls/doubleStreamSmSlow.mp4" autoplay loop muted playsinline controls preload="metadata"
+        <video src="images/fulls/doubleStreamSmSlow.mp4" poster="images/fulls/doubleStreamSmSlow-poster.jpg" autoplay loop muted playsinline controls preload="metadata"
                style="width:100%;height:auto;border-radius:var(--radius)"
                aria-label="Animated spectral simulation of a double-stream Kelvin–Helmholtz instability, with two shear layers rolling up into billows at increasing Reynolds number, with a vorticity panel below"></video>
         <figcaption>Double-stream Kelvin–Helmholtz instability: two shear layers, with density (top) and vorticity (bottom) at increasing Reynolds number.</figcaption>
@@ -122,6 +124,6 @@
   </section>
 </main>
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610020557"></script>
+<script src="/assets/site.js?v=202610021742"></script>
 </body>
 </html>

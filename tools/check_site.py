@@ -9,7 +9,7 @@ LEVEL in FAIL, WARN, KNOWN, SKIP; last line "check_site: <f> failures, <w> warni
 
 Links resolve against `git ls-files` with exact case, never the disk: the Mac
 disk is case-insensitive and GitHub Pages is not. Rules: link, stub, json,
-xml, feed, stamp, size, a11y (warn only). `--online` is reserved for SU-10.
+xml, feed, stamp, size, a11y (warn only). `--online` follows the live short links (SU-10).
 """
 from __future__ import annotations
 
@@ -24,7 +24,9 @@ import posixpath
 import re
 import subprocess
 import sys
+import urllib.error
 import urllib.parse
+import urllib.request
 import xml.etree.ElementTree as ET
 
 IGNORED_PREFIXES = ("tools/tests/fixtures/", ".claude/")
@@ -50,6 +52,8 @@ Finding = collections.namedtuple("Finding", "level rule path line target msg")
 CHECKS: list = []           # callables (ctx: Ctx) -> list[Finding], run in order
 EXTERNAL_CHECKS: list = [   # (rule, script, argv); argv runs with cwd = root
     ("stamp", "bump-assets.py", ["python3", "bump-assets.py", "--check"]),
+    ("feed-render", "heliosoftware/feed/build_feed.py", ["python3", "heliosoftware/feed/build_feed.py", "--check"]),
+    ("enso", "enso/build_calendar.js", ["node", "enso/build_calendar.js", "--check"]),
     ("bake", "tools/bake.py", ["python3", "tools/bake.py", "--check"]),
 ]
 
@@ -443,6 +447,338 @@ def check_parity(ctx: Ctx) -> list[Finding]:
     return out
 
 
+DEPLOY_REQUIRED = {
+    "CNAME": "names the custom domain; the branch source needs it and the Actions source ignores it",
+    "google690400622efc7ebc.html": "Search Console verification file; the live site must keep serving it",
+}
+
+
+@check("deploy-files")
+def check_deploy_files(ctx: Ctx) -> list[Finding]:
+    return [Finding("FAIL", "deploy-files", rel, 0, "-", f"must stay tracked: {why}")
+            for rel, why in DEPLOY_REQUIRED.items() if rel not in ctx.files]
+
+
+@check("nojekyll")
+def check_nojekyll(ctx: Ctx) -> list[Finding]:
+    """FAIL when a page links a tracked .md file and .nojekyll is not tracked.
+
+    Pages' default Jekyll pass (jekyll-optional-front-matter) renders a .md file
+    without front matter as .html, so the .md URL would 404. The marker turns
+    that pass off. The Actions artifact (tools/make_artifact.py) never runs Jekyll.
+    """
+    if ".nojekyll" in ctx.files:
+        return []
+    out = []
+    for page in ctx.pages:
+        for line, raw in parse_page(text(ctx, page)).links:
+            path = url_path(page, raw)
+            if path is not None and path.lower().endswith(".md") and resolve(path, ctx.files) is not None:
+                out.append(Finding("FAIL", "nojekyll", page, line, raw,
+                                   "links a .md file but .nojekyll is not tracked;"
+                                   " Pages' default Jekyll pass would serve " + path[:-3] + ".html instead"))
+    return out
+
+
+ICON_FONT_RE = re.compile(r"\b(?:fa fa|ai ai)-[a-z0-9-]+")
+
+
+@check("icons")
+def check_icons(ctx: Ctx) -> list[Finding]:
+    """FAIL on an icon-font class in a live page or partial; the sprite assets/icons.svg replaces them."""
+    archived = read_list(ctx.root, "archived_pages.txt")
+    out = []
+    for page in ctx.pages:
+        if any(fnmatch.fnmatchcase(page, pat) for pat in archived):
+            continue
+        body = text(ctx, page)
+        for m in ICON_FONT_RE.finditer(body):
+            out.append(Finding("FAIL", "icons", page, body.count("\n", 0, m.start()) + 1, m.group(0),
+                               'icon-font class on a live page; use <svg class="icon"><use href="/assets/icons.svg#name"></use></svg>'))
+    return out
+
+
+# ---- SU-10: short links, case twins, the 404 lowercaser ----
+
+SITE_ORIGIN = "https://gilly.space"
+SHORTLINKS = "heliosoftware/spec/shortlinks.json"
+LOWERCASER_NEEDLES = ("location.pathname.toLowerCase()", "location.replace(")
+_REFRESH_TAG = re.compile(r"""<meta[^>]+http-equiv=["']?refresh["']?""", re.I)
+
+
+def tracked_stubs(ctx: Ctx) -> dict[str, tuple[str, int]]:
+    """Folder ("jhv/") -> (absolute redirect target, line) for each tracked */index.html with a meta refresh."""
+    out: dict[str, tuple[str, int]] = {}
+    for f in sorted(ctx.files):
+        if not f.endswith("/index.html"):
+            continue
+        text = (ctx.root / f).read_text(encoding="utf-8", errors="replace")
+        if not _REFRESH_TAG.search(text):
+            continue
+        raw = parse_redirect_target(text)
+        if raw:
+            folder = f[: -len("index.html")]
+            out[folder] = (urllib.parse.urljoin(f"{SITE_ORIGIN}/{folder}", raw), line_of(text, "http-equiv"))
+    return out
+
+
+@check("shortlinks")
+def check_shortlinks(ctx: Ctx) -> list[Finding]:
+    p = ctx.root / SHORTLINKS
+    if not p.exists():
+        return [Finding("SKIP", "shortlinks", SHORTLINKS, 0, "-", "no shortlinks.json in this tree")]
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        listed = {e["path"]: e for e in data["links"]}
+    except (ValueError, KeyError, TypeError) as exc:
+        return [Finding("FAIL", "shortlinks", SHORTLINKS, 0, "-", f"unreadable: {exc!r}")]
+    actual = tracked_stubs(ctx)
+    out: list[Finding] = []
+    for path, e in sorted(listed.items()):
+        page = path + "index.html"
+        target = e.get("target", "")
+        if page not in ctx.files:
+            out.append(Finding("FAIL", "shortlinks", page, 0, target, "listed short link has no tracked page"))
+        elif path not in actual:
+            out.append(Finding("FAIL", "shortlinks", page, 0, target, "listed short link is no longer a redirect stub"))
+        elif actual[path][0] != target:
+            out.append(Finding("FAIL", "shortlinks", page, actual[path][1], target,
+                               f"stub redirects to {actual[path][0]} but shortlinks.json says {target}"))
+    for path, (target, line) in sorted(actual.items()):
+        if path not in listed:
+            out.append(Finding("WARN", "shortlinks", path + "index.html", line, target,
+                               "redirect stub is not in shortlinks.json "
+                               "(run python3 tools/check_site.py --write-shortlinks)"))
+    return out
+
+
+def write_shortlinks(root: pathlib.Path) -> int:
+    """Regenerate shortlinks.json from the tracked stubs (a file derived from tracked sources)."""
+    ctx = build_ctx(root)
+    links = [{"path": p, "target": t, "kind": "redirect"} for p, (t, _) in sorted(tracked_stubs(ctx).items())]
+    dest = root / SHORTLINKS
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(json.dumps({"version": 1, "links": links}, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {SHORTLINKS}: {len(links)} links")
+    return 0
+
+
+def case_twins(files) -> list[tuple[str, str]]:
+    """(kept, twin) for tracked paths that differ only by case; the first in sorted order is kept."""
+    seen: dict[str, str] = {}
+    twins: list[tuple[str, str]] = []
+    for f in sorted(files):
+        low = f.lower()
+        if low in seen:
+            twins.append((seen[low], f))
+        else:
+            seen[low] = f
+    return twins
+
+
+@check("case")
+def check_case_twins(ctx: Ctx) -> list[Finding]:
+    return [Finding("FAIL", "case", twin, 0, kept,
+                    f"differs from {kept} only by case; a case-insensitive disk holds one, GitHub Pages serves both")
+            for kept, twin in case_twins(ctx.files)]
+
+
+def lowercases(text: str) -> bool:
+    return all(n in text for n in LOWERCASER_NEEDLES)
+
+
+@check("lowercaser")
+def check_lowercaser(ctx: Ctx) -> list[Finding]:
+    if "404.html" not in ctx.files:
+        return [Finding("SKIP", "lowercaser", "404.html", 0, "-", "no 404.html in this tree")]
+    text = (ctx.root / "404.html").read_text(encoding="utf-8", errors="replace")
+    if lowercases(text):
+        return []
+    return [Finding("FAIL", "lowercaser", "404.html", 0, "-",
+                    "no longer sends a cased address to its lowercase twin; Pages is case-sensitive and the cased "
+                    "duplicate folders are gone (Website f378bbf, 2026-09-27)")]
+
+
+# ---- SU-10: release fallbacks and the live checks ----
+
+FEED_DIR = "heliosoftware/feed"
+USER_AGENT = "gilly-space-site-check/1 (+https://gilly.space)"
+_VERSION = re.compile(r"\d+(?:\.\d+)*")
+_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+
+Fetched = collections.namedtuple("Fetched", "status url body")   # status 0: no answer; -1: loop or too many hops
+
+
+def version_tuple(text: str) -> tuple[int, ...]:
+    m = _VERSION.search(text or "")
+    return tuple(int(x) for x in m.group(0).split(".")) if m else ()
+
+
+class _Fallbacks(html.parser.HTMLParser):
+    """(product, line, text) for each data-release-field="version" element inside a data-release element."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.found: list[tuple[str, int, str]] = []
+        self._open: list[tuple[str, str | None]] = []     # (tag, product) for every open non-void element
+        self._cap = None                                    # (depth, product, line, chunks)
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        product = a.get("data-release") or (self._open[-1][1] if self._open else None)
+        if tag in _VOID:
+            return
+        self._open.append((tag, product))
+        if a.get("data-release-field") == "version" and product and self._cap is None:
+            self._cap = (len(self._open), product, self.getpos()[0], [])
+
+    def handle_endtag(self, tag):
+        for i in range(len(self._open) - 1, -1, -1):
+            if self._open[i][0] == tag:
+                if self._cap is not None and self._cap[0] == i + 1:
+                    product, line, chunks = self._cap[1:]
+                    self.found.append((product, line, "".join(chunks).strip()))
+                    self._cap = None
+                del self._open[i:]
+                return
+
+    def handle_data(self, data):
+        if self._cap is not None:
+            self._cap[3].append(data)
+
+
+def _newest_version(ctx: Ctx, product: str):
+    rel = f"{FEED_DIR}/{product}.json"
+    if rel not in ctx.files:
+        return None
+    try:
+        records = json.loads((ctx.root / rel).read_text(encoding="utf-8")).get("records", [])
+    except (ValueError, AttributeError):
+        return None
+    best = None
+    for r in records:
+        key = version_tuple(str(r.get("version", "")))
+        if key and (best is None or key >= best[0]):
+            best = (key, str(r["version"]))
+    return best
+
+
+@check("fallback")
+def check_release_fallbacks(ctx: Ctx) -> list[Finding]:
+    """A page's static version text must not be older than the newest record in the family feed (SU-11)."""
+    newest: dict[str, object] = {}
+    out: list[Finding] = []
+    for page in ctx.pages:
+        text = (ctx.root / page).read_text(encoding="utf-8", errors="replace")
+        if "data-release" not in text:
+            continue
+        p = _Fallbacks()
+        p.feed(text)
+        p.close()
+        for product, line, shown in p.found:
+            if not shown:
+                continue                      # no static text: nothing hand-typed to go stale
+            if product not in newest:
+                newest[product] = _newest_version(ctx, product)
+            best = newest[product]
+            if best is not None and version_tuple(shown) and version_tuple(shown) < best[0]:
+                out.append(Finding("FAIL", "fallback", page, line, product,
+                                   f"static fallback {shown} is older than the feed's {best[1]} "
+                                   f"({FEED_DIR}/{product}.json); re-pin the page"))
+    return out
+
+
+def fetch(url: str, timeout: float = 20.0) -> Fetched:
+    """One read-only GET. urllib follows HTTP redirects; status 0 means nothing answered."""
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return Fetched(r.status, r.geturl(), r.read(2_000_000))
+    except urllib.error.HTTPError as e:
+        return Fetched(e.code, e.geturl() or url, e.read(2_000_000))
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return Fetched(0, url, b"")
+
+
+def onto(url: str, base: str) -> str:
+    return base + url[len(SITE_ORIGIN):] if url.startswith(SITE_ORIGIN) else url
+
+
+def follow(url: str, getter=fetch, base: str = SITE_ORIGIN, max_hops: int = 5) -> Fetched:
+    """GET url, then follow each 200 page's meta refresh or location.replace, up to max_hops pages.
+
+    Returns the last Fetched; status -1 for a loop or too many hops. Targets on gilly.space are
+    rewritten onto `base`, so a local server can stand in for the site."""
+    seen: set[str] = set()
+    cur = onto(url, base)
+    for _ in range(max_hops + 1):
+        got = getter(cur)
+        if got.status != 200:
+            return got
+        target = parse_redirect_target(got.body.decode("utf-8", "replace"))
+        if not target:
+            return got
+        seen.add(got.url)
+        nxt = onto(urllib.parse.urljoin(got.url, target), base)
+        if nxt in seen:
+            return Fetched(-1, nxt, b"")
+        cur = nxt
+    return Fetched(-1, cur, b"")
+
+
+def live_shortlinks(ctx: Ctx, getter=fetch, base: str = SITE_ORIGIN) -> list[Finding]:
+    data = json.loads((ctx.root / SHORTLINKS).read_text(encoding="utf-8"))
+    out: list[Finding] = []
+    for e in data["links"]:
+        want = onto(e["target"], base)
+        got = follow(f"{SITE_ORIGIN}/{e['path']}", getter, base)
+        if got.status == 0:
+            msg = f"no answer from {got.url}"
+        elif got.status == -1:
+            msg = f"redirect loop or more than 5 hops (last: {got.url})"
+        elif got.status != 200:
+            msg = f"HTTP {got.status} at {got.url}"
+        elif got.url != want:
+            msg = f"ended at {got.url}, expected {want}"
+        elif not got.body.strip():
+            msg = f"empty page at {got.url}"
+        else:
+            continue
+        out.append(Finding("FAIL", "live-shortlink", e["path"], 0, e["target"], msg))
+    return out
+
+
+def live_lowercaser(ctx: Ctx, getter=fetch, base: str = SITE_ORIGIN) -> list[Finding]:
+    got = getter(f"{base}/JHV/")
+    if got.status == 404 and lowercases(got.body.decode("utf-8", "replace")):
+        return []
+    if got.status == 200:
+        return [Finding("WARN", "live-lowercaser", "JHV/", 0, "-",
+                        "a cased twin is being served (suite-decisions Q17 expects none)")]
+    if got.status == 404:
+        return [Finding("FAIL", "live-lowercaser", "JHV/", 0, "-",
+                        "the live 404 page does not lowercase the address")]
+    return [Finding("FAIL", "live-lowercaser", "JHV/", 0, "-", f"HTTP {got.status} at {got.url}")]
+
+
+ONLINE_CHECKS = [("live-shortlink", live_shortlinks), ("live-lowercaser", live_lowercaser)]
+
+
+def run_online(root: pathlib.Path, getter=fetch, base: str = SITE_ORIGIN) -> tuple[int, list[Finding]]:
+    """Only the live checks: read-only GETs against `base`. Offline rules are the default run."""
+    ctx = build_ctx(root)
+    findings: list[Finding] = []
+    if (root / SHORTLINKS).exists():
+        findings += live_shortlinks(ctx, getter, base)
+    else:
+        findings.append(Finding("SKIP", "live-shortlink", SHORTLINKS, 0, "-", "no shortlinks.json in this tree"))
+    findings += live_lowercaser(ctx, getter, base)
+    known = load_known(root)
+    findings = [f._replace(level="KNOWN") if f.level == "FAIL" and (f.rule, f.path, f.target) in known else f
+                for f in findings]
+    return (1 if any(f.level == "FAIL" for f in findings) else 0), findings
+
+
 def run_external(ctx: Ctx, rule: str, script: str, argv: list[str]) -> list[Finding]:
     if not (ctx.root / script).exists():
         return [Finding("SKIP", rule, script, 0, "-", "script not present yet")]
@@ -501,8 +837,20 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="gilly.space site checks")
     ap.add_argument("--root", type=pathlib.Path, default=pathlib.Path(__file__).resolve().parents[1])
     ap.add_argument("--only", nargs="+", action="extend", metavar="RULE")
+    ap.add_argument("--write-shortlinks", action="store_true",
+                    help="rewrite heliosoftware/spec/shortlinks.json from the tracked redirect stubs")
+    ap.add_argument("--online", action="store_true",
+                    help="follow every short link on the live site (read-only GETs) instead of the offline rules")
+    ap.add_argument("--base", default=SITE_ORIGIN, help="origin the --online run probes (tests use a local server)")
+    ap.add_argument("--feed", action="store_true", help="run only the release-fallback rule")
     args = ap.parse_args(argv)
-    code, findings = run(args.root.resolve(), args.only)
+    if args.write_shortlinks:
+        return write_shortlinks(args.root.resolve())
+    if args.online:
+        code, findings = run_online(args.root.resolve(), base=args.base.rstrip("/"))
+    else:
+        only = list(args.only or []) + (["fallback"] if args.feed else [])
+        code, findings = run(args.root.resolve(), only or None)
     for f in findings:
         print(f"{f.level} {f.rule} {f.path}:{f.line} {f.target} :: {f.msg}")
     c = collections.Counter(f.level for f in findings)

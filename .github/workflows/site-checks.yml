@@ -1,0 +1,24 @@
+# Daily live check (SU-10): follows every short link on gilly.space to its real destination
+# with read-only GETs, and checks that the live 404 page still lowercases the address.
+# Scheduled workflows run only on the default branch, and GitHub pauses them after 60 days
+# without repository activity; a manual run (workflow_dispatch) works any time.
+# WS-7's watch.yml probes the same links every six hours and opens an issue; this one is the
+# check_site.py form that tools/site_status.py (SU-5) wraps. Read-only; it uses no credentials.
+name: site-checks
+
+on:
+  schedule:
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  online:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Follow every short link
+        run: python3 tools/check_site.py --online

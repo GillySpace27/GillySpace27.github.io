@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- bake:head -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My Heliograph — prints · gilly.space</title>
-<meta name="description"
-      content="Fine-art prints of the Sun, processed the way Gilly processes it for science. From My Heliograph — your day, written in sunlight.">
+<title>My Heliograph: prints · gilly.space</title>
+<meta name="description" content="Fine-art prints of the Sun, processed the way Gilly processes it for science.">
 <link rel="canonical" href="https://gilly.space/shop">
 <script>
   (function () {
     try {
       var mode = localStorage.getItem('enso-theme') || 'system';
       var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
     } catch (e) {}
   })();
 </script>
 <meta property="og:type" content="website">
-<meta property="og:title" content="Solar Archive — prints · gilly.space">
+<meta property="og:title" content="My Heliograph: prints · gilly.space">
 <meta property="og:description" content="Fine-art prints of the Sun, processed the way Gilly processes it for science.">
 <meta property="og:url" content="https://gilly.space/shop">
 <meta property="og:image" content="https://gilly.space/images/bg.jpg">
@@ -30,9 +32,8 @@
 <meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
-<link rel="stylesheet" href="/assets/css/academicons.min.css">
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css?v=202610020557">
+<!-- /bake -->
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
 </head>
 <body>
 
@@ -81,6 +82,6 @@
 </main>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610020557"></script>
+<script src="/assets/site.js?v=202610021742"></script>
 </body>
 </html>

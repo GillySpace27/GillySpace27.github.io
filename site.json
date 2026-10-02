@@ -64,12 +64,13 @@
     {
       "path": "index.html",
       "url": "/",
-      "title": "Dr. Gilly \u2014 Heliophysicist",
+      "title": "Dr. Gilly, Heliophysicist",
       "palette": "Home",
       "keywords": "home start",
       "sitemap": true,
       "priority": "1.0",
-      "archived": false
+      "archived": false,
+      "description": "Dr. Gilly (&quot;Gilly&quot;), heliophysicist at NorthWest Research Associates: solar wind, coronal heating, forward models, and a few interactive space toys."
     },
     {
       "path": "Research.html",
@@ -79,7 +80,8 @@
       "keywords": "papers ghosts punch",
       "sitemap": true,
       "priority": "0.9",
-      "archived": false
+      "archived": false,
+      "description": "Gilly's solar research: coronal heating, coronal waves with DKIST, PUNCH, and the RHEF image filter."
     },
     {
       "path": "publications.html",
@@ -89,7 +91,8 @@
       "keywords": "papers thesis ads",
       "sitemap": true,
       "priority": "0.8",
-      "archived": false
+      "archived": false,
+      "description": "Dr. Gilly's peer-reviewed papers, white papers and PhD thesis, on the solar corona and solar wind."
     },
     {
       "path": "PastResearch.html",
@@ -99,7 +102,8 @@
       "keywords": "student kelvin voyager",
       "sitemap": true,
       "priority": "0.6",
-      "archived": false
+      "archived": false,
+      "description": "Student and early research projects by Dr. Gilly \u2014 Kelvin\u2013Helmholtz instabilities, solar DEM measurements, CubeSat and space-mission proposals, and Voyager UVS data reduction."
     },
     {
       "path": "sun.html",
@@ -109,7 +113,9 @@
       "keywords": "solar live rhe images",
       "sitemap": true,
       "priority": "0.9",
-      "archived": false
+      "archived": false,
+      "description": "Near-real-time images of the Sun from NASA's SDO/AIA, radially normalized with RHE to reveal the faint corona. Updated every 20 minutes, with 48-hour timelapse videos.",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_rainbow_1k.png"
     },
     {
       "path": "resources.html",
@@ -119,7 +125,8 @@
       "keywords": "links directory",
       "sitemap": true,
       "priority": "0.5",
-      "archived": false
+      "archived": false,
+      "description": "A working directory of solar-physics and space-weather links \u2014 homepages, live dashboards, and data sources Gilly keeps handy."
     },
     {
       "path": "RecordedPublicTalks.html",
@@ -129,7 +136,8 @@
       "keywords": "video planetarium",
       "sitemap": true,
       "priority": "0.6",
-      "archived": false
+      "archived": false,
+      "description": "Planetarium talks, interviews, observing nights and outreach materials from Dr. Gilly, on why space isn't empty."
     },
     {
       "path": "Space-Is-Full.html",
@@ -139,7 +147,8 @@
       "keywords": "asimov parker",
       "sitemap": true,
       "priority": "0.6",
-      "archived": false
+      "archived": false,
+      "description": "Everything you've heard about space being empty is wrong \u2014 the solar wind, magnetospheres, and the heliosphere fill our solar system with dynamic space weather."
     },
     {
       "path": "Music-and-Theater.html",
@@ -149,7 +158,8 @@
       "keywords": "songs plays",
       "sitemap": true,
       "priority": "0.5",
-      "archived": false
+      "archived": false,
+      "description": "Gilly's creative life beyond the lab \u2014 original songs on SoundCloud, a theatrical resume, and decades of musical theater and plays."
     },
     {
       "path": "play/index.html",
@@ -159,7 +169,8 @@
       "keywords": "enso sudoku games",
       "sitemap": true,
       "priority": "0.8",
-      "archived": false
+      "archived": false,
+      "description": "Small interactive things Gilly built: a daily ens\u014d calendar, an ens\u014d editor, Spectrum Sudoku, Solar Corona &amp; Wind, and a Claude model field guide."
     },
     {
       "path": "enso/index.html",
@@ -204,12 +215,15 @@
     {
       "path": "shop.html",
       "url": "/shop.html",
-      "title": "My Heliograph \u2014 prints",
+      "title": "My Heliograph: prints",
       "palette": "Store \u2014 Solar Archive",
       "keywords": "prints buy",
       "sitemap": true,
       "priority": "0.7",
-      "archived": false
+      "archived": false,
+      "description": "Fine-art prints of the Sun, processed the way Gilly processes it for science.",
+      "canonical": "https://gilly.space/shop",
+      "og_url": "https://gilly.space/shop"
     },
     {
       "path": "about.html",
@@ -219,7 +233,8 @@
       "keywords": "bio resume contact",
       "sitemap": true,
       "priority": "0.8",
-      "archived": false
+      "archived": false,
+      "description": "About Dr. Gilly, heliophysicist at NWRA: career, CVs, service, and how this site is built."
     },
     {
       "path": "Kelvin.html",
@@ -229,7 +244,8 @@
       "keywords": "",
       "sitemap": true,
       "priority": "0.5",
-      "archived": false
+      "archived": false,
+      "description": "A review of the Kelvin\u2013Helmholtz instability by Dr. Gilly, with a paper, slides, and spectral Dedalus simulations of fluid shear."
     },
     {
       "path": "skitPage.html",
@@ -239,7 +255,8 @@
       "keywords": "",
       "sitemap": true,
       "priority": "0.3",
-      "archived": false
+      "archived": false,
+      "description": "Watch Gilly's 2015 APS skit \u2014 download the video in High Quality or Low Quality."
     },
     {
       "path": "heliosoftware/index.html",
@@ -249,7 +266,19 @@
       "keywords": "software apps heliograph heliogram heliofits studio rhef",
       "sitemap": true,
       "priority": "0.8",
-      "archived": false
+      "archived": false,
+      "description": "Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio."
+    },
+    {
+      "path": "heliosoftware/spec/index.html",
+      "url": "/heliosoftware/spec/",
+      "title": "HelioSoftware spec",
+      "palette": null,
+      "keywords": "",
+      "sitemap": true,
+      "priority": "0.4",
+      "archived": false,
+      "description": "The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check."
     },
     {
       "path": "heliofits/index.html",
@@ -259,7 +288,11 @@
       "keywords": "fits finder quick look mac preview",
       "sitemap": true,
       "priority": "0.7",
-      "archived": false
+      "archived": false,
+      "description": "HelioFITS renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.",
+      "head_title": "HelioFITS: solar FITS files, previewable on your Mac",
+      "canonical": "https://apps.apple.com/app/id6790952544",
+      "og_image": "https://gilly.space/heliofits/icon.png"
     },
     {
       "path": "heliofits-studio/index.html",
@@ -269,7 +302,9 @@
       "keywords": "compositor corona coronagraph work surface",
       "sitemap": true,
       "priority": "0.7",
-      "archived": false
+      "archived": false,
+      "description": "HelioFITS Studio: a desktop compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.",
+      "head_title": "HelioFITS Studio"
     },
     {
       "path": "rhef/index.html",
@@ -279,7 +314,9 @@
       "keywords": "filter corona python sunkit-image histogram",
       "sitemap": true,
       "priority": "0.7",
-      "archived": false
+      "archived": false,
+      "description": "RHEF brings out faint coronal structure in solar images, on the disk and off the limb, with no parameter tuning. In sunkit-image for Python.",
+      "og_image": "https://gilly.space/assets/sw/rhef-compare.jpg"
     },
     {
       "path": "archive/index.html",
@@ -289,7 +326,8 @@
       "keywords": "",
       "sitemap": true,
       "priority": "0.3",
-      "archived": false
+      "archived": false,
+      "description": "Older and superseded pages of gilly.space, kept for posterity."
     },
     {
       "path": "corona/index.html",
@@ -310,7 +348,9 @@
       "sitemap": false,
       "priority": "0.1",
       "archived": false,
-      "noscript": "home"
+      "noscript": "home",
+      "description": "This page does not exist on gilly.space. Go back to the home page.",
+      "no_canonical": true
     }
   ],
   "palette_extra": [
