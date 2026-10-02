@@ -26,3 +26,12 @@ is a later, separate step; removing one is never an agent's step.
 | worktree `.claude/worktrees/whichclaude-site-integration-4adfaf`, detached at `ff91b7f` | whichclaude site integration, 2026-08-05 | its branch is fully merged; its 17 dirty files are stamp-only rewrites by the old stamper | `archive/whichclaude-worktree-ff91b7f` | 2026-10-02 |
 
 The branch and the worktree stay in place; only Gilly retires them further.
+
+## Canonical rows
+
+The same retirements in the suite's row format (https://gilly.space/heliosoftware/spec/attic.md). The tables above keep their own columns and are not rewritten. Rows are appended.
+
+| What | Where it is now | Why | Restore command | Date |
+|---|---|---|---|---|
+| branch `claude/heliofits-sibling-link` | branch `claude/heliofits-sibling-link` left in place; tag `archive/heliofits-sibling-link` at tip f7c42b8 | Superseded by a73968f on master (same subject); merging it would revert later head changes | `git switch --detach archive/heliofits-sibling-link` | 2026-10-02 |
+| worktree `.claude/worktrees/whichclaude-site-integration-4adfaf` | same path, detached; tag `archive/whichclaude-worktree-ff91b7f` at tip ff91b7f | Its branch is fully merged; its 17 dirty files are stamp-only rewrites by the old stamper | `git switch --detach archive/whichclaude-worktree-ff91b7f` | 2026-10-02 |
