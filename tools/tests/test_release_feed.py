@@ -115,5 +115,74 @@ class Writer(unittest.TestCase):
         self.assertEqual(self.feed()["records"][0]["name"], "Heliograph")
 
 
+class Renderer(unittest.TestCase):
+    STAMP = "202610010000"
+
+    def setUp(self):
+        import build_feed
+        self.bf = build_feed
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.site = pathlib.Path(tmp.name) / "heliosoftware"
+        (self.site / "feed").mkdir(parents=True)
+        (self.site / "index.html").write_text(
+            f'<link rel="stylesheet" href="/assets/site.css?v={self.STAMP}">\n', encoding="utf-8")
+        self.feed_dir = self.site / "feed"
+        a = {"name": "Heliograph-0.7.dmg", "url": "https://gilly.space/heliograph/Heliograph-0.7.dmg",
+             "sha256": SHA, "bytes": 12226044, "platform": "macos", "confirmed": True}
+        self.put("heliogram", "Heliogram", [{"version": "0.7", "build": 7, "name": "Heliograph", "date": "2026-09-28",
+                                             "channel": "direct", "url": "https://gilly.space/heliograph/",
+                                             "notes": "Heliograph now updates itself.", "assets": [a]}])
+        self.put("heliofits", "HelioFITS", [{"version": "1.4.0", "build": 10, "date": "2026-10-02",
+                                             "channel": "mac-app-store", "url": "https://apps.apple.com/app/id6790952544",
+                                             "notes": "Opens the viewer <first> & \"more\".", "assets": []}])
+
+    def put(self, product, name, records):
+        (self.feed_dir / f"{product}.json").write_text(
+            json.dumps({"product": product, "name": name, "page": "https://gilly.space/", "records": records}),
+            encoding="utf-8")
+
+    def test_atom_lists_every_record_newest_first_with_stable_ids(self):
+        import xml.etree.ElementTree as ET
+        entries, errors = self.bf.load_entries(self.feed_dir)
+        self.assertEqual(errors, [])
+        root = ET.fromstring(self.bf.render_atom(entries))
+        ns = {"a": "http://www.w3.org/2005/Atom"}
+        ids = [e.find("a:id", ns).text for e in root.findall("a:entry", ns)]
+        self.assertEqual(ids, ["tag:gilly.space,2026-10-02:heliofits-1.4.0-build.10",
+                               "tag:gilly.space,2026-09-28:heliogram-0.7-build.7"])
+        titles = [e.find("a:title", ns).text for e in root.findall("a:entry", ns)]
+        self.assertEqual(titles, ["HelioFITS 1.4.0", "Heliograph 0.7"])
+        self.assertEqual(root.find("a:updated", ns).text, "2026-10-02T00:00:00Z")
+
+    def test_page_escapes_notes_and_carries_the_hub_stamp(self):
+        entries, _ = self.bf.load_entries(self.feed_dir)
+        page = self.bf.render_page(entries, self.STAMP)
+        self.assertIn("&lt;first&gt; &amp; &quot;more&quot;", page)
+        self.assertNotIn("<first>", page)
+        self.assertIn(f"/assets/site.css?v={self.STAMP}", page)
+        self.assertIn(f"/assets/site.js?v={self.STAMP}", page)
+
+    def test_check_flags_stale_outputs_and_passes_after_a_write(self):
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 1)
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir)]), 0)
+        self.assertTrue((self.site / "feed.xml").exists() and (self.site / "whats-new" / "index.html").exists())
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 0)
+        self.put("heliofits", "HelioFITS", [])
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 1)
+
+    def test_an_invalid_record_writes_nothing(self):
+        self.put("heliogram", "Heliogram", [{"version": "0.8", "date": "2026-10-02", "channel": "direct",
+                                             "url": "https://gilly.space/heliogram/", "notes": "x",
+                                             "assets": [{"name": "a.dmg", "url": "https://gilly.space/a.dmg",
+                                                         "sha256": "", "bytes": 1, "platform": "macos", "confirmed": True}]}])
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir)]), 1)
+        self.assertFalse((self.site / "feed.xml").exists())
+
+    def test_missing_hub_stamp_is_an_error(self):
+        (self.site / "index.html").write_text("<p>no stamp</p>\n", encoding="utf-8")
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir)]), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
