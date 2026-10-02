@@ -94,6 +94,41 @@ waits on Gilly's yes for that one action.
   `tools/archived_pages.txt` and `heliograph/`, `heliogram/` are not in the
   sitemap (the publish step owns the last two).
 
+## The Sun page
+
+- `sun.html` is driven by `assets/sun.js` (`window.SunData`, `window.SunStage`). The
+  manifest fields it reads are pinned in `contracts/sun-bucket.md`; `check_site.py`
+  rule `contract` scans `sun.html` and `assets/sun.js` for any other `m.<field>`.
+  `PRODUCTS` in `sun.html` is never edited (other repos parse it).
+- Freshness pills use 60 and 180 minutes (`FRESH_OK_MIN`, `FRESH_STALE_MIN`; Gilly's
+  decision A5). The internal alarm in Sunback is tighter and is not this.
+- The Stage (the large clip with the scrubber and channel strip) keeps the same moment
+  when you change channel by aligning the clips' newest-frame times on a 20 minute grid.
+  Per-slot times from the producer (SB-14) are not written yet, so the time label says
+  "about". Channel temperatures come from `instruments/AIA.md` in the vault (section 4,
+  lines 65-73); change them there first, then in `CHANNELS` and in
+  `tools/tests/js/sun_stage_check.mjs`.
+- Checks: `python3 -m unittest discover -s tools/tests -p 'test_*.py'` runs the Node
+  checks in `tools/tests/js/` (node as a bare runtime, no npm). Motion and touch need a
+  real browser; see the PR notes for what was run.
+
+## Share links
+
+- `/s/<id>/` is one redirect per Sun channel (`/s/171/`, `/s/rainbow/`, ...). Each page
+  carries `og:title`, `og:image` and a Twitter card for that channel, then sends the
+  visitor to `/sun.html#<id>`, where the card scrolls into view and is outlined for a few
+  seconds. Lowercase ids only (Pages is case-sensitive).
+- The stubs are generated: `python3 tools/bake.py --only share` writes `s/<id>/index.html`
+  from `tools/templates/share.html` and fills `site.json` `share` from the `PRODUCTS` labels
+  and the `img1k` key of each manifest in `fixtures/sun/manifest/`. After
+  `python3 fixtures/sun/capture.py --refresh`, bake again. `bake.py --check` (rule `bake`)
+  fails on a hand edit. The stubs are not in `sitemap.xml` and carry `noindex`.
+- `og:image` is the bucket URL of the channel's newest 1k still. This session could not
+  HEAD those URLs (no live calls), so confirm each returns 200 after a deploy, and send
+  one `/s/` link to yourself to see it unfurl.
+- The Share button on each card calls `SunData.share` (native sheet, else clipboard, else
+  `execCommand`) and shows a toast with the link.
+
 ## Short links
 
 - Each short link is a static `index.html` that redirects with a meta refresh
