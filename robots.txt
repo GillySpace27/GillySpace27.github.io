@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /fixtures/
 
 Sitemap: https://gilly.space/sitemap.xml

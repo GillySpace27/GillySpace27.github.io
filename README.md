@@ -13,6 +13,18 @@ Fully static, deployed via **GitHub Pages** (push to the default branch → live
 One **Cloudflare Worker** powers the enso AI impressions (`worker/`). No npm, no
 bundler — vanilla HTML/CSS/JS by design.
 
+## Stamping shared assets
+
+After editing `assets/site.css`, `assets/product.css`, `assets/site.js`,
+`assets/product.js` or anything in `partials/`, run `python3 bump-assets.py`.
+It rewrites the `?v=` stamp on every link to those files in the HTML pages git
+tracks in this checkout (never `.claude/worktrees/`), and sets `sw.js`
+`CACHE_VERSION` to `gilly-<stamp>` so returning visitors drop the old
+service-worker cache. `python3 bump-assets.py --dry-run` lists what would
+change and writes nothing. `python3 bump-assets.py --check` writes nothing and
+exits 1 naming each page whose stamp is missing or differs, and `sw.js` when its
+`CACHE_VERSION` does not match.
+
 ## Layout
 
 | Path | What it is |
@@ -23,10 +35,10 @@ bundler — vanilla HTML/CSS/JS by design.
 | `resources.html` | Solar-physics link directory |
 | `RecordedPublicTalks.html`, `Space-Is-Full.html`, `Kelvin.html` | Outreach & science writing |
 | `Music-and-Theater.html`, `skitPage.html` | Creative work |
-| `shop.html` | Solar Archive print store (links to solar-archive.onrender.com) |
+| `shop.html` | My Heliograph print store landing (links to myheliograph.com) |
 | `enso/` | Daily AI-narrated enso calendar + editor |
 | `sudoku/` | Spectrum Sudoku |
-| `worker/` | Cloudflare Worker (Workers AI haiku + KV cache) |
+| `worker/` | Cloudflare Worker (Workers AI one-line evocation + KV cache) |
 | `assets/site.css`, `assets/site.js`, `partials/` | New unified design system ("Heliostatic") |
 | `REDESIGN.md` | Full redesign proposal & roadmap |
 
@@ -35,4 +47,5 @@ bundler — vanilla HTML/CSS/JS by design.
 The site is being modernized off its decade-old HTML5 UP "Strata" template onto
 one hand-authored design system that shares the enso toys' tokens and dark mode.
 See **[REDESIGN.md](REDESIGN.md)** for the plan and phased roadmap. The enso
-project's deeper docs live in **[CLAUDE.md](CLAUDE.md)**.
+project's deeper docs live in **[enso/CLAUDE.md](enso/CLAUDE.md)**. Agents start at
+**[CLAUDE.md](CLAUDE.md)**; runbooks are in **[SITE.md](SITE.md)**.
