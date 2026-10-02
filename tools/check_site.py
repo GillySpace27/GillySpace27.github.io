@@ -359,6 +359,89 @@ def check_a11y(ctx: Ctx) -> list[Finding]:
     return out
 
 
+class _NavLinks(html.parser.HTMLParser):
+    """(href, label) of the links in the first nav labelled "Primary"; the drop-down menu is skipped."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.links: list = []
+        self._in_nav = False
+        self._menu = 0          # div depth inside nav-drop__menu
+        self._href = None
+        self._label: list = []
+        self._done = False
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if self._done:
+            return
+        if tag == "nav" and a.get("aria-label") == "Primary":
+            self._in_nav = True
+        elif self._in_nav and tag == "div":
+            if self._menu or "nav-drop__menu" in (a.get("class") or ""):
+                self._menu += 1
+        elif self._in_nav and tag == "a" and not self._menu:
+            self._href, self._label = a.get("href") or "", []
+
+    def handle_data(self, data):
+        if self._href is not None:
+            self._label.append(data)
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self._href is not None:
+            self.links.append((self._href, " ".join("".join(self._label).split())))
+            self._href = None
+        elif tag == "div" and self._menu:
+            self._menu -= 1
+        elif tag == "nav" and self._in_nav:
+            self._in_nav, self._done = False, True
+
+
+def nav_links(html_text: str) -> list:
+    p = _NavLinks()
+    p.feed(html_text)
+    p.close()
+    return p.links
+
+
+def parity_note(want: list, got: list) -> str:
+    wh, gh = [h for h, _ in want], [h for h, _ in got]
+    missing = [h for h in wh if h not in gh]
+    extra = [h for h in gh if h not in wh]
+    bits = ([f"missing {', '.join(missing)}"] if missing else []) + ([f"extra {', '.join(extra)}"] if extra else [])
+    return "; ".join(bits) or "same links, different order or labels"
+
+
+@check("parity")
+def check_parity(ctx: Ctx) -> list[Finding]:
+    """Warn-only (WS-10): the other copies of the nav against partials/header.html."""
+    if "partials/header.html" not in ctx.files:
+        return []
+    want = nav_links(text(ctx, "partials/header.html"))
+    out = []
+    if "assets/site.js" in ctx.files:
+        js = text(ctx, "assets/site.js")
+        m = re.search(r"var HEADER_FALLBACK = (?:/\* bake:header-fallback \*/ )?'((?:[^'\\\n]|\\.)*)'", js)
+        if m and nav_links(m.group(1)) != want:
+            out.append(Finding("WARN", "parity", "assets/site.js", line_of(js, "var HEADER_FALLBACK"),
+                               "HEADER_FALLBACK", "differs from partials/header.html: " + parity_note(want, nav_links(m.group(1)))))
+        urls = re.findall(r"\bu: '([^']*)'", js)
+        lacking = [h for h, _ in want if h not in urls]
+        if urls and lacking:
+            out.append(Finding("WARN", "parity", "assets/site.js", line_of(js, "var ITEMS"), "ITEMS",
+                               "command palette has no entry for " + ", ".join(lacking)))
+    for page in ctx.pages:
+        body = text(ctx, page)
+        m = re.search(r"<noscript>(.*?)</noscript>", body, re.S)
+        if not m or 'aria-label="Primary"' not in m.group(1):
+            continue
+        got = nav_links(m.group(1))
+        if got != want:
+            out.append(Finding("WARN", "parity", page, line_of(body, "<noscript>"), "noscript",
+                               "differs from partials/header.html: " + parity_note(want, got)))
+    return out
+
+
 def run_external(ctx: Ctx, rule: str, script: str, argv: list[str]) -> list[Finding]:
     if not (ctx.root / script).exists():
         return [Finding("SKIP", rule, script, 0, "-", "script not present yet")]
