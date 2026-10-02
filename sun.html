@@ -137,7 +137,7 @@
 <div data-include="footer"></div>
 <script src="/assets/site.js?v=202610020504"></script>
 <script>
-  const BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/";
+  const BUCKET = (location.hostname === "localhost" && new URLSearchParams(location.search).has("fixtures")) ? "/fixtures/sun/" : "https://the-sun-now.s3.us-east-2.amazonaws.com/";
   const PRODUCTS = [
     ["rainbow","Rainbow (RHEF composite)"],
     ["171","AIA 171 Å"], ["193","AIA 193 Å"], ["211","AIA 211 Å"],
