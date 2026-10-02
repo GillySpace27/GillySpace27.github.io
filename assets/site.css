@@ -544,3 +544,15 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
 .video-tile small { color: var(--muted); font-size: 13px; }
 main .video-tile::after { content: none !important; }
 .tool-strip img.sw-icon { object-fit: cover; border-radius: 22.5%; }
+
+/* ---- The Sun, right now: card skeleton pulse and freshness pills (sun.html, WS-5) ---- */
+.card--sun.is-loading .card__img { animation: sunPulse 1.4s ease-in-out infinite; }
+@keyframes sunPulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.sun-pill { display: inline-flex; align-items: center; gap: 6px; margin: .15em 0 0;
+  font-size: 12px; line-height: 1.4; color: var(--muted); }
+.sun-pill::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sun-pill--ok::before { background: #2e9d5b; }
+.sun-pill--stale::before { background: var(--accent); }
+.sun-pill--old::before { background: #c8442f; }
+.sun-pill--unknown::before { background: transparent; border: 1px solid var(--muted); }
+@media (prefers-reduced-motion: reduce) { .card--sun.is-loading .card__img { animation: none; } }
