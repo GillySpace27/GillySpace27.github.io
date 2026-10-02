@@ -443,6 +443,18 @@ def check_parity(ctx: Ctx) -> list[Finding]:
     return out
 
 
+DEPLOY_REQUIRED = {
+    "CNAME": "names the custom domain; the branch source needs it and the Actions source ignores it",
+    "google690400622efc7ebc.html": "Search Console verification file; the live site must keep serving it",
+}
+
+
+@check("deploy-files")
+def check_deploy_files(ctx: Ctx) -> list[Finding]:
+    return [Finding("FAIL", "deploy-files", rel, 0, "-", f"must stay tracked: {why}")
+            for rel, why in DEPLOY_REQUIRED.items() if rel not in ctx.files]
+
+
 def run_external(ctx: Ctx, rule: str, script: str, argv: list[str]) -> list[Finding]:
     if not (ctx.root / script).exists():
         return [Finding("SKIP", rule, script, 0, "-", "script not present yet")]
