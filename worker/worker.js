@@ -103,6 +103,11 @@ function jsonResponse(body, status, cors) {
 // Oldest date a client may ask about (estimated window; Gilly may widen it).
 const DATE_MIN = '2020-01-01';
 
+// Soft ceiling on Workers AI calls per UTC day (estimated; Gilly may change it).
+// Counted in KV under quota:<YYYY-MM-DD>. KV is not atomic, so concurrent cache
+// misses can overshoot by a few calls; the calendar hides or pauses on a 429.
+const DAILY_AI_LIMIT = 500;
+
 function utcDay(ms) {
   return new Date(ms).toISOString().slice(0, 10);
 }
@@ -184,6 +189,22 @@ export default {
     // (~110–280 KB as a data URL). 4 MB is well above that ceiling.
     if (imageDataUrl.length > 5_500_000) {
       return jsonResponse({ error: 'image too large' }, 413, cors);
+    }
+
+    // Daily ceiling, counted before the call so failed inferences count too.
+    // A KV error fails open: better one extra call than a dark calendar.
+    const quotaKey = `quota:${utcDay(Date.now())}`;
+    try {
+      const used = Number(await env.IMPRESSIONS.get(quotaKey)) || 0;
+      if (used >= DAILY_AI_LIMIT) {
+        return jsonResponse({
+          error: 'daily limit',
+          detail: 'daily allocation of AI calls reached; resets at 00:00 UTC',
+        }, 429, cors);
+      }
+      await env.IMPRESSIONS.put(quotaKey, String(used + 1));
+    } catch (err) {
+      console.warn('KV quota check failed (continuing):', err.message);
     }
 
     // Call Workers AI. OpenAI-compatible multimodal content format: the

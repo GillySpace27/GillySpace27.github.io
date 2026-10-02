@@ -149,3 +149,35 @@ test("a far-past or far-future date is a 400 and never reaches AI", async () => 
     assert.equal(env.calls.ai, 0, date);
   }
 });
+// ---- WS-6 Task 3: a daily ceiling on Workers AI calls ----
+test("cache misses count in quota:<UTC day>; at DAILY_AI_LIMIT the Worker answers 429", async () => {
+  assert.equal(W.DAILY_AI_LIMIT, 500);
+  const env = makeEnv();
+  await call(post({ date: YESTERDAY, image: IMAGE }), env);
+  assert.equal(env.store.get(`quota:${TODAY}`), "1");
+  const full = makeEnv({ kv: { [`quota:${TODAY}`]: String(W.DAILY_AI_LIMIT) } });
+  const { res, json } = await call(post({ date: YESTERDAY, image: IMAGE }), full);
+  assert.equal(res.status, 429);
+  assert.equal(json.error, "daily limit");
+  assert.match(json.detail, /daily.*allocation/);   // the calendar's quota banner regex
+  assert.equal(full.calls.ai, 0);
+  assert.equal(full.store.get(`quota:${TODAY}`), String(W.DAILY_AI_LIMIT));
+});
+
+test("a cache hit does not count against the quota", { skip: !CACHE_ON && "CACHE_ENABLED is false" }, async () => {
+  const env = makeEnv({ kv: { [`impression-v2:${YESTERDAY}`]: "cached", [`quota:${TODAY}`]: "500" } });
+  const { res } = await call(post({ date: YESTERDAY, image: IMAGE }), env);
+  assert.equal(res.status, 200);
+  assert.equal(env.store.get(`quota:${TODAY}`), "500");
+});
+
+test("a KV failure on the counter fails open: the ceiling is soft", async () => {
+  const env = makeEnv();
+  env.IMPRESSIONS.get = async (k) => { if (k.startsWith("quota:")) throw new Error("kv down"); return null; };
+  const quiet = console.warn; console.warn = () => {};
+  try {
+    const { res } = await call(post({ date: YESTERDAY, image: IMAGE }), env);
+    assert.equal(res.status, 200);
+    assert.equal(env.calls.ai, 1);
+  } finally { console.warn = quiet; }
+});
