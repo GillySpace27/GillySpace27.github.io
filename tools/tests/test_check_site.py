@@ -222,6 +222,11 @@ class ContractTests(unittest.TestCase):
             self.assertIn("PLATFORMS.linux matches 0 assets", out)
             self.assertIn("no fallback link to v", out)
             self.assertEqual(code, 1, out)
+    def test_real_tree_contracts_pass(self):
+        code, out = self.run_contract(self.REPO)
+        self.assertNotIn("FAIL contract", out)
+        self.assertNotIn("SKIP contract", out)
+        self.assertEqual(code, 0, out)
     # end of ContractTests
 
 
