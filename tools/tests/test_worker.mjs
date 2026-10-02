@@ -195,3 +195,10 @@ test("GET /status reports model, cache flag, UTC day and AI calls today", async 
   const fresh = await call(new Request(BASE + "/status"), makeEnv());
   assert.equal(fresh.json.aiCallsToday, 0);
 });
+// ---- WS-6 Task 5: alternate hosts that serve pages themselves (map q7) ----
+// Filled from the curl check (a read-only request from Gilly's Mac); empty while every host
+// is assumed to redirect to https://gilly.space, so the calendar's Origin is always gilly.space.
+const EXTRA_ORIGINS = [];
+test("each alternate host that serves pages is echoed in Access-Control-Allow-Origin", () => {
+  for (const o of EXTRA_ORIGINS) assert.equal(W.corsHeadersFor(o)["Access-Control-Allow-Origin"], o, o);
+});
