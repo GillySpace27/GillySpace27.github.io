@@ -13,6 +13,18 @@ Fully static, deployed via **GitHub Pages** (push to the default branch → live
 One **Cloudflare Worker** powers the enso AI impressions (`worker/`). No npm, no
 bundler — vanilla HTML/CSS/JS by design.
 
+## Stamping shared assets
+
+After editing `assets/site.css`, `assets/product.css`, `assets/site.js`,
+`assets/product.js` or anything in `partials/`, run `python3 bump-assets.py`.
+It rewrites the `?v=` stamp on every link to those files in the HTML pages git
+tracks in this checkout (never `.claude/worktrees/`), and sets `sw.js`
+`CACHE_VERSION` to `gilly-<stamp>` so returning visitors drop the old
+service-worker cache. `python3 bump-assets.py --dry-run` lists what would
+change and writes nothing. `python3 bump-assets.py --check` writes nothing and
+exits 1 naming each page whose stamp is missing or differs, and `sw.js` when its
+`CACHE_VERSION` does not match.
+
 ## Layout
 
 | Path | What it is |
