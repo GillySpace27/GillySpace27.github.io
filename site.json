@@ -358,5 +358,66 @@
       "template": "stub-shop.html"
     }
   ],
-  "share": []
+  "share": [
+    {
+      "id": "rainbow",
+      "title": "Rainbow (RHEF composite)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_rainbow_1k.png"
+    },
+    {
+      "id": "171",
+      "title": "AIA 171 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_171_1k.png"
+    },
+    {
+      "id": "193",
+      "title": "AIA 193 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_193_1k.png"
+    },
+    {
+      "id": "211",
+      "title": "AIA 211 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_211_1k.png"
+    },
+    {
+      "id": "304",
+      "title": "AIA 304 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_304_1k.png"
+    },
+    {
+      "id": "335",
+      "title": "AIA 335 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_335_1k.png"
+    },
+    {
+      "id": "94",
+      "title": "AIA 94 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_94_1k.png"
+    },
+    {
+      "id": "131",
+      "title": "AIA 131 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_131_1k.png"
+    },
+    {
+      "id": "1600",
+      "title": "AIA 1600 \u00c5 (UV)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_1600_1k.png"
+    },
+    {
+      "id": "1700",
+      "title": "AIA 1700 \u00c5 (UV)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_1700_1k.png"
+    },
+    {
+      "id": "composite_uv",
+      "title": "Composite (1700/1600/304)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_composite_uv_1k.png"
+    },
+    {
+      "id": "dem",
+      "title": "Temperature map (DEM)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_dem_1k.png"
+    }
+  ]
 }

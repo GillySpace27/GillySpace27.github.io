@@ -10,6 +10,7 @@ Rewrites only marked regions and generated files. Targets, in run order:
   header-nav       partials/header.html   <!-- bake:header-nav --> ... <!-- /bake -->  (skipped until marked)
   sitemap          sitemap.xml            whole file; lastmod from git
   stubs            the redirect pages in site.json "stubs": whole files from tools/templates/
+  share            site.json "share" and s/<id>/index.html (one unfurling redirect per Sun channel)
 --check bakes in memory, prints "DRIFT <path> <target>" per difference and exits 1; a sitemap
 lastmod difference alone is not drift (a shallow CI clone cannot know it).
 Strings in site.json are source text for HTML or JS and are inserted as written.
@@ -20,6 +21,7 @@ from __future__ import annotations
 import argparse
 import datetime
 import fnmatch
+import html
 import json
 import pathlib
 import re
@@ -202,6 +204,65 @@ def render_stub(ctx: Ctx, stub: dict) -> str:
                .replace("__TARGET__", stub["target"]))
 
 
+SUN_BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/"
+SHARE_FIXTURES = "fixtures/sun/manifest/"
+SHARE_DESCRIPTION = "Near-real-time SDO/AIA image, radially normalized with RHE. Updated every 20 minutes."
+PRODUCTS_RE = re.compile(r"^  const PRODUCTS = \[\n(.*?)^  \];\n", re.M | re.S)
+PRODUCT_ROW_RE = re.compile(r'\["([A-Za-z0-9_]+)",\s*"([^"]*)"\]')
+
+
+def share_entries(ctx: Ctx) -> list:
+    """One {id, title, og_image} per sun.html PRODUCTS id, in PRODUCTS order (WS-16).
+
+    The title is the PRODUCTS label; og_image is the Sun bucket URL of the manifest's img1k
+    key. The manifests are the tracked ones under fixtures/sun/ (the contract's shape), so the
+    stubs are built offline; `python3 fixtures/sun/capture.py --refresh` brings the keys up to date.
+    """
+    m = PRODUCTS_RE.search(ctx.disk("sun.html"))
+    if not m:
+        raise BakeError("sun.html: PRODUCTS literal not found")
+    rows = PRODUCT_ROW_RE.findall(m.group(1))
+    if not rows:
+        raise BakeError("sun.html: PRODUCTS has no rows")
+    out = []
+    for pid, label in rows:
+        if pid != pid.lower():
+            raise BakeError(f"share: id {pid!r} must be lowercase (GitHub Pages is case-sensitive)")
+        rel = f"{SHARE_FIXTURES}{pid}.json"
+        try:
+            manifest = json.loads(ctx.disk(rel))
+        except ValueError as e:
+            raise BakeError(f"{rel}: {e}")
+        key = manifest.get("img1k")
+        if not isinstance(key, str) or not key:
+            raise BakeError(f"{rel}: no img1k key")
+        out.append({"id": pid, "title": label, "og_image": SUN_BUCKET + key})
+    return out
+
+
+def render_share_stub(entry: dict, template: str) -> str:
+    esc = lambda v: html.escape(v, quote=True)  # noqa: E731
+    return (template.replace("__TITLE__", esc(entry["title"]))
+                    .replace("__DESCRIPTION__", esc(SHARE_DESCRIPTION))
+                    .replace("__OG_IMAGE__", esc(entry["og_image"]))
+                    .replace("__URL__", f"{SITE_ORIGIN}/s/{entry['id']}/")
+                    .replace("__ID__", entry["id"]))
+
+
+def t_share(ctx: Ctx) -> dict:
+    """site.json "share" and the s/<id>/index.html stubs; skipped in a tree without sun.html."""
+    if not ctx.exists("sun.html"):
+        return {}
+    entries = share_entries(ctx)
+    template = ctx.disk("tools/templates/share.html")
+    site = dict(ctx.site)
+    site["share"] = entries
+    out = {"site.json": json.dumps(site, indent=2, ensure_ascii=True) + "\n"}
+    for e in entries:
+        out[f"s/{e['id']}/index.html"] = render_share_stub(e, template)
+    return out
+
+
 def t_header_fallback(ctx: Ctx) -> dict:
     rel = "assets/site.js"
     return {rel: replace_region(ctx.read(rel), "header-fallback", render_header_fallback(ctx.site), "js-inline")}
@@ -243,6 +304,7 @@ TARGETS = {
     "header-nav": t_header_nav,
     "sitemap": t_sitemap,
     "stubs": t_stubs,
+    "share": t_share,
 }
 
 

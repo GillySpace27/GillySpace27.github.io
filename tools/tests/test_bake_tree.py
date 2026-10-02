@@ -30,6 +30,10 @@ class TreeTest(unittest.TestCase):
         rels = {"site.json", "assets/site.js", "partials/header.html", "sitemap.xml", "tools/bake.py",
                 "tools/templates/stub.html", "tools/templates/stub-shop.html", "tools/archived_pages.txt"}
         rels |= {p["path"] for p in site["pages"]} | {s["path"] for s in site["stubs"]}
+        # WS-16: the share target reads sun.html and the fixture manifests, writes s/<id>/index.html
+        rels |= {"sun.html", "tools/templates/share.html"}
+        rels |= {f"fixtures/sun/manifest/{e['id']}.json" for e in site["share"]}
+        rels |= {f"s/{e['id']}/index.html" for e in site["share"]}
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)
             for rel in rels:
