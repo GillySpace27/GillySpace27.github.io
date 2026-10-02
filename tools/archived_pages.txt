@@ -1,0 +1,6 @@
+# Pages kept online as history, not maintained: rule "a11y" skips them.
+# Read by WS-10 (sitemap exclusion) and WS-11 (icon rule exemption).
+# One repo-relative path or fnmatch glob per line.
+index_withvideo.html
+shineVideo.html
+evan/index.html
