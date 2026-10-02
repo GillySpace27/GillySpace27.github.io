@@ -1,0 +1,2 @@
+# fixture: allowed.bin is created by the test at SIZE_LIMIT_BYTES + 1
+allowed.bin

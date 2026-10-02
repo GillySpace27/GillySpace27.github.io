@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>Fixture</title>
+    <item>
+      <title>Fixture 1.0</title>
+      <enclosure url="https://gilly.space/heliograph/App-1.0.dmg" sparkle:edSignature="fixture" length="4" type="application/octet-stream"></enclosure>
+    </item>
+  </channel>
+</rss>
