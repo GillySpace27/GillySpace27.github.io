@@ -211,6 +211,7 @@ main .icon-row a[target="_blank"]::after { content: none; }
 .card:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(0,0,0,0.12), 0 0 0 1px rgba(217,169,26,0.30); }
 .card a { color: inherit; display: block; }
 .card__img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--bg); }
+.card picture { display: block; }
 .card__body { padding: 16px 18px; }
 .card__body h3 { margin: 0 0 .25em; }
 .card__body p { margin: 0; color: var(--muted); font-size: 14px; }
