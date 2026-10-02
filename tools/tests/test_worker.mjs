@@ -202,3 +202,34 @@ const EXTRA_ORIGINS = [];
 test("each alternate host that serves pages is echoed in Access-Control-Allow-Origin", () => {
   for (const o of EXTRA_ORIGINS) assert.equal(W.corsHeadersFor(o)["Access-Control-Allow-Origin"], o, o);
 });
+// ---- Review fix: format check, then cache read, then the date window ----
+test("a cached pre-window date is served (the calendar back button has no lower limit)", { skip: !CACHE_ON && "CACHE_ENABLED is false" }, async () => {
+  const env = makeEnv({ kv: { "impression-v2:2019-06-15": "Old light on the limb" } });
+  const { res, json } = await call(post({ date: "2019-06-15", image: IMAGE }), env);
+  assert.equal(res.status, 200);
+  assert.deepEqual(json, { impression: "Old light on the limb", cached: true });
+  assert.equal(env.calls.ai, 0);
+});
+
+test("an uncached pre-window date is refused with a 400 and never reaches AI", async () => {
+  const env = makeEnv();
+  const { res, json } = await call(post({ date: "2019-06-15", image: IMAGE }), env);
+  assert.equal(res.status, 400);
+  assert.match(json.error, /invalid date/);
+  assert.equal(env.calls.ai, 0);
+  assert.equal(env.store.size, 0);
+});
+
+test("a bad format is refused before the cache is read, even if a key for it exists", async () => {
+  const reads = [];
+  const env = makeEnv({ kv: { "impression-v2:2026/10/01": "poison", "impression-v2:2026-02-31": "poison" } });
+  const get = env.IMPRESSIONS.get;
+  env.IMPRESSIONS.get = async (k) => { reads.push(k); return get(k); };
+  for (const date of ["2026/10/01", "2026-02-31", "not-a-date"]) {
+    const { res, json } = await call(post({ date, image: IMAGE }), env);
+    assert.equal(res.status, 400, date);
+    assert.match(json.error, /invalid date/);
+  }
+  assert.deepEqual(reads, []);
+  assert.equal(env.calls.ai, 0);
+});

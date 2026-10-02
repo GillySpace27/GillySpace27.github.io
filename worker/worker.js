@@ -112,13 +112,17 @@ function utcDay(ms) {
   return new Date(ms).toISOString().slice(0, 10);
 }
 
+// True for a real calendar date written YYYY-MM-DD (no window check).
+function validDateFormat(date) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const t = Date.parse(date + 'T00:00:00Z');
+  return !Number.isNaN(t) && utcDay(t) === date;   // 2026-02-31 rolls over
+}
+
 // True for a real calendar date YYYY-MM-DD from DATE_MIN to tomorrow (UTC).
 // `now` is injectable for tests.
 function validDate(date, now = Date.now()) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
-  const t = Date.parse(date + 'T00:00:00Z');
-  if (Number.isNaN(t) || utcDay(t) !== date) return false;   // 2026-02-31 rolls over
-  return date >= DATE_MIN && date <= utcDay(now + 86400000);
+  return validDateFormat(date) && date >= DATE_MIN && date <= utcDay(now + 86400000);
 }
 
 export default {
@@ -159,7 +163,10 @@ export default {
     const date = String(body.date || '');
     const image = String(body.image || '');
 
-    if (!validDate(date)) {
+    // Order: format check, then the cache read, then the date window. A date
+    // outside the window that is already cached (the calendar's back button has
+    // no lower limit) is still served; only a miss is turned away.
+    if (!validDateFormat(date)) {
       return jsonResponse({ error: `invalid date (need YYYY-MM-DD from ${DATE_MIN} to tomorrow UTC)` }, 400, cors);
     }
     if (!image) {
@@ -185,6 +192,10 @@ export default {
       } catch (err) {
         console.warn('KV read failed (continuing):', err.message);
       }
+    }
+
+    if (!validDate(date)) {
+      return jsonResponse({ error: `invalid date (need YYYY-MM-DD from ${DATE_MIN} to tomorrow UTC)` }, 400, cors);
     }
 
     // Normalize image: accept either a raw base64 string or a data URL.
