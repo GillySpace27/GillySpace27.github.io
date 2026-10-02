@@ -73,6 +73,12 @@ class FollowTests(unittest.TestCase):
         self.assertEqual(v.level, "FAIL", v)
         self.assertIn("loop", v.msg)
 
+    def test_stub_to_empty_page_fails(self):
+        v, res = self.verdict(FIX / "stub-to-empty-page", "/hfs", "/heliofits-studio/")
+        self.assertEqual(res.status, 200)        # what a status-only check accepts
+        self.assertEqual(v.level, "FAIL", v)
+        self.assertIn("empty page", v.msg)
+
 
 class FeedTests(unittest.TestCase):
     def feeds(self, tree):

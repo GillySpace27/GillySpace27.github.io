@@ -117,6 +117,9 @@ def short_link_verdict(path, expected, res, base):
         return Result("FAIL", "shortlinks", path, f"lands on HTTP {res.status} at {res.final_url}")
     if _bare(res.final_url) != want:
         return Result("FAIL", "shortlinks", path, f"lands on {res.final_url}, expected {want}")
+    if not res.title:
+        return Result("FAIL", "shortlinks", path,
+                      f"lands on an empty page at {res.final_url} ({res.length} bytes, no <title>)")
     return Result("PASS", "shortlinks", path, f"{res.hops} hop(s) to {res.final_url} ({res.title})")
 
 
