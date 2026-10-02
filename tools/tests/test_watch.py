@@ -179,5 +179,31 @@ class IssueTests(unittest.TestCase):
         self.assertFalse([c for c in self.calls if c[0] == "DELETE"])
 
 
+class VerifyDeployTests(unittest.TestCase):
+    def test_converged_and_not_converged(self):
+        import verify_deploy
+        with tempfile.TemporaryDirectory() as live, tempfile.TemporaryDirectory() as co:
+            for d in (live, co):
+                (pathlib.Path(d) / "a").mkdir()
+                (pathlib.Path(d) / "a" / "index.html").write_text("<title>A</title>same\n")
+            (pathlib.Path(co) / "b.css").write_text("new\n")
+            (pathlib.Path(live) / "b.css").write_text("old\n")
+            with serve(live) as base:
+                self.assertEqual(verify_deploy.pending(base, pathlib.Path(co), ["a/index.html"]), [])
+                self.assertEqual(verify_deploy.pending(base, pathlib.Path(co), ["b.css"]), ["b.css (HTTP 200)"])
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    code = verify_deploy.main(["--base", base, "--root", co, "--paths", "b.css",
+                                               "--timeout", "0"])
+        self.assertEqual(code, 3)
+        self.assertIn("UNCHECKED: live site did not converge", out.getvalue())
+
+    def test_live_url(self):
+        import verify_deploy
+        self.assertEqual(verify_deploy.live_url("https://x", "index.html"), "https://x/")
+        self.assertEqual(verify_deploy.live_url("https://x", "sun/index.html"), "https://x/sun/")
+        self.assertEqual(verify_deploy.live_url("https://x", "sun.html"), "https://x/sun.html")
+
+
 if __name__ == "__main__":
     unittest.main()
