@@ -64,13 +64,13 @@
     {
       "path": "index.html",
       "url": "/",
-      "title": "Dr. Gilly \u2014 Heliophysicist",
+      "title": "Dr. Gilly, Heliophysicist",
       "palette": "Home",
       "keywords": "home start",
       "sitemap": true,
       "priority": "1.0",
       "archived": false,
-      "description": "Dr. Gilly (&quot;Gilly&quot;), heliophysicist at NorthWest Research Associates \u2014 solar wind, coronal heating, forward models, and a few interactive space toys."
+      "description": "Dr. Gilly (&quot;Gilly&quot;), heliophysicist at NorthWest Research Associates: solar wind, coronal heating, forward models, and a few interactive space toys."
     },
     {
       "path": "Research.html",
@@ -170,7 +170,7 @@
       "sitemap": true,
       "priority": "0.8",
       "archived": false,
-      "description": "Small interactive things Gilly built \u2014 a daily ens\u014d calendar, an ens\u014d editor, Spectrum Sudoku, Solar Corona &amp; Wind, and a Claude model field guide."
+      "description": "Small interactive things Gilly built: a daily ens\u014d calendar, an ens\u014d editor, Spectrum Sudoku, Solar Corona &amp; Wind, and a Claude model field guide."
     },
     {
       "path": "enso/index.html",
@@ -215,7 +215,7 @@
     {
       "path": "shop.html",
       "url": "/shop.html",
-      "title": "My Heliograph \u2014 prints",
+      "title": "My Heliograph: prints",
       "palette": "Store \u2014 Solar Archive",
       "keywords": "prints buy",
       "sitemap": true,
