@@ -8,14 +8,48 @@
   const u = (key, v) => BUCKET + key + (v ? "?v=" + encodeURIComponent(v) : "");
   const memo = new Map();
 
+  // loadSunIndex begin
+  async function loadSunIndex(bucket, now) {
+    try {
+      const r = await fetch(bucket + "manifest/index.json", {cache: "no-store"});
+      if (!r.ok) return null;
+      const idx = await r.json();
+      if (!idx || typeof idx.generated !== "string" || !Array.isArray(idx.products)) return null;
+      const t = Date.parse(idx.generated);
+      // An index older than 6 hours (estimated limit) is ignored: the per-product manifests are read instead.
+      if (isNaN(t) || (now === undefined ? Date.now() : now) - t > 6 * 3600 * 1000) return null;
+      return {generated: idx.generated, products: idx.products.filter(p => p && typeof p.id === "string")};
+    } catch (e) {
+      return null;
+    }
+  }
+  // loadSunIndex end
+
+  // One index request per page load; null when the index is unusable. Cards then read from it and
+  // fall back to the per-product request for any id it lacks.
+  let indexPromise = null;
+  function indexOnce() {
+    if (!indexPromise) indexPromise = loadSunIndex(BUCKET);
+    return indexPromise;
+  }
+
   // One request per id; repeat callers share it. A rejected promise is forgotten,
   // so the next call (a Retry) asks the network again.
-  function loadManifest(id, { fresh = false } = {}) {
-    if (!fresh && memo.has(id)) return memo.get(id);
-    const p = fetch(u("manifest/" + id + ".json"), { cache: "no-store" }).then((r) => {
+  function fetchManifest(id) {
+    return fetch(u("manifest/" + id + ".json"), { cache: "no-store" }).then((r) => {
       if (!r.ok) throw new Error("manifest/" + id + ".json: HTTP " + r.status);
       return r.json();
     });
+  }
+
+  function loadManifest(id, { fresh = false } = {}) {
+    if (!fresh && memo.has(id)) return memo.get(id);
+    const p = fresh
+      ? fetchManifest(id)
+      : indexOnce().then((idx) => {
+          const entry = idx && idx.products.find((x) => x.id === id);
+          return entry || fetchManifest(id);
+        });
     memo.set(id, p);
     p.catch(() => { if (memo.get(id) === p) memo.delete(id); });
     return p;
@@ -189,7 +223,7 @@
   function slotVideoTime(slot) { return (clampSlot(slot) + 0.5) / FPS; }
 
   window.SunData = {
-    BUCKET, u, loadManifest, loadAll, loadCaptureTime, freshness,
+    BUCKET, u, loadManifest, loadAll, loadCaptureTime, freshness, loadSunIndex,
     FRESH_OK_MIN, FRESH_STALE_MIN, FPS, SLOTS, parseHash,
     CHANNELS, CHANNEL_ORDER, SLOT_MIN, stageIds, tempText, slotTime, alignSlot, slotVideoTime,
     share, shareUrl,
