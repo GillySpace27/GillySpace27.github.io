@@ -126,3 +126,26 @@ test("a GET other than /status keeps the health string byte-identical", async ()
   assert.equal(res.status, 200);
   assert.equal(text, HEALTH);
 });
+// ---- WS-6 Task 2: dates bounded to [DATE_MIN, tomorrow UTC] ----
+test("validDate bounds: DATE_MIN to tomorrow UTC, real calendar dates only", () => {
+  const now = Date.parse("2026-10-01T12:00:00Z");
+  assert.equal(W.DATE_MIN, "2020-01-01");
+  assert.equal(W.validDate("2020-01-01", now), true);
+  assert.equal(W.validDate("2026-10-02", now), true);   // tomorrow UTC
+  assert.equal(W.validDate("2024-02-29", now), true);   // leap day
+  assert.equal(W.validDate("2019-12-31", now), false);
+  assert.equal(W.validDate("1900-01-01", now), false);
+  assert.equal(W.validDate("2026-10-03", now), false);
+  assert.equal(W.validDate("2999-01-01", now), false);
+  assert.equal(W.validDate("2026-02-31", now), false);  // not a real date
+});
+
+test("a far-past or far-future date is a 400 and never reaches AI", async () => {
+  for (const date of ["1900-01-01", utcDay(Date.now() + 3 * DAY)]) {
+    const env = makeEnv();
+    const { res, json } = await call(post({ date, image: IMAGE }), env);
+    assert.equal(res.status, 400, date);
+    assert.match(json.error, /invalid date/);
+    assert.equal(env.calls.ai, 0, date);
+  }
+});

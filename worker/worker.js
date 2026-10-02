@@ -100,10 +100,20 @@ function jsonResponse(body, status, cors) {
   });
 }
 
-// True when date has the YYYY-MM-DD shape the cache keys use. `now` is for the
-// range bound added next (WS-6); tests pass a fixed value.
+// Oldest date a client may ask about (estimated window; Gilly may widen it).
+const DATE_MIN = '2020-01-01';
+
+function utcDay(ms) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+// True for a real calendar date YYYY-MM-DD from DATE_MIN to tomorrow (UTC).
+// `now` is injectable for tests.
 function validDate(date, now = Date.now()) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(date);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const t = Date.parse(date + 'T00:00:00Z');
+  if (Number.isNaN(t) || utcDay(t) !== date) return false;   // 2026-02-31 rolls over
+  return date >= DATE_MIN && date <= utcDay(now + 86400000);
 }
 
 export default {
@@ -137,7 +147,7 @@ export default {
     const image = String(body.image || '');
 
     if (!validDate(date)) {
-      return jsonResponse({ error: 'invalid date format (need YYYY-MM-DD)' }, 400, cors);
+      return jsonResponse({ error: `invalid date (need YYYY-MM-DD from ${DATE_MIN} to tomorrow UTC)` }, 400, cors);
     }
     if (!image) {
       return jsonResponse({ error: 'missing image' }, 400, cors);
