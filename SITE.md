@@ -73,6 +73,27 @@ waits on Gilly's yes for that one action.
   for WS-12. Determinism rules (never reorder or insert a PRNG draw; 52
   controls): `enso/CLAUDE.md`.
 
+## Pages manifest
+
+- `site.json` is the one list of public pages: nav, page titles, palette
+  entries, sitemap entries and redirect stubs. `python3 tools/bake.py` copies it
+  into the places that cannot read JSON at run time: `HEADER_FALLBACK` and the
+  palette `ITEMS` in `assets/site.js`, the `<noscript>` nav of each page that
+  carries `<!-- bake:noscript -->`, the nav in `partials/header.html` between
+  `<!-- bake:header-nav -->` markers, `sitemap.xml`, and the redirect pages
+  listed under `stubs` (templates in `tools/templates/`).
+- Edit `site.json`, run `python3 tools/bake.py`, commit both. Never edit between
+  `bake:` markers by hand: `python3 tools/bake.py --check` (also run by
+  `tools/check_site.py` as rule `bake`) prints `DRIFT <path> <target>` and exits 1.
+- After `bake.py` changes `assets/site.js`, run `python3 bump-assets.py`.
+- `site.json` is written with `json.dumps(indent=2, ensure_ascii=True)`, so
+  non-ASCII text appears as `\uXXXX`. `title`, `palette` and `keywords` are HTML or
+  JS source text and are inserted as written.
+- Sitemap `lastmod` comes from `git log -1 --format=%cs -- <page>`; a shallow CI
+  clone cannot reproduce it, so `--check` ignores `lastmod`. Pages in
+  `tools/archived_pages.txt` and `heliograph/`, `heliogram/` are not in the
+  sitemap (the publish step owns the last two).
+
 ## Short links
 
 - Each short link is a static `index.html` that redirects with a meta refresh
@@ -81,10 +102,10 @@ waits on Gilly's yes for that one action.
 - Pages is case-sensitive: hand out lowercase only. `404.html` sends a cased
   address to its lowercase twin (`404.html:9-11`); add a cased duplicate folder
   only on Gilly's yes.
-- New short link (until WS-10 bakes stubs from `site.json`): copy
-  `hfs/index.html` to `<name>/index.html`; change the `<title>`, the canonical
-  link, the meta refresh URL, the link `href`, the visible name and the
-  `location.replace` target; run `python3 tools/check_site.py --only stub`.
+- New short link: add an entry to `stubs` in `site.json` (`path`, `title`,
+  `target`, `template` `stub.html`), run `python3 tools/bake.py`, then
+  `python3 tools/check_site.py --only stub bake`. Lowercase only; a cased
+  duplicate needs Gilly's yes. Follow the redirect after deploy (below).
 - After deploy, follow the redirect and check the destination page's content.
   A 200 alone proves nothing (GitHub served 200 for an empty tag page in the
   2026-08-24 `/jhv` incident).
