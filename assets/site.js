@@ -59,7 +59,7 @@
       if (here === path || here.indexOf(path + '/') === 0) a.setAttribute('aria-current', 'page');
     });
   }
-  var HEADER_FALLBACK = '<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/">gilly<span class="dot">.</span>space</a><nav class="site-nav" aria-label="Primary"><a href="/Research.html">Research</a> <a href="/sun.html">The Sun</a> <a href="/RecordedPublicTalks.html">Outreach</a> <a href="/play/">Play</a> <a href="/heliosoftware/">HelioSoftware</a> <a href="/shop.html">Store</a> <a href="/about.html">About / CV</a></nav></div></header>';
+  var HEADER_FALLBACK = /* bake:header-fallback */ '<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/">gilly<span class="dot">.</span>space</a><nav class="site-nav" aria-label="Primary"><a href="/Research.html">Research</a> <a href="/sun.html">The Sun</a> <a href="/RecordedPublicTalks.html">Outreach</a> <a href="/play/">Play</a> <a href="/heliosoftware/">HelioSoftware</a> <a href="/shop.html">Store</a> <a href="/about.html">About / CV</a></nav></div></header>' /* /bake */;
   var FOOTER_FALLBACK = '<footer class="site-footer"><div class="site-footer__inner"><span>&copy; Gilly &middot; gilly.space &middot; <a href="/">home</a></span></div></footer>';
   function inject(name, target, fallback) {
     var done = false;
@@ -282,6 +282,7 @@
   /* ---- Command palette (⌘K / Ctrl-K): jump anywhere, toggle theme ---- */
   function buildCommandPalette() {
     var ITEMS = [
+      /* bake:palette-items */
       { t: 'Home', u: '/', k: 'home start' },
       { t: 'Research', u: '/Research.html', k: 'papers ghosts punch' },
       { t: 'Publications', u: '/publications.html', k: 'papers thesis ads' },
@@ -300,6 +301,7 @@
       { t: 'About & CV', u: '/about.html', k: 'bio resume contact' },
       { t: 'Email Gilly', u: 'mailto:Gilly@NWRA.com', k: 'contact' },
       { t: 'Toggle theme', u: '#theme', k: 'dark light mode' }
+      /* /bake */
     ];
     var pal = document.createElement('div');
     pal.className = 'cmdk'; pal.setAttribute('aria-hidden', 'true'); pal.setAttribute('role', 'dialog'); pal.setAttribute('aria-label', 'Command palette');
