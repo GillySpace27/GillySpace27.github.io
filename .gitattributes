@@ -22,3 +22,8 @@
 *.woff2 binary
 *.ttf binary
 *.eot binary
+
+# RHEF test vectors: raw little-endian arrays, never line-ending converted (SU-8)
+*.f64 binary
+*.f32 binary
+*.i32 binary
