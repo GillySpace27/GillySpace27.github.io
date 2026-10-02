@@ -51,7 +51,7 @@ class PagesWorkflowTest(unittest.TestCase):
         self.assertIn("pages: write", j["deploy"])
         self.assertIn("id-token: write", j["deploy"])
         self.assertIn("name: github-pages", j["deploy"])
-        self.assertIn("actions/deploy-pages@v4", j["deploy"])
+        self.assertRegex(j["deploy"], r"actions/deploy-pages@[0-9a-f]{40} # v4")
         self.assertNotIn("actions/deploy-pages", j["build"])
 
     def test_gates_are_in_the_text(self):
@@ -62,7 +62,7 @@ class PagesWorkflowTest(unittest.TestCase):
         self.assertIn("compare/master...", j["build"])
         self.assertIn("GATE ancestor REFUSE", j["build"])
         self.assertIn("python3 tools/make_artifact.py --content content", j["build"])
-        self.assertIn("actions/upload-pages-artifact@v3", j["build"])
+        self.assertRegex(j["build"], r"actions/upload-pages-artifact@[0-9a-f]{40} # v3")
         self.assertIn("!inputs.dry_run", j["deploy"])
         self.assertIn("python3 tools/verify_deploy.py --expect-sha", j["verify"])
         self.assertIn("skip_checks is for rollback and needs a ref", j["build"])
