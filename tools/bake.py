@@ -297,10 +297,69 @@ def t_stubs(ctx: Ctx) -> dict:
     return {s["path"]: render_stub(ctx, s) for s in ctx.site["stubs"]}
 
 
+SUFFIX = " " + DOT + " gilly.space"
+DEFAULT_OG_IMAGE = SITE_ORIGIN + "/images/bg.jpg"
+HEAD_OPEN = "<!-- bake:head -->"
+
+
+def head_template(ctx: Ctx) -> str:
+    """The shared head of partials/head.html: the part between the template markers, comments dropped."""
+    text = ctx.disk("partials/head.html")
+    m = re.search(r"<!-- bake:template -->\n(.*?)<!-- /bake:template -->", text, re.S)
+    if not m:
+        raise BakeError("partials/head.html: no <!-- bake:template --> ... <!-- /bake:template --> region")
+    body = re.sub(r"<!--.*?-->\n?", "", m.group(1), flags=re.S)
+    return "\n".join(ln for ln in body.split("\n") if ln.strip())
+
+
+def render_head(ctx: Ctx, page: dict) -> str:
+    for key in ("title", "description"):
+        if not page.get(key):
+            raise BakeError(f"site.json: {page['path']} has no {key}")
+    full = page.get("head_title") or page["title"] + SUFFIX
+    out = head_template(ctx)
+    out = out.replace("__PAGE_TITLE__" + SUFFIX, full).replace("__PAGE_TITLE__", page["title"])
+    out = out.replace("__PAGE_DESCRIPTION__", page["description"])
+    out = out.replace("__PAGE_PATH__", page["url"].lstrip("/"))
+    out = out.replace("__CANONICAL__", page.get("canonical") or SITE_ORIGIN + page["url"])
+    out = out.replace("__OG_IMAGE__", page.get("og_image") or DEFAULT_OG_IMAGE)
+    left = re.findall(r"__[A-Z0-9_]+__", out)
+    if left:
+        raise BakeError(f"{page['path']}: unfilled placeholder {left[0]} in the head template")
+    return out
+
+
+def head_problems(page_text: str) -> list:
+    """What a shell page's head must have exactly once: title, description, canonical, og:image; lang en."""
+    head = page_text.split("</head>", 1)[0]
+    bad = [] if re.search(r'<html[^>]*\blang="en"', page_text) else ['<html> lacks lang="en"']
+    for label, rx in (("<title>", r"<title>"), ("meta description", r'<meta name="description"'),
+                      ("canonical link", r'<link rel="canonical"'), ("og:image", r'<meta property="og:image"')):
+        n = len(re.findall(rx, head))
+        if n != 1:
+            bad.append(f"{label} appears {n} times in <head>")
+    return bad
+
+
+def t_head(ctx: Ctx) -> dict:
+    out = {}
+    for p in ctx.site["pages"]:
+        text = ctx.read(p["path"])
+        if HEAD_OPEN not in text:
+            continue
+        new = replace_region(text, "head", render_head(ctx, p), "html")
+        problems = head_problems(new)
+        if problems:
+            raise BakeError(f"{p['path']}: " + "; ".join(problems))
+        out[p["path"]] = new
+    return out
+
+
 TARGETS = {
     "header-fallback": t_header_fallback,
     "palette-items": t_palette_items,
     "noscript": t_noscript,
+    "head": t_head,
     "header-nav": t_header_nav,
     "sitemap": t_sitemap,
     "stubs": t_stubs,
