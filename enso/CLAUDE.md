@@ -41,7 +41,7 @@ servers, no databases (just KV for impression caching).
 | Calendar | `https://gilly.space/enso/` |
 | Editor | `https://gilly.space/enso/pixelated-enso.html` |
 | Worker | `https://enso-impressions.<user>.workers.dev` (exact subdomain in `enso/index.html`'s `IMPRESSIONS_WORKER_URL`) |
-| Worker health | Same URL, `GET` → plain text "enso-impressions worker is alive (Workers AI / Llama 4 Scout)" |
+| Worker health | Same URL, `GET` → plain text "enso-impressions worker is alive (Workers AI / Llama 4 Scout / one-line evocation)" |
 
 ---
 
@@ -49,7 +49,7 @@ servers, no databases (just KV for impression caching).
 
 ```
 <repo root>/
-├── CLAUDE.md                       ← this file
+├── CLAUDE.md                       ← site-wide agent guide (this manual is enso/CLAUDE.md)
 ├── enso/
 │   ├── index.html                  ← the calendar (generated; see build script)
 │   ├── pixelated-enso.html         ← the editor (engine source of truth)
@@ -58,7 +58,7 @@ servers, no databases (just KV for impression caching).
 │   ├── worker.js                   ← Cloudflare Worker (Workers AI + KV cache)
 │   ├── wrangler.toml               ← bindings (AI, IMPRESSIONS KV)
 │   └── README.md                   ← worker-specific docs
-└── .nojekyll                       ← disables Jekyll on GitHub Pages
+└── (no Jekyll opt-out file: Pages runs its default Jekyll pass)
 ```
 
 ---
@@ -71,8 +71,8 @@ Two **independent** auto-deploy paths from this single repo:
 
 - Anything in `enso/` (or root html) is served at `gilly.space/<path>/` after
   a push to the default branch.
-- No build step. Files are served as-is. `.nojekyll` ensures GitHub doesn't
-  process them through Jekyll.
+- No build step. The repo has no Jekyll opt-out file, so Pages runs its
+  default Jekyll pass; nothing here uses Jekyll features.
 
 ### Worker → Cloudflare Workers Builds
 
@@ -110,16 +110,13 @@ push is the only deploy path.
 ## Current state (as of this handoff)
 
 - **Calendar + editor**: deployed and live at gilly.space/enso, working.
-- **Worker**: deployed and serving impressions. **Caching is currently
-  DISABLED** (`const CACHE_ENABLED = false` near the top of `worker.js`)
-  because the user is actively iterating on the system prompt. Every modal
-  open hits the AI fresh, no KV reads or writes.
-- **Prompt iteration**: in progress. The user will share examples of impressions
-  they like and don't like; tune `SYSTEM_PROMPT` in `worker.js` based on that.
-- **When the prompt voice is locked**: flip `CACHE_ENABLED` back to `true`,
-  commit + push. If any impressions were cached before this iteration session,
-  delete them via dashboard (KV → `IMPRESSIONS` → trash icon on individual rows)
-  so the cache only holds final-quality impressions.
+- **Worker**: deployed and serving impressions. **Caching is enabled**
+  (`const CACHE_ENABLED = true` near the top of `worker.js`): each date is
+  generated once, then served from KV under the key `impression-v2:<date>`.
+- **Prompt**: the voice is a one-line evocation (`SYSTEM_PROMPT` in
+  `worker.js`). To iterate again, set `CACHE_ENABLED = false` while tuning,
+  then back to `true`, and bump the key prefix (as `impression-v2:` did)
+  so entries from earlier prompts are no longer served. Old keys stay in KV.
 
 ---
 
@@ -182,7 +179,8 @@ single source of truth. The calendar's copy is **generated**:
   served from KV (each unique date generated once globally); `false` = always
   regenerate, never write to KV.
 - To clear a specific cached impression: dashboard → Workers & Pages → KV →
-  `IMPRESSIONS` → find row `impression:YYYY-MM-DD` → trash icon.
+  `IMPRESSIONS` → find row `impression-v2:YYYY-MM-DD` → trash icon (Gilly only;
+  agents never delete KV rows).
 
 ### View Worker logs
 
@@ -249,7 +247,8 @@ button. Different visual treatments by design — calendar is the "viewer"
 - **Response shape resilience**: parses both `result.response` (Llama-family
   binding shape) and `result.choices[0].message.content` (OpenAI-compatible
   shape). Different models prefer different shapes.
-- **Cache key**: `impression:YYYY-MM-DD`. Date string is regex-validated
+- **Cache key**: `impression-v2:YYYY-MM-DD` (worker.js:149; older `impression:`
+  keys stay in KV unused). Date string is regex-validated
   (`/^\d{4}-\d{2}-\d{2}$/`) before use so a malformed input can't poison the
   namespace.
 - **Graceful degradation**: every error path returns a JSON error response;
@@ -355,18 +354,17 @@ edit enso/pixelated-enso.html
 node enso/build_calendar.js
 git add enso/ && git commit -m "engine tweak" && git push
 
-# Re-enable caching when prompt is finalized
-# (in worker/worker.js, near top:)
-const CACHE_ENABLED = true;  // was: false
-git add worker/ && git commit -m "lock prompt, enable cache" && git push
+# Caching is on (const CACHE_ENABLED = true near the top of worker/worker.js).
+# To iterate on the prompt: set it to false, tune, set it back to true, and
+# bump the impression-v2: key prefix so earlier entries are not served.
 
 # Clear a bad cached impression
-# Dashboard → Workers & Pages → KV → IMPRESSIONS → trash row impression:YYYY-MM-DD
+# Dashboard → Workers & Pages → KV → IMPRESSIONS → trash row impression-v2:YYYY-MM-DD (Gilly only)
 
 # View Worker logs
 # Dashboard → Workers & Pages → enso-impressions → Logs → Begin log stream
 
 # Health-check the worker
 curl https://enso-impressions.<user>.workers.dev
-# Expect: "enso-impressions worker is alive (Workers AI / Llama 4 Scout)"
+# Expect: "enso-impressions worker is alive (Workers AI / Llama 4 Scout / one-line evocation)"
 ```
