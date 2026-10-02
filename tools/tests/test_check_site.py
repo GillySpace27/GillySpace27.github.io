@@ -208,6 +208,20 @@ class ContractTests(unittest.TestCase):
             code, out = self.run_contract(site)
             self.assertIn("version.json lost keys page", out)
             self.assertEqual(code, 1, out)
+    def test_studio_template_renamed_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = pathlib.Path(tmp)
+            (site / "contracts").mkdir()
+            doc = (self.REPO / "contracts" / "studio-release-assets.md").read_text()
+            self.assertIn("HFStudio-{v}-linux.tar.gz\n", doc)
+            (site / "contracts" / "studio-release-assets.md").write_text(
+                doc.replace("HFStudio-{v}-linux.tar.gz\n", "HFStudio-{v}-linux.tgz\n"))
+            (site / "heliofits-studio").mkdir()
+            shutil.copy(self.REPO / "heliofits-studio" / "index.html", site / "heliofits-studio")
+            code, out = self.run_contract(site)
+            self.assertIn("PLATFORMS.linux matches 0 assets", out)
+            self.assertIn("no fallback link to v", out)
+            self.assertEqual(code, 1, out)
     # end of ContractTests
 
 

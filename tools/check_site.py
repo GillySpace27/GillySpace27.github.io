@@ -557,9 +557,45 @@ def check_heliogram_contract(ctx):
     return out
 
 
+STUDIO_PIN_RE = re.compile(r"HFStudio-(\d+(?:\.\d+)+)\.dmg")
+PLATFORM_RE = re.compile(
+    r"^\s*(\w+):\s*\{\s*confirmed:\s*(?:true|false),\s*asset:\s*/(.+?)/([a-z]*),", re.M)
+
+
+def check_studio_contract(ctx):
+    if CONTRACT_STUDIO not in ctx.files:
+        return _contract_missing(ctx, CONTRACT_STUDIO)
+    try:
+        templates = contract_block(ctx.root / CONTRACT_STUDIO, "assets")
+    except ValueError as e:
+        return [Finding("FAIL", "contract", CONTRACT_STUDIO, 0, "", str(e))]
+    if STUDIO_PAGE not in ctx.files:
+        return [Finding("FAIL", "contract", STUDIO_PAGE, 0, "", "Studio page not tracked")]
+    page = _text(ctx, STUDIO_PAGE)
+    pin = STUDIO_PIN_RE.search(page)
+    if not pin:
+        return [Finding("FAIL", "contract", STUDIO_PAGE, 0, "", "no pinned HFStudio-<version>.dmg link")]
+    ver, out = pin.group(1), []
+    names = [t.replace("{v}", ver) for t in templates]
+    for name in names:
+        if f"/releases/download/v{ver}/{name}" not in page:
+            out.append(Finding("FAIL", "contract", STUDIO_PAGE, 0, name,
+                               f"no fallback link to v{ver}/{name}"))
+    platforms = PLATFORM_RE.findall(page)
+    if not platforms:
+        out.append(Finding("FAIL", "contract", STUDIO_PAGE, 0, "PLATFORMS", "PLATFORMS not found"))
+    for pid, src, flags in platforms:
+        rx = re.compile(src, re.I if "i" in flags else 0)
+        hits = [n for n in names if rx.search(n)]
+        if len(hits) != 1:
+            out.append(Finding("FAIL", "contract", STUDIO_PAGE, 0, "PLATFORMS." + pid,
+                               f"PLATFORMS.{pid} matches {len(hits)} assets {hits}; expected exactly 1"))
+    return out
+
+
 @check("contract")
 def check_contracts(ctx):
-    return check_sun_contract(ctx) + check_heliogram_contract(ctx)
+    return check_sun_contract(ctx) + check_heliogram_contract(ctx) + check_studio_contract(ctx)
 
 
 if __name__ == "__main__":
