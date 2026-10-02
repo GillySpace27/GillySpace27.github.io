@@ -30,7 +30,7 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/assets/css/academicons.min.css">
 <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css?v=202610020549">
+<link rel="stylesheet" href="/assets/site.css?v=202610020555">
 <style>
   .sun-lead { font-size: 1.05rem; color: var(--muted); max-width: 62ch; margin: 0 0 1em; }
   .sun-times { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted);
@@ -102,6 +102,28 @@
       <span>Loading capture time…</span>
     </div>
 
+    <section id="stage" class="stage" aria-labelledby="stage-h" aria-busy="true">
+      <h2 id="stage-h" class="stage__h">48 hours, one channel at a time</h2>
+      <p class="stage__lead">Drag the slider to move through the last two days. Pick another channel and the same moment stays on screen.</p>
+      <div class="stage-videos is-loading">
+        <video id="stage-a" muted loop playsinline preload="auto" aria-label="48 hour timelapse, current channel"></video>
+        <video id="stage-b" muted loop playsinline preload="none" aria-hidden="true"></video>
+      </div>
+      <div class="stage-controls">
+        <button type="button" id="stage-play" class="sun-retry" aria-pressed="false">Play 48 h</button>
+        <input id="stage-scrub" type="range" min="0" max="143" step="1" value="143" aria-label="Time within the last 48 hours">
+      </div>
+      <div id="stage-time" class="stage__time" aria-live="off">Loading</div>
+      <div id="stage-info" class="stage__info"></div>
+      <div id="stage-strip" class="stage-strip" role="group" aria-label="Channels, coolest first"></div>
+      <div class="stage-walk">
+        <button type="button" id="stage-walk" class="sun-retry" aria-pressed="false">Temperature walk</button>
+        <span class="stage__hint">Steps through the nine AIA channels from cooler to hotter characteristic temperature. Arrow keys: left and right move in time (Shift for 4 hours), up and down change channel.</span>
+      </div>
+      <div id="stage-status" class="stage__status" role="status" aria-live="polite"></div>
+      <p id="stage-note" class="stage__note"></p>
+    </section>
+
     <div class="grid sun-grid" id="grid"></div>
   </section>
 
@@ -148,8 +170,8 @@
 </div>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610020549"></script>
-<script src="/assets/sun.js?v=202610020549"></script>
+<script src="/assets/site.js?v=202610020555"></script>
+<script src="/assets/sun.js?v=202610020555"></script>
 <script>
   const BUCKET = SunData.BUCKET;
   const PRODUCTS = [
@@ -383,6 +405,9 @@
   (() => {
     const grid = document.getElementById("grid");
     const cards = PRODUCTS.map(p => grid.appendChild(renderSkeleton(p)));
+    const labels = {};
+    PRODUCTS.forEach(p => { labels[p[0]] = p[1]; });
+    SunStage.init(document.getElementById("stage"), SunData.stageIds(PRODUCTS.map(p => p[0])), labels);
     grid.addEventListener("click", onGridClick);
     wirePreviews(grid);
     loadTimes();

@@ -556,3 +556,32 @@ main .video-tile::after { content: none !important; }
 .sun-pill--old::before { background: #c8442f; }
 .sun-pill--unknown::before { background: transparent; border: 1px solid var(--muted); }
 @media (prefers-reduced-motion: reduce) { .card--sun.is-loading .card__img { animation: none; } }
+
+/* ---- The Stage: 48 hour clip, scrubber and channel strip (sun.html, WS-15) ---- */
+.stage { margin: 0 0 clamp(24px, 5vw, 44px); max-width: 720px; }
+.stage__h { margin: 0 0 .25em; }
+.stage__lead { color: var(--muted); max-width: 60ch; margin: 0 0 1rem; }
+.stage-videos { position: relative; aspect-ratio: 1 / 1; background: #000; border: 1px solid var(--card-border);
+  border-radius: var(--radius); overflow: hidden; }
+.stage-videos video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  opacity: 0; z-index: 0; transition: opacity 400ms ease; }
+.stage-videos video.is-under { opacity: 1; z-index: 1; }
+.stage-videos video.is-front { opacity: 1; z-index: 2; }
+.stage-videos.is-loading { animation: sunPulse 1.4s ease-in-out infinite; }
+.stage-controls { display: flex; align-items: center; gap: 12px; margin: .9rem 0 .4rem; }
+.stage-controls input[type="range"] { flex: 1; min-width: 0; cursor: pointer; accent-color: var(--accent); }
+.stage__time { font-size: 14px; color: var(--text); font-weight: 600; }
+.stage__info { font-size: 13px; color: var(--muted); min-height: 1.4em; margin-bottom: .8rem; }
+.stage-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.stage-btn { font: 600 13px/1 inherit; cursor: pointer; color: var(--text); background: var(--card-bg);
+  border: 1px solid var(--card-border); border-radius: 7px; padding: 7px 11px; }
+.stage-btn:hover { border-color: var(--accent-text); }
+.stage-btn.is-active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.stage-walk { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 1rem; }
+.stage__hint, .stage__note { font-size: 12px; color: var(--muted); margin: 0; max-width: 60ch; }
+.stage__note { margin-top: .6rem; }
+.stage__status { min-height: 1.4em; margin-top: .5rem; font-size: 13px; color: var(--text); display: flex; gap: 10px; align-items: center; }
+@media (prefers-reduced-motion: reduce) {
+  .stage-videos video { transition: none; }
+  .stage-videos.is-loading { animation: none; }
+}
