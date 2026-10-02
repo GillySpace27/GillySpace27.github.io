@@ -26,7 +26,7 @@ A convention is a complete answer to every row of the table. `sunkit-0.7` is the
 | NaN | Becomes 0.0 under Upsilon (NAN-ZERO). |
 | Output type | Follows the input type (DTYPE-IN). |
 
-Status: the tie rule "average" is proposed, not yet confirmed by the author; the conformance runners report differences and do not fail on them until it is confirmed.
+Status: the tie rule "average" is adopted (2026-10-02; decision B5 and question 9, Gilly, 2026-10-02). A conformance runner may run in enforce mode for a port once that port passes the golden vectors; until then it stays in report mode.
 
 ## 3. The Upsilon curve
 
@@ -86,7 +86,7 @@ To check an implementation: rank each bin of `input.f64` as `bin_index.i32` says
 
 ## 7. Conformance status
 
-Runner results, by case and implementation. Report mode never fails a build; enforce mode does.
+Runner results, by case and implementation. Report mode never fails a build; enforce mode does. Enforce mode is permitted per port once that port passes the golden vectors (tie rule adopted 2026-10-02).
 
 <!-- conformance-table begin -->
 No results recorded yet.

@@ -228,6 +228,15 @@ Post-merge checklist (Gilly, after the merge to `master` and Pages finishing):
 - `heliosoftware/spec/shortlinks.json` lists every tracked redirect stub and where it must end. `python3 tools/check_site.py` fails when a stub drifts from it and warns about an unlisted stub (`--write-shortlinks` regenerates the file; new stubs must be `git add`ed first).
 - `python3 tools/check_site.py --online` follows each stub on the live site to its destination (read-only GETs), and checks that the live 404 page still lowercases the address. The `site-checks` workflow runs it daily at 06:23 UTC.
 
+## RHEF spec decisions
+
+- 2026-10-02 (decision B5 and question 9, Gilly): the RHEF tie rule is "average"
+  (equal pixel values get the average of their ranks; `heliosoftware/spec/rhef/conventions.md`
+  section 2, status adopted). A conformance runner may run in enforce mode for a
+  port once that port passes the golden vectors; no port is recorded as passing yet
+  (section 7 still reads "No results recorded yet."). After editing a spec file run
+  `python3 heliosoftware/spec/spec_sums.py --write`.
+
 ## Heliogram publish
 
 - The Heliogram app (named Heliograph through 0.7) publishes into this repo
