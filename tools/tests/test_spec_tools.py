@@ -474,6 +474,33 @@ class RhefTableTests(unittest.TestCase):
         self.assertEqual(pathlib.Path(page).read_text(), "no markers here\n")
 
 
+
+class RhefConventionsPageTests(unittest.TestCase):
+    PAGE = SPEC / "rhef" / "conventions.md"
+    PRIVATE = re.compile(r"fastRHEF|/Users/|~/|05_ledger|02_narrative|claims_matrix|\bD-0\d\d\b|referee|\bTBD\b")
+
+    def test_page_exists_and_says_what_it_must(self):
+        text = self.PAGE.read_text(encoding="utf-8")
+        for needle in ("not a calibrated radiance", "`sunkit-0.7`", "`oRHEF-2.0`", "Status:", "average",
+                       "RHEF <convention> via <implementation> <version>", "conformance-table begin",
+                       "conformance-table end", "vectors.json"):
+            self.assertIn(needle, text)
+
+    def test_page_names_nothing_private_and_has_no_em_dash(self):
+        text = self.PAGE.read_text(encoding="utf-8")
+        self.assertEqual(self.PRIVATE.findall(text), [])
+        self.assertNotIn(chr(0x2014), text)
+
+    def test_every_deviation_id_is_defined_exactly_once(self):
+        text = self.PAGE.read_text(encoding="utf-8")
+        ids = ["RANK-N1", "TIES-ORD", "TIES-TOL", "TIES-INTERP", "KEY-QUANT", "UPS-MEAN", "UPS-EXT", "RANK-EXT",
+               "UPS-CLAMP", "UPS-DEFAULT", "POS-ONLY", "FP16", "MIN-BIN", "NAN-ZERO", "BIN-HALF", "GEOM-PX",
+               "GEOM-GRID", "GEOM-CRPIX", "EDGES-ARITH", "NO-NAN-GUARD", "DTYPE-IN", "DENOISE-POST",
+               "API-SUBSET", "NOT-RHEF"]
+        for dev in ids:
+            self.assertEqual(len(re.findall(rf"^\| `{dev}` \|", text, re.M)), 1, dev)
+
+
 # end of spec tool tests
 if __name__ == "__main__":
     unittest.main()
