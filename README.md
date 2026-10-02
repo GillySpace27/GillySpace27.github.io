@@ -35,10 +35,10 @@ exits 1 naming each page whose stamp is missing or differs, and `sw.js` when its
 | `resources.html` | Solar-physics link directory |
 | `RecordedPublicTalks.html`, `Space-Is-Full.html`, `Kelvin.html` | Outreach & science writing |
 | `Music-and-Theater.html`, `skitPage.html` | Creative work |
-| `shop.html` | Solar Archive print store (links to solar-archive.onrender.com) |
+| `shop.html` | My Heliograph print store landing (links to myheliograph.com) |
 | `enso/` | Daily AI-narrated enso calendar + editor |
 | `sudoku/` | Spectrum Sudoku |
-| `worker/` | Cloudflare Worker (Workers AI haiku + KV cache) |
+| `worker/` | Cloudflare Worker (Workers AI one-line evocation + KV cache) |
 | `assets/site.css`, `assets/site.js`, `partials/` | New unified design system ("Heliostatic") |
 | `REDESIGN.md` | Full redesign proposal & roadmap |
 
@@ -47,4 +47,5 @@ exits 1 naming each page whose stamp is missing or differs, and `sw.js` when its
 The site is being modernized off its decade-old HTML5 UP "Strata" template onto
 one hand-authored design system that shares the enso toys' tokens and dark mode.
 See **[REDESIGN.md](REDESIGN.md)** for the plan and phased roadmap. The enso
-project's deeper docs live in **[CLAUDE.md](CLAUDE.md)**.
+project's deeper docs live in **[enso/CLAUDE.md](enso/CLAUDE.md)**. Agents start at
+**[CLAUDE.md](CLAUDE.md)**; runbooks are in **[SITE.md](SITE.md)**.
