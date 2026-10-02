@@ -35,3 +35,5 @@ jobs:
           done
       - name: Worker syntax (ES module)
         run: cp worker/worker.js "$RUNNER_TEMP/worker.mjs" && node --check "$RUNNER_TEMP/worker.mjs"
+      - name: Worker tests (stubbed AI and KV)
+        run: node --test tools/tests/test_worker.mjs
