@@ -255,6 +255,8 @@ class ContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             site = self._restored_fixture(tmp)
             shutil.copy(self.REPO / "assets" / "sun.js", site / "assets" / "sun.js")
+            # the real contract lists the optional fields (through, times) that sun.js reads
+            shutil.copy(self.REPO / "contracts" / "sun-bucket.md", site / "contracts" / "sun-bucket.md")
             code, out = self.run_contract(site)
             self.assertNotIn("FAIL", out)
             self.assertEqual(code, 0, out)
