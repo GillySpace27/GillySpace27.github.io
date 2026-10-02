@@ -49,7 +49,7 @@
   <!-- Correct without JavaScript: Mac live at the last known release, the other two off.
        The script below only ever moves these forward, never switches one on by itself. -->
   <div class="platforms">
-    <a class="dl primary" id="mac" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2.dmg">
+    <a class="dl primary" id="mac" data-release="heliofits-studio" data-release-asset="macos-arm64" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2.dmg">
       <b>Download for Mac</b><small id="mac-note">Apple Silicon · Java included</small>
     </a>
     <a class="dl" id="intel" role="link" aria-disabled="true" title="Not yet tested on an Intel Mac">
@@ -63,12 +63,12 @@
     </a>
   </div>
 
-  <p class="ver" id="ver">Version 0.8.2 · pre-release</p>
+  <p class="ver" id="ver">Version <span data-release="heliofits-studio" data-release-field="version">0.8.2</span> · pre-release</p>
   <p class="note" id="note"></p>
 
   <p class="links">
-    <a class="sec" id="guide" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-Guide.pdf">Field guide (PDF)</a>
-    <a class="sec" id="notes" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.2">What's new</a>
+    <a class="sec" id="guide" data-release="heliofits-studio" data-release-asset="guide" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-Guide.pdf">Field guide (PDF)</a>
+    <a class="sec" id="notes" data-release="heliofits-studio" data-release-field="url" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.2">What's new</a>
     <a class="sec" href="https://github.com/GillySpace27/HelioFITS-Studio">GitHub</a>
   </p>
 
@@ -177,6 +177,7 @@ fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_p
     highlight();
   }).catch(() => {});
 </script>
+<script src="/assets/product.js?v=202610021742"></script>
 <script src="/assets/site.js?v=202610021742"></script>
 </body>
 </html>
