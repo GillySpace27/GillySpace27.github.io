@@ -48,7 +48,7 @@
 
 <link rel="stylesheet" href="/assets/css/academicons.min.css">
 <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css?v=202610020504">
+<link rel="stylesheet" href="/assets/site.css?v=202610020557">
 
 <!-- Structured data: anchors the "Dr. Gilly" identity + authority links for crawlers -->
 <script type="application/ld+json">
@@ -88,6 +88,7 @@
 
 <!-- Shared nav (injected by site.js). No-JS visitors get the fallback below. -->
 <div data-include="header"></div>
+<!-- bake:noscript -->
 <noscript>
   <nav class="wrap" style="padding-top:12px" aria-label="Primary">
     <a href="/Research.html">Research</a> ·
@@ -95,10 +96,11 @@
     <a href="/RecordedPublicTalks.html">Outreach</a> ·
     <a href="/play/">Play</a> ·
     <a href="/heliosoftware/">HelioSoftware</a> ·
-    <a href="/shop.html">Store</a> &middot;
+    <a href="/shop.html">Store</a> ·
     <a href="/about.html">About / CV</a>
   </nav>
 </noscript>
+<!-- /bake -->
 
 <main id="main">
 
@@ -275,6 +277,6 @@
     try { draw(c, today, 360, { radius: '40', maxThickness: 95 }); } catch (e) { /* portrait alone is fine */ }
   })();
 </script>
-<script src="/assets/site.js?v=202610020504"></script>
+<script src="/assets/site.js?v=202610020557"></script>
 </body>
 </html>

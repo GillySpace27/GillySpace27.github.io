@@ -73,6 +73,62 @@ waits on Gilly's yes for that one action.
   for WS-12. Determinism rules (never reorder or insert a PRNG draw; 52
   controls): `enso/CLAUDE.md`.
 
+## Pages manifest
+
+- `site.json` is the one list of public pages: nav, page titles, palette
+  entries, sitemap entries and redirect stubs. `python3 tools/bake.py` copies it
+  into the places that cannot read JSON at run time: `HEADER_FALLBACK` and the
+  palette `ITEMS` in `assets/site.js`, the `<noscript>` nav of each page that
+  carries `<!-- bake:noscript -->`, the nav in `partials/header.html` between
+  `<!-- bake:header-nav -->` markers, `sitemap.xml`, and the redirect pages
+  listed under `stubs` (templates in `tools/templates/`).
+- Edit `site.json`, run `python3 tools/bake.py`, commit both. Never edit between
+  `bake:` markers by hand: `python3 tools/bake.py --check` (also run by
+  `tools/check_site.py` as rule `bake`) prints `DRIFT <path> <target>` and exits 1.
+- After `bake.py` changes `assets/site.js`, run `python3 bump-assets.py`.
+- `site.json` is written with `json.dumps(indent=2, ensure_ascii=True)`, so
+  non-ASCII text appears as `\uXXXX`. `title`, `palette` and `keywords` are HTML or
+  JS source text and are inserted as written.
+- Sitemap `lastmod` comes from `git log -1 --format=%cs -- <page>`; a shallow CI
+  clone cannot reproduce it, so `--check` ignores `lastmod`. Pages in
+  `tools/archived_pages.txt` and `heliograph/`, `heliogram/` are not in the
+  sitemap (the publish step owns the last two).
+
+## The Sun page
+
+- `sun.html` is driven by `assets/sun.js` (`window.SunData`, `window.SunStage`). The
+  manifest fields it reads are pinned in `contracts/sun-bucket.md`; `check_site.py`
+  rule `contract` scans `sun.html` and `assets/sun.js` for any other `m.<field>`.
+  `PRODUCTS` in `sun.html` is never edited (other repos parse it).
+- Freshness pills use 60 and 180 minutes (`FRESH_OK_MIN`, `FRESH_STALE_MIN`; Gilly's
+  decision A5). The internal alarm in Sunback is tighter and is not this.
+- The Stage (the large clip with the scrubber and channel strip) keeps the same moment
+  when you change channel by aligning the clips' newest-frame times on a 20 minute grid.
+  Per-slot times from the producer (SB-14) are not written yet, so the time label says
+  "about". Channel temperatures come from `instruments/AIA.md` in the vault (section 4,
+  lines 65-73); change them there first, then in `CHANNELS` and in
+  `tools/tests/js/sun_stage_check.mjs`.
+- Checks: `python3 -m unittest discover -s tools/tests -p 'test_*.py'` runs the Node
+  checks in `tools/tests/js/` (node as a bare runtime, no npm). Motion and touch need a
+  real browser; see the PR notes for what was run.
+
+## Share links
+
+- `/s/<id>/` is one redirect per Sun channel (`/s/171/`, `/s/rainbow/`, ...). Each page
+  carries `og:title`, `og:image` and a Twitter card for that channel, then sends the
+  visitor to `/sun.html#<id>`, where the card scrolls into view and is outlined for a few
+  seconds. Lowercase ids only (Pages is case-sensitive).
+- The stubs are generated: `python3 tools/bake.py --only share` writes `s/<id>/index.html`
+  from `tools/templates/share.html` and fills `site.json` `share` from the `PRODUCTS` labels
+  and the `img1k` key of each manifest in `fixtures/sun/manifest/`. After
+  `python3 fixtures/sun/capture.py --refresh`, bake again. `bake.py --check` (rule `bake`)
+  fails on a hand edit. The stubs are not in `sitemap.xml` and carry `noindex`.
+- `og:image` is the bucket URL of the channel's newest 1k still. This session could not
+  HEAD those URLs (no live calls), so confirm each returns 200 after a deploy, and send
+  one `/s/` link to yourself to see it unfurl.
+- The Share button on each card calls `SunData.share` (native sheet, else clipboard, else
+  `execCommand`) and shows a toast with the link.
+
 ## Short links
 
 - Each short link is a static `index.html` that redirects with a meta refresh
@@ -81,10 +137,10 @@ waits on Gilly's yes for that one action.
 - Pages is case-sensitive: hand out lowercase only. `404.html` sends a cased
   address to its lowercase twin (`404.html:9-11`); add a cased duplicate folder
   only on Gilly's yes.
-- New short link (until WS-10 bakes stubs from `site.json`): copy
-  `hfs/index.html` to `<name>/index.html`; change the `<title>`, the canonical
-  link, the meta refresh URL, the link `href`, the visible name and the
-  `location.replace` target; run `python3 tools/check_site.py --only stub`.
+- New short link: add an entry to `stubs` in `site.json` (`path`, `title`,
+  `target`, `template` `stub.html`), run `python3 tools/bake.py`, then
+  `python3 tools/check_site.py --only stub bake`. Lowercase only; a cased
+  duplicate needs Gilly's yes. Follow the redirect after deploy (below).
 - After deploy, follow the redirect and check the destination page's content.
   A 200 alone proves nothing (GitHub served 200 for an empty tag page in the
   2026-08-24 `/jhv` incident).

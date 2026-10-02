@@ -26,7 +26,7 @@ import subprocess
 import sys
 import time
 
-STAMPED_ASSETS = ("site.css", "product.css", "site.js", "product.js")
+STAMPED_ASSETS = ("site.css", "product.css", "site.js", "product.js", "sun.js")
 CHECK_WARN_ONLY = ("heliograph/index.html", "heliogram/index.html")
 LINK = re.compile(r'(/assets/(?:%s))(?:\?v=(\w+))?"' % "|".join(re.escape(a) for a in STAMPED_ASSETS))
 SW_LINE = re.compile(r"const CACHE_VERSION = '([^']*)';")

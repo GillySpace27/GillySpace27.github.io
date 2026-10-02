@@ -544,3 +544,55 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
 .video-tile small { color: var(--muted); font-size: 13px; }
 main .video-tile::after { content: none !important; }
 .tool-strip img.sw-icon { object-fit: cover; border-radius: 22.5%; }
+
+/* ---- The Sun, right now: card skeleton pulse and freshness pills (sun.html, WS-5) ---- */
+.card--sun.is-loading .card__img { animation: sunPulse 1.4s ease-in-out infinite; }
+@keyframes sunPulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.sun-pill { display: inline-flex; align-items: center; gap: 6px; margin: .15em 0 0;
+  font-size: 12px; line-height: 1.4; color: var(--muted); }
+.sun-pill::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sun-pill--ok::before { background: #2e9d5b; }
+.sun-pill--stale::before { background: var(--accent); }
+.sun-pill--old::before { background: #c8442f; }
+.sun-pill--unknown::before { background: transparent; border: 1px solid var(--muted); }
+@media (prefers-reduced-motion: reduce) { .card--sun.is-loading .card__img { animation: none; } }
+
+/* ---- The Stage: 48 hour clip, scrubber and channel strip (sun.html, WS-15) ---- */
+.stage { margin: 0 0 clamp(24px, 5vw, 44px); max-width: 720px; }
+.stage__h { margin: 0 0 .25em; }
+.stage__lead { color: var(--muted); max-width: 60ch; margin: 0 0 1rem; }
+.stage-videos { position: relative; aspect-ratio: 1 / 1; background: #000; border: 1px solid var(--card-border);
+  border-radius: var(--radius); overflow: hidden; }
+.stage-videos video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  opacity: 0; z-index: 0; transition: opacity 400ms ease; }
+.stage-videos video.is-under { opacity: 1; z-index: 1; }
+.stage-videos video.is-front { opacity: 1; z-index: 2; }
+.stage-videos.is-loading { animation: sunPulse 1.4s ease-in-out infinite; }
+.stage-controls { display: flex; align-items: center; gap: 12px; margin: .9rem 0 .4rem; }
+.stage-controls input[type="range"] { flex: 1; min-width: 0; cursor: pointer; accent-color: var(--accent); }
+.stage__time { font-size: 14px; color: var(--text); font-weight: 600; }
+.stage__info { font-size: 13px; color: var(--muted); min-height: 1.4em; margin-bottom: .8rem; }
+.stage-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.stage-btn { font: 600 13px/1 inherit; cursor: pointer; color: var(--text); background: var(--card-bg);
+  border: 1px solid var(--card-border); border-radius: 7px; padding: 7px 11px; }
+.stage-btn:hover { border-color: var(--accent-text); }
+.stage-btn.is-active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.stage-walk { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 1rem; }
+.stage__hint, .stage__note { font-size: 12px; color: var(--muted); margin: 0; max-width: 60ch; }
+.stage__note { margin-top: .6rem; }
+.stage__status { min-height: 1.4em; margin-top: .5rem; font-size: 13px; color: var(--text); display: flex; gap: 10px; align-items: center; }
+@media (prefers-reduced-motion: reduce) {
+  .stage-videos video { transition: none; }
+  .stage-videos.is-loading { animation: none; }
+}
+
+/* ---- Share this Sun: card button, linked-card highlight, toast (sun.html, WS-16) ---- */
+.card--sun { scroll-margin-top: 88px; }
+.card--sun.is-hl { outline: 3px solid var(--accent); outline-offset: 3px; }
+.card button[data-action="share"] { font-weight: 600; }
+#sun-toast { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 1100;
+  max-width: min(92vw, 560px); padding: .7rem 1.1rem; border-radius: 10px; font-size: 14px; overflow-wrap: anywhere;
+  background: var(--btn-bg); color: var(--btn-text); box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none; transition: opacity 300ms ease; }
+#sun-toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #sun-toast { transition: none; } }
