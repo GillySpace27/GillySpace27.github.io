@@ -186,6 +186,28 @@ class ContractTests(unittest.TestCase):
             self.assertIn("fixture path not gated on localhost", out)
             self.assertEqual(code, 1, out)
 
+    def test_frozen_feed_missing_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = pathlib.Path(tmp)
+            (site / "contracts").mkdir()
+            shutil.copy(self.REPO / "contracts" / "heliogram-publish.md", site / "contracts")
+            (site / "heliograph").mkdir()
+            shutil.copy(self.REPO / "heliograph" / "version.json", site / "heliograph")
+            code, out = self.run_contract(site)
+            self.assertIn("FAIL contract heliograph/appcast.xml", out)
+            self.assertIn("frozen path not tracked", out)
+            self.assertEqual(code, 1, out)
+
+    def test_version_json_lost_key_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = pathlib.Path(tmp)
+            (site / "contracts").mkdir()
+            shutil.copy(self.REPO / "contracts" / "heliogram-publish.md", site / "contracts")
+            shutil.copytree(self.REPO / "heliograph", site / "heliograph")
+            (site / "heliograph" / "version.json").write_text('{"version": "0.7", "build": 7}\n')
+            code, out = self.run_contract(site)
+            self.assertIn("version.json lost keys page", out)
+            self.assertEqual(code, 1, out)
     # end of ContractTests
 
 

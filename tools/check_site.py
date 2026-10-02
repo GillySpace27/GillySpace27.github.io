@@ -521,9 +521,45 @@ def check_sun_contract(ctx):
     return out
 
 
+def check_heliogram_contract(ctx):
+    if CONTRACT_HELIOGRAM not in ctx.files:
+        return _contract_missing(ctx, CONTRACT_HELIOGRAM)
+    doc = ctx.root / CONTRACT_HELIOGRAM
+    try:
+        frozen, writes = (contract_block(doc, t) for t in ("frozen", "writes"))
+    except ValueError as e:
+        return [Finding("FAIL", "contract", CONTRACT_HELIOGRAM, 0, "", str(e))]
+    out = []
+    for rel in FROZEN_FEED:
+        if rel not in frozen:
+            out.append(Finding("FAIL", "contract", CONTRACT_HELIOGRAM, 0, rel,
+                               "FROZEN_FEED path missing from the frozen block"))
+    for rel in frozen:
+        if rel not in ctx.files:
+            out.append(Finding("FAIL", "contract", rel, 0, "",
+                               "frozen path not tracked (a Heliogram publish must not remove it)"))
+    for rel in FROZEN_FEED + HELIOGRAM_FEED:
+        if rel.endswith("version.json") and rel in ctx.files:
+            try:
+                data = json.loads(_text(ctx, rel))
+            except ValueError as e:
+                out.append(Finding("FAIL", "contract", rel, 0, "", f"not JSON: {e}"))
+                continue
+            lost = [k for k in VERSION_JSON_KEYS if k not in data]
+            if lost:
+                out.append(Finding("FAIL", "contract", rel, 0, ",".join(lost),
+                                   "version.json lost keys " + ", ".join(lost)))
+    if any(p.startswith("heliogram/") for p in ctx.files):
+        for pattern in writes:
+            if not any(fnmatch.fnmatchcase(p, pattern) for p in ctx.files):
+                out.append(Finding("FAIL", "contract", pattern, 0, "",
+                                   "publish.sh writes this, but no tracked file matches"))
+    return out
+
+
 @check("contract")
 def check_contracts(ctx):
-    return check_sun_contract(ctx)
+    return check_sun_contract(ctx) + check_heliogram_contract(ctx)
 
 
 if __name__ == "__main__":
