@@ -150,6 +150,8 @@ main { flex: 1 0 auto; width: 100%; }
 .icon-row { display: flex; gap: 10px; align-items: center; list-style: none; margin: 0; padding: 0; }
 .icon-row a { color: var(--muted); font-size: 18px; line-height: 1; }
 .icon-row a:hover { color: var(--accent-text); }
+.icon { width: 1em; height: 1em; fill: currentColor; vertical-align: -0.125em; flex: none; }
+.icon-row a { display: inline-flex; }
 
 /* Theme toggle — same icon-button treatment as the toys */
 .theme-toggle {

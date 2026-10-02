@@ -456,6 +456,24 @@ def check_deploy_files(ctx: Ctx) -> list[Finding]:
             for rel, why in DEPLOY_REQUIRED.items() if rel not in ctx.files]
 
 
+ICON_FONT_RE = re.compile(r"\b(?:fa fa|ai ai)-[a-z0-9-]+")
+
+
+@check("icons")
+def check_icons(ctx: Ctx) -> list[Finding]:
+    """FAIL on an icon-font class in a live page or partial; the sprite assets/icons.svg replaces them."""
+    archived = read_list(ctx.root, "archived_pages.txt")
+    out = []
+    for page in ctx.pages:
+        if any(fnmatch.fnmatchcase(page, pat) for pat in archived):
+            continue
+        body = text(ctx, page)
+        for m in ICON_FONT_RE.finditer(body):
+            out.append(Finding("FAIL", "icons", page, body.count("\n", 0, m.start()) + 1, m.group(0),
+                               'icon-font class on a live page; use <svg class="icon"><use href="/assets/icons.svg#name"></use></svg>'))
+    return out
+
+
 def run_external(ctx: Ctx, rule: str, script: str, argv: list[str]) -> list[Finding]:
     if not (ctx.root / script).exists():
         return [Finding("SKIP", rule, script, 0, "-", "script not present yet")]

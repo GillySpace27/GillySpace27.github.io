@@ -12,7 +12,7 @@
 const CACHE_VERSION = 'gilly-202610020557';
 const PRECACHE = [
   '/', '/assets/site.css', '/assets/site.js',
-  '/assets/css/academicons.min.css', '/assets/css/font-awesome.min.css',
+  '/assets/icons.svg',
   '/favicon-32x32.png', '/apple-touch-icon.png', '/manifest.json', '/404.html'
 ];
 

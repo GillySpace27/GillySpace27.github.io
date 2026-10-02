@@ -15,6 +15,8 @@ is a later, separate step; removing one is never an agent's step.
 | `files/quad.mp4` | video (content not reviewed) | referenced by no tracked page | none | 2026-10-02 |
 | `files/windowPlot3.mp4` | video (content not reviewed) | referenced by no tracked page | none | 2026-10-02 |
 | `README.txt` | HTML5 UP template readme | template history; named in `archive/index.html:85` | `README.md` | 2026-10-02 |
+| `assets/css/font-awesome.min.css` | Font Awesome 4.6.3 stylesheet (webfont files in `assets/fonts/`) | no live page links it since the icon sprite; `assets/fonts/fontawesome-webfont.svg` stays because `tools/build_icons.py` reads it | `assets/icons.svg` | 2026-10-02 |
+| `assets/css/academicons.min.css` | Academicons 1.8.6 stylesheet (webfont files in `assets/fonts/`) | linked only by the archived `shineVideo.html` since the icon sprite; `assets/fonts/academicons.svg` stays because `tools/build_icons.py` reads it | `assets/icons.svg` | 2026-10-02 |
 
 ## Branches and worktrees
 
