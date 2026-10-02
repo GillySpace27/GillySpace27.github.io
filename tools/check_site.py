@@ -426,5 +426,105 @@ def main(argv: list[str] | None = None) -> int:
     return code
 
 
+
+# ---- rule `contract` (WS-4): what the site reads from Sunback, Heliogram and Studio ----
+import fnmatch, json, pathlib, re  # noqa: E401  (repeats are harmless)
+
+CONTRACT_SUN = "contracts/sun-bucket.md"
+CONTRACT_HELIOGRAM = "contracts/heliogram-publish.md"
+CONTRACT_STUDIO = "contracts/studio-release-assets.md"
+SUN_FIXTURES = "fixtures/sun/"
+STUDIO_PAGE = "heliofits-studio/index.html"
+ISO_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?$")
+MANIFEST_FIELD_RE = re.compile(r"\bm\.([A-Za-z_]\w*)")
+
+
+def contract_block(path: pathlib.Path, tag: str) -> list[str]:
+    """Non-empty, stripped lines of the first fenced block opened with three backticks plus tag.
+
+    Raises ValueError when the file has no closed block with that tag.
+    """
+    inside, out = False, []
+    for line in pathlib.Path(path).read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if not inside:
+            inside = s == "```" + tag
+        elif s.startswith("```"):
+            return out
+        elif s:
+            out.append(s)
+    raise ValueError(f"{path}: no closed ```{tag} block")
+
+
+def _contract_missing(ctx, rel):
+    # The real repo must carry every contract; a fixture tree (no .git) may omit some.
+    level = "FAIL" if (ctx.root / ".git").exists() else "SKIP"
+    return [Finding(level, "contract", rel, 0, "", "contract file not tracked")]
+
+
+def _text(ctx, rel):
+    return (ctx.root / rel).read_text(encoding="utf-8")
+
+
+def check_sun_contract(ctx):
+    if CONTRACT_SUN not in ctx.files:
+        return _contract_missing(ctx, CONTRACT_SUN)
+    doc = ctx.root / CONTRACT_SUN
+    try:
+        ids, fields, optional = (contract_block(doc, t) for t in ("ids", "fields", "optional"))
+    except ValueError as e:
+        return [Finding("FAIL", "contract", CONTRACT_SUN, 0, "", str(e))]
+    if "sun.html" not in ctx.files:
+        return [Finding("FAIL", "contract", "sun.html", 0, "", "sun.html not tracked")]
+    out, known, sun = [], set(fields) | set(optional), _text(ctx, "sun.html")
+    page_ids = sun_product_ids(sun)
+    if ids != page_ids:
+        out.append(Finding("FAIL", "contract", CONTRACT_SUN, 0, "ids",
+                           f"ids block {ids} differs from sun.html PRODUCTS {page_ids}"))
+    for n, line in enumerate(sun.splitlines(), 1):
+        for name in MANIFEST_FIELD_RE.findall(line):
+            if name not in known:
+                out.append(Finding("FAIL", "contract", "sun.html", n, "m." + name,
+                                   f"sun.html reads m.{name}, which {CONTRACT_SUN} does not list"))
+        if "/fixtures/" in line and 'location.hostname === "localhost"' not in line:
+            out.append(Finding("FAIL", "contract", "sun.html", n, "BUCKET",
+                               "fixture path not gated on localhost"))
+    for pid in ids:
+        rel = f"{SUN_FIXTURES}manifest/{pid}.json"
+        if rel not in ctx.files:
+            out.append(Finding("FAIL", "contract", rel, 0, "", "fixture manifest missing"))
+            continue
+        try:
+            m = json.loads(_text(ctx, rel))
+        except ValueError as e:
+            out.append(Finding("FAIL", "contract", rel, 0, "", f"not JSON: {e}"))
+            continue
+        for f in fields:
+            if not (isinstance(m.get(f), str) and m[f]):
+                out.append(Finding("FAIL", "contract", rel, 0, f, f"lacks field {f}"))
+        for f in m:
+            if f not in known:
+                out.append(Finding("WARN", "contract", rel, 0, f,
+                                   f"field {f} is not in the contract; add it to the optional block"))
+        if isinstance(m.get("updated"), str) and not ISO_UTC_RE.match(m["updated"]):
+            out.append(Finding("FAIL", "contract", rel, 0, "updated",
+                               f"updated {m['updated']!r} is not ISO 8601"))
+        for f in ("thumb", "img1k"):
+            if isinstance(m.get(f), str) and m[f] and SUN_FIXTURES + m[f] not in ctx.files:
+                out.append(Finding("FAIL", "contract", rel, 0, f,
+                                   f"placeholder {SUN_FIXTURES}{m[f]} not tracked"))
+    times = SUN_FIXTURES + "image_times.txt"
+    if times not in ctx.files:
+        out.append(Finding("FAIL", "contract", times, 0, "", "fixture missing"))
+    elif not ISO_UTC_RE.match(_text(ctx, times).strip()):
+        out.append(Finding("FAIL", "contract", times, 0, "", "not one ISO 8601 time"))
+    return out
+
+
+@check("contract")
+def check_contracts(ctx):
+    return check_sun_contract(ctx)
+
+
 if __name__ == "__main__":
     sys.exit(main())

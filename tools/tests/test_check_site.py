@@ -127,5 +127,67 @@ class WorkflowTest(unittest.TestCase):
                        'node --check "$RUNNER_TEMP/worker.mjs"'):
             self.assertIn(needle, wf)
 
+
+# ---- rule `contract` (WS-4) -----------------------------------------------------
+import pathlib, re, shutil, subprocess, sys, tempfile, unittest  # noqa: E401
+
+
+class ContractTests(unittest.TestCase):
+    """contracts/*.md against sun.html, the Sun fixtures, the Heliogram feed and the Studio page."""
+
+    REPO = pathlib.Path(__file__).resolve().parents[2]
+    FIXTURE = REPO / "tools" / "tests" / "fixtures" / "contract-renamed-field"
+
+    def run_contract(self, root):
+        r = subprocess.run(
+            [sys.executable, str(self.REPO / "tools" / "check_site.py"),
+             "--root", str(root), "--only", "contract"],
+            capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+    def copy_fixture(self, tmp):
+        site = pathlib.Path(tmp) / "site"
+        shutil.copytree(self.FIXTURE, site)
+        return site
+
+    def test_renamed_field_fails(self):
+        code, out = self.run_contract(self.FIXTURE)
+        self.assertIn("FAIL contract fixtures/sun/manifest/171.json", out)
+        self.assertIn("lacks field img1k", out)
+        self.assertEqual(code, 1, out)
+
+    def test_restored_field_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self.copy_fixture(tmp)
+            p = site / "fixtures" / "sun" / "manifest" / "171.json"
+            p.write_text(p.read_text().replace('"img_1k"', '"img1k"'))
+            code, out = self.run_contract(site)
+            self.assertNotIn("FAIL", out)
+            self.assertEqual(code, 0, out)
+
+    def test_ids_block_out_of_step_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self.copy_fixture(tmp)
+            p = site / "contracts" / "sun-bucket.md"
+            p.write_text(p.read_text().replace("dem\n", ""))
+            code, out = self.run_contract(site)
+            self.assertIn("differs from sun.html PRODUCTS", out)
+            self.assertEqual(code, 1, out)
+
+    def test_ungated_fixture_bucket_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self.copy_fixture(tmp)
+            p = site / "sun.html"
+            text, n = re.subn(r"(?m)^  const BUCKET = .*$", '  const BUCKET = "/fixtures/sun/";',
+                              p.read_text())
+            self.assertEqual(n, 1)
+            p.write_text(text)
+            code, out = self.run_contract(site)
+            self.assertIn("fixture path not gated on localhost", out)
+            self.assertEqual(code, 1, out)
+
+    # end of ContractTests
+
+
 if __name__ == "__main__":
     unittest.main()
