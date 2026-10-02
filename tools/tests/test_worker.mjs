@@ -1,0 +1,128 @@
+// Tests for worker/worker.js (the enso-impressions Worker).
+// Run from the repo root: node --test tools/tests/test_worker.mjs
+// worker/ is never written: any push under worker/ redeploys the Worker through
+// Workers Builds. The test copies worker.js to a temp .mjs, appends an export list
+// for the helpers it finds (the deployed file keeps only `export default`), and
+// imports the copy. AI and KV bindings are stubbed; nothing touches the network.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const SRC = fs.readFileSync(path.join(REPO, "worker", "worker.js"), "utf8");
+const HELPERS = ["corsHeadersFor", "jsonResponse", "validDate", "DATE_MIN", "DAILY_AI_LIMIT"]
+  .filter((n) => new RegExp("^(?:function|const) " + n + "\\b", "m").test(SRC));
+const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "ws6-worker-"));
+fs.writeFileSync(path.join(TMP, "worker.mjs"), SRC + "\nexport { " + HELPERS.join(", ") + " };\n");
+const W = await import(pathToFileURL(path.join(TMP, "worker.mjs")).href);
+const worker = W.default;
+const CACHE_ON = /^const CACHE_ENABLED = true;$/m.test(SRC);
+
+const BASE = "https://enso-impressions.example.workers.dev";
+const DAY = 86400000;
+const utcDay = (ms) => new Date(ms).toISOString().slice(0, 10);
+const TODAY = utcDay(Date.now());
+const YESTERDAY = utcDay(Date.now() - DAY);
+const IMAGE = "data:image/png;base64,iVBORw0KGgo=";
+const HEALTH = "enso-impressions worker is alive (Workers AI / Llama 4 Scout / one-line evocation)";
+
+function makeEnv({ kv = {}, ai = async () => ({ response: "Amber light over a quiet harbor" }) } = {}) {
+  const store = new Map(Object.entries(kv));
+  const calls = { ai: 0 };
+  return {
+    store, calls,
+    IMPRESSIONS: {
+      get: async (k) => (store.has(k) ? store.get(k) : null),
+      put: async (k, v) => { store.set(k, String(v)); },
+    },
+    AI: { run: async (...args) => { calls.ai++; return ai(...args); } },
+  };
+}
+
+function post(body, origin = "https://gilly.space") {
+  return new Request(BASE + "/", {
+    method: "POST",
+    headers: { Origin: origin, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+async function call(req, env) {
+  const res = await worker.fetch(req, env);
+  const text = await res.text();
+  let json = null;
+  try { json = JSON.parse(text); } catch { /* a text body */ }
+  return { res, text, json };
+}
+
+test("the helpers are top-level names beside the default handler", () => {
+  assert.equal(typeof worker.fetch, "function");
+  assert.equal(typeof W.corsHeadersFor, "function");
+  assert.equal(typeof W.jsonResponse, "function");
+  assert.equal(typeof W.validDate, "function");
+});
+
+test("validDate keeps the YYYY-MM-DD shape check", () => {
+  assert.equal(W.validDate(YESTERDAY), true);
+  for (const bad of ["", "2026-1-01", "20261001", "2026/10/01", "2026-10-01T00:00", "abcd-ef-gh"]) {
+    assert.equal(W.validDate(bad), false, bad);
+  }
+});
+
+test("a malformed date is a 400 JSON error and never reaches AI", async () => {
+  const env = makeEnv();
+  const { res, json } = await call(post({ date: "2026/10/01", image: IMAGE }), env);
+  assert.equal(res.status, 400);
+  assert.match(json.error, /invalid date/);
+  assert.equal(env.calls.ai, 0);
+});
+
+test("an allowed origin is echoed; any other falls back to https://gilly.space", () => {
+  assert.equal(W.corsHeadersFor("http://localhost:8000")["Access-Control-Allow-Origin"], "http://localhost:8000");
+  assert.equal(W.corsHeadersFor("https://evil.example")["Access-Control-Allow-Origin"], "https://gilly.space");
+});
+
+test("OPTIONS preflight answers 200 with the CORS headers", async () => {
+  const req = new Request(BASE + "/", { method: "OPTIONS", headers: { Origin: "https://gilly.space" } });
+  const { res } = await call(req, makeEnv());
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get("Access-Control-Allow-Origin"), "https://gilly.space");
+  assert.equal(res.headers.get("Access-Control-Allow-Methods"), "POST, OPTIONS");
+});
+
+test("a cache hit returns the stored impression without calling AI", { skip: !CACHE_ON && "CACHE_ENABLED is false" }, async () => {
+  const env = makeEnv({ kv: { [`impression-v2:${YESTERDAY}`]: "Storm light on slate" } });
+  const { res, json } = await call(post({ date: YESTERDAY, image: IMAGE }), env);
+  assert.equal(res.status, 200);
+  assert.deepEqual(json, { impression: "Storm light on slate", cached: true });
+  assert.equal(env.calls.ai, 0);
+});
+
+test("a cache miss calls AI once, keeps the first line, stores it under impression-v2", async () => {
+  const env = makeEnv({ ai: async () => ({ response: "Honey in sunlight\nand a second thought" }) });
+  const { res, json } = await call(post({ date: YESTERDAY, image: IMAGE }), env);
+  assert.equal(res.status, 200);
+  assert.deepEqual(json, { impression: "Honey in sunlight", cached: false });
+  assert.equal(env.calls.ai, 1);
+  if (CACHE_ON) assert.equal(env.store.get(`impression-v2:${YESTERDAY}`), "Honey in sunlight");
+});
+
+test("an AI failure is a 502 JSON error", async () => {
+  const env = makeEnv({ ai: async () => { throw new Error("4006: daily free allocation used"); } });
+  const quiet = console.error; console.error = () => {};
+  try {
+    const { res, json } = await call(post({ date: YESTERDAY, image: IMAGE }), env);
+    assert.equal(res.status, 502);
+    assert.equal(json.error, "inference failed");
+    assert.match(json.detail, /4006/);
+  } finally { console.error = quiet; }
+});
+
+test("a GET other than /status keeps the health string byte-identical", async () => {
+  const { res, text } = await call(new Request(BASE + "/"), makeEnv());
+  assert.equal(res.status, 200);
+  assert.equal(text, HEALTH);
+});

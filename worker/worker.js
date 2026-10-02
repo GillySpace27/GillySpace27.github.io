@@ -100,6 +100,12 @@ function jsonResponse(body, status, cors) {
   });
 }
 
+// True when date has the YYYY-MM-DD shape the cache keys use. `now` is for the
+// range bound added next (WS-6); tests pass a fixed value.
+function validDate(date, now = Date.now()) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(date);
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
@@ -130,7 +136,7 @@ export default {
     const date = String(body.date || '');
     const image = String(body.image || '');
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    if (!validDate(date)) {
       return jsonResponse({ error: 'invalid date format (need YYYY-MM-DD)' }, 400, cors);
     }
     if (!image) {
