@@ -118,5 +118,14 @@ class HelperTest(unittest.TestCase):
         self.assertEqual(check_site.sun_product_ids(html), ["rainbow", "171", "94"])
 
 
+class WorkflowTest(unittest.TestCase):
+    def test_check_yml_runs_the_floor(self):
+        wf = (TOOLS.parent / ".github" / "workflows" / "check.yml").read_text()
+        for needle in ("workflow_call:", "contents: read", "runs-on: ubuntu-latest",
+                       "python3 -m unittest discover -s tools/tests -p 'test_*.py'",
+                       "python3 tools/check_site.py",
+                       'node --check "$RUNNER_TEMP/worker.mjs"'):
+            self.assertIn(needle, wf)
+
 if __name__ == "__main__":
     unittest.main()

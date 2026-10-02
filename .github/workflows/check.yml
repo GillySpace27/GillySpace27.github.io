@@ -1,0 +1,37 @@
+# gilly.space checks: unit tests, tools/check_site.py and JavaScript syntax,
+# on a case-sensitive Linux runner. A red run does not block GitHub Pages yet:
+# Pages still publishes every push to master until WS-9's gated deploy and
+# Gilly's Pages source switch. WS-9 reuses this workflow through workflow_call.
+name: check
+
+on:
+  push:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Unit tests
+        run: python3 -m unittest discover -s tools/tests -p 'test_*.py' -v
+      - name: Site checks
+        run: python3 tools/check_site.py
+      - name: JavaScript syntax
+        run: |
+          for f in assets/site.js assets/analytics.js sw.js enso/*.js; do
+            echo "node --check $f"
+            node --check "$f"
+          done
+      - name: Worker syntax (ES module)
+        run: cp worker/worker.js "$RUNNER_TEMP/worker.mjs" && node --check "$RUNNER_TEMP/worker.mjs"
