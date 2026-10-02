@@ -180,3 +180,41 @@ must name the newest release too.
 - Proposal for the Studio release flow (HS-21; the Studio session decides):
   `release/deploy_release.sh publish` could print this command, or run the
   dry run, after `gh release create`.
+
+## Rollback
+
+Applies once Pages is published by `.github/workflows/pages.yml` (WS-9). Until
+Gilly sets the repository variable and switches the source, `## Deploy` is
+still the live path.
+
+- What is live: `curl -s "https://gilly.space/build.json?cb=$(date +%s)"` prints
+  `{"commit": ..., "ref": ..., "stamp": ..., "built_utc": ...}`. `commit` is the
+  published commit; compare with `git log --oneline -10 master`.
+- Normal publish: a push to `master` runs `check.yml`; only if it is green does
+  `pages.yml` build the artifact from that commit, deploy it, wait until
+  `build.json` names the commit and run the watch probes once. A red check means
+  no deploy and the previous site stays up. A push to `master` still needs
+  Gilly's yes.
+- Roll back (a deploy; needs Gilly's yes): choose the last good commit `<sha>`
+  (it must already be on `master`; the run refuses anything else), then
+  `gh workflow run pages.yml -R GillySpace27/GillySpace27.github.io -f ref=<sha>`.
+  Add `-f skip_checks=true` only when `master` itself is red. Confirm with
+  `python3 tools/verify_deploy.py --expect-sha <sha>`: it must print `PASS`.
+- Return to the tip: the same command without `-f ref=...`.
+- Rehearse without deploying: add `-f dry_run=true`; the run stages the artifact
+  and stops before the deploy job.
+- History is never touched: no force-push, no reset of `master`, no tag
+  removal. The workflow publishes an earlier commit; `git revert` on a branch is
+  still the way to fix `master` itself.
+- Heliogram update feeds: a rollback across a Heliogram publish serves the older
+  `heliograph/` and `heliogram/` feed files. After any rollback run
+  `python3 tools/watch.py --probe feeds`. Never hand-edit `appcast.xml`.
+- Heliogram publish: `publish.sh` pushes to `master`, which now waits for the
+  gate (minutes, not seconds). Afterwards run
+  `python3 tools/verify_deploy.py --expect-sha "$(git -C ~/vscode/Website rev-parse HEAD)"`.
+- Back to the branch source (Gilly does it): Settings > Pages > Build and
+  deployment > Source > "Deploy from a branch" > `master` / `(root)`, then
+  `gh variable set PAGES_VIA_ACTIONS --body false -R GillySpace27/GillySpace27.github.io`.
+  Nothing else changes; `CNAME` stays tracked.
+- `watch.yml`'s `page_build` trigger does not fire for deploys made by Actions;
+  the `verify` job of `pages.yml` runs the same wait and probes instead.
