@@ -27,7 +27,7 @@ class TreeTest(unittest.TestCase):
 
     def test_a_hand_edit_is_drift_that_names_the_page_and_bake_repairs_it(self):
         site = json.loads((REPO / "site.json").read_text(encoding="utf-8"))
-        rels = {"site.json", "assets/site.js", "partials/header.html", "sitemap.xml", "tools/bake.py",
+        rels = {"site.json", "assets/site.js", "partials/head.html", "partials/header.html", "sitemap.xml", "tools/bake.py",
                 "tools/templates/stub.html", "tools/templates/stub-shop.html", "tools/archived_pages.txt"}
         rels |= {p["path"] for p in site["pages"]} | {s["path"] for s in site["stubs"]}
         # WS-16: the share target reads sun.html and the fixture manifests, writes s/<id>/index.html
