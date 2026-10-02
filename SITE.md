@@ -16,6 +16,47 @@ waits on Gilly's yes for that one action.
 - Undo: `git revert <sha>` on a branch, then the same yes-gated push. Never
   force-push and never reset `master`. WS-9 adds the rehearsed `## Rollback`.
 
+## Jekyll and the .md spec documents
+
+Decision (2026-10-02, branch `claude/wave1-website`): the repo root carries an
+empty `.nojekyll`, so the branch source serves files as committed.
+
+- Why: `heliosoftware/spec/index.html` links raw `.md` files (`attic.md`,
+  `agent-preamble.md`, `rhef/conventions.md`, `release-feed.md`), and other
+  repos' `CLAUDE.md` files and `heliosoftware/spec/SHA256SUMS` point at
+  `https://gilly.space/heliosoftware/spec/agent-preamble.md`. With no
+  `.nojekyll`, Pages' default Jekyll pass (jekyll-optional-front-matter) renders
+  a `.md` file that has no front matter as `.html`, so the `.md` URL would
+  probably 404 (inferred from how Pages works, never probed).
+- Evidence that nothing needs Jekyll: no `_config.yml`, `Gemfile`, `_layouts`,
+  `_includes` or `_posts`; no tracked `.html`, `.md` or `.scss` file starts with
+  `---` front matter; no Liquid tag (`{%`, `{{ name }}`) in any tracked page;
+  the only underscore files are `assets/sass/libs/_*.scss` partials that no page
+  links (the compiled CSS is committed); `enso/CLAUDE.md` already said "nothing
+  here uses Jekyll features".
+- Which URL form is live under which source:
+  - Branch source with `.nojekyll` (this branch): `/heliosoftware/spec/agent-preamble.md`
+    is served as the file; `.html` twins of the `.md` files do not exist.
+  - Branch source without `.nojekyll` (master before this branch): the `.md` URLs
+    probably 404 and `/heliosoftware/spec/agent-preamble.html` would be live.
+  - Actions artifact (`pages.yml`, `tools/make_artifact.py`): Jekyll never runs, so
+    the `.md` files are served as committed; `.nojekyll` is not copied (the
+    artifact skips every path with a dot component) and is not needed.
+- Side effect to know: with `.nojekyll`, Pages also publishes tracked paths that
+  start with a dot or underscore (`.mailmap`, `.editorconfig`, `.gitattributes`,
+  `.gitignore`, `.github/`, `assets/sass/libs/_*.scss`). The repo is public, so
+  nothing new is disclosed, but those URLs become reachable on the branch
+  source. The Actions artifact never publishes them.
+- Static check: the `nojekyll` rule of `tools/check_site.py` fails when a page
+  links a tracked `.md` file and `.nojekyll` is not tracked; the `link` rule
+  already fails a `.md` link whose file is missing.
+
+Post-merge checklist (Gilly, after the merge to `master` and Pages finishing):
+
+- [ ] After the merge, request `/heliosoftware/spec/agent-preamble.md` once and
+      confirm it is served (status 200 and the preamble text, not a 404 or an
+      HTML page). If it is not, remove `.nojekyll` in a branch and tell Claude.
+
 ## Stamping
 
 - After editing `assets/site.css`, `assets/product.css`, `assets/site.js`,

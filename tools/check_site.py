@@ -459,6 +459,27 @@ def check_deploy_files(ctx: Ctx) -> list[Finding]:
             for rel, why in DEPLOY_REQUIRED.items() if rel not in ctx.files]
 
 
+@check("nojekyll")
+def check_nojekyll(ctx: Ctx) -> list[Finding]:
+    """FAIL when a page links a tracked .md file and .nojekyll is not tracked.
+
+    Pages' default Jekyll pass (jekyll-optional-front-matter) renders a .md file
+    without front matter as .html, so the .md URL would 404. The marker turns
+    that pass off. The Actions artifact (tools/make_artifact.py) never runs Jekyll.
+    """
+    if ".nojekyll" in ctx.files:
+        return []
+    out = []
+    for page in ctx.pages:
+        for line, raw in parse_page(text(ctx, page)).links:
+            path = url_path(page, raw)
+            if path is not None and path.lower().endswith(".md") and resolve(path, ctx.files) is not None:
+                out.append(Finding("FAIL", "nojekyll", page, line, raw,
+                                   "links a .md file but .nojekyll is not tracked;"
+                                   " Pages' default Jekyll pass would serve " + path[:-3] + ".html instead"))
+    return out
+
+
 ICON_FONT_RE = re.compile(r"\b(?:fa fa|ai ai)-[a-z0-9-]+")
 
 

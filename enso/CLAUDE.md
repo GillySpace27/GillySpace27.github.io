@@ -58,7 +58,7 @@ servers, no databases (just KV for impression caching).
 │   ├── worker.js                   ← Cloudflare Worker (Workers AI + KV cache)
 │   ├── wrangler.toml               ← bindings (AI, IMPRESSIONS KV)
 │   └── README.md                   ← worker-specific docs
-└── (no Jekyll opt-out file: Pages runs its default Jekyll pass)
+└── (.nojekyll sits at the repo root: Pages does not run Jekyll; see SITE.md)
 ```
 
 ---
@@ -71,8 +71,8 @@ Two **independent** auto-deploy paths from this single repo:
 
 - Anything in `enso/` (or root html) is served at `gilly.space/<path>/` after
   a push to the default branch.
-- No build step. The repo has no Jekyll opt-out file, so Pages runs its
-  default Jekyll pass; nothing here uses Jekyll features.
+- No build step. The repo root has a `.nojekyll`, so Pages does not run
+  Jekyll (the spec `.md` files are served as committed); nothing here uses Jekyll features.
 
 ### Worker → Cloudflare Workers Builds
 

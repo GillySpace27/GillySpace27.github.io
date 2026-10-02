@@ -6,6 +6,7 @@ and ok-site must pass every rule, so no rule can pass by never firing.
 from __future__ import annotations
 
 import pathlib
+import re
 import shutil
 import sys
 import tempfile
@@ -91,6 +92,48 @@ class FixtureTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("SKIP stamp bump-assets.py:0 - :: script has no --check yet", out)
         self.assertFalse((root / "WROTE").exists())
+
+
+class NoJekyllTest(unittest.TestCase):
+    """A page that links a .md file needs .nojekyll: Pages' default Jekyll pass would
+    publish that file as .html and the .md URL would 404."""
+
+    run_on = FixtureTest.run_on
+    copy = FixtureTest.copy
+
+    def site_linking_md(self, with_marker: bool):
+        root = self.copy("ok-site")
+        (root / "spec.md").write_text("# spec\n")
+        (root / "index.html").write_text('<!doctype html>\n<a href="/spec.md">spec</a>\n', encoding="utf-8")
+        if with_marker:
+            (root / ".nojekyll").write_text("")
+        return root
+
+    def test_md_link_without_nojekyll_fails(self):
+        code, out = self.run_on(self.site_linking_md(False), ["nojekyll"])
+        self.assertEqual(code, 1, "\n".join(out))
+        self.assertIn("FAIL nojekyll index.html:2 /spec.md :: links a .md file but .nojekyll is not tracked;"
+                      " Pages' default Jekyll pass would serve /spec.html instead", out)
+
+    def test_md_link_with_nojekyll_passes(self):
+        code, out = self.run_on(self.site_linking_md(True), ["nojekyll"])
+        self.assertEqual((code, [ln for ln in out if not ln.startswith("SKIP ")]), (0, []))
+
+    def test_site_without_md_links_needs_no_marker(self):
+        code, out = self.run_on("ok-site", ["nojekyll"])
+        self.assertEqual((code, [ln for ln in out if not ln.startswith("SKIP ")]), (0, []))
+
+    def test_real_tree_has_the_marker_and_every_spec_md_link_resolves(self):
+        root = pathlib.Path(__file__).resolve().parents[2]
+        self.assertTrue((root / ".nojekyll").is_file(), ".nojekyll must be tracked at the repo root")
+        self.assertEqual((root / ".nojekyll").stat().st_size, 0)
+        code, out = self.run_on(root, ["nojekyll", "link"])
+        self.assertEqual(code, 0, "\n".join(out))
+        index = (root / "heliosoftware" / "spec" / "index.html").read_text(encoding="utf-8")
+        mds = re.findall(r'href="((?!https?:)[^"#?]+\.md)"', index)
+        self.assertIn("agent-preamble.md", mds)
+        for rel in mds:
+            self.assertTrue((root / "heliosoftware" / "spec" / rel).is_file(), rel)
 
 
 class HelperTest(unittest.TestCase):
