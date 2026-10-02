@@ -412,6 +412,68 @@ class RhefCopyTests(unittest.TestCase):
         self.assertIn("MISSING vectors.json", out)
 
 
+
+class RhefTableTests(unittest.TestCase):
+    LINES = (
+        "noise before\n"
+        "RHEF-CONFORMANCE impl=heliofits-swift bundle=1.0.0 case=ties_zero_fill_64 convention=sunkit-0.7 max_abs_diff=1.200e-04 result=REPORT\n"
+        "RHEF-CONFORMANCE impl=heliofits-swift bundle=1.0.0 case=nan_holes_64 convention=sunkit-0.7 max_abs_diff=0.000e+00 result=PASS\n"
+        "RHEF-CONFORMANCE impl=heliofits-swift summary pass=1 report=1 fail=0 mode=report\n"
+        "RHEF-CONFORMANCE impl=idl bundle=1.0.0 case=ties_zero_fill_64 convention=sunkit-0.7 max_abs_diff=nan result=FAIL\n"
+        "RHEF-CONFORMANCE impl=idl summary pass=0 report=0 fail=1 mode=enforce\n")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tool = load_site_tool("rhef_conformance_table.py")
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.dir = pathlib.Path(self.tmp.name)
+
+    def put(self, name, text):
+        path = self.dir / name
+        path.write_text(text)
+        return str(path)
+
+    def test_table_has_one_row_per_case_and_one_column_per_implementation(self):
+        code, out = run(self.tool, self.put("runs.txt", self.LINES))
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out.splitlines(), [
+            "Bundle 1.0.0.",
+            "",
+            "| Case (convention) | heliofits-swift | idl |",
+            "|---|---|---|",
+            "| nan_holes_64 (sunkit-0.7) | 0.000e+00 PASS | - |",
+            "| ties_zero_fill_64 (sunkit-0.7) | 1.200e-04 REPORT | nan FAIL |",
+            "| mode | report | enforce |"])
+
+    def test_no_lines_and_mixed_bundles_are_errors(self):
+        code, out = run(self.tool, self.put("empty.txt", "nothing\n"))
+        self.assertEqual(code, 1)
+        self.assertIn("no RHEF-CONFORMANCE lines", out)
+        mixed = self.LINES + "RHEF-CONFORMANCE impl=idl bundle=1.1.0 case=x convention=sunkit-0.7 max_abs_diff=0.000e+00 result=PASS\n"
+        code, out = run(self.tool, self.put("mixed.txt", mixed))
+        self.assertEqual(code, 1)
+        self.assertIn("mixed bundle versions: 1.0.0, 1.1.0", out)
+
+    def test_into_replaces_only_the_marked_region(self):
+        page = self.put("page.md", "before\n<!-- conformance-table begin -->\nold\n<!-- conformance-table end -->\nafter\n")
+        code, out = run(self.tool, "--into", page, self.put("runs.txt", self.LINES))
+        self.assertEqual(code, 0, out)
+        text = pathlib.Path(page).read_text()
+        self.assertTrue(text.startswith("before\n<!-- conformance-table begin -->\nBundle 1.0.0."))
+        self.assertTrue(text.endswith("| mode | report | enforce |\n<!-- conformance-table end -->\nafter\n"))
+        self.assertNotIn("old", text)
+
+    def test_into_refuses_a_page_without_exactly_one_pair_of_markers(self):
+        page = self.put("bare.md", "no markers here\n")
+        code, out = run(self.tool, "--into", page, self.put("runs.txt", self.LINES))
+        self.assertEqual(code, 1)
+        self.assertIn("expected exactly one begin and one end marker", out)
+        self.assertEqual(pathlib.Path(page).read_text(), "no markers here\n")
+
+
 # end of spec tool tests
 if __name__ == "__main__":
     unittest.main()
