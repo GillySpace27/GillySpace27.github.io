@@ -9,7 +9,7 @@ LEVEL in FAIL, WARN, KNOWN, SKIP; last line "check_site: <f> failures, <w> warni
 
 Links resolve against `git ls-files` with exact case, never the disk: the Mac
 disk is case-insensitive and GitHub Pages is not. Rules: link, stub, json,
-xml, feed, stamp, size, a11y (warn only). `--online` is reserved for SU-10.
+xml, feed, stamp, size, a11y (warn only). `--online` follows the live short links (SU-10).
 """
 from __future__ import annotations
 
@@ -577,6 +577,186 @@ def check_lowercaser(ctx: Ctx) -> list[Finding]:
                     "duplicate folders are gone (Website f378bbf, 2026-09-27)")]
 
 
+# ---- SU-10: release fallbacks and the live checks ----
+
+FEED_DIR = "heliosoftware/feed"
+USER_AGENT = "gilly-space-site-check/1 (+https://gilly.space)"
+_VERSION = re.compile(r"\d+(?:\.\d+)*")
+_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+
+Fetched = collections.namedtuple("Fetched", "status url body")   # status 0: no answer; -1: loop or too many hops
+
+
+def version_tuple(text: str) -> tuple[int, ...]:
+    m = _VERSION.search(text or "")
+    return tuple(int(x) for x in m.group(0).split(".")) if m else ()
+
+
+class _Fallbacks(html.parser.HTMLParser):
+    """(product, line, text) for each data-release-field="version" element inside a data-release element."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.found: list[tuple[str, int, str]] = []
+        self._open: list[tuple[str, str | None]] = []     # (tag, product) for every open non-void element
+        self._cap = None                                    # (depth, product, line, chunks)
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        product = a.get("data-release") or (self._open[-1][1] if self._open else None)
+        if tag in _VOID:
+            return
+        self._open.append((tag, product))
+        if a.get("data-release-field") == "version" and product and self._cap is None:
+            self._cap = (len(self._open), product, self.getpos()[0], [])
+
+    def handle_endtag(self, tag):
+        for i in range(len(self._open) - 1, -1, -1):
+            if self._open[i][0] == tag:
+                if self._cap is not None and self._cap[0] == i + 1:
+                    product, line, chunks = self._cap[1:]
+                    self.found.append((product, line, "".join(chunks).strip()))
+                    self._cap = None
+                del self._open[i:]
+                return
+
+    def handle_data(self, data):
+        if self._cap is not None:
+            self._cap[3].append(data)
+
+
+def _newest_version(ctx: Ctx, product: str):
+    rel = f"{FEED_DIR}/{product}.json"
+    if rel not in ctx.files:
+        return None
+    try:
+        records = json.loads((ctx.root / rel).read_text(encoding="utf-8")).get("records", [])
+    except (ValueError, AttributeError):
+        return None
+    best = None
+    for r in records:
+        key = version_tuple(str(r.get("version", "")))
+        if key and (best is None or key >= best[0]):
+            best = (key, str(r["version"]))
+    return best
+
+
+@check("fallback")
+def check_release_fallbacks(ctx: Ctx) -> list[Finding]:
+    """A page's static version text must not be older than the newest record in the family feed (SU-11)."""
+    newest: dict[str, object] = {}
+    out: list[Finding] = []
+    for page in ctx.pages:
+        text = (ctx.root / page).read_text(encoding="utf-8", errors="replace")
+        if "data-release" not in text:
+            continue
+        p = _Fallbacks()
+        p.feed(text)
+        p.close()
+        for product, line, shown in p.found:
+            if not shown:
+                continue                      # no static text: nothing hand-typed to go stale
+            if product not in newest:
+                newest[product] = _newest_version(ctx, product)
+            best = newest[product]
+            if best is not None and version_tuple(shown) and version_tuple(shown) < best[0]:
+                out.append(Finding("FAIL", "fallback", page, line, product,
+                                   f"static fallback {shown} is older than the feed's {best[1]} "
+                                   f"({FEED_DIR}/{product}.json); re-pin the page"))
+    return out
+
+
+def fetch(url: str, timeout: float = 20.0) -> Fetched:
+    """One read-only GET. urllib follows HTTP redirects; status 0 means nothing answered."""
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return Fetched(r.status, r.geturl(), r.read(2_000_000))
+    except urllib.error.HTTPError as e:
+        return Fetched(e.code, e.geturl() or url, e.read(2_000_000))
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return Fetched(0, url, b"")
+
+
+def onto(url: str, base: str) -> str:
+    return base + url[len(SITE_ORIGIN):] if url.startswith(SITE_ORIGIN) else url
+
+
+def follow(url: str, getter=fetch, base: str = SITE_ORIGIN, max_hops: int = 5) -> Fetched:
+    """GET url, then follow each 200 page's meta refresh or location.replace, up to max_hops pages.
+
+    Returns the last Fetched; status -1 for a loop or too many hops. Targets on gilly.space are
+    rewritten onto `base`, so a local server can stand in for the site."""
+    seen: set[str] = set()
+    cur = onto(url, base)
+    for _ in range(max_hops + 1):
+        got = getter(cur)
+        if got.status != 200:
+            return got
+        target = parse_redirect_target(got.body.decode("utf-8", "replace"))
+        if not target:
+            return got
+        seen.add(got.url)
+        nxt = onto(urllib.parse.urljoin(got.url, target), base)
+        if nxt in seen:
+            return Fetched(-1, nxt, b"")
+        cur = nxt
+    return Fetched(-1, cur, b"")
+
+
+def live_shortlinks(ctx: Ctx, getter=fetch, base: str = SITE_ORIGIN) -> list[Finding]:
+    data = json.loads((ctx.root / SHORTLINKS).read_text(encoding="utf-8"))
+    out: list[Finding] = []
+    for e in data["links"]:
+        want = onto(e["target"], base)
+        got = follow(f"{SITE_ORIGIN}/{e['path']}", getter, base)
+        if got.status == 0:
+            msg = f"no answer from {got.url}"
+        elif got.status == -1:
+            msg = f"redirect loop or more than 5 hops (last: {got.url})"
+        elif got.status != 200:
+            msg = f"HTTP {got.status} at {got.url}"
+        elif got.url != want:
+            msg = f"ended at {got.url}, expected {want}"
+        elif not got.body.strip():
+            msg = f"empty page at {got.url}"
+        else:
+            continue
+        out.append(Finding("FAIL", "live-shortlink", e["path"], 0, e["target"], msg))
+    return out
+
+
+def live_lowercaser(ctx: Ctx, getter=fetch, base: str = SITE_ORIGIN) -> list[Finding]:
+    got = getter(f"{base}/JHV/")
+    if got.status == 404 and lowercases(got.body.decode("utf-8", "replace")):
+        return []
+    if got.status == 200:
+        return [Finding("WARN", "live-lowercaser", "JHV/", 0, "-",
+                        "a cased twin is being served (suite-decisions Q17 expects none)")]
+    if got.status == 404:
+        return [Finding("FAIL", "live-lowercaser", "JHV/", 0, "-",
+                        "the live 404 page does not lowercase the address")]
+    return [Finding("FAIL", "live-lowercaser", "JHV/", 0, "-", f"HTTP {got.status} at {got.url}")]
+
+
+ONLINE_CHECKS = [("live-shortlink", live_shortlinks), ("live-lowercaser", live_lowercaser)]
+
+
+def run_online(root: pathlib.Path, getter=fetch, base: str = SITE_ORIGIN) -> tuple[int, list[Finding]]:
+    """Only the live checks: read-only GETs against `base`. Offline rules are the default run."""
+    ctx = build_ctx(root)
+    findings: list[Finding] = []
+    if (root / SHORTLINKS).exists():
+        findings += live_shortlinks(ctx, getter, base)
+    else:
+        findings.append(Finding("SKIP", "live-shortlink", SHORTLINKS, 0, "-", "no shortlinks.json in this tree"))
+    findings += live_lowercaser(ctx, getter, base)
+    known = load_known(root)
+    findings = [f._replace(level="KNOWN") if f.level == "FAIL" and (f.rule, f.path, f.target) in known else f
+                for f in findings]
+    return (1 if any(f.level == "FAIL" for f in findings) else 0), findings
+
+
 def run_external(ctx: Ctx, rule: str, script: str, argv: list[str]) -> list[Finding]:
     if not (ctx.root / script).exists():
         return [Finding("SKIP", rule, script, 0, "-", "script not present yet")]
@@ -637,10 +817,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--only", nargs="+", action="extend", metavar="RULE")
     ap.add_argument("--write-shortlinks", action="store_true",
                     help="rewrite heliosoftware/spec/shortlinks.json from the tracked redirect stubs")
+    ap.add_argument("--online", action="store_true",
+                    help="follow every short link on the live site (read-only GETs) instead of the offline rules")
+    ap.add_argument("--base", default=SITE_ORIGIN, help="origin the --online run probes (tests use a local server)")
+    ap.add_argument("--feed", action="store_true", help="run only the release-fallback rule")
     args = ap.parse_args(argv)
     if args.write_shortlinks:
         return write_shortlinks(args.root.resolve())
-    code, findings = run(args.root.resolve(), args.only)
+    if args.online:
+        code, findings = run_online(args.root.resolve(), base=args.base.rstrip("/"))
+    else:
+        only = list(args.only or []) + (["fallback"] if args.feed else [])
+        code, findings = run(args.root.resolve(), only or None)
     for f in findings:
         print(f"{f.level} {f.rule} {f.path}:{f.line} {f.target} :: {f.msg}")
     c = collections.Counter(f.level for f in findings)
