@@ -158,3 +158,25 @@ waits on Gilly's yes for that one action.
   written contract is `contracts/heliogram-publish.md` (WS-4).
 - Agents never run `publish.sh` or `ship.sh`, never hand-edit either
   `appcast.xml`, and never edit files the publish step writes.
+
+## Studio fallback pin
+
+`heliofits-studio/index.html` asks GitHub for the newest release when a visitor
+opens it (`releases?per_page=1`, never `/releases/latest`). The links written into
+the page are the fallback for a visitor whose request to GitHub fails, so they
+must name the newest release too.
+
+- After each HelioFITS Studio release, once CI has attached the Windows and Linux
+  packages: `python3 tools/pin_studio_fallback.py --from-github --dry-run`, then
+  without `--dry-run`. It refuses unless every asset in
+  `contracts/studio-release-assets.md` exists, and unless the new version occurs
+  exactly as often as the old one did. Commit, then a push needs Gilly's yes.
+- The live-site watch (`tools/watch.py`, probe `studio`) fails while the pin is
+  behind the newest release.
+- The script never touches `PLATFORMS` or a `confirmed` flag. To light a tile:
+  someone installs and runs that platform's build on a real machine of that
+  kind; then Gilly sets `confirmed: true` for it by hand in `PLATFORMS`, in its
+  own commit.
+- Proposal for the Studio release flow (HS-21; the Studio session decides):
+  `release/deploy_release.sh publish` could print this command, or run the
+  dry run, after `gh release create`.
