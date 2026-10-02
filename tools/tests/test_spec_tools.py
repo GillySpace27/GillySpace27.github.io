@@ -118,6 +118,136 @@ class SpecSumsTests(unittest.TestCase):
         self.assertIn("SHA256SUMS:1", out)
 
 
+
+class CheckSpecTests(unittest.TestCase):
+    CANON = b"## Rules\n\nBe careful.\nTwo lines.\n"
+    BODY = b"echo gate\nexit 0\n"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tool = load_tool("check_spec.py")
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.dir = pathlib.Path(self.tmp.name)
+        env = mock.patch.dict(os.environ)       # a developer's own HELIOSOFTWARE_SPEC_DIR must not leak in
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop("HELIOSOFTWARE_SPEC_DIR", None)
+        self.spec = self.dir / "spec"
+        (self.spec / "tools").mkdir(parents=True)
+        (self.spec / "agent-preamble.md").write_bytes(self.CANON)
+
+    def put(self, name, data):
+        path = self.dir / name
+        path.write_bytes(data)
+        return str(path)
+
+    @staticmethod
+    def block(body, stated=None):
+        stated = sha(body) if stated is None else stated
+        return (b"# Title\n\n<!-- heliosoftware-preamble v1 sha256=" + stated.encode() + b" -->\n"
+                + body + b"<!-- /heliosoftware-preamble -->\n\nafter\n")
+
+    @staticmethod
+    def vendored(body, label="HelioFITS", path="release-gates.sh", shebang=b""):
+        stated = sha(shebang + body)
+        head = f"# heliosoftware-vendored: {label}:{path} sha256={stated}\n".encode()
+        return shebang + head + body
+
+    def test_preamble_ok_without_a_canonical_copy(self):
+        f = self.put("CLAUDE.md", self.block(self.CANON))
+        self.assertEqual(run(self.tool, f), (0, f"OK {f}\n"))
+
+    def test_preamble_body_edit_is_drift(self):
+        edited = self.CANON.replace(b"careful", b"carefull")
+        f = self.put("CLAUDE.md", self.block(edited, stated=sha(self.CANON)))
+        code, out = run(self.tool, f)
+        self.assertEqual(code, 1)
+        self.assertIn(f"DRIFT {f}: block text does not hash to the sha256 in its opening marker", out)
+
+    def test_restamped_copy_still_drifts_from_the_spec_dir(self):
+        f = self.put("CLAUDE.md", self.block(b"## Rules\n\nBe reckless.\n"))
+        code, out = run(self.tool, "--spec-dir", str(self.spec), f)
+        self.assertEqual(code, 1)
+        self.assertIn(f"DRIFT {f}: block text differs from the canonical agent-preamble.md", out)
+
+    def test_preamble_matching_the_spec_dir_is_ok(self):
+        f = self.put("CLAUDE.md", self.block(self.CANON))
+        self.assertEqual(run(self.tool, "--spec-dir", str(self.spec), f), (0, f"OK {f}\n"))
+
+    def test_canonical_flag_wins_over_the_spec_dir(self):
+        other = b"## Rules\n\nOther.\n"
+        canon = self.put("canon.md", other)
+        f = self.put("CLAUDE.md", self.block(other))
+        self.assertEqual(run(self.tool, "--spec-dir", str(self.spec), "--canonical", canon, f), (0, f"OK {f}\n"))
+
+    def test_environment_variable_names_the_spec_dir(self):
+        f = self.put("CLAUDE.md", self.block(b"## Rules\n\nBe reckless.\n"))
+        with mock.patch.dict(os.environ, {"HELIOSOFTWARE_SPEC_DIR": str(self.spec)}):
+            code, out = run(self.tool, f)
+        self.assertEqual(code, 1)
+        self.assertIn("differs from the canonical agent-preamble.md", out)
+
+    def test_two_blocks_are_drift(self):
+        one = self.block(self.CANON)
+        f = self.put("CLAUDE.md", one + one)
+        code, out = run(self.tool, f)
+        self.assertEqual(code, 1)
+        self.assertIn(f"DRIFT {f}: 2 opening and 2 closing markers, expected 1 and 1", out)
+
+    def test_vendored_header_on_line_one(self):
+        f = self.put("gates.txt", self.vendored(self.BODY))
+        self.assertEqual(run(self.tool, f), (0, f"OK {f}\n"))
+
+    def test_vendored_header_after_a_shebang(self):
+        f = self.put("release-gates.sh", self.vendored(self.BODY, shebang=b"#!/bin/bash\n"))
+        self.assertEqual(run(self.tool, f), (0, f"OK {f}\n"))
+
+    def test_vendored_body_edit_is_drift(self):
+        f = self.put("gates.txt", self.vendored(self.BODY).replace(b"exit 0", b"exit 1"))
+        code, out = run(self.tool, f)
+        self.assertEqual(code, 1)
+        self.assertIn(f"DRIFT {f}: body does not hash to the sha256 in its vendored header", out)
+
+    def test_vendored_website_copy_is_compared_with_the_spec_dir(self):
+        rel = "heliosoftware/spec/tools/no_em_dash.py"
+        (self.spec / "tools" / "no_em_dash.py").write_bytes(self.BODY)
+        same = self.put("a.py", self.vendored(self.BODY, label="Website", path=rel))
+        stale = self.put("b.py", self.vendored(b"echo gate\nexit 2\n", label="Website", path=rel))
+        code, out = run(self.tool, "--spec-dir", str(self.spec), same, stale)
+        self.assertEqual(code, 1)
+        self.assertIn(f"OK {same}\n", out)
+        self.assertIn(f"DRIFT {stale}: body differs from the canonical Website:{rel}", out)
+
+    def test_vendored_header_on_line_three_is_not_a_marker(self):
+        f = self.put("late.txt", b"one\ntwo\n" + self.vendored(self.BODY))
+        code, out = run(self.tool, f)
+        self.assertEqual(code, 2)
+        self.assertIn(f"NOMARKER {f}:", out)
+
+    def test_no_marker_exits_2(self):
+        f = self.put("plain.txt", b"hello\n")
+        code, out = run(self.tool, f)
+        self.assertEqual(code, 2)
+        self.assertIn(f"NOMARKER {f}: neither a preamble block nor a vendored header", out)
+
+    def test_unreadable_exits_2(self):
+        missing = str(self.dir / "nope.txt")
+        code, out = run(self.tool, missing)
+        self.assertEqual(code, 2)
+        self.assertIn(f"UNREADABLE {missing}:", out)
+
+    def test_no_marker_wins_over_drift(self):
+        drift = self.put("CLAUDE.md", self.block(self.CANON.replace(b"careful", b"carefull"), stated=sha(self.CANON)))
+        plain = self.put("plain.txt", b"hello\n")
+        code, out = run(self.tool, drift, plain)
+        self.assertEqual(code, 2)
+        self.assertIn("DRIFT ", out)
+        self.assertIn("NOMARKER ", out)
+
+
 # end of spec tool tests
 if __name__ == "__main__":
     unittest.main()
