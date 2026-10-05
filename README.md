@@ -7,6 +7,8 @@ wing (music, theater, public talks) and a few interactive web toys.
 
 Live at **[gilly.space](https://gilly.space)**.
 
+[![check](https://github.com/GillySpace27/GillySpace27.github.io/actions/workflows/check.yml/badge.svg)](https://github.com/GillySpace27/GillySpace27.github.io/actions/workflows/check.yml) [![site-checks](https://github.com/GillySpace27/GillySpace27.github.io/actions/workflows/site-checks.yml/badge.svg)](https://github.com/GillySpace27/GillySpace27.github.io/actions/workflows/site-checks.yml)
+
 ## How it's built
 
 Fully static, deployed via **GitHub Pages** (push to the default branch → live).

@@ -13,6 +13,8 @@ workers_dev = true
 
 # Workers AI binding — gives the worker access to env.AI.run(<model>, {...}).
 # No external API key needed. Free tier: 100,000 requests/day.
+# env.AI: worker.js calls env.AI.run(MODEL, ...) on a cache miss only, at most
+# DAILY_AI_LIMIT times per UTC day.
 [ai]
 binding = "AI"
 
@@ -21,6 +23,11 @@ binding = "AI"
 # the previous one held haiku written under the earlier (Llama-era / pre-
 # meditative-primer) prompt. New namespace ID is the live target; the old
 # namespace was deleted via the Cloudflare MCP after this swap deployed.
+# env.IMPRESSIONS: worker.js reads and writes two key families here:
+#   impression-v2:<YYYY-MM-DD>  the cached impression for one enso date
+#   quota:<YYYY-MM-DD>          Workers AI calls made that UTC day (daily ceiling;
+#                               GET /status reports today's count)
+# Code never deletes a key.
 [[kv_namespaces]]
 binding = "IMPRESSIONS"
 id = "f1e2708827c741438de73344eb778390"

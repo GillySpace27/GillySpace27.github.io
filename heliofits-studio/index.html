@@ -1,27 +1,41 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- bake:head -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
 <title>HelioFITS Studio</title>
 <meta name="description" content="HelioFITS Studio: a desktop compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="canonical" href="https://gilly.space/heliofits-studio/">
 <script>
   (function () {
     try {
       var mode = localStorage.getItem('enso-theme') || 'system';
       var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
     } catch (e) {}
   })();
 </script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="HelioFITS Studio">
+<meta property="og:description" content="HelioFITS Studio: a desktop compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.">
+<meta property="og:url" content="https://gilly.space/heliofits-studio/">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
 <meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
-<link rel="stylesheet" href="/assets/css/academicons.min.css">
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css?v=202610020557">
-<link rel="stylesheet" href="/assets/product.css?v=202610020557">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake -->
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
+<link rel="stylesheet" href="/assets/product.css?v=202610021742">
 </head>
 <body>
 <div data-include="header"></div>
@@ -35,7 +49,7 @@
   <!-- Correct without JavaScript: Mac live at the last known release, the other two off.
        The script below only ever moves these forward, never switches one on by itself. -->
   <div class="platforms">
-    <a class="dl primary" id="mac" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2.dmg">
+    <a class="dl primary" id="mac" data-release="heliofits-studio" data-release-asset="macos-arm64" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2.dmg">
       <b>Download for Mac</b><small id="mac-note">Apple Silicon · Java included</small>
     </a>
     <a class="dl" id="intel" role="link" aria-disabled="true" title="Not yet tested on an Intel Mac">
@@ -49,12 +63,12 @@
     </a>
   </div>
 
-  <p class="ver" id="ver">Version 0.8.2 · pre-release</p>
+  <p class="ver" id="ver">Version <span data-release="heliofits-studio" data-release-field="version">0.8.2</span> · pre-release</p>
   <p class="note" id="note"></p>
 
   <p class="links">
-    <a class="sec" id="guide" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-Guide.pdf">Field guide (PDF)</a>
-    <a class="sec" id="notes" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.2">What's new</a>
+    <a class="sec" id="guide" data-release="heliofits-studio" data-release-asset="guide" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-Guide.pdf">Field guide (PDF)</a>
+    <a class="sec" id="notes" data-release="heliofits-studio" data-release-field="url" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.2">What's new</a>
     <a class="sec" href="https://github.com/GillySpace27/HelioFITS-Studio">GitHub</a>
   </p>
 
@@ -163,6 +177,7 @@ fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_p
     highlight();
   }).catch(() => {});
 </script>
-<script src="/assets/site.js?v=202610020557"></script>
+<script src="/assets/product.js?v=202610021742"></script>
+<script src="/assets/site.js?v=202610021742"></script>
 </body>
 </html>

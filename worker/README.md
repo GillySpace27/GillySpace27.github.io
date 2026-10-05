@@ -62,3 +62,23 @@ any realistic personal-site traffic level.
   (default, multimodal, fast), `@cf/google/gemma-4-26b-a4b-it` (alternative
   vision), `@cf/moonshotai/kimi-k2.5` (frontier-scale, vision). See
   `https://developers.cloudflare.com/workers-ai/models/` for the full catalog.
+
+## Guards and tests
+
+- `GET /status` returns JSON `{model, cacheEnabled, today, aiCallsToday}`;
+  any other GET returns the health string unchanged.
+  `curl -s https://enso-impressions.gilly-22d.workers.dev/status`
+- Dates: a POST `date` must be a real `YYYY-MM-DD` from `DATE_MIN`
+  (`2020-01-01`) to tomorrow UTC; anything else is a 400.
+- Daily ceiling: each cache miss increments KV `quota:<UTC day>` before the
+  Workers AI call. At `DAILY_AI_LIMIT` (500) the Worker answers 429
+  `{"error": "daily limit", "detail": "daily allocation of AI calls reached; ..."}`,
+  which the calendar shows as its paused message. Both numbers are estimates;
+  change them in `worker.js`. The counter is not atomic (a soft ceiling) and its
+  keys stay in KV.
+- Tests: `node --test tools/tests/test_worker.mjs` from the repo root, with
+  stubbed AI and KV and no network. They live outside `worker/` because any push
+  under `worker/` redeploys the Worker. CI runs them in
+  `.github/workflows/check.yml`.
+- A merge to `master` that touches `worker/` is a production deploy: merge only
+  on a green check and with Gilly's yes for that merge.

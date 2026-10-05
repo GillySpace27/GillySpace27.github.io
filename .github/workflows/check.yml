@@ -16,11 +16,11 @@ jobs:
   site:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
       - name: Unit tests
@@ -29,9 +29,36 @@ jobs:
         run: python3 tools/check_site.py
       - name: JavaScript syntax
         run: |
-          for f in assets/site.js assets/analytics.js assets/sun.js sw.js enso/*.js; do
+          for f in assets/site.js assets/product.js assets/analytics.js assets/sun.js sw.js enso/*.js; do
             echo "node --check $f"
             node --check "$f"
           done
+      - name: product.js tests
+        run: node --test tools/tests/test_product_js.mjs
       - name: Worker syntax (ES module)
         run: cp worker/worker.js "$RUNNER_TEMP/worker.mjs" && node --check "$RUNNER_TEMP/worker.mjs"
+      - name: Worker tests (stubbed AI and KV)
+        run: node --test tools/tests/test_worker.mjs
+      - name: Enso build is reproducible and deterministic
+        run: |
+          node enso/build_calendar.js --check
+          node --test tools/tests/test_enso_golden.mjs
+
+  em-dash:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: No new em dashes
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then BASE="origin/$BASE_REF"
+          elif [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then BASE="$BEFORE"
+          else BASE="origin/$DEFAULT_BRANCH"; fi
+          echo "base: $BASE"
+          python3 heliosoftware/spec/tools/no_em_dash.py --base "$BASE" --exclude 'heliogram/*' --exclude 'heliograph/*'

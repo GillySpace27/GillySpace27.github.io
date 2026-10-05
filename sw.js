@@ -9,10 +9,10 @@
    Bump CACHE_VERSION to invalidate. Registered from assets/site.js behind a
    feature check, so no-JS / unsupported browsers are unaffected.
    ========================================================================== */
-const CACHE_VERSION = 'gilly-202610020557';
+const CACHE_VERSION = 'gilly-202610021742';
 const PRECACHE = [
   '/', '/assets/site.css', '/assets/site.js',
-  '/assets/css/academicons.min.css', '/assets/css/font-awesome.min.css',
+  '/assets/icons.svg',
   '/favicon-32x32.png', '/apple-touch-icon.png', '/manifest.json', '/404.html'
 ];
 
