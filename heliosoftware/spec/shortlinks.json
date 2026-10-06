@@ -2,6 +2,11 @@
   "version": 1,
   "links": [
     {
+      "path": "heliograph/",
+      "target": "https://gilly.space/heliogram/",
+      "kind": "redirect"
+    },
+    {
       "path": "hfs/",
       "target": "https://gilly.space/heliofits-studio/",
       "kind": "redirect"

@@ -985,7 +985,9 @@ def check_heliogram_contract(ctx):
             if lost:
                 out.append(Finding("FAIL", "contract", rel, 0, ",".join(lost),
                                    "version.json lost keys " + ", ".join(lost)))
-    if any(p.startswith("heliogram/") for p in ctx.files):
+    # The writes block binds once a publish has happened (its feed is tracked),
+    # not before: an interim site-made heliogram/index.html has no DMG to match.
+    if any(p in ctx.files for p in HELIOGRAM_FEED):
         for pattern in writes:
             if not any(fnmatch.fnmatchcase(p, pattern) for p in ctx.files):
                 out.append(Finding("FAIL", "contract", pattern, 0, "",
