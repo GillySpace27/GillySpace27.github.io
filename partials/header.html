@@ -2,26 +2,38 @@
      Injected by assets/site.js into <div data-include="header"></div>.
      Links are root-relative so they work from any page depth. Hub targets
      marked TODO are built in redesign Phase 2; until then they point at the
-     best current destination. NOT wired into any page yet (Phase 0 groundwork). -->
+     best current destination. Injected into every page that carries
+     data-include="header" (21 tracked pages at c272b93, computed). -->
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="site-header__inner">
     <a class="brand" href="/">gilly<span class="dot">.</span>space</a>
     <nav class="site-nav" aria-label="Primary">
+      <!-- bake:header-nav -->
       <a href="/Research.html">Research</a>
       <a href="/sun.html">The Sun</a>
       <a href="/RecordedPublicTalks.html">Outreach</a>
       <a href="/play/">Play</a>
+      <div class="nav-drop">
+        <a href="/heliosoftware/">HelioSoftware<span class="nav-drop__caret" aria-hidden="true"></span></a>
+        <div class="nav-drop__menu">
+          <a href="/heliogram/"><img class="sw-icon" src="/assets/sw/heliogram.png" alt=""><span><b>Heliogram</b><small>The live Sun on your Mac's screens</small></span></a>
+          <a href="/heliofits/"><span class="sw-mark sw-mark--fits" aria-hidden="true"></span><span><b>HelioFITS</b><small>Solar FITS files, previewed in Finder</small></span></a>
+          <a href="/heliofits-studio/"><img class="sw-icon" src="/assets/sw/heliofits-studio.png" alt=""><span><b>HelioFITS Studio</b><small>A compositor and work surface for the corona</small></span></a>
+          <a href="/rhef/"><span class="sw-mark sw-mark--rhef" aria-hidden="true"></span><span><b>RHEF</b><small>See the faint corona, in one line of Python</small></span></a>
+        </div>
+      </div>
       <a href="/shop.html">Store</a>
       <a href="/about.html">About / CV</a>
+      <!-- /bake -->
     </nav>
     <div class="site-tools">
       <ul class="icon-row">
-        <li><a href="https://arxiv.org/a/gilly_c_1.html" class="ai ai-arxiv" target="_blank" rel="noopener" aria-label="arXiv"></a></li>
-        <li><a href="https://orcid.org/0000-0003-0021-9056" class="ai ai-orcid" target="_blank" rel="noopener" aria-label="ORCID"></a></li>
-        <li><a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0003-0021-9056" class="ai ai-ads" target="_blank" rel="noopener" aria-label="NASA ADS"></a></li>
-        <li><a href="https://github.com/GillySpace27" class="fa fa-github" target="_blank" rel="noopener" aria-label="GitHub"></a></li>
-        <li><a href="https://www.linkedin.com/in/gillyspace27/" class="fa fa-linkedin-square" target="_blank" rel="noopener" aria-label="LinkedIn"></a></li>
+        <li><a href="https://arxiv.org/a/gilly_c_1.html" target="_blank" rel="noopener" aria-label="arXiv"><svg class="icon" aria-hidden="true" focusable="false"><use href="/assets/icons.svg#arxiv"></use></svg></a></li>
+        <li><a href="https://orcid.org/0000-0003-0021-9056" target="_blank" rel="noopener" aria-label="ORCID"><svg class="icon" aria-hidden="true" focusable="false"><use href="/assets/icons.svg#orcid"></use></svg></a></li>
+        <li><a href="https://ui.adsabs.harvard.edu/search/q=orcid%3A0000-0003-0021-9056" target="_blank" rel="noopener" aria-label="NASA ADS"><svg class="icon" aria-hidden="true" focusable="false"><use href="/assets/icons.svg#ads"></use></svg></a></li>
+        <li><a href="https://github.com/GillySpace27" target="_blank" rel="noopener" aria-label="GitHub"><svg class="icon" aria-hidden="true" focusable="false"><use href="/assets/icons.svg#github"></use></svg></a></li>
+        <li><a href="https://www.linkedin.com/in/gillyspace27/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg class="icon" aria-hidden="true" focusable="false"><use href="/assets/icons.svg#linkedin-square"></use></svg></a></li>
       </ul>
       <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Theme: System (click to cycle)">🖥️</button>
     </div>

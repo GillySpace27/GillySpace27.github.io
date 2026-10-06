@@ -9,16 +9,30 @@
 // that UTC date — same mulberry32 stream, same draw order.
 //
 // Run from the repo root:
-//   node enso/build_calendar.js
+//   node enso/build_calendar.js              rebuild enso/index.html and enso/enso-engine.js
+//   node enso/build_calendar.js --check      build in memory, compare with both committed files,
+//                                            write nothing, exit 1 and print the first difference
+//   node enso/build_calendar.js --out PATH   write the calendar to PATH and the engine beside it
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 // Resolve paths relative to this script's directory so it works regardless
 // of cwd, as long as enso/ is the script's parent folder.
 const ENSO_DIR = __dirname;
 const TOOL = path.join(ENSO_DIR, 'pixelated-enso.html');
-const OUT  = path.join(ENSO_DIR, 'index.html');
+// ── 0. Command line ──
+const argv = process.argv.slice(2);
+const CHECK = argv.includes('--check');
+const outAt = argv.indexOf('--out');
+const OUT_ARG = outAt === -1 ? null : argv[outAt + 1];
+if (outAt !== -1 && (!OUT_ARG || OUT_ARG.startsWith('--'))) throw new Error('--out needs a path');
+const stray = argv.filter(a => a !== '--check' && a !== '--out' && a !== OUT_ARG);
+if (stray.length) throw new Error('Unknown argument(s): ' + stray.join(' ') + ' (use --check or --out PATH)');
+if (CHECK && OUT_ARG) throw new Error('--check and --out cannot be combined');
+const OUT = OUT_ARG ? path.resolve(OUT_ARG) : path.join(ENSO_DIR, 'index.html');
+const ENGINE_OUT = path.join(OUT_ARG ? path.dirname(OUT) : ENSO_DIR, 'enso-engine.js');
 
 const src = fs.readFileSync(TOOL, 'utf8');
 const lines = src.split('\n');
@@ -97,13 +111,146 @@ if (missing.length) throw new Error('No default extracted for: ' + missing.join(
 console.log('Extracted', Object.keys(DEFAULTS).length, 'control defaults;',
             'getParams touches', new Set(idsInGetParams).size, 'unique ids; all covered.');
 
+const ENGINE_BODY = `  // Render target + seed are module-level so the copied render() can use them
+  // unchanged \u2014 renderEnso() reassigns them per call.
+  let canvas, ctx, seed;
+
+  // Current settings object for the EL shim.
+  let _S = {};
+  const EL = id => ({ value: _S[id] });
+
+  // Stub: render(size) only consults getRenderSize() when size is omitted; we
+  // always pass size explicitly, but keep the symbol defined for safety.
+  function getRenderSize() { return 470; }
+
+${mulberry32Src}
+
+${helpersSrc}
+
+${getParamsSrc}
+
+${renderSrc}
+
+  // ════════════════════════════════════════════════════════════════════════
+  //  DETERMINISTIC ENSO-OF-THE-DAY GENERATOR
+  //  Same RANDOM_BOUNDS, same RANDOM_COLORS, same draw order as randomEnso()
+  //  in the tool \u2014 so calendar(date) === tool's "Random enso of the day" for
+  //  that UTC date.
+  // ════════════════════════════════════════════════════════════════════════
+
+  ${boundsBlock}
+
+  ${colorsBlock}
+
+  // Defaults for every control getParams reads. Most of these are inert in
+  // bristle mode (brushFade, pixelStart/transitionWidth/pixelSize/fadeStart/
+  // fadeCurve, the radial-bleed sliders), but getParams still parses them so
+  // they need real numeric values to avoid NaN propagating into render.
+  const DEFAULTS = ${JSON.stringify(DEFAULTS, null, 2)};
+
+  // Produces { settings, seed } for the canonical enso of utcMidnightMs.
+  // Draw order MUST match randomEnso(false) in the tool exactly \u2014 same
+  // mulberry32 stream, same sequence of prng() calls \u2014 or outputs diverge.
+  function dateToEnso(utcMidnightMs) {
+    const prng = mulberry32(utcMidnightMs);
+    const r = (mn, mx) => mn + prng() * (mx - mn);
+    const snap = (v, step) => Math.round(v / step) * step;
+    // First draw becomes the shape seed (matches the tool's first prng() draw assigned to _seed).
+    const shapeSeed = prng();
+    const overrides = { renderStyle: 'bristles' };
+    for (const [id, [mn, mx, step]] of Object.entries(RANDOM_BOUNDS)) {
+      overrides[id] = String(snap(r(mn, mx), step));
+    }
+    overrides.direction = prng() < 0.5 ? 'cw' : 'ccw';
+    overrides.bg = 'transparent';
+    if (prng() < 0.45) {
+      overrides.color = RANDOM_COLORS[Math.floor(prng() * RANDOM_COLORS.length)];
+    } else {
+      overrides.color = hslToHex(prng(), 0.45 + prng() * 0.35, 0.28 + prng() * 0.24);
+    }
+    // Merge: defaults under randomized overrides. getParams reads from this.
+    return { settings: { ...DEFAULTS, ...overrides }, seed: shapeSeed };
+  }
+
+  // Render the enso for utcMidnightMs into targetCanvas at size px.
+  function renderEnso(targetCanvas, utcMidnightMs, size) {
+    const { settings, seed: shapeSeed } = dateToEnso(utcMidnightMs);
+    canvas = targetCanvas;
+    ctx    = targetCanvas.getContext('2d');
+    seed   = shapeSeed;
+    _S     = settings;
+    render(size);
+  }`;
+
+// ── 3b. The engine: one body, written to enso/enso-engine.js and loaded by the calendar ──
+// The body is the render-target declaration through renderEnso(), wrapped in an IIFE with
+// renderEnsoWith() (used by the home page hero) for the file.
+const ENGINE_HEAD = [
+  '/* ============================================================================',
+  '   enso-engine.js',
+  '   ----------------------------------------------------------------------------',
+  '   GENERATED by enso/build_calendar.js from enso/pixelated-enso.html. Do not edit',
+  '   by hand: "node enso/build_calendar.js --check" fails when this file differs',
+  '   from what the build produces.',
+  '',
+  '   The ensō render engine, the same text as in enso/index.html (the calendar),',
+  "   so it can be reused outside the calendar, e.g. to draw today's ensō in the",
+  '   site hero. Exposes:',
+  '     window.renderEnso(targetCanvas, utcMidnightMs, size)',
+  '     window.renderEnsoWith(targetCanvas, utcMidnightMs, size, overrides)',
+  '',
+  '   Determinism contract: this reproduces the exact same daily ensō as the',
+  '   calendar and editor (same mulberry32 stream, same prng() draw order).',
+  '   tools/tests/test_enso_golden.mjs pins it.',
+  '   ============================================================================ */',
+  '(function (global) {',
+  "  'use strict';",
+].join('\n') + '\n';
+
+const ENGINE_TAIL = `  global.renderEnso = renderEnso;
+
+  // Like renderEnso, but merges \`overrides\` onto the day's settings before
+  // rendering \u2014 used by the hero to normalize the ring size (radius/thickness)
+  // so today's ensō reliably FRAMES the portrait instead of crossing it, while
+  // keeping the day's color, gap, taper, imperfection and bristle texture.
+  // Special key \`maxThickness\` caps the day's thickness (keeps thin-day variety).
+  function renderEnsoWith(targetCanvas, utcMidnightMs, size, overrides) {
+    const { settings, seed: shapeSeed } = dateToEnso(utcMidnightMs);
+    const o = Object.assign({}, overrides);
+    const maxT = o.maxThickness; delete o.maxThickness;
+    const s = Object.assign({}, settings, o);
+    if (maxT != null) s.thickness = String(Math.min(parseFloat(s.thickness), maxT));
+    canvas = targetCanvas;
+    ctx    = targetCanvas.getContext('2d');
+    seed   = shapeSeed;
+    _S     = s;
+    render(size);
+  }
+  global.renderEnsoWith = renderEnsoWith;
+})(window);
+`;
+
+function buildEngine(engineBody) {
+  return ENGINE_HEAD + engineBody + '\n' + ENGINE_TAIL;
+}
+const engineJs = buildEngine(ENGINE_BODY);
+const ENGINE_V = crypto.createHash('sha256').update(engineJs).digest('hex').slice(0, 12);
+
 // ── 4. Assemble the calendar HTML ──
 const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enso Calendar</title>
+<title>Daily Ensō Calendar · gilly.space</title>
+<meta name="description" content="A new ensō (Japanese brushstroke circle) every day, generated deterministically from the date, each with a one-line AI impression. Part of gilly.space.">
+<link rel="canonical" href="https://gilly.space/enso/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Daily Ensō Calendar · gilly.space">
+<meta property="og:description" content="A new generative ensō every day, with a one-line AI impression.">
+<meta property="og:url" content="https://gilly.space/enso/">
+<meta property="og:image" content="https://gilly.space/images/cards/enso-calendar.png">
+<meta name="twitter:card" content="summary_large_image">
 <script>
   // Pre-paint theme application — matches pixelated-enso.html's three-state
   // (system | light | dark) so the calendar styles correctly before first paint.
@@ -117,6 +264,9 @@ const html = `<!DOCTYPE html>
     } catch (e) {}
   })();
 <\/script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #faf8f3;
@@ -127,7 +277,7 @@ const html = `<!DOCTYPE html>
     --cell-bg: #ffffff;
     --cell-border: #d8d0c2;
     --cell-future-bg: #f0ece2;
-    --cell-future-text: #b8b0a0;
+    --cell-future-text: #7a7264;    /* was #b8b0a0; improved contrast */
     --cell-today-border: #c89b3c;
     --cell-hover-border: #1a2a5a;
     --modal-backdrop: rgba(0, 0, 0, 0.55);
@@ -138,13 +288,13 @@ const html = `<!DOCTYPE html>
   :root.dark {
     --bg: #1a1814;
     --text: #e8e2d0;
-    --muted: #a8a094;
+    --muted: #b8b0a4;              /* was #a8a094; improved contrast */
     --card-bg: #25221c;
     --card-border: #3a362c;
     --cell-bg: #2a2620;
     --cell-border: #4a4438;
     --cell-future-bg: #211e18;
-    --cell-future-text: #5a5448;
+    --cell-future-text: #706a5e;    /* was #5a5448; improved contrast */
     --cell-today-border: #d9a91a;
     --cell-hover-border: #d9a91a;
     --modal-backdrop: rgba(0, 0, 0, 0.78);
@@ -161,6 +311,13 @@ const html = `<!DOCTYPE html>
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     min-height: 100vh;
   }
+  /* Headings and modal date get the calligraphic serif \u2014 aligns typographic
+     register with the brushstroke content without touching body text. */
+  h1, h2, .modal-date {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: 0.01em;
+  }
+  h1 { font-size: 32px; }   /* slightly larger to compensate for serif's optical weight */
   .wrap { max-width: 980px; margin: 0 auto; }
   .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 12px; }
   h1 { margin: 0 0 4px 0; font-size: 28px; }
@@ -175,19 +332,25 @@ const html = `<!DOCTYPE html>
     color: var(--btn-text);
     border-color: var(--btn-bg);
   }
-  /* Small icon-only button for the theme switch — kept visually quiet. */
+  /* Small icon-only button for the theme switch. Raised opacity slightly and
+     given a visible border so it reads as interactive without cluttering. */
   .icon-btn {
     background: transparent;
-    border: none;
+    border: 1px solid var(--card-border);
     color: var(--muted);
     cursor: pointer;
     font-size: 16px;
-    padding: 4px 6px;
-    border-radius: 4px;
-    opacity: 0.55;
+    padding: 6px 10px;
+    border-radius: 6px;
+    opacity: 0.8;
     line-height: 1;
+    min-width: 40px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  .icon-btn:hover { opacity: 1; background: var(--cell-bg); }
+  .icon-btn:hover { opacity: 1; background: var(--cell-bg); border-color: var(--cell-hover-border); }
   .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .card {
     background: var(--card-bg);
@@ -251,6 +414,12 @@ const html = `<!DOCTYPE html>
   }
   .cell.past { cursor: pointer; }
   .cell.past:hover { border-color: var(--cell-hover-border); transform: translateY(-1px); }
+  .cell.past:focus-visible {
+    border-color: var(--cell-hover-border);
+    transform: translateY(-1px);
+    outline: 2px solid var(--cell-hover-border);
+    outline-offset: 2px;
+  }
   .cell.today { border-color: var(--cell-today-border); border-width: 3px; }
   .cell.future { background: var(--cell-future-bg); border-style: dashed; cursor: default; }
   .cell.empty { background: transparent; border: none; pointer-events: none; }
@@ -307,26 +476,48 @@ const html = `<!DOCTYPE html>
     image-rendering: pixelated;
     border-radius: 8px;
   }
+  /* Wraps the canvas so the haiku can be absolutely positioned over its
+     center while inheriting the canvas's responsive size. */
+  .modal-canvas-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .modal-actions {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
   }
-  /* Vision-based AI impression line displayed between the canvas and the
-     action buttons. Stays hidden when the feature isn't configured. */
+  /* Haiku impression rendered as a centered overlay on the enso. Three
+     lines, preserved via white-space: pre-line so the model's newlines
+     become visual line breaks. Soft frosted backdrop keeps the text
+     legible against white, black, or transparent canvas backgrounds. */
   .modal-impression {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-style: italic;
-    font-size: 14px;
-    color: var(--muted);
-    max-width: 580px;
+    font-size: 15px;
+    color: var(--text);
     text-align: center;
-    line-height: 1.55;
+    line-height: 1.6;
+    white-space: pre-line;
+    max-width: 60%;
     display: none;          /* enabled by JS once a fetch begins */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-height: 22px;
-    padding: 0 8px;
+    gap: 6px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--modal-bg) 78%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;   /* clicks pass through to the canvas / modal */
   }
   .modal-impression.visible { display: flex; }
   /* Banner state when Workers AI daily quota is exhausted. Non-italic,
@@ -364,14 +555,40 @@ const html = `<!DOCTYPE html>
   .modal-download { background: transparent; color: var(--text); border: 1px solid var(--card-border); }
   .modal-download:hover { border-color: var(--cell-hover-border); }
   .modal-download:disabled { opacity: 0.55; cursor: default; }
+  /* One-sentence contextual intro \u2014 defines ensō for visitors who don't
+     already know the word. Sits quietly below the subtitle. */
+  .enso-intro {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 6px 0 20px 0;
+    max-width: 560px;
+    line-height: 1.6;
+  }
+  .enso-intro span[lang="ja"] { font-size: 14px; }
+  /* Quiet footer closes the page composition on short months. */
+  .site-footer {
+    text-align: center;
+    padding: 28px 16px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    opacity: 0.55;
+  }
+  /* Mobile: tighten gaps to push cell size above 44 px touch target. */
+  @media (max-width: 480px) {
+    body { padding: 16px 8px; }
+    .card { padding: 12px; }
+    .grid, .weekdays { gap: 4px; }
+  }
 </style>
+<script defer src="/assets/analytics.js"><\/script>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <div class="topbar">
     <div>
-      <h1>Enso Calendar</h1>
-      <p class="subtitle">A new enso each day, deterministic from the UTC date — past days fill in, future days await.</p>
+      <h1>Ensō Calendar</h1>
+      <p class="subtitle">A new ensō generated fresh each day, unique to that date \u2014 past days fill in, future days await.</p>
+      <p class="enso-intro">An ensō (<span lang="ja">円相</span>) is a Japanese Zen brushstroke circle drawn in a single gesture. This calendar holds one for every day \u2014 click any past date to open it.</p>
     </div>
     <div class="header-actions">
       <button id="themeToggle" type="button" class="icon-btn" aria-label="Toggle theme">🖥️</button>
@@ -379,25 +596,37 @@ const html = `<!DOCTYPE html>
   </div>
 
   <div class="card">
-    <div class="month-nav">
+    <nav class="month-nav" aria-label="Month navigation">
       <button id="prevMonth" type="button" class="nav-btn" aria-label="Previous month">←</button>
       <h2 id="monthLabel"></h2>
       <button id="nextMonth" type="button" class="nav-btn" aria-label="Next month">→</button>
-    </div>
+    </nav>
     <div class="weekdays">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      <div><abbr title="Sunday">Sun</abbr></div>
+      <div><abbr title="Monday">Mon</abbr></div>
+      <div><abbr title="Tuesday">Tue</abbr></div>
+      <div><abbr title="Wednesday">Wed</abbr></div>
+      <div><abbr title="Thursday">Thu</abbr></div>
+      <div><abbr title="Friday">Fri</abbr></div>
+      <div><abbr title="Saturday">Sat</abbr></div>
     </div>
-    <div class="grid" id="grid"></div>
+    <div class="grid" id="grid" role="grid" aria-label="Ensō calendar"></div>
   </div>
-</div>
+</main>
+
+<footer class="site-footer" aria-label="Site footer">
+  gilly.space · an ensō for every day
+</footer>
 
 <div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalDate">
     <div class="modal-date" id="modalDate"></div>
-    <canvas id="modalCanvas" width="640" height="640"></canvas>
-    <div class="modal-impression" id="modalImpression" style="display: none;">
-      <span class="impression-spinner" id="impressionSpinner"></span>
-      <span class="impression-text" id="impressionText"></span>
+    <div class="modal-canvas-wrap">
+      <canvas id="modalCanvas" width="640" height="640" role="img" aria-label="Ensō brushstroke"></canvas>
+      <div class="modal-impression" id="modalImpression" style="display: none;">
+        <span class="impression-spinner" id="impressionSpinner"></span>
+        <span class="impression-text" id="impressionText"></span>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="modal-download" id="modalDownload">⬇ Download PNG</button>
@@ -407,85 +636,11 @@ const html = `<!DOCTYPE html>
   </div>
 </div>
 
+<script src="/enso/enso-engine.js?v=${ENGINE_V}"></script>
 <script>
-  // ════════════════════════════════════════════════════════════════════════
-  //  ENSO RENDER ENGINE (extracted verbatim from pixelated-enso.html)
-  //  Helpers + getParams + render are byte-identical to the tool's, save for
-  //  swapping getParams' document.getElementById(...) calls for an EL(...)
-  //  shim that reads from a current-settings object. canvas/ctx/seed are
-  //  reassigned per render target by renderEnso() below.
-  // ════════════════════════════════════════════════════════════════════════
-
-  // Render target + seed are module-level so the copied render() can use them
-  // unchanged — renderEnso() reassigns them per call.
-  let canvas, ctx, seed;
-
-  // Current settings object for the EL shim.
-  let _S = {};
-  const EL = id => ({ value: _S[id] });
-
-  // Stub: render(size) only consults getRenderSize() when size is omitted; we
-  // always pass size explicitly, but keep the symbol defined for safety.
-  function getRenderSize() { return 470; }
-
-${mulberry32Src}
-
-${helpersSrc}
-
-${getParamsSrc}
-
-${renderSrc}
-
-  // ════════════════════════════════════════════════════════════════════════
-  //  DETERMINISTIC ENSO-OF-THE-DAY GENERATOR
-  //  Same RANDOM_BOUNDS, same RANDOM_COLORS, same draw order as randomEnso()
-  //  in the tool — so calendar(date) === tool's "Random enso of the day" for
-  //  that UTC date.
-  // ════════════════════════════════════════════════════════════════════════
-
-  ${boundsBlock}
-
-  ${colorsBlock}
-
-  // Defaults for every control getParams reads. Most of these are inert in
-  // bristle mode (brushFade, pixelStart/transitionWidth/pixelSize/fadeStart/
-  // fadeCurve, the radial-bleed sliders), but getParams still parses them so
-  // they need real numeric values to avoid NaN propagating into render.
-  const DEFAULTS = ${JSON.stringify(DEFAULTS, null, 2)};
-
-  // Produces { settings, seed } for the canonical enso of utcMidnightMs.
-  // Draw order MUST match randomEnso(false) in the tool exactly — same
-  // mulberry32 stream, same sequence of prng() calls — or outputs diverge.
-  function dateToEnso(utcMidnightMs) {
-    const prng = mulberry32(utcMidnightMs);
-    const r = (mn, mx) => mn + prng() * (mx - mn);
-    const snap = (v, step) => Math.round(v / step) * step;
-    // First draw becomes the shape seed (matches the tool's first prng() draw assigned to _seed).
-    const shapeSeed = prng();
-    const overrides = { renderStyle: 'bristles' };
-    for (const [id, [mn, mx, step]] of Object.entries(RANDOM_BOUNDS)) {
-      overrides[id] = String(snap(r(mn, mx), step));
-    }
-    overrides.direction = prng() < 0.5 ? 'cw' : 'ccw';
-    overrides.bg = 'transparent';
-    if (prng() < 0.45) {
-      overrides.color = RANDOM_COLORS[Math.floor(prng() * RANDOM_COLORS.length)];
-    } else {
-      overrides.color = hslToHex(prng(), 0.45 + prng() * 0.35, 0.28 + prng() * 0.24);
-    }
-    // Merge: defaults under randomized overrides. getParams reads from this.
-    return { settings: { ...DEFAULTS, ...overrides }, seed: shapeSeed };
-  }
-
-  // Render the enso for utcMidnightMs into targetCanvas at size px.
-  function renderEnso(targetCanvas, utcMidnightMs, size) {
-    const { settings, seed: shapeSeed } = dateToEnso(utcMidnightMs);
-    canvas = targetCanvas;
-    ctx    = targetCanvas.getContext('2d');
-    seed   = shapeSeed;
-    _S     = settings;
-    render(size);
-  }
+  // The ensō render engine (window.renderEnso) is loaded above from
+  // /enso/enso-engine.js, which this page's build generates from the same text.
+  // Nothing below reads engine internals.
 
   // ════════════════════════════════════════════════════════════════════════
   //  CALENDAR UI
@@ -582,7 +737,19 @@ ${renderSrc}
         cell.classList.add('past');
         if (cellMs === todayMs) cell.classList.add('today');
         cell.dataset.utc = String(cellMs);
+        // Keyboard and screen-reader access: each past cell is a focusable
+        // button-role element. aria-label includes the full date so AT users
+        // hear meaningful context without needing to interpret the day number.
+        cell.setAttribute('tabindex', '0');
+        cell.setAttribute('role', 'button');
+        const cellLabel = new Date(cellMs).toLocaleDateString(undefined, {
+          timeZone: 'UTC', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        });
+        cell.setAttribute('aria-label', cellLabel + ' \u2014 open ensō');
         cell.addEventListener('click', () => openModal(cellMs));
+        cell.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(cellMs); }
+        });
       }
       const num = document.createElement('div');
       num.className = 'day-num';
@@ -610,13 +777,16 @@ ${renderSrc}
   const MODAL_SIZE = 640;
   const DOWNLOAD_SIZE = 2400;   // print-quality (~8 in at 300 DPI); preserves bristle detail
   let currentModalUtcMs = null;
+  // Element that triggered the most recent openModal \u2014 restored on close so
+  // keyboard users don't lose their place in the grid.
+  let _modalOpener = null;
 
   // ── AI impression feature ───────────────────────────────────────────────
   // Set this to your deployed Cloudflare Worker URL after running
   // 'wrangler deploy' on the enso-impressions Worker. Leaving it empty
   // disables the impression UI silently — the modal just doesn't show the
   // line. See enso-impressions/README.md for the full setup.
-  const IMPRESSIONS_WORKER_URL = '';
+  const IMPRESSIONS_WORKER_URL = 'https://enso-impressions.gilly-22d.workers.dev';
 
   // Session cache: dateStr → impression text. Prevents re-fetching when the
   // user reopens the same day's modal in the current tab session. The KV
@@ -625,6 +795,7 @@ ${renderSrc}
   const impressionCache = new Map();
 
   function openModal(utcMs) {
+    _modalOpener = document.activeElement;  // remember for focus restoration on close
     currentModalUtcMs = utcMs;
     const dateStr = new Date(utcMs).toLocaleDateString(undefined, {
       timeZone: 'UTC', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -633,9 +804,13 @@ ${renderSrc}
     const modalCnv = document.getElementById('modalCanvas');
     modalCnv.width = MODAL_SIZE;
     modalCnv.height = MODAL_SIZE;
-    // Render directly (not via cache — modal is a one-off at higher res).
+    modalCnv.setAttribute('aria-label', 'Ensō brushstroke for ' + dateStr);
+    // Render directly (not via cache \u2014 modal is a one-off at higher res).
     renderEnso(modalCnv, utcMs, MODAL_SIZE);
     document.getElementById('modalBackdrop').classList.add('open');
+    // Move focus into the dialog so keyboard and screen-reader users are
+    // immediately inside it. Close button is the natural first target.
+    document.getElementById('modalClose').focus();
     // Fire-and-forget the impression fetch. It owns its own UI lifecycle
     // (spinner → text or silent hide) and bails out if the modal closes
     // or changes date before the response arrives.
@@ -652,6 +827,12 @@ ${renderSrc}
     imp.style.display = 'none';
     document.getElementById('impressionText').textContent = '';
     document.getElementById('impressionSpinner').classList.remove('hidden');
+    // Return focus to the cell that opened the modal \u2014 keeps keyboard users
+    // oriented in the grid after they dismiss the dialog.
+    if (_modalOpener && typeof _modalOpener.focus === 'function') {
+      _modalOpener.focus();
+    }
+    _modalOpener = null;
   }
   // Fetches the AI impression for the current modal date from the Worker.
   // Owns the visibility of #modalImpression entirely: it shows the slot when
@@ -708,7 +889,7 @@ ${renderSrc}
       spinner.classList.add('hidden');
       if (quotaExhausted) {
         imp.classList.add('paused');
-        text.textContent = 'the brush is set down for today.\nfresh haiku tomorrow.';
+        text.textContent = 'the brush is set down for today.\\nfresh haiku tomorrow.';
       } else {
         // Generic failure — hide the whole slot rather than show an error.
         console.warn('[impressions] fetch failed:', response.status, detail);
@@ -849,5 +1030,37 @@ ${renderSrc}
 </html>
 `;
 
-fs.writeFileSync(OUT, html);
-console.log('Wrote', OUT, '—', (html.length / 1024).toFixed(1), 'KB');
+// ── 6. Write, or with --check compare and write nothing ──
+function firstDiff(label, committed, built) {
+  const a = committed.split('\n');
+  const b = built.split('\n');
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  const show = l => (l === undefined ? '(end of file)' : l.slice(0, 160));
+  return label + ': first difference at line ' + (i + 1) +
+    '\n  committed: ' + show(a[i]) + '\n  built:     ' + show(b[i]);
+}
+
+if (CHECK) {
+  let differ = 0;
+  for (const [label, file, built] of [
+    ['enso/index.html', OUT, html],
+    ['enso/enso-engine.js', ENGINE_OUT, engineJs],
+  ]) {
+    const committed = fs.readFileSync(file, 'utf8');
+    if (committed !== built) {
+      console.log('DIFF ' + firstDiff(label, committed, built));
+      differ++;
+    }
+  }
+  if (differ) {
+    console.log('enso build --check: ' + differ + ' file(s) differ from the build');
+    process.exit(1);
+  }
+  console.log('enso build --check: ok (enso/index.html and enso/enso-engine.js match the build)');
+} else {
+  fs.writeFileSync(OUT, html);
+  fs.writeFileSync(ENGINE_OUT, engineJs);
+  console.log('Wrote', OUT, 'and', ENGINE_OUT,
+              '(' + (html.length / 1024).toFixed(1) + ' KB calendar, ' + (engineJs.length / 1024).toFixed(1) + ' KB engine)');
+}

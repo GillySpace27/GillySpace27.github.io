@@ -1,0 +1,26 @@
+{
+ "product": "heliogram",
+ "name": "Heliogram",
+ "page": "https://gilly.space/heliogram/",
+ "records": [
+  {
+   "version": "0.7",
+   "build": 7,
+   "name": "Heliograph",
+   "date": "2026-09-28",
+   "channel": "direct",
+   "url": "https://gilly.space/heliograph/",
+   "notes": "Heliograph now updates itself. It checks once a day, downloads in the background and installs when you quit; a kiosk installs overnight.",
+   "assets": [
+    {
+     "name": "Heliograph-0.7.dmg",
+     "url": "https://gilly.space/heliograph/Heliograph-0.7.dmg",
+     "sha256": "fa9d477d0ae69ebb31b6dd4bdbedb126dcea04a839f69dc2e3e34a059d83d0d1",
+     "bytes": 12226044,
+     "platform": "macos",
+     "confirmed": true
+    }
+   ]
+  }
+ ]
+}

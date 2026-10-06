@@ -1,5 +1,5 @@
 <!-- ===========================================================================
-     gilly.space — canonical <head> reference block.
+     gilly.space: canonical <head> reference block.
      ---------------------------------------------------------------------------
      This is NOT injected at runtime: <head> meta must be present in the initial
      HTML for crawlers and social cards to see it. It is the SINGLE SOURCE OF
@@ -7,18 +7,20 @@
      (by hand, or by a small node templating pass if you prefer the build path).
 
      Authored from shop.html's head (the most complete in the repo) so the
-     favicon / PWA / Search-Console set is preserved site-wide — NOT from the
+     favicon / PWA / Search-Console set is preserved site-wide; NOT from the
      enso head, which carries none of these.
 
-     Per page, replace the three __PLACEHOLDER__ values.
+     tools/bake.py writes the part between the bake:template markers into each page between
+     its bake:head markers, filling the __PLACEHOLDER__ values from site.json.
      =========================================================================== -->
+<!-- bake:template -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>__PAGE_TITLE__ · gilly.space</title>
 <meta name="description" content="__PAGE_DESCRIPTION__">
-<link rel="canonical" href="https://gilly.space/__PAGE_PATH__">
+<link rel="canonical" href="__CANONICAL__">
 
-<!-- Pre-paint theme (verbatim from enso/index.html — shares the enso-theme key,
+<!-- Pre-paint theme (verbatim from enso/index.html; shares the enso-theme key,
      so a dark preference set in the toys carries to the whole site, flash-free) -->
 <script>
   (function () {
@@ -32,16 +34,16 @@
   })();
 </script>
 
-<!-- Open Graph / Twitter (note: og:image is ABSOLUTE — the legacy relative path
+<!-- Open Graph / Twitter (note: og:image is ABSOLUTE; the legacy relative path
      broke every social-card preview) -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="__PAGE_TITLE__ · gilly.space">
 <meta property="og:description" content="__PAGE_DESCRIPTION__">
 <meta property="og:url" content="https://gilly.space/__PAGE_PATH__">
-<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta property="og:image" content="__OG_IMAGE__">
 <meta name="twitter:card" content="summary_large_image">
 
-<!-- Favicons / PWA / Windows tile / Safari pinned tab — preserved from shop.html -->
+<!-- Favicons / PWA / Windows tile / Safari pinned tab; preserved from shop.html -->
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -52,6 +54,7 @@
 
 <!-- Search Console verification (keep; authorizes the new sitemap submission) -->
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake:template -->
 
 <!-- ===========================================================================
      Analytics — running BOTH in parallel to A/B them, then drop the worse one.
@@ -74,7 +77,5 @@
 </script>
 -->
 
-<!-- Styles: one hand-authored system + the academic-icon font -->
-<link rel="stylesheet" href="/assets/css/academicons.min.css">
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css">
+<!-- Styles: one hand-authored system -->
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">

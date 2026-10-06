@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "links": [
+    {
+      "path": "hfs/",
+      "target": "https://gilly.space/heliofits-studio/",
+      "kind": "redirect"
+    },
+    {
+      "path": "hfstudio/",
+      "target": "https://gilly.space/heliofits-studio/",
+      "kind": "redirect"
+    },
+    {
+      "path": "jhv/",
+      "target": "https://gilly.space/heliofits-studio/",
+      "kind": "redirect"
+    },
+    {
+      "path": "punchstudio/",
+      "target": "https://gilly.space/heliofits-studio/",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/131/",
+      "target": "https://gilly.space/sun.html#131",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/1600/",
+      "target": "https://gilly.space/sun.html#1600",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/1700/",
+      "target": "https://gilly.space/sun.html#1700",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/171/",
+      "target": "https://gilly.space/sun.html#171",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/193/",
+      "target": "https://gilly.space/sun.html#193",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/211/",
+      "target": "https://gilly.space/sun.html#211",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/304/",
+      "target": "https://gilly.space/sun.html#304",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/335/",
+      "target": "https://gilly.space/sun.html#335",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/94/",
+      "target": "https://gilly.space/sun.html#94",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/composite_uv/",
+      "target": "https://gilly.space/sun.html#composite_uv",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/dem/",
+      "target": "https://gilly.space/sun.html#dem",
+      "kind": "redirect"
+    },
+    {
+      "path": "s/rainbow/",
+      "target": "https://gilly.space/sun.html#rainbow",
+      "kind": "redirect"
+    },
+    {
+      "path": "shop/",
+      "target": "https://gilly.space/shop",
+      "kind": "redirect"
+    }
+  ]
+}

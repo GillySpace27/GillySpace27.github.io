@@ -21,3 +21,10 @@
 
 # One-off vendor QR-code kit (not referenced by the site)
 Unitag_QRCode_1500407963181/
+
+# Editable CV source: keep locally, never publish
+files/CV.docx
+
+# Python build artifacts (tools/tests/__pycache__ files already tracked on master stay tracked)
+__pycache__/
+*.pyc

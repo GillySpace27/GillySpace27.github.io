@@ -150,6 +150,8 @@ main { flex: 1 0 auto; width: 100%; }
 .icon-row { display: flex; gap: 10px; align-items: center; list-style: none; margin: 0; padding: 0; }
 .icon-row a { color: var(--muted); font-size: 18px; line-height: 1; }
 .icon-row a:hover { color: var(--accent-text); }
+.icon { width: 1em; height: 1em; fill: currentColor; vertical-align: -0.125em; flex: none; }
+.icon-row a { display: inline-flex; }
 
 /* Theme toggle — same icon-button treatment as the toys */
 .theme-toggle {
@@ -209,6 +211,7 @@ main .icon-row a[target="_blank"]::after { content: none; }
 .card:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(0,0,0,0.12), 0 0 0 1px rgba(217,169,26,0.30); }
 .card a { color: inherit; display: block; }
 .card__img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--bg); }
+.card picture { display: block; }
 .card__body { padding: 16px 18px; }
 .card__body h3 { margin: 0 0 .25em; }
 .card__body p { margin: 0; color: var(--muted); font-size: 14px; }
@@ -413,3 +416,186 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
   a { color: #000 !important; text-decoration: underline; }
   .card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
 }
+
+/* ============================================================================
+   HelioSoftware: nav dropdown + the three product marks
+   ========================================================================== */
+/* Products without a branded app icon get a tiny Sun on a night-sky tile, the same in both themes:
+   HelioFITS a disk seen through a pixel grid, RHEF a disk with the streamers it reveals. */
+.sw-mark, .sw-icon { --s: 30px; flex: none; width: var(--s); height: var(--s); display: inline-block; }
+.sw-mark {
+  border-radius: 22.5%; background-color: #14110d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  background-repeat: no-repeat; background-position: center;
+}
+.sw-mark--lg { --s: 84px; display: block; margin: 0 auto 1.1rem; }
+.sw-mark--fits {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(20,17,13,.55) 0 1px, transparent 1px 16.66%),
+    repeating-linear-gradient(90deg, rgba(20,17,13,.55) 0 1px, transparent 1px 16.66%),
+    radial-gradient(circle, #ffe7a0 0 14%, #d9a91a 28%, #8a5a08 36%, transparent 38%);
+}
+
+/* RHEF: a small Sun with the streamers it pulls out of the dark. */
+.sw-mark--rhef {
+  background-image:
+    radial-gradient(circle, #f6c84c 0 17%, #d98a1a 21%, transparent 22%),
+    radial-gradient(circle, transparent 24%, #14110d 47%),
+    repeating-conic-gradient(from 4deg, rgba(246,200,76,.75) 0 5deg, transparent 5deg 22.5deg);
+}
+
+.nav-drop { position: relative; }
+.nav-drop > a { display: inline-flex; align-items: center; gap: 6px; }
+.nav-drop__caret {
+  width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg); transition: transform .15s ease; opacity: .7;
+}
+.nav-drop:has([aria-current]) > a { color: var(--text); background: var(--card-bg); box-shadow: inset 0 -2px 0 var(--accent); }
+/* padding-top bridges the gap so the pointer can travel from the link into the menu. */
+.nav-drop__menu {
+  position: absolute; left: -8px; top: 100%; padding-top: 8px; z-index: 110; min-width: 340px;
+  visibility: hidden; opacity: 0; transform: translateY(-4px);
+  transition: opacity .15s ease, transform .15s ease, visibility 0s linear .15s;
+}
+.nav-drop__menu::before {
+  content: ""; position: absolute; inset: 8px 0 0; z-index: -1;
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
+  box-shadow: 0 12px 32px rgba(0,0,0,.18), 0 0 0 1px rgba(217,169,26,.12);
+}
+.nav-drop:hover .nav-drop__menu, .nav-drop:focus-within .nav-drop__menu {
+  visibility: visible; opacity: 1; transform: none; transition-delay: 0s;
+}
+.nav-drop:hover .nav-drop__caret, .nav-drop:focus-within .nav-drop__caret { transform: translateY(1px) rotate(225deg); }
+.site-nav .nav-drop__menu a { display: flex; align-items: center; gap: 12px; margin: 6px; padding: 8px 10px; color: var(--text); }
+.site-nav .nav-drop__menu a:hover, .site-nav .nav-drop__menu a:focus-visible { background: var(--bg); }
+.site-nav .nav-drop__menu a[aria-current="page"] { background: var(--bg); box-shadow: inset 2px 0 0 var(--accent); }
+.nav-drop__menu b { display: block; font-weight: 600; font-size: 15px; }
+.nav-drop__menu small { display: block; color: var(--muted); font-size: 13px; line-height: 1.35; }
+/* Touch screens and the scrolling phone nav have no hover: the link goes straight to the title page. */
+@media (hover: none), (max-width: 640px) {
+  .nav-drop__menu, .nav-drop__caret { display: none; }
+}
+
+/* ============================================================================
+   Research page: one section per line of work
+   ========================================================================== */
+.thread { display: grid; gap: clamp(20px, 4vw, 44px); align-items: center; padding: clamp(24px, 5vw, 48px) var(--pad); }
+@media (min-width: 860px) { .thread { grid-template-columns: 1fr 1fr; } }
+.thread h2, .thread-card h2 { margin: 0 0 .5em; }
+.thread__fig { margin: 0; }
+.thread__fig img { display: block; width: 100%; border-radius: var(--radius); box-shadow: var(--shadow); background: #000; }
+.thread__fig figcaption { color: var(--muted); font-size: 13px; margin-top: .5rem; }
+.thread__cite { font-size: 14px; color: var(--muted); }
+.thread__cite a, .thread__text p a, .thread-card p a, #earlier a { text-decoration: underline; text-underline-offset: 2px; }
+.thread-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 22px 22px 8px; box-shadow: var(--shadow); }
+.tool-strip { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.tool-strip a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--card-border); border-radius: var(--radius); background: var(--card-bg); color: var(--text); }
+.tool-strip a:hover { border-color: var(--accent); color: var(--text); }
+.tool-strip .sw-mark, .tool-strip .sw-icon { --s: 40px; }
+.tool-strip b { display: block; }
+.tool-strip small { color: var(--muted); font-size: 13px; }
+.timeline { list-style: none; padding: 0; margin: 1.2rem 0; max-width: var(--measure); }
+.timeline li { display: flex; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+.timeline span { color: var(--accent-text); font-variant-numeric: tabular-nums; min-width: 3em; }
+
+/* ---- Publications list ---- */
+.pubs { list-style: none; padding: 0; margin: 0 0 2rem; max-width: 60rem; }
+.pubs li { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.pubs .pub__yr { color: var(--accent-text); font-variant-numeric: tabular-nums; min-width: 3em; font-weight: 600; }
+.pubs a { text-decoration: underline; text-underline-offset: 2px; word-break: break-word; }
+
+/* ---- About page ---- */
+.about-hero { display: grid; gap: clamp(22px, 5vw, 48px); align-items: center; }
+@media (min-width: 760px) { .about-hero { grid-template-columns: 240px 1fr; } }
+.about-hero__photo { width: min(240px, 60vw); aspect-ratio: 1; object-fit: cover; object-position: 28% 36%;
+  border-radius: 50%; box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 35%, transparent), var(--shadow); }
+.about-cta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.2rem; }
+.facts { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.facts > div { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px 16px; }
+.facts b { display: block; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 4px; }
+.timeline--cv { max-width: 52rem; }
+.timeline--cv small { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.timeline--cv span { min-width: 4.5em; }
+.about-cols { margin-top: 8px; }
+.plain { list-style: none; padding: 0; margin: 0 0 14px; }
+.plain li { padding: 5px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+.plain li:last-child { border-bottom: 0; }
+.plain a, .cv-links a { text-decoration: underline; text-underline-offset: 2px; }
+.colophon { margin-top: 2rem; border-top: 1px solid var(--rule); padding-top: 1rem; }
+.colophon summary { cursor: pointer; color: var(--muted); }
+
+/* ---- Outreach page ---- */
+.outreach-hero { display: grid; gap: clamp(22px, 5vw, 48px); align-items: center; }
+@media (min-width: 860px) { .outreach-hero { grid-template-columns: 1.2fr 1fr; } }
+.outreach-hero__img { position: relative; display: block; }
+.outreach-hero__img img { display: block; width: 100%; border-radius: var(--radius); box-shadow: var(--shadow); }
+.outreach-hero__img small { position: absolute; right: 10px; bottom: 8px; color: #ddd; font-size: 11px; text-shadow: 0 1px 2px #000; }
+.video-tiles { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.video-tile { display: flex; flex-direction: column; gap: 2px; color: var(--text); }
+.video-tile:hover { color: var(--text); }
+.video-tile__img { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius); margin-bottom: 8px; background: #000; box-shadow: var(--shadow); }
+.video-tile__img img { width: 100%; height: 100%; object-fit: cover; transition: transform .2s ease; }
+.video-tile:hover .video-tile__img img { transform: scale(1.03); }
+/* A CSS play button: a gold disc with a triangle, no icon font. */
+.video-tile__img::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; transform: translate(-50%, -50%);
+  border-radius: 50%; background: var(--accent); opacity: .92;
+}
+.video-tile__img::before {
+  content: ""; position: absolute; left: 50%; top: 50%; z-index: 1; transform: translate(-35%, -50%);
+  border-style: solid; border-width: 10px 0 10px 17px; border-color: transparent transparent transparent #1a1814;
+}
+.video-tile small { color: var(--muted); font-size: 13px; }
+main .video-tile::after { content: none !important; }
+.tool-strip img.sw-icon { object-fit: cover; border-radius: 22.5%; }
+
+/* ---- The Sun, right now: card skeleton pulse and freshness pills (sun.html, WS-5) ---- */
+.card--sun.is-loading .card__img { animation: sunPulse 1.4s ease-in-out infinite; }
+@keyframes sunPulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.sun-pill { display: inline-flex; align-items: center; gap: 6px; margin: .15em 0 0;
+  font-size: 12px; line-height: 1.4; color: var(--muted); }
+.sun-pill::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sun-pill--ok::before { background: #2e9d5b; }
+.sun-pill--stale::before { background: var(--accent); }
+.sun-pill--old::before { background: #c8442f; }
+.sun-pill--unknown::before { background: transparent; border: 1px solid var(--muted); }
+@media (prefers-reduced-motion: reduce) { .card--sun.is-loading .card__img { animation: none; } }
+
+/* ---- The Stage: 48 hour clip, scrubber and channel strip (sun.html, WS-15) ---- */
+.stage { margin: 0 0 clamp(24px, 5vw, 44px); max-width: 720px; }
+.stage__h { margin: 0 0 .25em; }
+.stage__lead { color: var(--muted); max-width: 60ch; margin: 0 0 1rem; }
+.stage-videos { position: relative; aspect-ratio: 1 / 1; background: #000; border: 1px solid var(--card-border);
+  border-radius: var(--radius); overflow: hidden; }
+.stage-videos video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  opacity: 0; z-index: 0; transition: opacity 400ms ease; }
+.stage-videos video.is-under { opacity: 1; z-index: 1; }
+.stage-videos video.is-front { opacity: 1; z-index: 2; }
+.stage-videos.is-loading { animation: sunPulse 1.4s ease-in-out infinite; }
+.stage-controls { display: flex; align-items: center; gap: 12px; margin: .9rem 0 .4rem; }
+.stage-controls input[type="range"] { flex: 1; min-width: 0; cursor: pointer; accent-color: var(--accent); }
+.stage__time { font-size: 14px; color: var(--text); font-weight: 600; }
+.stage__info { font-size: 13px; color: var(--muted); min-height: 1.4em; margin-bottom: .8rem; }
+.stage-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.stage-btn { font: 600 13px/1 inherit; cursor: pointer; color: var(--text); background: var(--card-bg);
+  border: 1px solid var(--card-border); border-radius: 7px; padding: 7px 11px; }
+.stage-btn:hover { border-color: var(--accent-text); }
+.stage-btn.is-active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.stage-walk { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 1rem; }
+.stage__hint, .stage__note { font-size: 12px; color: var(--muted); margin: 0; max-width: 60ch; }
+.stage__note { margin-top: .6rem; }
+.stage__status { min-height: 1.4em; margin-top: .5rem; font-size: 13px; color: var(--text); display: flex; gap: 10px; align-items: center; }
+@media (prefers-reduced-motion: reduce) {
+  .stage-videos video { transition: none; }
+  .stage-videos.is-loading { animation: none; }
+}
+
+/* ---- Share this Sun: card button, linked-card highlight, toast (sun.html, WS-16) ---- */
+.card--sun { scroll-margin-top: 88px; }
+.card--sun.is-hl { outline: 3px solid var(--accent); outline-offset: 3px; }
+.card button[data-action="share"] { font-weight: 600; }
+#sun-toast { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 1100;
+  max-width: min(92vw, 560px); padding: .7rem 1.1rem; border-radius: 10px; font-size: 14px; overflow-wrap: anywhere;
+  background: var(--btn-bg); color: var(--btn-text); box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none; transition: opacity 300ms ease; }
+#sun-toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #sun-toast { transition: none; } }

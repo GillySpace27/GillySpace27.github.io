@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- bake:head -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RHEF: the Radial Histogram Equalizing Filter · gilly.space</title>
+<meta name="description" content="RHEF brings out faint coronal structure in solar images, on the disk and off the limb, with no parameter tuning. In sunkit-image for Python.">
+<link rel="canonical" href="https://gilly.space/rhef/">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="RHEF: the Radial Histogram Equalizing Filter · gilly.space">
+<meta property="og:description" content="RHEF brings out faint coronal structure in solar images, on the disk and off the limb, with no parameter tuning. In sunkit-image for Python.">
+<meta property="og:url" content="https://gilly.space/rhef/">
+<meta property="og:image" content="https://gilly.space/assets/sw/rhef-compare.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake -->
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
+<link rel="stylesheet" href="/assets/product.css?v=202610021742">
+</head>
+<body>
+<div data-include="header"></div>
+<main id="main" class="product">
+  <span class="sw-mark sw-mark--rhef sw-mark--lg" aria-hidden="true"></span>
+  <p class="eyebrow" data-no-blank><a href="/heliosoftware/">HelioSoftware</a></p>
+  <h1>RHEF</h1>
+  <p class="tag">The Radial Histogram Equalizing Filter. Solar images usually show a bright ball
+     in a dark void; RHEF shows the corona that is actually there, on the disk and off the limb,
+     with no parameters to tune.</p>
+
+  <figure class="shot">
+    <img src="/assets/sw/rhef-compare.jpg" width="1320" height="660"
+         alt="The same SDO/AIA 171 Å image twice. Left, a standard display: a bright disk fading into black. Right, after RHEF: loops and streamers visible out to the edge of the frame.">
+    <figcaption>Left: a standard display. Right: <code>rhef()</code> at its defaults, nothing tuned.
+      SDO/AIA 171 Å, 2011-06-07, from the SunPy sample data.</figcaption>
+  </figure>
+
+  <pre class="code"><code>pip install sunkit-image</code></pre>
+  <pre class="code"><code>import sunpy.map
+from sunkit_image.radial import rhef
+
+rhef(sunpy.map.Map("aia_171.fits")).peek()</code></pre>
+
+  <p class="links">
+    <a class="sec" href="https://doi.org/10.1007/s11207-025-02578-x">The paper (Solar Physics, 2025)</a>
+    <a class="sec" href="https://docs.sunpy.org/projects/sunkit-image/en/stable/generated/gallery/radial_histogram_equalization.html">Worked example</a>
+    <a class="sec" href="https://docs.sunpy.org/projects/sunkit-image/en/stable/api/sunkit_image.radial.rhef.html">API reference</a>
+  </p>
+
+  <ul class="points">
+    <li>Works frame by frame, so movies need no dataset-wide statistics.</li>
+    <li>Treats the disk and the off-limb corona the same way across the whole field of view.</li>
+    <li>Optional Upsilon tone curve, a symmetric cousin of gamma correction, for finer control.</li>
+    <li>Part of <a href="https://docs.sunpy.org/projects/sunkit-image/en/stable/">sunkit-image</a>, SunPy's image-processing package. An IDL version is described in the paper.</li>
+  </ul>
+
+  <p class="alt">Gilly &amp; Cranmer (2025), <i>Visualization of High Dynamic Range Solar Imagery and the
+     Radial Histogram Equalizing Filter</i>, Solar Physics.</p>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/site.js?v=202610021742"></script>
+</body>
+</html>

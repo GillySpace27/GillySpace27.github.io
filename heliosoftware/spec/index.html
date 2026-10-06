@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- bake:head -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HelioSoftware spec · gilly.space</title>
+<meta name="description" content="The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check.">
+<link rel="canonical" href="https://gilly.space/heliosoftware/spec/">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="HelioSoftware spec · gilly.space">
+<meta property="og:description" content="The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check.">
+<meta property="og:url" content="https://gilly.space/heliosoftware/spec/">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake -->
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
+<link rel="stylesheet" href="/assets/product.css?v=202610021742">
+<style>
+  .product .spec-wrap { text-align: left; margin-top: 2rem; }
+  .product .spec-wrap h2 { font-size: clamp(18px, 2.4vw, 22px); margin: 2.2rem 0 .5rem; }
+  .product .spec-wrap p, .product .spec-wrap li { color: var(--muted); font-size: .95rem; }
+  .product .spec-wrap .code { max-width: none; }
+  .spec-scroll { overflow-x: auto; }
+  .spec-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  .spec-table th, .spec-table td { text-align: left; vertical-align: top; padding: .55rem .7rem; border-top: 1px solid var(--rule); }
+  .spec-table th { color: var(--muted); font-weight: 600; border-top: 0; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  .spec-table td code { font-size: .88em; }
+  .spec-table a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+  .spec-table a:hover, .spec-table a:focus-visible { color: var(--link-hover); }
+</style>
+</head>
+<body>
+<div data-include="header"></div>
+<main id="main" class="product product--wide" data-no-blank>
+  <p class="eyebrow"><a href="/heliosoftware/">HelioSoftware</a></p>
+  <h1>Spec</h1>
+  <p class="tag">The contracts that two HelioSoftware tools depend on, written down once, with checksums so a
+     copy that drifts is caught.</p>
+
+  <div class="spec-wrap">
+    <h2>Contracts</h2>
+    <div class="spec-scroll">
+      <table class="spec-table">
+        <thead>
+          <tr><th>Contract</th><th>Version</th><th>Producer</th><th>Read by</th><th>Files</th></tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Checksums</td><td>1</td><td>this folder</td>
+          <td>everything below, and the site check that runs on every change</td>
+          <td><a href="SHA256SUMS">SHA256SUMS</a>, <a href="spec_sums.py">spec_sums.py</a></td>
+        </tr>
+        <tr>
+          <td>Drift check</td><td>1</td><td>this folder</td>
+          <td>every repository that keeps a copy of a file from here</td>
+          <td><a href="check_spec.py">check_spec.py</a></td>
+        </tr>
+        <tr>
+          <td>Attic convention</td><td>1</td><td>this folder</td>
+          <td>every HelioSoftware repository: where retired files, branches and folders are recorded, and how to restore them</td>
+          <td><a href="attic.md">attic.md</a></td>
+        </tr>
+        <tr>
+          <td>Em-dash guard</td><td>1</td><td>this folder</td>
+          <td>CI in the Website, sunback and the store (vendored copies)</td>
+          <td><a href="tools/no_em_dash.py">tools/no_em_dash.py</a></td>
+        </tr>
+        <tr>
+          <td>Short links</td><td>1</td><td>this folder (<code>tools/check_site.py --write-shortlinks</code>)</td>
+          <td>the site check, offline and live</td>
+          <td><a href="shortlinks.json">shortlinks.json</a></td>
+        </tr>
+        <tr>
+          <td>Agent preamble</td><td>1</td><td>this folder</td>
+          <td>every HelioSoftware repository's agent guide (<code>CLAUDE.md</code> or <code>AGENTS.md</code>), as a hash-stamped copy that <code>check_spec.py</code> verifies</td>
+          <td><a href="agent-preamble.md">agent-preamble.md</a></td>
+        </tr>
+        <tr>
+          <td>RHEF conventions</td><td>v1</td><td>this folder</td>
+          <td>every RHEF implementation, and anyone comparing two of them</td>
+          <td><a href="rhef/conventions.md">rhef/conventions.md</a></td>
+        </tr>
+        <tr>
+          <td>RHEF test vectors</td><td>bundle 1.0.0</td><td>generated from the reference implementation</td>
+          <td>the conformance tests of each implementation</td>
+          <td><a href="rhef/vectors.json">rhef/vectors.json</a>, <a href="rhef/golden/SOURCE.txt">rhef/golden/</a></td>
+        </tr>
+        <tr>
+          <td>Release feed</td><td>1</td><td>this folder (<code>heliosoftware/feed/append_record.py</code>)</td>
+          <td>the hub, the product pages, What's new and the release scripts of each product</td>
+          <td><a href="release-feed.md">release-feed.md</a></td>
+        </tr>
+        <tr>
+          <td>Imagery contract</td><td>v1</td><td>sunback, <code>aws_lambda/video_builder</code></td>
+          <td>gilly.space/sun.html and the wall page, Heliogram, the Heliogram image mirror</td>
+          <td><a href="https://github.com/GillySpace27/sunback/blob/master/aws_lambda/video_builder/CONTRACT.md">CONTRACT.md</a> in the producer repository, with the schemas and the dated fixtures beside it</td>
+        </tr>
+        <tr>
+          <td>Colour tables</td><td>1</td><td>HelioFITS (<code>tools/colormaps/gen_colormaps.py --json-out</code>)</td>
+          <td>anyone comparing the colour tables of two products, with <code>tools/diff_luts.py</code></td>
+          <td><a href="colormaps/README.md">colormaps/</a>, <a href="tools/diff_luts.py">tools/diff_luts.py</a></td>
+        </tr>
+        <tr>
+          <td>Rainbow recipe</td><td>description, 2026-10-05</td><td>this folder</td>
+          <td>sunback and the My Heliograph store, which both build the three-channel picture</td>
+          <td><a href="rainbow-recipe.md">rainbow-recipe.md</a></td>
+        </tr>
+        <tr>
+          <td>Versioning</td><td>1</td><td>this folder</td>
+          <td>every product's release scripts and the shared release gate: one declared version source per product, the tag and changelog convention</td>
+          <td><a href="versioning.md">versioning.md</a></td>
+        </tr>
+        <!-- heliosoftware-spec-rows: add one <tr> above this line -->
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Using it from another repository</h2>
+    <p>Keep a copy of this folder next to your checkout and point the check at it. The check reads the marker a
+       copied file carries and says whether the copy still matches its source.</p>
+    <pre class="code"><code>export HELIOSOFTWARE_SPEC_DIR=~/vscode/Website/heliosoftware/spec
+python3 check_spec.py CLAUDE.md
+python3 spec_sums.py --check</code></pre>
+    <p>Two markers are understood. A copied block of text sits between
+       <code>&lt;!-- heliosoftware-preamble v1 sha256=&lt;hex&gt; --&gt;</code> and
+       <code>&lt;!-- /heliosoftware-preamble --&gt;</code>. A copied file starts, on line 1 or on line 2 after a
+       shebang, with <code># heliosoftware-vendored: &lt;label&gt;:&lt;path&gt; sha256=&lt;hex&gt;</code>
+       (<code>//</code> or <code>;</code> in other comment syntaxes). The hash is of the file with that one line
+       removed. Exit codes: 0 all copies match, 1 a copy has drifted, 2 a file carries neither marker.</p>
+
+    <h2>Rules</h2>
+    <ul>
+      <li>Additive only. A contract that other software reads gets a new version beside the old one; an old
+          version stays where it is.</li>
+      <li>Every file in this folder is listed with its checksum in <a href="SHA256SUMS">SHA256SUMS</a>.
+          <code>python3 spec_sums.py --write</code> is the only thing that writes that file.</li>
+      <li>RHEF output is a visualization, not a calibrated radiance.</li>
+    </ul>
+  </div>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/site.js?v=202610021742"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- bake:head -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Sun, right now · gilly.space</title>
@@ -11,13 +12,15 @@
     try {
       var mode = localStorage.getItem('enso-theme') || 'system';
       var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
     } catch (e) {}
   })();
 </script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="The Sun, right now · gilly.space">
-<meta property="og:description" content="Near-real-time SDO/AIA images of the Sun, radially normalized with RHE, updated every 20 minutes.">
+<meta property="og:description" content="Near-real-time images of the Sun from NASA's SDO/AIA, radially normalized with RHE to reveal the faint corona. Updated every 20 minutes, with 48-hour timelapse videos.">
 <meta property="og:url" content="https://gilly.space/sun.html">
 <meta property="og:image" content="https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_rainbow_1k.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -28,9 +31,9 @@
 <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
 <meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
-<link rel="stylesheet" href="/assets/css/academicons.min.css">
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-<link rel="stylesheet" href="/assets/site.css">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake -->
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
 <style>
   .sun-lead { font-size: 1.05rem; color: var(--muted); max-width: 62ch; margin: 0 0 1em; }
   .sun-times { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted);
@@ -44,7 +47,12 @@
     border: 0; border-radius: 7px; padding: 5px 11px; }
   .sun-links .ghost { background: transparent; color: var(--accent-text);
     border: 1px solid var(--card-border); }
-  .card.err { opacity: .45; }
+  .card.err .card__img, .card.err h3 { opacity: .45; }
+  .sun-thumb { position: relative; display: block; width: 100%; padding: 0; border: 0;
+               background: none; cursor: zoom-in; -webkit-touch-callout: none; user-select: none; }
+  .sun-thumb video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sun-retry { font: 600 13px/1 inherit; cursor: pointer; background: transparent;
+               color: var(--accent-text); border: 1px solid var(--card-border); border-radius: 7px; padding: 5px 11px; }
   .card.err .card__img { display:flex; align-items:center; justify-content:center;
     background: var(--card-bg); color: var(--muted); font-size: 13px; }
   /* lightbox */
@@ -68,13 +76,19 @@
 <body>
 
 <div data-include="header"></div>
+<!-- bake:noscript -->
 <noscript>
   <nav class="wrap" style="padding-top:12px" aria-label="Primary">
-    <a href="/Research.html">Research</a> · <a href="/sun.html">The Sun</a> ·
-    <a href="/RecordedPublicTalks.html">Outreach</a> · <a href="/play/">Play</a> ·
-    <a href="/shop.html">Store</a> &middot; <a href="/about.html">About / CV</a>
+    <a href="/Research.html">Research</a> ·
+    <a href="/sun.html">The Sun</a> ·
+    <a href="/RecordedPublicTalks.html">Outreach</a> ·
+    <a href="/play/">Play</a> ·
+    <a href="/heliosoftware/">HelioSoftware</a> ·
+    <a href="/shop.html">Store</a> ·
+    <a href="/about.html">About / CV</a>
   </nav>
 </noscript>
+<!-- /bake -->
 
 <main id="main">
   <section class="section wrap">
@@ -91,6 +105,28 @@
       <span>Loading capture time…</span>
     </div>
 
+    <section id="stage" class="stage" aria-labelledby="stage-h" aria-busy="true">
+      <h2 id="stage-h" class="stage__h">48 hours, one channel at a time</h2>
+      <p class="stage__lead">Drag the slider to move through the last two days. Pick another channel and the same moment stays on screen.</p>
+      <div class="stage-videos is-loading">
+        <video id="stage-a" muted loop playsinline preload="auto" aria-label="48 hour timelapse, current channel"></video>
+        <video id="stage-b" muted loop playsinline preload="none" aria-hidden="true"></video>
+      </div>
+      <div class="stage-controls">
+        <button type="button" id="stage-play" class="sun-retry" aria-pressed="false">Play 48 h</button>
+        <input id="stage-scrub" type="range" min="0" max="143" step="1" value="143" aria-label="Time within the last 48 hours">
+      </div>
+      <div id="stage-time" class="stage__time" aria-live="off">Loading</div>
+      <div id="stage-info" class="stage__info"></div>
+      <div id="stage-strip" class="stage-strip" role="group" aria-label="Channels, coolest first"></div>
+      <div class="stage-walk">
+        <button type="button" id="stage-walk" class="sun-retry" aria-pressed="false">Temperature walk</button>
+        <span class="stage__hint">Steps through the nine AIA channels from cooler to hotter characteristic temperature. Arrow keys: left and right move in time (Shift for 4 hours), up and down change channel.</span>
+      </div>
+      <div id="stage-status" class="stage__status" role="status" aria-live="polite"></div>
+      <p id="stage-note" class="stage__note"></p>
+    </section>
+
     <div class="grid sun-grid" id="grid"></div>
   </section>
 
@@ -102,21 +138,23 @@
         Assembly (AIA) on the Solar Dynamics Observatory (SDO), a NASA mission launched in 2010.
         Each color represents the intensity recorded at one particular wavelength of ultraviolet
         light. Those wavelengths were chosen because they correspond to atomic ions known to exist
-        at a range of temperatures — so these images let us read off the temperature of the solar
+        at a range of temperatures, so these images let us read off the temperature of the solar
         atmosphere. <a href="https://en.wikipedia.org/wiki/Solar_Dynamics_Observatory" target="_blank" rel="noopener">Find out more about SDO on Wikipedia.</a>
       </p>
       <p>
-        The images have been radially normalized using Radial Histogram Equalization (RHE) — my
-        method (Gilly &amp; Cranmer, in prep), which now ships in sunpy's
-        <a href="https://github.com/sunpy/sunkit-image" target="_blank" rel="noopener">sunkit-image</a> —
-        to pull the faint corona into the same dynamic range as the bright disk. The unprocessed
+        The images have been radially normalized using Radial Histogram Equalization (RHE), my
+        method (<a href="https://doi.org/10.1007/s11207-025-02578-x" target="_blank" rel="noopener">Gilly and Cranmer 2025, Solar Physics</a>),
+        which now ships in sunpy's
+        <a href="https://github.com/sunpy/sunkit-image" target="_blank" rel="noopener">sunkit-image</a>,
+        to pull the faint corona into the same dynamic range as the bright disk. The result is a
+        visualization, not a calibrated radiance. The unprocessed
         images can be seen at <a href="https://www.thesuntoday.org/" target="_blank" rel="noopener">The Sun Today</a>.
         Like one enough to hang it on a wall? Fine-art prints live in the
-        <a href="https://solar-archive.onrender.com/" target="_blank" rel="noopener">Solar Archive store</a>.
+        <a href="https://myheliograph.com/?ref=gilly.space" target="_blank" rel="noopener">My Heliograph store</a>.
       </p>
       <p>
-        A note on what you're seeing: each still is the <b>median of the three most recent exposures</b>
-        (taken a few minutes apart), which removes cosmic-ray hits and speckle for a cleaner image.
+        A note on what you're seeing: each still is the <b>median of <span id="sun-integration">several</span>
+        consecutive exposures</b>, which removes cosmic-ray hits and speckle for a cleaner image.
         Each <b>timelapse video</b> is the most recent 48 hours, three frames per hour. The
         <b>Rainbow</b> tile is a false-color composite of several channels; the
         <b>Temperature map</b> is a differential-emission-measure reconstruction whose “T-scan”
@@ -126,18 +164,20 @@
   </section>
 </main>
 
-<div id="lb" onclick="closeLb(event)">
-  <button class="x" onclick="closeLb(event)" aria-label="Close">&times;</button>
-  <button class="lb-nav prev" onclick="lbStep(-1)" aria-label="Previous">&#8249;</button>
+<div id="sun-toast" role="status" aria-live="polite"></div>
+<div id="lb">
+  <button class="x" type="button" aria-label="Close">&times;</button>
+  <button class="lb-nav prev" type="button" aria-label="Previous">&#8249;</button>
   <div id="lb-content"></div>
-  <button class="lb-nav next" onclick="lbStep(1)" aria-label="Next">&#8250;</button>
+  <button class="lb-nav next" type="button" aria-label="Next">&#8250;</button>
   <div class="lb-cap" id="lb-cap"></div>
 </div>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js"></script>
+<script src="/assets/site.js?v=202610021742"></script>
+<script src="/assets/sun.js?v=202610021742"></script>
 <script>
-  const BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/";
+  const BUCKET = SunData.BUCKET;
   const PRODUCTS = [
     ["rainbow","Rainbow (RHEF composite)"],
     ["171","AIA 171 Å"], ["193","AIA 193 Å"], ["211","AIA 211 Å"],
@@ -148,40 +188,51 @@
     ["dem","Temperature map (DEM)"],
   ];
   const TSCAN_KEY = "video/rhef_tscan.mp4";
-  const u = (key, v) => BUCKET + key + (v ? "?v=" + encodeURIComponent(v) : "");
+  const u = SunData.u;
+  const REDUCE = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const SAVE_DATA = !!(navigator.connection && navigator.connection.saveData);
+  const HOLD_MS = 500;                  // a touch held this long starts a preview
 
-  // Gallery state. ITEMS holds the loaded products in display order so the
-  // lightbox can step left/right between them without closing.
-  let ITEMS = [];                       // [{label, img, video}]
+  // Gallery state. ITEMS[i] belongs to PRODUCTS[i] and stays null until that card
+  // fills, so the lightbox steps left/right between loaded products without closing.
+  const ITEMS = PRODUCTS.map(() => null);   // [{label, img, video, tscan?} | null]
+  const MANIFESTS = {};                     // id -> Manifest, or null after a failure
   let LB = { mode: null, i: 0, single: false };
 
   function lbRender(){
-    const it = ITEMS[LB.i];
+    const it = ITEMS[LB.i], loaded = ITEMS.filter(Boolean);
     document.getElementById("lb-content").innerHTML = LB.mode === "img"
       ? `<img src="${it.img}" alt="${it.label}">`
-      : `<video src="${it.video}" autoplay loop muted controls playsinline></video>`;
-    document.getElementById("lb-cap").textContent = `${it.label} — ${LB.i + 1} / ${ITEMS.length}`;
-    const nav = ITEMS.length > 1;
+      : `<video src="${it.video}" ${REDUCE ? "" : "autoplay "}loop muted controls playsinline></video>`;
+    document.getElementById("lb-cap").textContent = `${it.label}: ${loaded.indexOf(it) + 1} / ${loaded.length}`;
+    const nav = loaded.length > 1;
     document.querySelectorAll(".lb-nav").forEach(b => b.style.display = nav ? "" : "none");
   }
-  function openLB(mode, i){ LB = { mode, i, single: false }; lbRender();
+  function openLB(mode, i){ if(!ITEMS[i]) return;
+                            LB = { mode, i, single: false }; lbRender();
                             document.getElementById("lb").classList.add("open"); }
   function openTscan(src){  // standalone (not part of the product gallery, no arrows)
     LB = { single: true };
     document.getElementById("lb-content").innerHTML =
-      `<video src="${src}" autoplay loop muted controls playsinline></video>`;
-    document.getElementById("lb-cap").textContent = "Temperature map — temperature scan";
+      `<video src="${src}" ${REDUCE ? "" : "autoplay "}loop muted controls playsinline></video>`;
+    document.getElementById("lb-cap").textContent = "Temperature map: temperature scan";
     document.querySelectorAll(".lb-nav").forEach(b => b.style.display = "none");
     document.getElementById("lb").classList.add("open");
   }
-  function lbStep(d){ if(LB.single) return;
-                      LB.i = (LB.i + d + ITEMS.length) % ITEMS.length; lbRender(); }
+  function lbStep(d){ if(LB.single || !ITEMS.some(Boolean)) return;
+                      do { LB.i = (LB.i + d + ITEMS.length) % ITEMS.length; } while(!ITEMS[LB.i]);
+                      lbRender(); }
   function closeLb(e){
     if(!e || e.target.id === "lb" || e.target.classList.contains("x")){
       document.getElementById("lb").classList.remove("open");
       document.getElementById("lb-content").innerHTML = "";  // stop video playback
     }
   }
+  document.getElementById("lb").addEventListener("click", (e) => {
+    const nav = e.target.closest(".lb-nav");
+    if (nav) lbStep(nav.classList.contains("prev") ? -1 : 1);
+    else closeLb(e);
+  });
   document.addEventListener("keydown", (e) => {
     if(!document.getElementById("lb").classList.contains("open")) return;
     if(e.key === "Escape") closeLb();
@@ -198,12 +249,25 @@
     return h + " h " + rem + " min ago";
   }
 
+  // Freshness pill from the manifest's `updated` (thresholds live in sun.js).
+  const PILL_NOTE = { ok: "", stale: " (late)", old: " (overdue)" };
+  function pillHTML(updated){
+    const f = SunData.freshness(updated);
+    const text = f === "unknown" ? "update time unknown"
+      : "updated " + humanElapsed(Date.now() - Date.parse(/(Z|[+-]\d\d:?\d\d)$/i.test(updated) ? updated : updated + "Z")) + PILL_NOTE[f];
+    return `<span class="sun-pill sun-pill--${f}" data-updated="${f === "unknown" ? "" : updated}">${text}</span>`;
+  }
+  function refreshPills(){
+    document.querySelectorAll("#grid .sun-pill[data-updated]").forEach(el => {
+      if (el.dataset.updated) el.outerHTML = pillHTML(el.dataset.updated);
+    });
+  }
+
+  let timesTimer = 0;
   async function loadTimes(){
     const box = document.getElementById("suntimes");
     try {
-      const raw = (await (await fetch(u("image_times.txt", Date.now()))).text()).trim();
-      // file is UTC without a zone suffix, e.g. 2026-06-25T22:03:00.570
-      const t = new Date(raw.endsWith("Z") ? raw : raw + "Z");
+      const t = await SunData.loadCaptureTime();
       const utc = t.toLocaleString("en-US", { timeZone: "UTC", dateStyle: "medium", timeStyle: "short" });
       const local = t.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "local";
@@ -214,42 +278,181 @@
           `<span><b>${humanElapsed(Date.now() - t.getTime())}</b></span>`;
       };
       render();
-      setInterval(render, 30000);
+      clearInterval(timesTimer);
+      timesTimer = setInterval(() => { render(); refreshPills(); }, 30000);
     } catch (e) {
-      box.innerHTML = "<span>Capture time unavailable.</span>";
+      box.innerHTML = `<span>Capture time did not load.</span>` +
+        `<button type="button" class="sun-retry" data-action="retry-times">Retry</button>`;
+    }
+  }
+  document.getElementById("suntimes").addEventListener("click", (e) => {
+    if (!e.target.closest('[data-action="retry-times"]')) return;
+    e.currentTarget.innerHTML = "<span>Loading capture time…</span>";
+    loadTimes();
+  });
+
+  // Cards: all 12 render at once as skeletons, then fill as their manifests settle.
+  function renderSkeleton(p){
+    const el = document.createElement("article");
+    el.className = "card card--sun is-loading";
+    el.id = p[0]; el.dataset.id = p[0];
+    el.setAttribute("aria-busy", "true");
+    el.innerHTML = `<div class="card__img" aria-hidden="true"></div>
+      <div class="card__body"><h3>${p[1]}</h3><span class="sun-pill sun-pill--unknown">loading</span></div>`;
+    return el;
+  }
+  function renderCard(el, p, m, idx){
+    const v = m.updated, label = p[1], id = p[0];
+    ITEMS[idx] = { label, img: u(m.img1k, v), video: u(m.video, v),
+                   tscan: id === "dem" ? u(TSCAN_KEY, v) : null };
+    el.innerHTML = `
+      <button type="button" class="sun-thumb" data-action="open" data-mode="img" data-idx="${idx}"
+              aria-label="${label}: open the full-size still">
+        <img class="card__img" loading="lazy" src="${u(m.thumb, v)}" alt="${label}">
+      </button>
+      <div class="card__body">
+        <h3>${label}</h3>
+        ${pillHTML(m.updated)}
+        <div class="sun-links">
+          <a href="${u(m.img1k, v)}" target="_blank" rel="noopener">Full size</a>
+          <button type="button" data-action="open" data-mode="video" data-idx="${idx}">&#9658; 48 h</button>
+          <button type="button" class="ghost" data-action="share" data-idx="${idx}" aria-label="Share ${label}">Share</button>
+          ${id === "dem" ? `<button type="button" class="ghost" data-action="open" data-mode="tscan" data-idx="${idx}">&#9658; T-scan</button>` : ""}
+        </div>
+      </div>`;
+  }
+  function renderFailed(el, p){
+    el.innerHTML = `<div class="card__img">not loaded</div>
+      <div class="card__body"><h3>${p[1]}</h3>
+        <div class="sun-links"><button type="button" data-action="retry">Retry</button></div></div>`;
+  }
+  async function fillCard(el, p, idx, fresh = false){
+    const id = p[0];
+    el.classList.remove("err"); el.classList.add("is-loading"); el.setAttribute("aria-busy", "true");
+    try {
+      const m = await SunData.loadManifest(id, { fresh });
+      MANIFESTS[id] = m;
+      renderCard(el, p, m, idx);
+      document.dispatchEvent(new CustomEvent("sun:card", { detail: { id, manifest: m, el } }));
+    } catch (err) {
+      MANIFESTS[id] = null; ITEMS[idx] = null;
+      el.classList.add("err");
+      renderFailed(el, p);
+    } finally {
+      el.classList.remove("is-loading"); el.removeAttribute("aria-busy");
     }
   }
 
-  // Render cards (simple sequential append keeps product order).
-  (async () => {
+  // Inline 48 h preview: hover (mouse or pen), keyboard focus, or a 500 ms touch hold.
+  // Never under reduced motion or Save-Data; the video loads only when asked for.
+  function startPreview(btn){
+    if (REDUCE || SAVE_DATA || btn.querySelector("video")) return;
+    const it = ITEMS[+btn.dataset.idx];
+    if (!it) return;
+    const vid = document.createElement("video");
+    vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = "none";
+    vid.setAttribute("muted", ""); vid.setAttribute("playsinline", ""); vid.setAttribute("aria-hidden", "true");
+    vid.src = it.video;
+    btn.appendChild(vid);
+    vid.play().catch(() => {});
+  }
+  function stopPreview(btn){
+    const vid = btn && btn.querySelector("video");
+    if (!vid) return;
+    vid.pause(); vid.removeAttribute("src"); vid.load(); vid.remove();
+  }
+  function keyboardFocus(el){   // a tap or click also focuses the button; only the keyboard should preview
+    try { return el.matches(":focus-visible"); } catch (e) { return false; }
+  }
+  let holdTimer = 0, held = null;
+  function wirePreviews(grid){
+    grid.addEventListener("pointerover", e => {
+      const b = e.target.closest(".sun-thumb");
+      if (b && e.pointerType !== "touch") startPreview(b);
+    });
+    grid.addEventListener("pointerout", e => {
+      const b = e.target.closest(".sun-thumb");
+      if (b && e.pointerType !== "touch" && !b.contains(e.relatedTarget)) stopPreview(b);
+    });
+    grid.addEventListener("focusin", e => { const b = e.target.closest(".sun-thumb"); if (b && keyboardFocus(b)) startPreview(b); });
+    grid.addEventListener("focusout", e => { const b = e.target.closest(".sun-thumb"); if (b) stopPreview(b); });
+    grid.addEventListener("pointerdown", e => {
+      if (held) { stopPreview(held); delete held.dataset.held; held = null; }  // a new touch ends the last hold
+      const b = e.target.closest(".sun-thumb");
+      if (!b || e.pointerType !== "touch") return;
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(() => { held = b; b.dataset.held = "1"; startPreview(b); }, HOLD_MS);
+    });
+    ["pointerup", "pointercancel"].forEach(t => grid.addEventListener(t, () => clearTimeout(holdTimer)));
+    grid.addEventListener("contextmenu", e => { if (held && e.target.closest(".sun-thumb")) e.preventDefault(); });
+  }
+
+  // Share this Sun: the per-channel short link https://gilly.space/s/<id>/ unfurls as that channel's image.
+  let toastTimer = 0;
+  function toast(msg) {
+    const el = document.getElementById("sun-toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+  }
+  async function shareCard(card, p){
+    const url = SunData.shareUrl(p[0]);
+    const r = await SunData.share({ title: "The Sun: " + p[1], url });
+    if (r === "shared") toast("Shared");
+    else if (r === "copied") toast("Link copied: " + url);
+    else if (r === "failed") toast("Could not copy. The link is " + url);
+  }
+
+  // A link to /sun.html#<id> (or /s/<id>/, which redirects to it) scrolls to that card and marks it.
+  let hlTimer = 0;
+  function highlightFromHash(){
+    const id = SunData.parseHash(location.hash).card;
+    const el = id && PRODUCTS.some(p => p[0] === id) ? document.getElementById(id) : null;
+    if (!el) return;
+    document.querySelectorAll(".card--sun.is-hl").forEach(x => x.classList.remove("is-hl"));
+    el.classList.add("is-hl");
+    el.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "center" });
+    clearTimeout(hlTimer);
+    hlTimer = setTimeout(() => el.classList.remove("is-hl"), 6000);
+  }
+
+  // One delegated listener for every card button (open, share, retry).
+  function onGridClick(e){
+    const b = e.target.closest("[data-action]");
+    if (!b) return;
+    if (b.dataset.held) { delete b.dataset.held; return; }  // the click that ends a touch hold
+    const card = b.closest(".card--sun");
+    const idx = PRODUCTS.findIndex(p => p[0] === card.dataset.id);
+    if (b.dataset.action === "retry") { fillCard(card, PRODUCTS[idx], idx, true); return; }
+    if (b.dataset.action === "share") { shareCard(card, PRODUCTS[idx]); return; }
+    if (b.dataset.action !== "open") return;
+    const i = +b.dataset.idx;
+    if (b.dataset.mode === "tscan") { if (ITEMS[i] && ITEMS[i].tscan) openTscan(ITEMS[i].tscan); }
+    else openLB(b.dataset.mode, i);
+  }
+
+  // The integration count in the About prose comes from the manifests, else "several".
+  function showIntegration(){
+    const it = Object.values(MANIFESTS).map(x => x && x.integration).find(x => x && x.frames > 0);
+    if (it && it.method === "median") document.getElementById("sun-integration").textContent = String(it.frames);
+  }
+
+  (() => {
     const grid = document.getElementById("grid");
-    for (const p of PRODUCTS){
-      const el = document.createElement("article");
-      el.className = "card card--sun";
-      grid.appendChild(el);
-      try {
-        const m = await (await fetch(u(`manifest/${p[0]}.json`, Date.now()))).json();
-        const v = m.updated, label = p[1], id = p[0];
-        const idx = ITEMS.length;
-        ITEMS.push({ label, img: u(m.img1k, v), video: u(m.video, v) });
-        el.innerHTML = `
-          <img class="card__img" loading="lazy" src="${u(m.thumb,v)}" alt="${label}"
-               style="cursor:zoom-in" onclick="openLB('img', ${idx})">
-          <div class="card__body">
-            <h3>${label}</h3>
-            <div class="sun-links">
-              <a href="${u(m.img1k,v)}" target="_blank" rel="noopener">Full size</a>
-              <button onclick="openLB('video', ${idx})">&#9658; 48 h</button>
-              ${id==="dem" ? `<button class="ghost" onclick="openTscan('${u(TSCAN_KEY,v)}')">&#9658; T-scan</button>` : ""}
-            </div>
-          </div>`;
-      } catch (err) {
-        el.className = "card card--sun err";
-        el.innerHTML = `<div class="card__img">unavailable</div>
-          <div class="card__body"><h3>${p[1]}</h3></div>`;
-      }
-    }
+    const cards = PRODUCTS.map(p => grid.appendChild(renderSkeleton(p)));
+    const labels = {};
+    PRODUCTS.forEach(p => { labels[p[0]] = p[1]; });
+    SunStage.init(document.getElementById("stage"), SunData.stageIds(PRODUCTS.map(p => p[0])), labels);
+    grid.addEventListener("click", onGridClick);
+    window.addEventListener("hashchange", highlightFromHash);
+    wirePreviews(grid);
     loadTimes();
+    Promise.allSettled(PRODUCTS.map((p, i) => fillCard(cards[i], p, i))).then(() => {
+      showIntegration();
+      highlightFromHash();
+      document.dispatchEvent(new CustomEvent("sun:ready", { detail: { manifests: { ...MANIFESTS } } }));
+    });
   })();
 </script>
 </body>

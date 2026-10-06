@@ -1,0 +1,463 @@
+{
+  "schema": 1,
+  "nav": [
+    {
+      "label": "Research",
+      "href": "/Research.html"
+    },
+    {
+      "label": "The Sun",
+      "href": "/sun.html"
+    },
+    {
+      "label": "Outreach",
+      "href": "/RecordedPublicTalks.html"
+    },
+    {
+      "label": "Play",
+      "href": "/play/"
+    },
+    {
+      "label": "HelioSoftware",
+      "href": "/heliosoftware/",
+      "children": [
+        {
+          "label": "Heliogram",
+          "href": "/heliogram/",
+          "blurb": "The live Sun on your Mac's screens",
+          "icon": "/assets/sw/heliogram.png",
+          "mark": null
+        },
+        {
+          "label": "HelioFITS",
+          "href": "/heliofits/",
+          "blurb": "Solar FITS files, previewed in Finder",
+          "icon": null,
+          "mark": "fits"
+        },
+        {
+          "label": "HelioFITS Studio",
+          "href": "/heliofits-studio/",
+          "blurb": "A compositor and work surface for the corona",
+          "icon": "/assets/sw/heliofits-studio.png",
+          "mark": null
+        },
+        {
+          "label": "RHEF",
+          "href": "/rhef/",
+          "blurb": "See the faint corona, in one line of Python",
+          "icon": null,
+          "mark": "rhef"
+        }
+      ]
+    },
+    {
+      "label": "Store",
+      "href": "/shop.html"
+    },
+    {
+      "label": "About / CV",
+      "href": "/about.html"
+    }
+  ],
+  "pages": [
+    {
+      "path": "index.html",
+      "url": "/",
+      "title": "Dr. Gilly, Heliophysicist",
+      "palette": "Home",
+      "keywords": "home start",
+      "sitemap": true,
+      "priority": "1.0",
+      "archived": false,
+      "description": "Dr. Gilly (&quot;Gilly&quot;), heliophysicist at NorthWest Research Associates: solar wind, coronal heating, forward models, and a few interactive space toys."
+    },
+    {
+      "path": "Research.html",
+      "url": "/Research.html",
+      "title": "Research",
+      "palette": "Research",
+      "keywords": "papers ghosts punch",
+      "sitemap": true,
+      "priority": "0.9",
+      "archived": false,
+      "description": "Gilly's solar research: coronal heating, coronal waves with DKIST, PUNCH, and the RHEF image filter."
+    },
+    {
+      "path": "publications.html",
+      "url": "/publications.html",
+      "title": "Publications",
+      "palette": "Publications",
+      "keywords": "papers thesis ads",
+      "sitemap": true,
+      "priority": "0.8",
+      "archived": false,
+      "description": "Dr. Gilly's peer-reviewed papers, white papers and PhD thesis, on the solar corona and solar wind."
+    },
+    {
+      "path": "PastResearch.html",
+      "url": "/PastResearch.html",
+      "title": "Earlier Research",
+      "palette": "Earlier research",
+      "keywords": "student kelvin voyager",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false,
+      "description": "Student and early research projects by Dr. Gilly \u2014 Kelvin\u2013Helmholtz instabilities, solar DEM measurements, CubeSat and space-mission proposals, and Voyager UVS data reduction."
+    },
+    {
+      "path": "sun.html",
+      "url": "/sun.html",
+      "title": "The Sun, right now",
+      "palette": "The Sun, right now",
+      "keywords": "solar live rhe images",
+      "sitemap": true,
+      "priority": "0.9",
+      "archived": false,
+      "description": "Near-real-time images of the Sun from NASA's SDO/AIA, radially normalized with RHE to reveal the faint corona. Updated every 20 minutes, with 48-hour timelapse videos.",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_rainbow_1k.png"
+    },
+    {
+      "path": "resources.html",
+      "url": "/resources.html",
+      "title": "Solar Resources",
+      "palette": "Solar resources",
+      "keywords": "links directory",
+      "sitemap": true,
+      "priority": "0.5",
+      "archived": false,
+      "description": "A working directory of solar-physics and space-weather links \u2014 homepages, live dashboards, and data sources Gilly keeps handy."
+    },
+    {
+      "path": "RecordedPublicTalks.html",
+      "url": "/RecordedPublicTalks.html",
+      "title": "Outreach &amp; Public Talks",
+      "palette": "Outreach & talks",
+      "keywords": "video planetarium",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false,
+      "description": "Planetarium talks, interviews, observing nights and outreach materials from Dr. Gilly, on why space isn't empty."
+    },
+    {
+      "path": "Space-Is-Full.html",
+      "url": "/Space-Is-Full.html",
+      "title": "Space Is Full",
+      "palette": "Space Is Full (essay)",
+      "keywords": "asimov parker",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false,
+      "description": "Everything you've heard about space being empty is wrong \u2014 the solar wind, magnetospheres, and the heliosphere fill our solar system with dynamic space weather."
+    },
+    {
+      "path": "Music-and-Theater.html",
+      "url": "/Music-and-Theater.html",
+      "title": "Music &amp; Theater",
+      "palette": "Music & Theater",
+      "keywords": "songs plays",
+      "sitemap": true,
+      "priority": "0.5",
+      "archived": false,
+      "description": "Gilly's creative life beyond the lab \u2014 original songs on SoundCloud, a theatrical resume, and decades of musical theater and plays."
+    },
+    {
+      "path": "play/index.html",
+      "url": "/play/",
+      "title": "Play",
+      "palette": "Play \u2014 the toys",
+      "keywords": "enso sudoku games",
+      "sitemap": true,
+      "priority": "0.8",
+      "archived": false,
+      "description": "Small interactive things Gilly built: a daily ens\u014d calendar, an ens\u014d editor, Spectrum Sudoku, Solar Corona &amp; Wind, and a Claude model field guide."
+    },
+    {
+      "path": "enso/index.html",
+      "url": "/enso/",
+      "title": "Daily Ens\u014d Calendar",
+      "palette": "Ens\u014d calendar",
+      "keywords": "brushstroke daily",
+      "sitemap": true,
+      "priority": "0.7",
+      "archived": false
+    },
+    {
+      "path": "enso/pixelated-enso.html",
+      "url": "/enso/pixelated-enso.html",
+      "title": "Ens\u014d Editor",
+      "palette": "Ens\u014d editor",
+      "keywords": "sliders",
+      "sitemap": true,
+      "priority": "0.5",
+      "archived": false
+    },
+    {
+      "path": "sudoku/index.html",
+      "url": "/sudoku/",
+      "title": "Spectrum Sudoku",
+      "palette": "Spectrum Sudoku",
+      "keywords": "puzzle color",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false
+    },
+    {
+      "path": "whichclaude.html",
+      "url": "/whichclaude.html",
+      "title": "The Model Sequence \u2014 a Claude field guide",
+      "palette": "Which Claude? \u2014 model field guide",
+      "keywords": "ai models opus sonnet haiku fable",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false
+    },
+    {
+      "path": "shop.html",
+      "url": "/shop.html",
+      "title": "My Heliograph: prints",
+      "palette": "Store \u2014 Solar Archive",
+      "keywords": "prints buy",
+      "sitemap": true,
+      "priority": "0.7",
+      "archived": false,
+      "description": "Fine-art prints of the Sun, processed the way Gilly processes it for science.",
+      "canonical": "https://gilly.space/shop",
+      "og_url": "https://gilly.space/shop"
+    },
+    {
+      "path": "about.html",
+      "url": "/about.html",
+      "title": "About &amp; CV",
+      "palette": "About & CV",
+      "keywords": "bio resume contact",
+      "sitemap": true,
+      "priority": "0.8",
+      "archived": false,
+      "description": "About Dr. Gilly, heliophysicist at NWRA: career, CVs, service, and how this site is built."
+    },
+    {
+      "path": "Kelvin.html",
+      "url": "/Kelvin.html",
+      "title": "The Kelvin\u2013Helmholtz Instability",
+      "palette": null,
+      "keywords": "",
+      "sitemap": true,
+      "priority": "0.5",
+      "archived": false,
+      "description": "A review of the Kelvin\u2013Helmholtz instability by Dr. Gilly, with a paper, slides, and spectral Dedalus simulations of fluid shear."
+    },
+    {
+      "path": "skitPage.html",
+      "url": "/skitPage.html",
+      "title": "2015 APS Skit",
+      "palette": null,
+      "keywords": "",
+      "sitemap": true,
+      "priority": "0.3",
+      "archived": false,
+      "description": "Watch Gilly's 2015 APS skit \u2014 download the video in High Quality or Low Quality."
+    },
+    {
+      "path": "heliosoftware/index.html",
+      "url": "/heliosoftware/",
+      "title": "HelioSoftware",
+      "palette": "HelioSoftware",
+      "keywords": "software apps heliograph heliogram heliofits studio rhef",
+      "sitemap": true,
+      "priority": "0.8",
+      "archived": false,
+      "description": "Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio."
+    },
+    {
+      "path": "heliosoftware/spec/index.html",
+      "url": "/heliosoftware/spec/",
+      "title": "HelioSoftware spec",
+      "palette": null,
+      "keywords": "",
+      "sitemap": true,
+      "priority": "0.4",
+      "archived": false,
+      "description": "The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check."
+    },
+    {
+      "path": "heliofits/index.html",
+      "url": "/heliofits/",
+      "title": "HelioFITS: solar FITS files, previewable on your Mac",
+      "palette": "HelioFITS",
+      "keywords": "fits finder quick look mac preview",
+      "sitemap": true,
+      "priority": "0.7",
+      "archived": false,
+      "description": "HelioFITS renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.",
+      "head_title": "HelioFITS: solar FITS files, previewable on your Mac",
+      "canonical": "https://apps.apple.com/app/id6790952544",
+      "og_image": "https://gilly.space/heliofits/icon.png"
+    },
+    {
+      "path": "heliofits-studio/index.html",
+      "url": "/heliofits-studio/",
+      "title": "HelioFITS Studio",
+      "palette": "HelioFITS Studio",
+      "keywords": "compositor corona coronagraph work surface",
+      "sitemap": true,
+      "priority": "0.7",
+      "archived": false,
+      "description": "HelioFITS Studio: a desktop compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.",
+      "head_title": "HelioFITS Studio"
+    },
+    {
+      "path": "rhef/index.html",
+      "url": "/rhef/",
+      "title": "RHEF: the Radial Histogram Equalizing Filter",
+      "palette": "RHEF",
+      "keywords": "filter corona python sunkit-image histogram",
+      "sitemap": true,
+      "priority": "0.7",
+      "archived": false,
+      "description": "RHEF brings out faint coronal structure in solar images, on the disk and off the limb, with no parameter tuning. In sunkit-image for Python.",
+      "og_image": "https://gilly.space/assets/sw/rhef-compare.jpg"
+    },
+    {
+      "path": "archive/index.html",
+      "url": "/archive/",
+      "title": "Archive",
+      "palette": null,
+      "keywords": "",
+      "sitemap": true,
+      "priority": "0.3",
+      "archived": false,
+      "description": "Older and superseded pages of gilly.space, kept for posterity."
+    },
+    {
+      "path": "corona/index.html",
+      "url": "/corona/",
+      "title": "Solar Corona &amp; Wind Explorer",
+      "palette": null,
+      "keywords": "",
+      "sitemap": true,
+      "priority": "0.5",
+      "archived": false
+    },
+    {
+      "path": "404.html",
+      "url": "/404.html",
+      "title": "Lost in space (404)",
+      "palette": null,
+      "keywords": "",
+      "sitemap": false,
+      "priority": "0.1",
+      "archived": false,
+      "noscript": "home",
+      "description": "This page does not exist on gilly.space. Go back to the home page.",
+      "no_canonical": true
+    }
+  ],
+  "palette_extra": [
+    {
+      "t": "Email Gilly",
+      "u": "mailto:Gilly@NWRA.com",
+      "k": "contact"
+    },
+    {
+      "t": "Toggle theme",
+      "u": "#theme",
+      "k": "dark light mode"
+    }
+  ],
+  "stubs": [
+    {
+      "title": "HelioFITS Studio",
+      "target": "https://gilly.space/heliofits-studio/",
+      "template": "stub.html",
+      "path": "hfs/index.html"
+    },
+    {
+      "title": "HelioFITS Studio",
+      "target": "https://gilly.space/heliofits-studio/",
+      "template": "stub.html",
+      "path": "hfstudio/index.html"
+    },
+    {
+      "title": "HelioFITS Studio",
+      "target": "https://gilly.space/heliofits-studio/",
+      "template": "stub.html",
+      "path": "punchstudio/index.html"
+    },
+    {
+      "title": "HelioFITS Studio",
+      "target": "https://gilly.space/heliofits-studio/",
+      "template": "stub.html",
+      "path": "jhv/index.html"
+    },
+    {
+      "path": "shop/index.html",
+      "title": "Solar Archive \u2014 prints \u00b7 gilly.space",
+      "target": "/shop",
+      "canonical": "https://gilly.space/shop",
+      "template": "stub-shop.html"
+    }
+  ],
+  "share": [
+    {
+      "id": "rainbow",
+      "title": "Rainbow (RHEF composite)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_rainbow_1k.png"
+    },
+    {
+      "id": "171",
+      "title": "AIA 171 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_171_1k.png"
+    },
+    {
+      "id": "193",
+      "title": "AIA 193 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_193_1k.png"
+    },
+    {
+      "id": "211",
+      "title": "AIA 211 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_211_1k.png"
+    },
+    {
+      "id": "304",
+      "title": "AIA 304 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_304_1k.png"
+    },
+    {
+      "id": "335",
+      "title": "AIA 335 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_335_1k.png"
+    },
+    {
+      "id": "94",
+      "title": "AIA 94 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_94_1k.png"
+    },
+    {
+      "id": "131",
+      "title": "AIA 131 \u00c5",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_131_1k.png"
+    },
+    {
+      "id": "1600",
+      "title": "AIA 1600 \u00c5 (UV)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_1600_1k.png"
+    },
+    {
+      "id": "1700",
+      "title": "AIA 1700 \u00c5 (UV)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_1700_1k.png"
+    },
+    {
+      "id": "composite_uv",
+      "title": "Composite (1700/1600/304)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_composite_uv_1k.png"
+    },
+    {
+      "id": "dem",
+      "title": "Temperature map (DEM)",
+      "og_image": "https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_dem_1k.png"
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>The Sun Now</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;
+            font:14px -apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#c8c8c8}
+  video{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;
+        opacity:0;transition:opacity .6s;
+        /* Pin the video to SDR. On an XDR panel WebKit otherwise hands it to the
+           extended-dynamic-range pipeline and the colours come out wrong; an SDR
+           monitor never enters that path, which is why only the MacBook's own
+           screen showed it. */
+        dynamic-range-limit:standard}
+  video.on{opacity:1}
+
+  #cap{position:fixed;left:2.2vw;bottom:2.2vh;line-height:1.5;text-shadow:0 1px 6px #000;
+       opacity:0;transition:opacity 1.2s}
+  #cap.on{opacity:.72}
+  #cap b{display:block;font-size:1.6em;font-weight:500;color:#fff}
+  #cap span{font-variant-numeric:tabular-nums}
+  /* The funnel: a screen in a lobby has to say where to go. Only shown when the
+     host app asks for it; a personal screen saver never does. */
+  #attr{position:fixed;right:2.2vw;bottom:2.2vh;display:none;opacity:.55;
+        letter-spacing:.04em;text-shadow:0 1px 6px #000;font-size:1.05em}
+</style>
+<div id="stage"></div>
+<div id="cap"><b></b><span></span></div>
+<div id="attr"></div>
+<script>
+const BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/";
+const IDS = ["rainbow","171","193","211","304","335","94","131",
+             "1600","1700","composite_uv","dem"];
+const Q = new URLSearchParams(location.search);
+// How many passes of each clip before moving on, and whether the order is
+// shuffled. The host app injects these; a browser can pass ?loops=2&shuffle=1.
+const LOOPS_PER_PRODUCT = Math.max(1, +(window.WALL_LOOPS ?? Q.get("loops") ?? 1));
+const SHUFFLE = !!(window.WALL_SHUFFLE ?? (Q.get("shuffle") === "1"));
+const RATE = 0.5;                 // each 48 h clip is only 8 s at native 18 fps
+const REFRESH_MS = 20 * 60 * 1000; // pipeline cadence
+
+const stage = document.getElementById("stage"), cap = document.getElementById("cap");
+// One <video> element per clip, never reused. The first play on an element is
+// the one that renders right; on untagged H.264, WebKit's later render path
+// after a src change makes a different colour guess and everything after the
+// first clip comes out oversaturated. A fresh element each time keeps every
+// clip on the first-play path, and a crossfade replaces the black gap.
+let v = null;
+
+function freshVideo(){
+  const el = document.createElement("video");
+  el.autoplay = true; el.muted = true; el.playsInline = true;
+  el.addEventListener("ended", onEnded);
+  el.addEventListener("error", onError);
+  el.addEventListener("playing", () => {
+    el.classList.add("on");
+    for (const old of stage.querySelectorAll("video")) if (old !== el) {
+      old.classList.remove("on");
+      setTimeout(() => { old.pause(); old.removeAttribute("src"); old.load(); old.remove(); }, 700);
+    }
+  }, {once:true});
+  stage.appendChild(el);
+  return el;
+}
+if (window.WALL_ATTRIBUTION) {
+  const a = document.getElementById("attr");
+  a.textContent = window.WALL_ATTRIBUTION; a.style.display = "block";
+}
+// One product per screen: injected by the wall app, or ?p= in a browser.
+let PIN = window.WALL_PRODUCT || Q.get("p");
+if (PIN === "all") PIN = null;   // a screen set to cycle through everything
+let items = [], i = 0, loops = 0;
+
+// loadSunIndex begin
+async function loadSunIndex(bucket, now) {
+  try {
+    const r = await fetch(bucket + "manifest/index.json", {cache: "no-store"});
+    if (!r.ok) return null;
+    const idx = await r.json();
+    if (!idx || typeof idx.generated !== "string" || !Array.isArray(idx.products)) return null;
+    const t = Date.parse(idx.generated);
+    // An index older than 6 hours (estimated limit) is ignored: the per-product manifests are read instead.
+    if (isNaN(t) || (now === undefined ? Date.now() : now) - t > 6 * 3600 * 1000) return null;
+    return {generated: idx.generated, products: idx.products.filter(p => p && typeof p.id === "string")};
+  } catch (e) {
+    return null;
+  }
+}
+// loadSunIndex end
+
+async function refresh(){
+  // A local manifest.json means we are being served out of the wall app's cache:
+  // play those files and never touch the network, which is what lets a kiosk
+  // survive indefinitely without one. In a browser there is no such file, so
+  // fall through to the bucket.
+  const local = await fetch("manifest.json", {cache:"no-store"})
+    .then(r => r.ok ? r.json() : null).catch(() => null);
+
+  let fresh;
+  if (local && local.length) {
+    fresh = local.map(m => ({...m, base: ""}));
+  } else {
+    // One index request when the index is usable; otherwise, or for a product the index lacks, the
+    // per-product manifests as before (~200 bytes each; this runs once every 20 min). Ordered results,
+    // failures dropped rather than retried.
+    const idx = await loadSunIndex(BUCKET);
+    const byId = new Map(idx ? idx.products.map(p => [p.id, p]) : []);
+    const got = await Promise.all(IDS.map(id => byId.has(id) ? byId.get(id) :
+      fetch(BUCKET + "manifest/" + id + ".json", {cache:"no-store"})
+        .then(r => r.ok ? r.json() : null).catch(() => null)));
+    fresh = got.filter(Boolean).map(m => ({...m, base: BUCKET}));
+  }
+
+  let want = PIN ? fresh.filter(m => m.id === PIN) : fresh;
+  if (SHUFFLE) {                       // Fisher-Yates; a fresh order every refresh
+    for (let k = want.length - 1; k > 0; k--) {
+      const j = Math.floor(Math.random() * (k + 1)); [want[k], want[j]] = [want[j], want[k]];
+    }
+  }
+  if (want.length) items = want;       // keep the old list if the network is down
+}
+
+function play(){
+  if (!items.length) return;
+  const m = items[i % items.length];
+  const src = (m.base ?? BUCKET) + m.video + "?v=" + encodeURIComponent(m.updated);
+  v = freshVideo();
+  v.src = src;
+  v.playbackRate = RATE;
+  v.play().catch(()=>{});
+  cap.querySelector("b").textContent = m.label;
+  cap.querySelector("span").textContent =
+    "48 h to " + new Date(m.updated).toLocaleString([], {
+      month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"});
+  cap.classList.add("on");
+  setTimeout(() => cap.classList.remove("on"), 6000);
+}
+
+function onEnded(){
+  if (++loops >= LOOPS_PER_PRODUCT) { loops = 0; i++; }
+  play();
+}
+// A dead or 404 video must not freeze the wall: step past it.
+function onError(){ loops = 0; i++; setTimeout(play, 1000); }
+
+(async () => { await refresh(); play(); })();
+setInterval(refresh, REFRESH_MS);
+</script>

@@ -100,6 +100,31 @@ function jsonResponse(body, status, cors) {
   });
 }
 
+// Oldest date a client may ask about (estimated window; Gilly may widen it).
+const DATE_MIN = '2020-01-01';
+
+// Soft ceiling on Workers AI calls per UTC day (estimated; Gilly may change it).
+// Counted in KV under quota:<YYYY-MM-DD>. KV is not atomic, so concurrent cache
+// misses can overshoot by a few calls; the calendar hides or pauses on a 429.
+const DAILY_AI_LIMIT = 500;
+
+function utcDay(ms) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+// True for a real calendar date written YYYY-MM-DD (no window check).
+function validDateFormat(date) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const t = Date.parse(date + 'T00:00:00Z');
+  return !Number.isNaN(t) && utcDay(t) === date;   // 2026-02-31 rolls over
+}
+
+// True for a real calendar date YYYY-MM-DD from DATE_MIN to tomorrow (UTC).
+// `now` is injectable for tests.
+function validDate(date, now = Date.now()) {
+  return validDateFormat(date) && date >= DATE_MIN && date <= utcDay(now + 86400000);
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
@@ -110,8 +135,16 @@ export default {
       return new Response(null, { headers: cors });
     }
 
-    // Light health-check for "is the worker live?" testing.
+    // Light health-check for "is the worker live?" testing. GET /status adds
+    // the model, the cache flag and today's AI call count (read by the live-site watch).
     if (request.method === 'GET') {
+      if (new URL(request.url).pathname === '/status') {
+        const today = utcDay(Date.now());
+        let aiCallsToday = null;
+        try { aiCallsToday = Number(await env.IMPRESSIONS.get(`quota:${today}`)) || 0; }
+        catch (err) { console.warn('KV read failed (status):', err.message); }
+        return jsonResponse({ model: MODEL, cacheEnabled: CACHE_ENABLED, today, aiCallsToday }, 200, cors);
+      }
       return new Response('enso-impressions worker is alive (Workers AI / Llama 4 Scout / one-line evocation)', {
         headers: { 'Content-Type': 'text/plain', ...cors },
       });
@@ -130,8 +163,11 @@ export default {
     const date = String(body.date || '');
     const image = String(body.image || '');
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return jsonResponse({ error: 'invalid date format (need YYYY-MM-DD)' }, 400, cors);
+    // Order: format check, then the cache read, then the date window. A date
+    // outside the window that is already cached (the calendar's back button has
+    // no lower limit) is still served; only a miss is turned away.
+    if (!validDateFormat(date)) {
+      return jsonResponse({ error: `invalid date (need YYYY-MM-DD from ${DATE_MIN} to tomorrow UTC)` }, 400, cors);
     }
     if (!image) {
       return jsonResponse({ error: 'missing image' }, 400, cors);
@@ -158,6 +194,10 @@ export default {
       }
     }
 
+    if (!validDate(date)) {
+      return jsonResponse({ error: `invalid date (need YYYY-MM-DD from ${DATE_MIN} to tomorrow UTC)` }, 400, cors);
+    }
+
     // Normalize image: accept either a raw base64 string or a data URL.
     // The Workers AI multimodal format wants a data URL (image_url.url).
     const imageDataUrl = image.startsWith('data:')
@@ -168,6 +208,22 @@ export default {
     // (~110–280 KB as a data URL). 4 MB is well above that ceiling.
     if (imageDataUrl.length > 5_500_000) {
       return jsonResponse({ error: 'image too large' }, 413, cors);
+    }
+
+    // Daily ceiling, counted before the call so failed inferences count too.
+    // A KV error fails open: better one extra call than a dark calendar.
+    const quotaKey = `quota:${utcDay(Date.now())}`;
+    try {
+      const used = Number(await env.IMPRESSIONS.get(quotaKey)) || 0;
+      if (used >= DAILY_AI_LIMIT) {
+        return jsonResponse({
+          error: 'daily limit',
+          detail: 'daily allocation of AI calls reached; resets at 00:00 UTC',
+        }, 429, cors);
+      }
+      await env.IMPRESSIONS.put(quotaKey, String(used + 1));
+    } catch (err) {
+      console.warn('KV quota check failed (continuing):', err.message);
     }
 
     // Call Workers AI. OpenAI-compatible multimodal content format: the

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- bake:head -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HelioSoftware · gilly.space</title>
+<meta name="description" content="Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio.">
+<link rel="canonical" href="https://gilly.space/heliosoftware/">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="HelioSoftware · gilly.space">
+<meta property="og:description" content="Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio.">
+<meta property="og:url" content="https://gilly.space/heliosoftware/">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake -->
+<link rel="alternate" type="application/atom+xml" title="HelioSoftware releases" href="/heliosoftware/feed.xml">
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
+<link rel="stylesheet" href="/assets/product.css?v=202610021742">
+</head>
+<body>
+<div data-include="header"></div>
+<main id="main" class="product product--wide" data-no-blank>
+  <p class="eyebrow">Software from gilly.space</p>
+  <h1><span class="gradient-text">HelioSoftware</span></h1>
+  <p class="tag">Four tools that put the Sun where you already work: on your screen,
+     in your file browser, at your research desk, and in your Python notebook.</p>
+
+  <div class="grid sw-grid">
+    <article class="card sw-card"><a href="/heliogram/">
+      <img class="sw-icon sw-mark--lg" src="/assets/sw/heliogram.png" alt="">
+      <p class="card__kicker">For your screens</p>
+      <h3>Heliogram</h3>
+      <p>The live Sun as your desktop picture, your screen saver, or a wall of video.
+         Imagery from NASA's Solar Dynamics Observatory.</p>
+      <p class="sw-meta">macOS · direct download<span data-release="heliogram" hidden> · v<span data-release-field="version"></span></span></p>
+    </a></article>
+    <article class="card sw-card"><a href="/heliofits/">
+      <span class="sw-mark sw-mark--fits sw-mark--lg" aria-hidden="true"></span>
+      <p class="card__kicker">For your Finder</p>
+      <h3>HelioFITS</h3>
+      <p>Solar FITS files rendered as the Sun, right in Finder and Quick Look: the instrument's
+         colormap, real coordinates, and metadata you can search in Spotlight.</p>
+      <p class="sw-meta">macOS · free on the Mac App Store<span data-release="heliofits" hidden> · v<span data-release-field="version"></span></span></p>
+    </a></article>
+    <article class="card sw-card"><a href="/heliofits-studio/">
+      <img class="sw-icon sw-mark--lg" src="/assets/sw/heliofits-studio.png" alt="">
+      <p class="card__kicker">For your science</p>
+      <h3>HelioFITS Studio</h3>
+      <p>A compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO and other
+         coronagraph data.</p>
+      <p class="sw-meta">macOS now · Windows and Linux in testing<span data-release="heliofits-studio" hidden> · v<span data-release-field="version"></span></span></p>
+    </a></article>
+    <article class="card sw-card"><a href="/rhef/">
+      <span class="sw-mark sw-mark--rhef sw-mark--lg" aria-hidden="true"></span>
+      <p class="card__kicker">For your figures</p>
+      <h3>RHEF</h3>
+      <p>The Radial Histogram Equalizing Filter: one call that brings out faint coronal structure
+         on the disk and off the limb, with no tuning.</p>
+      <p class="sw-meta">Python · pip install sunkit-image</p>
+    </a></article>
+  </div>
+
+  <h2 class="sw-pick-title">Which one do I want?</h2>
+  <ul class="points sw-pick">
+    <li>You'd like to look up and see today's Sun: <a href="/heliogram/">Heliogram</a>.</li>
+    <li>You have a folder full of <code>.fits</code> files and no idea which is which: <a href="/heliofits/">HelioFITS</a>.</li>
+    <li>You're following a CME out through the coronagraphs: <a href="/heliofits-studio/">HelioFITS Studio</a>.</li>
+    <li>Your figure shows a bright ball in a dark void, and you know there's corona out there: <a href="/rhef/">RHEF</a>.</li>
+    <li>All four: they get along fine.</li>
+  </ul>
+  <p class="alt">What's new: <a href="/heliosoftware/whats-new/">release notes</a> and an <a href="/heliosoftware/feed.xml">Atom feed</a>.</p>
+  <p class="alt">Shared contracts for these tools (checksums, rules for agents, drift checks) live in the
+     <a href="/heliosoftware/spec/">spec folder</a>.</p>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/product.js?v=202610021742"></script>
+<script src="/assets/site.js?v=202610021742"></script>
+</body>
+</html>

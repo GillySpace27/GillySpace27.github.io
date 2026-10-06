@@ -16,6 +16,8 @@
 
   var REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var FINE = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+  // The ?v= stamp this script was loaded with (see bump-assets.py), reused for the partials.
+  var VERSION = (document.currentScript && document.currentScript.src.match(/\?v=\w+/) || [''])[0];
   var safe = function (fn) { try { fn(); } catch (e) { /* never let one module break the rest */ } };
 
   /* ---- Scroll-reveal: armed synchronously (script is parser-blocking at end of
@@ -57,12 +59,12 @@
       if (here === path || here.indexOf(path + '/') === 0) a.setAttribute('aria-current', 'page');
     });
   }
-  var HEADER_FALLBACK = '<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/">gilly<span class="dot">.</span>space</a><nav class="site-nav" aria-label="Primary"><a href="/Research.html">Research</a> <a href="/sun.html">The Sun</a> <a href="/RecordedPublicTalks.html">Outreach</a> <a href="/play/">Play</a> <a href="/shop.html">Store</a> <a href="/about.html">About / CV</a></nav></div></header>';
+  var HEADER_FALLBACK = /* bake:header-fallback */ '<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/">gilly<span class="dot">.</span>space</a><nav class="site-nav" aria-label="Primary"><a href="/Research.html">Research</a> <a href="/sun.html">The Sun</a> <a href="/RecordedPublicTalks.html">Outreach</a> <a href="/play/">Play</a> <a href="/heliosoftware/">HelioSoftware</a> <a href="/shop.html">Store</a> <a href="/about.html">About / CV</a></nav></div></header>' /* /bake */;
   var FOOTER_FALLBACK = '<footer class="site-footer"><div class="site-footer__inner"><span>&copy; Gilly &middot; gilly.space &middot; <a href="/">home</a></span></div></footer>';
   function inject(name, target, fallback) {
     var done = false;
     var to = setTimeout(function () { if (!done) { done = true; target.innerHTML = fallback; } }, 4000); // never hang headless/offline
-    return fetch('/partials/' + name + '.html', { cache: 'no-cache' })
+    return fetch('/partials/' + name + '.html' + VERSION, { cache: 'no-cache' })
       .then(function (r) { return r.ok ? r.text() : ''; })
       .then(function (html) { if (!done) { done = true; clearTimeout(to); target.innerHTML = html || fallback; } })
       .catch(function () { if (!done) { done = true; clearTimeout(to); target.innerHTML = fallback; } });
@@ -280,6 +282,7 @@
   /* ---- Command palette (⌘K / Ctrl-K): jump anywhere, toggle theme ---- */
   function buildCommandPalette() {
     var ITEMS = [
+      /* bake:palette-items */
       { t: 'Home', u: '/', k: 'home start' },
       { t: 'Research', u: '/Research.html', k: 'papers ghosts punch' },
       { t: 'Publications', u: '/publications.html', k: 'papers thesis ads' },
@@ -296,8 +299,13 @@
       { t: 'Which Claude? — model field guide', u: '/whichclaude.html', k: 'ai models opus sonnet haiku fable' },
       { t: 'Store — Solar Archive', u: '/shop.html', k: 'prints buy' },
       { t: 'About & CV', u: '/about.html', k: 'bio resume contact' },
+      { t: 'HelioSoftware', u: '/heliosoftware/', k: 'software apps heliograph heliogram heliofits studio rhef' },
+      { t: 'HelioFITS', u: '/heliofits/', k: 'fits finder quick look mac preview' },
+      { t: 'HelioFITS Studio', u: '/heliofits-studio/', k: 'compositor corona coronagraph work surface' },
+      { t: 'RHEF', u: '/rhef/', k: 'filter corona python sunkit-image histogram' },
       { t: 'Email Gilly', u: 'mailto:Gilly@NWRA.com', k: 'contact' },
       { t: 'Toggle theme', u: '#theme', k: 'dark light mode' }
+      /* /bake */
     ];
     var pal = document.createElement('div');
     pal.className = 'cmdk'; pal.setAttribute('aria-hidden', 'true'); pal.setAttribute('role', 'dialog'); pal.setAttribute('aria-label', 'Command palette');

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>HelioSoftware releases</title>
+  <id>https://gilly.space/heliosoftware/feed.xml</id>
+  <updated>2026-09-28T00:00:00Z</updated>
+  <author>
+    <name>gilly.space</name>
+  </author>
+  <link rel="self" href="https://gilly.space/heliosoftware/feed.xml" />
+  <link rel="alternate" href="https://gilly.space/heliosoftware/whats-new/" />
+  <entry>
+    <id>tag:gilly.space,2026-09-28:heliogram-0.7-build.7</id>
+    <title>Heliograph 0.7</title>
+    <updated>2026-09-28T00:00:00Z</updated>
+    <link rel="alternate" href="https://gilly.space/heliograph/" />
+    <summary>Heliograph now updates itself. It checks once a day, downloads in the background and installs when you quit; a kiosk installs overnight.</summary>
+  </entry>
+</feed>
