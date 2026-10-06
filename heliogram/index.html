@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heliogram for Mac</title>
+<meta name="description" content="Heliogram puts the live Sun on your Mac's screens: as your desktop picture, your screen saver, or a wall of video.">
+<link rel="canonical" href="https://gilly.space/heliogram/">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
+<link rel="stylesheet" href="/assets/product.css?v=202610021742">
+</head>
+<body>
+<div data-include="header"></div>
+<main id="main" class="product">
+  <img class="sw-icon sw-mark--lg" src="/assets/sw/heliogram.png" alt="">
+  <p class="eyebrow" data-no-blank><a href="/heliosoftware/">HelioSoftware</a></p>
+  <h1>Heliogram</h1>
+  <p class="tag">The live Sun on your Mac's screens: as your desktop picture,
+     your screen saver, or a wall of video.</p>
+  <div class="platforms platforms--one">
+    <a class="dl primary" href="/heliograph/Heliograph.dmg"><b>Download for Mac</b><small>Apple Silicon and Intel</small></a>
+  </div>
+  <p class="ver" id="ver">macOS 13 or later · Apple Silicon and Intel</p>
+  <!-- interim: until the first Heliogram publish replaces this file, the button
+       serves the Heliograph 0.7 disk image from /heliograph/ -->
+  <p class="alt">Until Heliogram 0.8 is out, this downloads Heliograph 0.7, the same app
+     under its old name.</p>
+  <ul class="points">
+    <li>Open the disk image and drag Heliogram to Applications.</li>
+    <li>Already have it? Drag the new one over the old; your settings stay.</li>
+    <li>From 0.7 on, Heliogram keeps itself up to date. Earlier versions show a
+        notice in the menu bar Sun; download this one over them.</li>
+  </ul>
+  <!-- notes: ship.sh copies this block into the update feed, and refuses to
+       run unless its heading names the version being shipped -->
+  <section class="notes">
+    <h2>What's new in 0.7</h2>
+    <ul class="points">
+      <li>Heliogram now updates itself. It checks once a day, downloads in the
+          background and installs when you quit; a kiosk installs overnight.</li>
+      <li>Lighter on your network: imagery is checked once a day, or twice if you
+          choose, only what your screens show is downloaded, and nothing is
+          fetched unless it has changed.</li>
+      <li>What you pick is what you see. Un-ticking a product takes it off every
+          screen; ticking one fetches it at once.</li>
+      <li>On a wall, the arrow keys step through the clips, and no wavelength
+          appears on two screens at once or twice in a row.</li>
+      <li>A redesigned Settings window that follows dark mode, shows the version,
+          and has a Turn Off and Quit button that undoes what Heliogram set up.</li>
+      <li>A new icon.</li>
+    </ul>
+  </section>
+  <!-- /notes -->
+  <p class="alt">Live imagery from NASA's Solar Dynamics Observatory, processed by gilly.space. · <a href="privacy.html">Privacy</a></p>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/site.js?v=202610021742"></script>
+<script>
+fetch("/heliograph/version.json", {cache: "no-store"}).then(r => r.json()).then(v => {
+  document.getElementById("ver").textContent =
+    "Version " + v.version + " · macOS 13 or later · Apple Silicon and Intel";
+}).catch(() => {});
+</script>
+</body>
+</html>

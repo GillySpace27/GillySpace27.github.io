@@ -251,6 +251,29 @@ class ContractTests(unittest.TestCase):
             code, out = self.run_contract(site)
             self.assertIn("version.json lost keys page", out)
             self.assertEqual(code, 1, out)
+    def heliogram_site(self, tmp):
+        site = pathlib.Path(tmp)
+        (site / "contracts").mkdir()
+        shutil.copy(self.REPO / "contracts" / "heliogram-publish.md", site / "contracts")
+        shutil.copytree(self.REPO / "heliograph", site / "heliograph")
+        (site / "heliogram").mkdir()
+        (site / "heliogram" / "index.html").write_text("interim page\n")
+        return site
+
+    def test_interim_heliogram_page_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            code, out = self.run_contract(self.heliogram_site(tmp))
+            self.assertNotIn("publish.sh writes this", out)
+            self.assertEqual(code, 0, out)
+
+    def test_published_heliogram_missing_dmg_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self.heliogram_site(tmp)
+            shutil.copy(self.REPO / "heliograph" / "version.json", site / "heliogram")
+            code, out = self.run_contract(site)
+            self.assertIn("FAIL contract heliogram/Heliogram.dmg", out)
+            self.assertEqual(code, 1, out)
+
     def test_studio_template_renamed_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
             site = pathlib.Path(tmp)

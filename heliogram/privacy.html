@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Heliogram Privacy</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/assets/site.css?v=202610021742">
+<link rel="stylesheet" href="/assets/product.css?v=202610021742">
+</head>
+<body>
+<div data-include="header"></div>
+<main id="main" class="product">
+  <div style="text-align:left;max-width:36rem;margin:0 auto">
+    <h1>Heliogram privacy</h1>
+    <p class="tag">Effective 2026-09-28</p>
+
+    <p>Heliogram collects no personal data. It has no accounts, no analytics,
+       no advertising and no tracking, and we never learn who you are.</p>
+
+    <h2>What leaves your Mac</h2>
+    <p>To show the Sun, Heliogram downloads recent pictures and short videos of
+       it from imagery.myheliograph.com, which is served by Cloudflare, or from
+       Amazon Web Services when that server cannot be reached. The version
+       downloaded from this website also checks gilly.space, which is hosted by
+       GitHub, once a day for a newer version of itself.</p>
+    <p>Each of these requests carries what any web request carries: your IP
+       address, along with the name and version of the app and of macOS. We do
+       not log these requests ourselves, and we never sell them, share them or
+       combine them with anything else. Cloudflare, Amazon and GitHub keep their
+       own routine server records under their own privacy policies.</p>
+    <p>With Offline turned on (Kiosk turns it on), Heliogram itself makes no
+       network requests at all.</p>
+
+    <h2>What stays on your Mac</h2>
+    <p>Your settings live in Heliogram's own preferences, and the pictures and
+       videos it downloads are kept in your Mac's caches folder. None of it is
+       sent anywhere.</p>
+
+    <h2>Purchases</h2>
+    <p>In the App Store version, Kiosk is a one-time purchase sold by Apple.
+       Apple handles the payment, and Heliogram only checks whether the Apple ID
+       signed in on this Mac owns Kiosk. We never see your name, your Apple ID or
+       your payment details.</p>
+
+    <h2>Links to the print store</h2>
+    <p>A Heliogram screen can show a caption and QR code pointing to
+       myheliograph.com, where prints of the Sun are sold. Following that link
+       visits the My Heliograph website, which is separate from this app. The link
+       tells that site only that the visit came from Heliogram and which picture
+       of the Sun was on screen.</p>
+
+    <h2>Changes and questions</h2>
+    <p>If this policy changes, the new version will appear on this page with a new
+       date. Questions go to
+       <a href="mailto:support@myheliograph.com">support@myheliograph.com</a>.
+       Heliogram is made by Dr. Chris Gilbert.</p>
+  </div>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/site.js?v=202610021742"></script>
+</body>
+</html>

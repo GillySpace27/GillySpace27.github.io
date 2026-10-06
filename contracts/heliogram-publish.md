@@ -86,6 +86,9 @@ file: `publish.sh` is in the heliogram repo, which was not available.
 
 - Rule `contract`: every frozen path is tracked; `FROZEN_FEED` is listed in the
   frozen block; each `version.json` keeps the keys in `VERSION_JSON_KEYS`; once
-  any `heliogram/` file is tracked, every `writes` pattern matches a tracked file.
+  `heliogram/appcast.xml` or `heliogram/version.json` is tracked (a publish has
+  happened), every `writes` pattern matches a tracked file. Before that, the site
+  carries an interim `heliogram/index.html` and `privacy.html` (2026-10-06) whose
+  download button serves `heliograph/Heliograph.dmg`; the first publish replaces both.
 - Rule `feed` (WS-2): both appcasts parse and every gilly.space enclosure they
   name is tracked.
