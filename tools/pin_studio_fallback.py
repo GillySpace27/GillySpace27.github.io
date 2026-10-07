@@ -103,6 +103,11 @@ def main(argv=None):
             if not version:
                 version = tag[1:] if tag.startswith("v") else tag
             templates = check_site.contract_block(a.root / check_site.CONTRACT_STUDIO, "assets")
+            try:  # an optional asset may be absent; its fallback link then stays on an older release
+                optional = set(check_site.contract_block(a.root / check_site.CONTRACT_STUDIO, "optional-assets"))
+            except ValueError:
+                optional = set()
+            templates = [t for t in templates if t not in optional]
             problems = [f"MISSING {n}" for n in missing_assets(templates, version, names)]
             if tag != "v" + version:
                 problems.insert(0, f"newest release is {tag}, not v{version}")

@@ -23,6 +23,13 @@ HFStudio-{v}.zip
 HFStudio-Guide.pdf
 ```
 
+A release may ship without an asset listed here (2026-10-07: v0.8.5 has no
+Intel dmg). Its fallback link then stays on the newest release that has it.
+
+```optional-assets
+HFStudio-{v}-intel.dmg
+```
+
 | Template | Page element | Fallback line | Matched at runtime by |
 |---|---|---|---|
 | `HFStudio-{v}.dmg` | `#mac` | `:38` | `PLATFORMS.mac` `/^HFStudio-[\d.]+\.dmg$/` |

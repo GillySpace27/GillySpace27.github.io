@@ -93,6 +93,13 @@ class PinTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn(f"MISSING HFStudio-{NEW}-linux.tar.gz", err)
 
+    def test_from_github_without_optional_intel_pins(self):
+        names = assets_for(NEW) - {f"HFStudio-{NEW}-intel.dmg"}
+        pin.release_assets = lambda url=pin.RELEASES_API: ("v" + NEW, names)
+        code, out, err = self.run_main("--from-github")
+        self.assertEqual(code, 0, err)
+        self.assertIn(f"-> {NEW}", out)
+
     def test_from_github_complete_release_pins_newest(self):
         pin.release_assets = lambda url=pin.RELEASES_API: ("v" + NEW, assets_for(NEW))
         code, out, err = self.run_main("--from-github")

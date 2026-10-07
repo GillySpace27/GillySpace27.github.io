@@ -1013,12 +1013,26 @@ def check_studio_contract(ctx):
     pin = STUDIO_PIN_RE.search(page)
     if not pin:
         return [Finding("FAIL", "contract", STUDIO_PAGE, 0, "", "no pinned HFStudio-<version>.dmg link")]
-    ver, out = pin.group(1), []
-    names = [t.replace("{v}", ver) for t in templates]
-    for name in names:
-        if f"/releases/download/v{ver}/{name}" not in page:
-            out.append(Finding("FAIL", "contract", STUDIO_PAGE, 0, name,
-                               f"no fallback link to v{ver}/{name}"))
+    try:
+        optional = set(contract_block(ctx.root / CONTRACT_STUDIO, "optional-assets"))
+    except ValueError:
+        optional = set()
+    ver, out, names = pin.group(1), [], []
+    for t in templates:
+        name = t.replace("{v}", ver)
+        if f"/releases/download/v{ver}/{name}" in page:
+            names.append(name)
+            continue
+        if t in optional:
+            # A release may ship without this asset; its fallback then stays on an older release.
+            v_rx = r"(\d+(?:\.\d+)+)"
+            m = re.search(r"/releases/download/v" + v_rx + "/" + re.escape(t).replace(re.escape("{v}"), v_rx), page)
+            if m and m.group(1) == m.group(2):
+                names.append(t.replace("{v}", m.group(1)))
+                continue
+        names.append(name)
+        out.append(Finding("FAIL", "contract", STUDIO_PAGE, 0, name,
+                           f"no fallback link to v{ver}/{name}"))
     platforms = PLATFORM_RE.findall(page)
     if not platforms:
         out.append(Finding("FAIL", "contract", STUDIO_PAGE, 0, "PLATFORMS", "PLATFORMS not found"))

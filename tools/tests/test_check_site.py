@@ -288,6 +288,33 @@ class ContractTests(unittest.TestCase):
             self.assertIn("PLATFORMS.linux matches 0 assets", out)
             self.assertIn("no fallback link to v", out)
             self.assertEqual(code, 1, out)
+    def _studio_site(self, tmp, page_edit):
+        site = pathlib.Path(tmp)
+        (site / "contracts").mkdir()
+        shutil.copy(self.REPO / "contracts" / "studio-release-assets.md", site / "contracts")
+        (site / "heliofits-studio").mkdir()
+        page = (self.REPO / "heliofits-studio" / "index.html").read_text()
+        (site / "heliofits-studio" / "index.html").write_text(page_edit(page))
+        return site
+
+    def test_studio_optional_intel_from_older_release_passes(self):
+        # 0.8.5 shipped without an Intel dmg: its fallback may stay on an older release.
+        rx = re.compile(r"v[\d.]+/HFStudio-[\d.]+-intel\.dmg")
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self._studio_site(tmp, lambda p: rx.sub("v0.0.1/HFStudio-0.0.1-intel.dmg", p))
+            code, out = self.run_contract(site)
+            self.assertNotIn("FAIL contract heliofits-studio", out)
+            self.assertEqual(code, 0, out)
+
+    def test_studio_optional_intel_link_removed_fails(self):
+        rx = re.compile(r"https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v[\d.]+/HFStudio-[\d.]+-intel\.dmg")
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self._studio_site(tmp, lambda p: rx.sub("#", p))
+            code, out = self.run_contract(site)
+            self.assertIn("-intel.dmg", out)
+            self.assertIn("FAIL contract heliofits-studio", out)
+            self.assertEqual(code, 1, out)
+
     def test_real_tree_contracts_pass(self):
         code, out = self.run_contract(self.REPO)
         self.assertNotIn("FAIL contract", out)
