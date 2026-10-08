@@ -21,6 +21,10 @@
 .dl::after { content: none !important; }
 .dl b { font-size: 1.02rem; font-weight: 600; white-space: nowrap; }
 .dl small { font-size: .82rem; color: var(--muted); }
+/* Platform mark on a download tile (the Studio page): drawn in the tile's own text colour. */
+.dl .os { width: 1.6rem; height: 1.6rem; fill: currentColor; margin-bottom: .2rem; flex: none; }
+.platforms--lead .dl.primary .os { width: 2rem; height: 2rem; }
+.platforms--lead .dl:not(.primary) .os { width: 1.25rem; height: 1.25rem; }
 a.dl:hover, a.dl:focus-visible { border-color: var(--accent); color: var(--text); }
 a.dl.primary { background: var(--btn-bg); border-color: var(--btn-bg); color: var(--btn-text); }
 a.dl.primary small { color: inherit; opacity: .75; }
