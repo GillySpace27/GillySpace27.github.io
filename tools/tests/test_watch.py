@@ -12,11 +12,13 @@ import functools
 import http.server
 import io
 import pathlib
+import re
 import shutil
 import sys
 import tempfile
 import threading
 import unittest
+import urllib.parse
 
 TOOLS = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
@@ -78,6 +80,15 @@ class FollowTests(unittest.TestCase):
         self.assertEqual(res.status, 200)        # what a status-only check accepts
         self.assertEqual(v.level, "FAIL", v)
         self.assertIn("empty page", v.msg)
+
+    def test_expectations_match_the_tracked_stubs(self):
+        # A stub's meta refresh is where the live link lands; the watch must expect it.
+        for path, expected in watch.SHORT_LINKS.items():
+            stub = REPO / path.strip("/") / "index.html"
+            m = re.search(r'http-equiv="refresh" content="0; url=([^"]+)"', stub.read_text()) if stub.exists() else None
+            if m:
+                with self.subTest(path=path):
+                    self.assertEqual(urllib.parse.urlsplit(m.group(1)).path, expected)
 
 
 class FeedTests(unittest.TestCase):

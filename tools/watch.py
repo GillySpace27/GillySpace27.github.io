@@ -42,7 +42,7 @@ SHORT_LINKS = {
     "/jhv": "/heliofits-studio/",          # jhv/index.html:9,22 (owner question q6 open)
     "/heliofits": "/heliofits/",
     "/shop": "/shop",                      # shop/index.html:7-8 redirects to /shop; first live run records what Pages does
-    "/heliograph/": "/heliograph/",
+    "/heliograph/": "/heliogram/",         # heliograph/index.html:9 (rename redirect, PR #13)
     "/heliogram/": "/heliogram/",
 }
 TRACKED_ONLY = {"/heliogram/": "heliogram/index.html"}   # probed once the page is tracked
