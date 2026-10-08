@@ -56,10 +56,10 @@
       <b>Download for Intel Mac</b><small id="intel-note">Disk image · early build</small>
     </a>
     <a class="dl" id="windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-windows.zip">
-      <b>Download for Windows</b><small id="windows-note">Portable zip · no admin needed · early build</small>
+      <b>Download for Windows</b><small id="windows-note">64-bit · Java included · no admin needed</small>
     </a>
     <a class="dl" id="linux" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-linux.tar.gz">
-      <b>Download for Linux</b><small id="linux-note">.tar.gz · early build</small>
+      <b>Download for Linux</b><small id="linux-note">64-bit · Java included · please report problems</small>
     </a>
   </div>
   <p class="how" id="how"></p>
@@ -85,8 +85,9 @@
           Windows may warn about an unknown publisher; choose <i>More info</i>, then <i>Run anyway</i>.</li>
       <li><b>Linux:</b> unpack the <a id="try-linux" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-linux.tar.gz">Linux archive</a>
           anywhere and run <code>HFStudio/bin/HFStudio</code>. Java comes with it.</li>
-      <li><b>Early builds:</b> the Intel Mac, Windows and Linux packages carry their own Java and pass our
-          automated checks, but they are newer than the Mac one, so please tell us how they go.</li>
+      <li><b>Early builds:</b> the Intel Mac and Linux packages carry their own Java and pass our
+          automated checks, but few people have run them yet. Please try them, and tell us how it goes,
+          breakage included.</li>
       <li><b>Anything else:</b> the
           <a id="zip" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5.zip">cross-platform zip</a> runs wherever
           <a href="https://adoptium.net">Java 25</a> is installed: start <code>run.command</code>,
@@ -118,10 +119,10 @@
 const PLATFORMS = {
   mac:     { confirmed: true,  asset: /^HFStudio-[\d.]+\.dmg$/,                    how: "Open the disk image and drag HelioFITS Studio to Applications. Java comes with it." },
   intel:   { confirmed: false, asset: /^HFStudio-[\d.]+-intel\.dmg$/,              how: "Open the disk image and drag HelioFITS Studio to Applications. Java comes with it." },
-  windows: { confirmed: false, asset: /-windows\.(zip|msi|exe)$/i,              how: "A portable app, no administrator rights needed: right-click the zip, choose Extract All, then run HFStudio\\HFStudio.exe in the folder it makes. If Windows warns about an unknown publisher, choose More info, then Run anyway." },
-  linux:   { confirmed: false, asset: /-linux\.(tar\.gz|zip|AppImage|deb|rpm)$/i, how: "Unpack the archive anywhere and run HFStudio/bin/HFStudio. Java comes with it." },
+  windows: { confirmed: true,  asset: /-windows\.(zip|msi|exe)$/i,              how: "Download the zip, right-click it and choose Extract All (the app will not start from inside the zip), then open the HFStudio folder and run HFStudio.exe. No installer and no administrator rights are needed. It is not code-signed yet, so Windows may say it protected your PC; choose More info, then Run anyway." },
+  linux:   { confirmed: false, asset: /-linux\.(tar\.gz|zip|AppImage|deb|rpm)$/i, how: "Unpack it anywhere and run HFStudio/bin/HFStudio. Java comes with it." },
 };
-const EARLY = " This build passes our automated checks but is newer than the Mac one, so please tell us how it goes.";
+const EARLY = " This build passes our automated checks but few people have run it yet: please try it, and tell us how it goes, breakage included.";
 
 // Which tile to lead with: "mac", "intel", "windows", "linux", or null for no guess.
 // User-Agent Client Hints (navigator.userAgentData) where the browser has them, the user agent
