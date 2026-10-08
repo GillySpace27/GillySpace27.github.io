@@ -34,8 +34,8 @@
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="/assets/site.css?v=202610080248">
-<link rel="stylesheet" href="/assets/product.css?v=202610080248">
+<link rel="stylesheet" href="/assets/site.css?v=202610080352">
+<link rel="stylesheet" href="/assets/product.css?v=202610080352">
 </head>
 <body>
 <div data-include="header"></div>
@@ -71,6 +71,10 @@
     </a>
   </div>
   <p class="how" id="how"></p>
+  <!-- Revealed by the script: shows another platform's tile and steps without downloading. -->
+  <p class="switch" id="switch" hidden data-no-blank>Show steps for:
+    <a href="?os=mac" data-os="mac">Mac</a> · <a href="?os=intel" data-os="intel">Intel Mac</a> ·
+    <a href="?os=windows" data-os="windows">Windows</a> · <a href="?os=linux" data-os="linux">Linux</a></p>
 
   <p class="ver" id="ver">Version <span data-release="heliofits-studio" data-release-field="version">0.8.5</span> · pre-release</p>
   <p class="note" id="note"></p>
@@ -150,15 +154,21 @@ function guessOS() {
   return null;
 }
 
-let os = guessOS(), archKnown = false;
+// ?os=windows (or mac, intel, linux) picks the platform by hand, so a link can show
+// another platform's steps; the "Show steps for" links set it without a download.
+const asked = new URLSearchParams(location.search).get("os");
+let os = asked in PLATFORMS ? asked : guessOS(), archKnown = asked in PLATFORMS;
 
 function lead() {
   const box = document.getElementById("platforms");
   for (const id of Object.keys(PLATFORMS)) {
     const el = document.getElementById(id);
     el.classList.toggle("primary", id === (os || "mac"));
-    if (id === os) box.prepend(el);
+    box.append(el);
   }
+  if (os) box.prepend(document.getElementById(os));
+  for (const a of document.querySelectorAll("#switch a"))
+    a.toggleAttribute("aria-current", a.dataset.os === os);
   box.classList.toggle("platforms--lead", !!os);
   const how = document.getElementById("how"), note = document.getElementById("note");
   how.textContent = os ? PLATFORMS[os].how + (PLATFORMS[os].confirmed ? "" : EARLY) : "";
@@ -167,9 +177,20 @@ function lead() {
 }
 
 lead();
+const sw = document.getElementById("switch");
+sw.hidden = false;
+sw.addEventListener("click", e => {
+  const a = e.target.closest("a[data-os]");
+  if (!a) return;
+  e.preventDefault();
+  os = a.dataset.os; archKnown = true;
+  lead();
+  history.replaceState(null, "", "?os=" + os);
+});
 // Chromium can say whether a Mac is Apple Silicon or Intel.
-if (os === "mac" && navigator.userAgentData?.getHighEntropyValues)
+if (os === "mac" && !archKnown && navigator.userAgentData?.getHighEntropyValues)
   navigator.userAgentData.getHighEntropyValues(["architecture"]).then(v => {
+    if (archKnown) return; // the visitor picked a platform meanwhile
     if (v.architecture === "x86") os = "intel";
     if (v.architecture) { archKnown = true; lead(); }
   }).catch(() => {});
@@ -199,7 +220,7 @@ fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_p
     intelNote();
   }).catch(() => {});
 </script>
-<script src="/assets/product.js?v=202610080248"></script>
-<script src="/assets/site.js?v=202610080248"></script>
+<script src="/assets/product.js?v=202610080352"></script>
+<script src="/assets/site.js?v=202610080352"></script>
 </body>
 </html>
