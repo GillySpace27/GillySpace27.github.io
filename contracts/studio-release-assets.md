@@ -43,8 +43,10 @@ HFStudio-{v}-intel.dmg
 
 - Hand out the `/releases` index, never `/releases/latest`; the page asks for
   `releases?per_page=1` because every release so far is a pre-release (`:147-149`).
-- A platform tile lights only when a human has set `confirmed: true` after
-  running that build on real hardware (`:92-99`); nothing here or in WS-8 sets it.
+- Every platform tile is a live download (2026-10-08: a disabled Windows tile
+  read as "not available"). `confirmed: true`, set by a human after running that
+  build on real hardware, only drops the "early build" wording; nothing here or
+  in WS-8 sets it.
 - Checks: every template, with `{v}` set to the version pinned on the page,
   appears as a fallback link `/releases/download/v{v}/<name>`; every
   `PLATFORMS` pattern matches exactly one of those names.

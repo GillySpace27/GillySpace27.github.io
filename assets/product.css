@@ -27,6 +27,17 @@ a.dl.primary small { color: inherit; opacity: .75; }
 a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-text); }
 .dl[aria-disabled="true"] { cursor: not-allowed; border-style: dashed; color: var(--muted); background: transparent; box-shadow: none; }
 .dl[aria-disabled="true"] b { font-weight: 500; }
+/* Leading with the visitor's platform (set by the page's script): that tile spans the row in
+   colour, the others sit quieter in a row beneath it, still live links. */
+.platforms--lead { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 36rem; }
+.platforms--lead .dl.primary { grid-column: 1 / -1; min-height: 5.8rem; }
+.platforms--lead .dl:not(.primary) { min-height: 4.4rem; padding: .6rem .6rem; background: transparent; box-shadow: none; color: var(--muted); }
+.platforms--lead .dl:not(.primary):hover, .platforms--lead .dl:not(.primary):focus-visible { color: var(--text); }
+.platforms--lead .dl:not(.primary) b { font-size: .92rem; font-weight: 500; white-space: normal; }
+.platforms--lead .dl:not(.primary) small { font-size: .76rem; }
+@media (max-width: 34rem) { .platforms--lead { grid-template-columns: 1fr; } }
+.how { margin: .9rem auto 0; max-width: 32rem; font-size: .92rem; }
+.how:empty { display: none; }
 
 .ver { margin: 1rem 0 0; font-size: .9rem; color: var(--muted); min-height: 1.4em; }
 .note { margin: .6rem auto 0; max-width: 30rem; font-size: .9rem; color: var(--muted); }
