@@ -59,6 +59,9 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 
 /* ---- /heliosoftware/ family page ---- */
 .product .eyebrow a { color: var(--accent-text); }
+/* Back to the HelioSoftware index, top left, so a visitor can switch products without hunting. */
+.product .back { display: block; width: fit-content; margin: 0 auto 1.2rem 0; font-size: .92rem; color: var(--muted); text-decoration: none; }
+.product .back:hover, .product .back:focus-visible { color: var(--text); text-decoration: underline; }
 .product--wide { max-width: var(--maxw); }
 .sw-grid { text-align: left; margin-top: 2.2rem; }
 .sw-card > a { display: flex; flex-direction: column; height: 100%; padding: 24px 22px 20px; }
