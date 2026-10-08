@@ -34,8 +34,8 @@
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="/assets/site.css?v=202610021742">
-<link rel="stylesheet" href="/assets/product.css?v=202610021742">
+<link rel="stylesheet" href="/assets/site.css?v=202610080235">
+<link rel="stylesheet" href="/assets/product.css?v=202610080235">
 </head>
 <body>
 <div data-include="header"></div>
@@ -46,22 +46,23 @@
   <p class="tag">A desktop compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO
      and other coronagraph data.</p>
 
-  <!-- Correct without JavaScript: Mac live at the last known release, the other two off.
-       The script below only ever moves these forward, never switches one on by itself. -->
-  <div class="platforms">
+  <!-- Correct without JavaScript: every tile is a real download, the Mac one in colour.
+       The script below only reorders and labels them for the visitor's platform. -->
+  <div class="platforms" id="platforms">
     <a class="dl primary" id="mac" data-release="heliofits-studio" data-release-asset="macos-arm64" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5.dmg">
-      <b>Download for Mac</b><small id="mac-note">Apple Silicon · Java included</small>
+      <b>Download for Mac</b><small id="mac-note">Apple Silicon (M1 or later) · Java included</small>
     </a>
-    <a class="dl" id="intel" role="link" aria-disabled="true" title="Not yet tested on an Intel Mac">
-      <b>Download for Intel Mac</b><small id="intel-note">Untested: try it under Installing</small>
+    <a class="dl" id="intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3-intel.dmg">
+      <b>Download for Intel Mac</b><small id="intel-note">Disk image · early build</small>
     </a>
-    <a class="dl" id="windows" role="link" aria-disabled="true" title="Not yet tested on Windows">
-      <b>Download for Windows</b><small id="windows-note">Untested: try it under Installing</small>
+    <a class="dl" id="windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-windows.zip">
+      <b>Download for Windows</b><small id="windows-note">Portable zip · no admin needed · early build</small>
     </a>
-    <a class="dl" id="linux" role="link" aria-disabled="true" title="Not yet tested on Linux">
-      <b>Download for Linux</b><small id="linux-note">Untested: try it under Installing</small>
+    <a class="dl" id="linux" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-linux.tar.gz">
+      <b>Download for Linux</b><small id="linux-note">.tar.gz · early build</small>
     </a>
   </div>
+  <p class="how" id="how"></p>
 
   <p class="ver" id="ver">Version <span data-release="heliofits-studio" data-release-field="version">0.8.5</span> · pre-release</p>
   <p class="note" id="note"></p>
@@ -73,20 +74,19 @@
   </p>
 
   <details>
-    <summary>Installing, and other platforms</summary>
+    <summary>Installing, on every platform</summary>
     <ul>
-      <li><b>Mac:</b> open the disk image and drag the application to Applications. Java comes with it.</li>
-      <li><b>Intel Mac, Windows or Linux, if you want to try early:</b> these packages carry their
-          own Java and pass our automated checks, but nobody has run them on a real machine yet,
-          so please tell us how it goes.
-        <ul>
-          <li><a id="try-intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3-intel.dmg">Intel Mac disk image</a> (0.8.3; 0.8.5 has none): install as above.</li>
-          <li><a id="try-windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-windows.zip">Windows zip</a>: unzip it anywhere
-              and run the <code>.exe</code> inside the folder it makes. It is not code-signed yet, so Windows may
-              warn about an unknown publisher; choose <i>More info</i>, then <i>Run anyway</i>.</li>
-          <li><a id="try-linux" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-linux.tar.gz">Linux archive</a>: unpack it
-              anywhere and run the launcher in its <code>bin</code> folder.</li>
-        </ul></li>
+      <li><b>Mac (Apple Silicon):</b> open the disk image and drag the application to Applications. Java comes with it.</li>
+      <li><b>Intel Mac:</b> the <a id="try-intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3-intel.dmg">Intel disk image</a>
+          (0.8.3; 0.8.5 has none) installs the same way.</li>
+      <li><b>Windows:</b> the <a id="try-windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-windows.zip">Windows zip</a>
+          is a portable app; no administrator rights are needed. Right-click it, choose <i>Extract All</i>,
+          then run <code>HFStudio\HFStudio.exe</code> in the folder it makes. It is not code-signed yet, so
+          Windows may warn about an unknown publisher; choose <i>More info</i>, then <i>Run anyway</i>.</li>
+      <li><b>Linux:</b> unpack the <a id="try-linux" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-linux.tar.gz">Linux archive</a>
+          anywhere and run <code>HFStudio/bin/HFStudio</code>. Java comes with it.</li>
+      <li><b>Early builds:</b> the Intel Mac, Windows and Linux packages carry their own Java and pass our
+          automated checks, but they are newer than the Mac one, so please tell us how they go.</li>
       <li><b>Anything else:</b> the
           <a id="zip" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5.zip">cross-platform zip</a> runs wherever
           <a href="https://adoptium.net">Java 25</a> is installed: start <code>run.command</code>,
@@ -103,81 +103,94 @@
 </main>
 <div data-include="footer"></div>
 <script>
-// A platform's button goes live only when BOTH hold:
+// Every tile is a real download. This script leads with the visitor's platform and quiets the
+// others; it never hides or disables one (2026-10-07: Windows users read a disabled tile as
+// "not available").
 //   confirmed: someone has installed and run that platform's build on that OS. Set by hand,
-//              after testing; a release appearing never flips this on its own.
-//   asset:     the newest release carries a file for that platform.
-// The cross-platform zip deliberately matches neither Windows nor Linux: it needs Java installed
-// and is the fallback for anything else, under Installing. Unconfirmed packages are linked there too.
+//              after testing; while false the tile and its install line say "early build" (edit the
+//              tile text by hand when flipping it). A release never flips it.
+//   asset:     the file for that platform in the newest release; the tile keeps its fallback
+//              link when the release has none (0.8.5 has no Intel dmg).
+// The cross-platform zip deliberately matches no platform: it needs Java installed and is the
+// fallback for anything else, under Installing.
 // Mac and Intel Mac are matched by exact name: the Apple Silicon dmg is the bare one, so a pattern
 // like /\.dmg$/ would also pick up HFStudio-x-intel.dmg and could hand it to the wrong machine.
 const PLATFORMS = {
-  mac:     { confirmed: true,  asset: /^HFStudio-[\d.]+\.dmg$/,                    note: "Apple Silicon · Java included" },
-  intel:   { confirmed: false, asset: /^HFStudio-[\d.]+-intel\.dmg$/,              note: "Intel processors · Java included" },
-  // note: fill in the real requirements when the build is confirmed; nothing is known yet.
-  windows: { confirmed: false, asset: /-windows\.(zip|msi|exe)$/i,              note: "" },
-  linux:   { confirmed: false, asset: /-linux\.(tar\.gz|zip|AppImage|deb|rpm)$/i, note: "" },
+  mac:     { confirmed: true,  asset: /^HFStudio-[\d.]+\.dmg$/,                    how: "Open the disk image and drag HelioFITS Studio to Applications. Java comes with it." },
+  intel:   { confirmed: false, asset: /^HFStudio-[\d.]+-intel\.dmg$/,              how: "Open the disk image and drag HelioFITS Studio to Applications. Java comes with it." },
+  windows: { confirmed: false, asset: /-windows\.(zip|msi|exe)$/i,              how: "A portable app, no administrator rights needed: right-click the zip, choose Extract All, then run HFStudio\\HFStudio.exe in the folder it makes. If Windows warns about an unknown publisher, choose More info, then Run anyway." },
+  linux:   { confirmed: false, asset: /-linux\.(tar\.gz|zip|AppImage|deb|rpm)$/i, how: "Unpack the archive anywhere and run HFStudio/bin/HFStudio. Java comes with it." },
 };
+const EARLY = " This build passes our automated checks but is newer than the Mac one, so please tell us how it goes.";
 
-const os = (() => {
-  // Phones and tablets get no guess: Android reports "Linux" and an iPad reports "MacIntel", and
-  // neither can run the desktop app, so steering them to a tile would only mislead.
-  const ua = navigator.userAgent.toLowerCase();
-  if (/android|iphone|ipad|mobile/.test(ua) || (/mac/.test(ua) && navigator.maxTouchPoints > 1)) return null;
-  const p = (navigator.userAgentData?.platform || navigator.platform || ua).toLowerCase();
+// Which tile to lead with: "mac", "intel", "windows", "linux", or null for no guess.
+// User-Agent Client Hints (navigator.userAgentData) where the browser has them, the user agent
+// string otherwise. Only Chromium browsers report the CPU, so on a Mac in Safari or Firefox the
+// Apple Silicon tile leads and the visitor is pointed at the Intel one.
+function guessOS() {
+  const ua = navigator.userAgent;
+  const uad = navigator.userAgentData;
+  // Phones and tablets get no guess: Android reports Linux and an iPad reports a Mac, and
+  // neither can run the desktop app.
+  if (uad?.mobile || /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (/Mac/.test(ua) && navigator.maxTouchPoints > 1)) return null;
+  const p = (uad?.platform || navigator.platform || ua).toLowerCase();
   if (p.includes("win")) return "windows";
-  if (p.includes("linux") || p.includes("x11")) return "linux";
   if (p.includes("mac")) return "mac";
+  if (p.includes("cros") || p.includes("chrome os")) return null;
+  if (p.includes("linux") || p.includes("x11")) return "linux";
   return null;
-})();
-
-function setState(id, href) {
-  const el = document.getElementById(id);
-  if (href) {
-    el.href = href;
-    el.removeAttribute("aria-disabled");
-    el.removeAttribute("role");
-    el.removeAttribute("title");
-    document.getElementById(id + "-note").textContent = PLATFORMS[id].note;
-  }
 }
 
-function highlight() {
-  // The visitor's own platform leads when it is live; otherwise the Mac keeps the colour and
-  // the visitor is told plainly rather than left looking at a greyed-out button.
-  const live = id => !document.getElementById(id).hasAttribute("aria-disabled");
-  const lead = os && live(os) ? os : "mac";
-  for (const id of Object.keys(PLATFORMS))
-    document.getElementById(id).classList.toggle("primary", id === lead);
-  if (os && os !== "mac" && !live(os)) {
-    const name = os === "windows" ? "Windows" : "Linux";
-    document.getElementById("note").textContent =
-      "HelioFITS Studio isn't confirmed on " + name + " yet. You can try the untested " + name + " package under Installing below.";
+let os = guessOS(), archKnown = false;
+
+function lead() {
+  const box = document.getElementById("platforms");
+  for (const id of Object.keys(PLATFORMS)) {
+    const el = document.getElementById(id);
+    el.classList.toggle("primary", id === (os || "mac"));
+    if (id === os) box.prepend(el);
   }
+  box.classList.toggle("platforms--lead", !!os);
+  const how = document.getElementById("how"), note = document.getElementById("note");
+  how.textContent = os ? PLATFORMS[os].how + (PLATFORMS[os].confirmed ? "" : EARLY) : "";
+  note.textContent = !os ? "HelioFITS Studio is a desktop application for Mac, Windows and Linux."
+                   : os === "mac" && !archKnown ? "On an Intel Mac? Use the Intel Mac download instead." : "";
 }
 
-highlight();
+lead();
+// Chromium can say whether a Mac is Apple Silicon or Intel.
+if (os === "mac" && navigator.userAgentData?.getHighEntropyValues)
+  navigator.userAgentData.getHighEntropyValues(["architecture"]).then(v => {
+    if (v.architecture === "x86") os = "intel";
+    if (v.architecture) { archKnown = true; lead(); }
+  }).catch(() => {});
+
+// The Intel tile names its own version: it can trail the others.
+function intelNote() {
+  const v = document.getElementById("intel").href.match(/HFStudio-([\d.]+)-intel\.dmg/);
+  document.getElementById("intel-note").textContent = (v ? "Version " + v[1] + " · " : "") + "Java included · early build";
+}
+intelNote();
 
 // Every release so far is a pre-release, which GitHub's releases/latest skips, so ask for the
 // newest one outright. The links above are the fallback when this cannot reach GitHub.
 fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_page=1")
   .then(r => r.json()).then(([rel]) => {
-    const find = test => rel.assets.find(a => test instanceof RegExp ? test.test(a.name) : a.name.endsWith(test))?.browser_download_url;
+    const find = test => rel.assets.find(a => test.test(a.name))?.browser_download_url;
     if (!find(PLATFORMS.mac.asset)) return; // leave the fallback whole rather than mix versions
-    for (const [id, p] of Object.entries(PLATFORMS))
-      setState(id, p.confirmed ? find(p.asset) : null);
     // Exact, so a later HFStudio-x-windows.zip cannot take over the cross-platform link.
-    for (const [id, test] of [["zip", /^HFStudio-[\d.]+\.zip$/], ["guide", /Guide\.pdf$/],
+    for (const [id, test] of [...Object.entries(PLATFORMS).map(([id, p]) => [id, p.asset]),
+                              ["zip", /^HFStudio-[\d.]+\.zip$/], ["guide", /Guide\.pdf$/],
                               ["try-intel", PLATFORMS.intel.asset], ["try-windows", PLATFORMS.windows.asset],
                               ["try-linux", PLATFORMS.linux.asset]])
       if (find(test)) document.getElementById(id).href = find(test);
     document.getElementById("notes").href = rel.html_url;
     document.getElementById("ver").textContent =
       "Version " + rel.tag_name.replace(/^v/, "") + " · " + (rel.prerelease ? "pre-release" : "release");
-    highlight();
+    intelNote();
   }).catch(() => {});
 </script>
-<script src="/assets/product.js?v=202610021742"></script>
-<script src="/assets/site.js?v=202610021742"></script>
+<script src="/assets/product.js?v=202610080235"></script>
+<script src="/assets/site.js?v=202610080235"></script>
 </body>
 </html>
