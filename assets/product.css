@@ -42,6 +42,9 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 @media (max-width: 34rem) { .platforms--lead { grid-template-columns: 1fr; } }
 .how { margin: .9rem auto 0; max-width: 32rem; font-size: .92rem; }
 .how:empty { display: none; }
+.switch { margin: .5rem auto 0; font-size: .85rem; color: var(--muted); }
+.switch a { color: var(--muted); }
+.switch a[aria-current] { color: var(--text); font-weight: 600; text-decoration: none; }
 
 .ver { margin: 1rem 0 0; font-size: .9rem; color: var(--muted); min-height: 1.4em; }
 .note { margin: .6rem auto 0; max-width: 30rem; font-size: .9rem; color: var(--muted); }
