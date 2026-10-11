@@ -59,7 +59,7 @@
       if (here === path || here.indexOf(path + '/') === 0) a.setAttribute('aria-current', 'page');
     });
   }
-  var HEADER_FALLBACK = /* bake:header-fallback */ '<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/">gilly<span class="dot">.</span>space</a><nav class="site-nav" aria-label="Primary"><a href="/Research.html">Research</a> <a href="/sun.html">The Sun</a> <a href="/RecordedPublicTalks.html">Outreach</a> <a href="/play/">Play</a> <a href="/heliosoftware/">HelioSoftware</a> <a href="/shop.html">Store</a> <a href="/about.html">About / CV</a></nav></div></header>' /* /bake */;
+  var HEADER_FALLBACK = /* bake:header-fallback */ '<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/">gilly<span class="dot">.</span>space</a><nav class="site-nav" aria-label="Primary"><a href="/Research.html">Research</a> <a href="/sun.html">The Sun</a> <a href="/RecordedPublicTalks.html">Outreach</a> <a href="/play/">Play</a> <a href="/heliosoftware/">Software</a> <a href="/shop.html">Store</a> <a href="/about.html">About / CV</a></nav></div></header>' /* /bake */;
   var FOOTER_FALLBACK = '<footer class="site-footer"><div class="site-footer__inner"><span>&copy; Gilly &middot; gilly.space &middot; <a href="/">home</a></span></div></footer>';
   function inject(name, target, fallback) {
     var done = false;
@@ -297,9 +297,9 @@
       { t: 'Ensō editor', u: '/enso/pixelated-enso.html', k: 'sliders' },
       { t: 'Spectrum Sudoku', u: '/sudoku/', k: 'puzzle color' },
       { t: 'Which Claude? — model field guide', u: '/whichclaude.html', k: 'ai models opus sonnet haiku fable' },
-      { t: 'Store — Solar Archive', u: '/shop.html', k: 'prints buy' },
+      { t: 'Store: My Heliograph', u: '/shop.html', k: 'prints buy' },
       { t: 'About & CV', u: '/about.html', k: 'bio resume contact' },
-      { t: 'HelioSoftware', u: '/heliosoftware/', k: 'software apps heliograph heliogram heliofits studio rhef' },
+      { t: 'Software', u: '/heliosoftware/', k: 'software apps heliosoftware heliograph heliogram heliofits studio rhef' },
       { t: 'HelioFITS', u: '/heliofits/', k: 'fits finder quick look mac preview' },
       { t: 'HelioFITS Studio', u: '/heliofits-studio/', k: 'viewer corona coronagraph wide-field jhelioviewer' },
       { t: 'RHEF', u: '/rhef/', k: 'filter corona python sunkit-image histogram' },

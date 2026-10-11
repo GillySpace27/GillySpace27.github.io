@@ -18,7 +18,7 @@
       "href": "/play/"
     },
     {
-      "label": "HelioSoftware",
+      "label": "Software",
       "href": "/heliosoftware/",
       "children": [
         {
@@ -216,7 +216,7 @@
       "path": "shop.html",
       "url": "/shop.html",
       "title": "My Heliograph: prints",
-      "palette": "Store \u2014 Solar Archive",
+      "palette": "Store: My Heliograph",
       "keywords": "prints buy",
       "sitemap": true,
       "priority": "0.7",
@@ -261,9 +261,9 @@
     {
       "path": "heliosoftware/index.html",
       "url": "/heliosoftware/",
-      "title": "HelioSoftware",
-      "palette": "HelioSoftware",
-      "keywords": "software apps heliograph heliogram heliofits studio rhef",
+      "title": "Software",
+      "palette": "Software",
+      "keywords": "software apps heliosoftware heliograph heliogram heliofits studio rhef",
       "sitemap": true,
       "priority": "0.8",
       "archived": false,

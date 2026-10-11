@@ -11,6 +11,9 @@ Notable changes to gilly.space, newest first, by commit date. Full history:
   its card lists Mac and Windows with Intel Mac and Linux in testing. The print store
   is called My Heliograph (its public brand) on the home page and the `/shop/` stub,
   not Solar Archive. The HelioSoftware description counts four tools, RHEF included.
+- The HelioSoftware umbrella name is retired from the site's visible text (Gilly's
+  pick, 2026-10-11): the nav, footers, back links, hub heading, search palette and
+  feed title say Software. Every `/heliosoftware/` URL, the feed and `spec/` stay.
 
 ## 2026-10-01
 
