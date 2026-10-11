@@ -5,7 +5,7 @@ colour channel. This page records what the two implementations do, as read from 
 It is a description for people who want the two to agree, not a specification of the science. RHEF output is a
 visualization, not a calibrated radiance.
 
-| Step | sunback `RainbowRGBImageProcessor` (rgb1) | My Heliograph store |
+| Step | sunback `RainbowRGBImageProcessor` (rgb1) | My Heliogram store |
 |---|---|---|
 | Channels | 171, 193 and 211 as red, green, blue (`rgb1 = ("0171", "0193", "0211")`, `CompositeRainbowImageProcessor.py:33`) | `RAINBOW_RGB = [171, 193, 211]` (`web3d/src/data/wavelengths.ts:50`) |
 | Input to each channel | the RHEF frame, default `rhef(lev1p5)` (`:130`), as an array | the greyscale RHEF product of each channel (`preview_gray_url`, `useRainbowLoader.ts:13-18,33`), not the colour-mapped picture |
