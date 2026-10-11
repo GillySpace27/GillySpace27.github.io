@@ -18,7 +18,7 @@
       "href": "/play/"
     },
     {
-      "label": "HelioSoftware",
+      "label": "Software",
       "href": "/heliosoftware/",
       "children": [
         {
@@ -38,7 +38,7 @@
         {
           "label": "HelioFITS Studio",
           "href": "/heliofits-studio/",
-          "blurb": "A compositor and work surface for the corona",
+          "blurb": "A desktop viewer for coronagraph and wide-field data",
           "icon": "/assets/sw/heliofits-studio.png",
           "mark": null
         },
@@ -216,7 +216,7 @@
       "path": "shop.html",
       "url": "/shop.html",
       "title": "My Heliograph: prints",
-      "palette": "Store \u2014 Solar Archive",
+      "palette": "Store: My Heliograph",
       "keywords": "prints buy",
       "sitemap": true,
       "priority": "0.7",
@@ -261,13 +261,13 @@
     {
       "path": "heliosoftware/index.html",
       "url": "/heliosoftware/",
-      "title": "HelioSoftware",
-      "palette": "HelioSoftware",
-      "keywords": "software apps heliograph heliogram heliofits studio rhef",
+      "title": "Software",
+      "palette": "Software",
+      "keywords": "software apps heliosoftware heliograph heliogram heliofits studio rhef",
       "sitemap": true,
       "priority": "0.8",
       "archived": false,
-      "description": "Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio."
+      "description": "Four tools that put the Sun where you already work: Heliogram, HelioFITS, HelioFITS Studio and RHEF."
     },
     {
       "path": "heliosoftware/spec/index.html",
@@ -299,11 +299,11 @@
       "url": "/heliofits-studio/",
       "title": "HelioFITS Studio",
       "palette": "HelioFITS Studio",
-      "keywords": "compositor corona coronagraph work surface",
+      "keywords": "viewer corona coronagraph wide-field jhelioviewer",
       "sitemap": true,
       "priority": "0.7",
       "archived": false,
-      "description": "HelioFITS Studio: a desktop compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.",
+      "description": "HelioFITS Studio: a desktop viewer for solar and heliospheric imagery, built around coronagraph and wide-field data such as PUNCH, SOHO/LASCO and PROBA-3/ASPIICS.",
       "head_title": "HelioFITS Studio"
     },
     {
@@ -392,7 +392,7 @@
     },
     {
       "path": "shop/index.html",
-      "title": "Solar Archive \u2014 prints \u00b7 gilly.space",
+      "title": "My Heliograph: prints \u00b7 gilly.space",
       "target": "/shop",
       "canonical": "https://gilly.space/shop",
       "template": "stub-shop.html"

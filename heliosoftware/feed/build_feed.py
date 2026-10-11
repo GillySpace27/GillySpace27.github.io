@@ -39,9 +39,9 @@ PAGE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>What's new · HelioSoftware · gilly.space</title>
+<title>What's new · Software · gilly.space</title>
 <meta name="description" content="Release notes for Heliogram, HelioFITS, HelioFITS Studio and sunback, newest first.">
-<link rel="alternate" type="application/atom+xml" title="HelioSoftware releases" href="/heliosoftware/feed.xml">
+<link rel="alternate" type="application/atom+xml" title="gilly.space software releases" href="/heliosoftware/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <script>
   (function () {
@@ -62,7 +62,7 @@ PAGE = """<!doctype html>
 <body>
 <div data-include="header"></div>
 <main id="main" class="product product--wide" data-no-blank>
-  <p class="eyebrow"><a href="/heliosoftware/">HelioSoftware</a></p>
+  <p class="eyebrow"><a href="/heliosoftware/">Software</a></p>
   <h1>What's new</h1>
   <p class="tag">Every release of the family, newest first. Also as an <a href="/heliosoftware/feed.xml">Atom feed</a>.</p>
   <ul class="points">
@@ -126,7 +126,7 @@ def render_atom(entries) -> str:
     ordered = order(entries)
     newest = ordered[0][2]["date"] if ordered else "1970-01-01"
     feed = ET.Element(q("feed"))
-    add(feed, "title", "HelioSoftware releases")
+    add(feed, "title", "gilly.space software releases")
     add(feed, "id", f"{SITE}/heliosoftware/feed.xml")
     add(feed, "updated", f"{newest}T00:00:00Z")
     add(add(feed, "author"), "name", "gilly.space")
