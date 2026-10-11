@@ -3,6 +3,15 @@
 Notable changes to gilly.space, newest first, by commit date. Full history:
 `git log`. Add an entry with each change worth telling a visitor or an agent.
 
+## 2026-10-11
+
+- Software names brought up to date: HelioFITS Studio is described as its README
+  describes it (a desktop viewer for coronagraph and wide-field data, an unofficial
+  fork of JHelioviewer) on its page, the HelioSoftware card, the nav menu and search;
+  its card lists Mac and Windows with Intel Mac and Linux in testing. The print store
+  is called My Heliograph (its public brand) on the home page and the `/shop/` stub,
+  not Solar Archive. The HelioSoftware description counts four tools, RHEF included.
+
 ## 2026-10-01
 
 - `whichclaude.html`: lineup refreshed to the current Claude models (048c0f2) and
