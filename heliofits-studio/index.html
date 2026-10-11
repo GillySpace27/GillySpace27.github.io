@@ -60,7 +60,7 @@
     <a class="dl primary" id="mac" data-release="heliofits-studio" data-release-asset="macos-arm64" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6.dmg">
       <svg class="os" aria-hidden="true"><use href="#os-apple"/></svg><b>Download for Mac</b><small id="mac-note">Apple Silicon (M1 or later) · Java included</small>
     </a>
-    <a class="dl" id="intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3-intel.dmg">
+    <a class="dl" id="intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6-intel.dmg">
       <svg class="os" aria-hidden="true"><use href="#os-apple"/></svg><b>Download for Intel Mac</b><small id="intel-note">Disk image · early build</small>
     </a>
     <a class="dl" id="windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6-windows.zip">
@@ -89,8 +89,8 @@
     <summary>Installing, on every platform</summary>
     <ul>
       <li><b>Mac (Apple Silicon):</b> open the disk image and drag the application to Applications. Java comes with it.</li>
-      <li><b>Intel Mac:</b> the <a id="try-intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3-intel.dmg">Intel disk image</a>
-          (0.8.3; 0.8.6 has none) installs the same way.</li>
+      <li><b>Intel Mac:</b> the <a id="try-intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6-intel.dmg">Intel disk image</a>
+          installs the same way.</li>
       <li><b>Windows:</b> the <a id="try-windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6-windows.zip">Windows zip</a>
           is a portable app; no administrator rights are needed. Right-click it, choose <i>Extract All</i>,
           then run <code>HFStudio\HFStudio.exe</code> in the folder it makes. It is not code-signed yet, so
@@ -123,7 +123,7 @@
 //              after testing; while false the tile and its install line say "early build" (edit the
 //              tile text by hand when flipping it). A release never flips it.
 //   asset:     the file for that platform in the newest release; the tile keeps its fallback
-//              link when the release has none (0.8.6 has no Intel dmg).
+//              link when the release has none.
 // The cross-platform zip deliberately matches no platform: it needs Java installed and is the
 // fallback for anything else, under Installing.
 // Mac and Intel Mac are matched by exact name: the Apple Silicon dmg is the bare one, so a pattern
