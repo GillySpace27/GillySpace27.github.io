@@ -118,10 +118,6 @@ h2.sub{font-family:var(--f-display);font-weight:600;font-size:24px;margin:56px 0
 .prod h3{margin:0 0 2px;font-size:15px}
 .prod .plat{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-bottom:6px}
 .prod p{margin:0;font-size:13.5px}
-.prod .absorbs{margin-top:6px;font-size:12.5px;color:var(--muted)}
-.house{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:22px 0 8px}
-.noupd{margin-top:28px;padding:14px 16px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);font-size:14px;max-width:72ch}
-.noupd strong{font-weight:600}
 footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
 
 @media (max-width:640px){
@@ -137,7 +133,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
 <main id="main" class="wrap">
 <a class="back" href="/heliosoftware/">&larr; Software</a>
 <header>
-  <div class="eyebrow">gilly.space · Software · plan of record, 2026-10-12</div>
+  <div class="eyebrow">gilly.space · Software · updated 2026-10-12</div>
   <h1>What you're stuck on, and which tool gets you unstuck</h1>
   <p>Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens: find the data, look at it, work with it, make something, share it. Dashed cards are approved but not built yet. Cards with a grey edge are planned utilities that will fold into an existing product rather than ship on their own.</p>
   <div class="legend">
@@ -202,7 +198,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
 </section>
 
 <section class="stage">
-  <div class="stage-head"><span class="n">5</span><h2>Share the Sun</h2><p>The other house: curated imagery with a point of view.</p></div>
+  <div class="stage-head"><span class="n">5</span><h2>Share the Sun</h2><p>Imagery to look at, show off and hang up.</p></div>
   <div class="row" data-p="heliogram"><div class="need">I just want to look up and see today's Sun.</div><div class="link"></div>
     <div class="ans"><div class="who"><a class="tag" href="/heliogram/">Heliogram</a><span class="st ok">available</span></div><p>The last 48 hours of the Sun as your desktop picture, screen saver or a wall of video. macOS.</p></div></div>
   <div class="row" data-p="sun"><div class="need">I want to check on the Sun from any browser, with nothing to install.</div><div class="link"></div>
@@ -217,27 +213,19 @@ footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
     <div class="ans"><div class="who"><a class="tag" href="/shop.html">My Heliograph</a><span class="st ok">available</span></div><p>Pick a date and a wavelength, Original or Enhanced, and order a print at myheliograph.com.</p></div></div>
 </section>
 
-<h2 class="sub">The roster behind the chart</h2>
-<p class="sub-lede">Two houses that never share a name. The lens house is free and works on your own files. The content house has a point of view and one funnel: see it on a screen, ask what it is, buy the print.</p>
-
-<div class="house">Lens house</div>
+<h2 class="sub">The tools</h2>
+<p class="sub-lede">Everything on this page, available now or on the way.</p>
 <div class="products">
-  <div class="prod plan"><h3>Heliad</h3><div class="plat">new · finds it and keeps it</div><p>Search, download, library, watch and hand off to HelioFITS and Studio.</p><div class="absorbs">Absorbs: header and WCS checks, file blinking, batch figure export, family status pane.</div></div>
-  <div class="prod"><h3><a href="/heliofits/">HelioFITS</a></h3><div class="plat">macOS · Mac App Store · iOS in progress</div><p>Quick Look previews, Finder thumbnails, Spotlight metadata and a viewer window.</p><div class="absorbs">Absorbs: single-panel figure export. Grows: Web, CLI, VS Code and Jupyter.</div></div>
-  <div class="prod"><h3><a href="/heliofits-studio/">HelioFITS Studio</a></h3><div class="plat">Mac and Windows · Intel Mac and Linux in testing</div><p>Layers, timelines, alignment and movies for the coronagraphs and wide-field imagers.</p><div class="absorbs">Absorbs: cross-instrument compare, figure export.</div></div>
-  <div class="prod"><h3><a href="/rhef/">RHEF</a></h3><div class="plat">Python · sunkit-image</div><p>The Radial Histogram Equalizing Filter, used by every other tool in the family.</p></div>
-</div>
-
-<div class="house">Content house</div>
-<div class="products">
-  <div class="prod"><h3><a href="/heliogram/">Heliogram</a></h3><div class="plat">macOS · direct download</div><p>The live Sun on your screens.</p><div class="absorbs">Grows: Apple TV, iPhone, embed snippet.</div></div>
-  <div class="prod"><h3><a href="/sun.html">The Sun, right now</a></h3><div class="plat">web · gilly.space/sun.html</div><p>Today's Sun in any browser, from the same pipeline.</p></div>
+  <div class="prod"><h3><a href="/heliogram/">Heliogram</a></h3><div class="plat">macOS · direct download</div><p>The live Sun on your screens.</p></div>
+  <div class="prod"><h3><a href="/heliofits/">HelioFITS</a></h3><div class="plat">macOS · Mac App Store</div><p>Quick Look previews, Finder thumbnails, Spotlight metadata and a viewer window.</p></div>
+  <div class="prod"><h3><a href="/heliofits-studio/">HelioFITS Studio</a></h3><div class="plat">Mac and Windows · Intel Mac and Linux in testing</div><p>Layers, timelines, alignment and movies for the coronagraphs and wide-field imagers.</p></div>
+  <div class="prod"><h3><a href="/rhef/">RHEF</a></h3><div class="plat">Python · sunkit-image</div><p>The Radial Histogram Equalizing Filter: faint corona, in one line of Python.</p></div>
+  <div class="prod"><h3><a href="/sun.html">The Sun, right now</a></h3><div class="plat">web · any browser</div><p>Today's Sun, updated every 20 minutes.</p></div>
   <div class="prod"><h3><a href="/shop.html">My Heliograph</a></h3><div class="plat">web · myheliograph.com</div><p>Prints of the Sun on any date.</p></div>
+  <div class="prod plan"><h3>Heliad</h3><div class="plat">planned</div><p>Find solar data, download it and keep it in one library.</p></div>
 </div>
 
-<div class="noupd"><strong>Heliad does not install or update the other apps.</strong> HelioFITS updates through the App Store, Heliogram through its own signed feed, Studio through its GitHub check and RHEF through pip. Heliad only shows what's current and links to the right page.</div>
-
-<footer>Sources: the Software page in the gilly.space repository, the 2026-09-05 product-family notes in the vault, and the suite audit of 2026-10-12. Planned items are approved directions, not commitments to a date. Approved by Gilly on 2026-10-12, with figure export, header checks and compare folded into existing products.</footer>
+<footer>Planned items are directions, not promises of a date. This page grows as the tools do.</footer>
 </main>
 
 <script>
