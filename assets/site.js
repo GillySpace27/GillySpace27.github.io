@@ -300,6 +300,7 @@
       { t: 'Store: My Heliograph', u: '/shop.html', k: 'prints buy' },
       { t: 'About & CV', u: '/about.html', k: 'bio resume contact' },
       { t: 'Software', u: '/heliosoftware/', k: 'software apps heliosoftware heliograph heliogram heliofits studio rhef' },
+      { t: 'Which Sun tool do I need?', u: '/heliosoftware/decide/', k: 'help me decide software chart heliad heliofits heliogram studio rhef' },
       { t: 'HelioFITS', u: '/heliofits/', k: 'fits finder quick look mac preview' },
       { t: 'HelioFITS Studio', u: '/heliofits-studio/', k: 'viewer corona coronagraph wide-field jhelioviewer' },
       { t: 'RHEF', u: '/rhef/', k: 'filter corona python sunkit-image histogram' },

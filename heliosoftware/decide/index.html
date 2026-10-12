@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- bake:head -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which Sun tool do I need? · gilly.space</title>
+<meta name="description" content="Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens, and the tool that answers it.">
+<link rel="canonical" href="https://gilly.space/heliosoftware/decide/">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Which Sun tool do I need? · gilly.space">
+<meta property="og:description" content="Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens, and the tool that answers it.">
+<meta property="og:url" content="https://gilly.space/heliosoftware/decide/">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake -->
+<script>
+  /* The chart keeps its own palette; follow the site's theme choice (enso-theme) when it is explicit. */
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme');
+      if (mode === 'dark' || mode === 'light') document.documentElement.setAttribute('data-theme', mode);
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: the workflow from finding a file to sharing the Sun, one stage per band; each band pairs what a person says with the tool that answers it.
+   Source of record for this chart; the Software page's "Help me decide" button opens it. Edit it here as the suite fills out. */
+:root{
+  --bg:#f6f4ef; --panel:#fffdf8; --fg:#1f1d1a; --muted:#6b665d; --rule:#ddd7cb;
+  --accent:#a8741a;        /* AIA 171 gold */
+  --ok:#2f7d4f; --plan:#9a6a12; --fold:#6b665d;
+  --chip:#efe9dc;
+  --f-display:"Newsreader",Georgia,serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15130f; --panel:#1d1a15; --fg:#ece6da; --muted:#a39b8c; --rule:#38322a;
+  --accent:#e0a640; --ok:#6cc08d; --plan:#e0b257; --fold:#a39b8c; --chip:#2a251e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15130f; --panel:#1d1a15; --fg:#ece6da; --muted:#a39b8c; --rule:#38322a;
+  --accent:#e0a640; --ok:#6cc08d; --plan:#e0b257; --fold:#a39b8c; --chip:#2a251e; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+a{color:inherit;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:2px}
+a:hover{text-decoration-color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+.skip-link{position:absolute;left:12px;top:-60px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:6px 12px;z-index:10}
+.skip-link:focus{top:12px}
+.back{display:inline-block;font-size:13.5px;color:var(--muted);text-decoration:none;margin-bottom:22px}
+.back:hover{color:var(--fg)}
+header h1{font-family:var(--f-display);font-weight:600;font-size:clamp(30px,5vw,46px);line-height:1.08;margin:0 0 10px;text-wrap:balance}
+header p{color:var(--muted);max-width:62ch;margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:22px 0 6px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot.ok{background:var(--ok)} .dot.plan{border:2px dashed var(--plan);width:7px;height:7px}
+.dot.fold{background:transparent;border:2px solid var(--fold);width:7px;height:7px;border-radius:2px}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
+.filters button{font:500 13px var(--f-body);color:var(--fg);background:var(--chip);border:1px solid transparent;border-radius:999px;padding:5px 12px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.filters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.stage{margin-top:40px}
+.stage-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:6px}
+.stage-head .n{font-family:var(--f-mono);font-size:12px;color:var(--accent)}
+.stage-head h2{font-family:var(--f-display);font-weight:600;font-size:24px;margin:0}
+.stage-head p{margin:0 0 0 auto;color:var(--muted);font-size:13px}
+
+.row{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1.15fr);align-items:center;gap:0 6px;padding:12px 0;border-bottom:1px dashed var(--rule);transition:opacity .2s}
+.row.dim{opacity:.22}
+.need{font-family:var(--f-display);font-style:italic;font-size:19px;line-height:1.3;min-width:0}
+.need::before{content:"\201C";color:var(--accent)} .need::after{content:"\201D";color:var(--accent)}
+.link{height:1px;background:var(--rule);position:relative}
+.link::after{content:"";position:absolute;right:-1px;top:-3px;border:3.5px solid transparent;border-left:5px solid var(--muted)}
+.ans{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;min-width:0}
+.ans.plan{border-style:dashed;border-color:var(--plan)}
+.ans.fold{border-left:4px solid var(--fold)}
+.ans .who{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:3px}
+.tag{font:600 13.5px var(--f-body)}
+.st{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:4px;background:var(--chip);color:var(--muted)}
+.st.ok{color:var(--ok)} .st.plan{color:var(--plan)}
+.ans p{margin:0;font-size:14px;color:var(--fg)}
+.plus{color:var(--muted);font-size:13px}
+
+h2.sub{font-family:var(--f-display);font-weight:600;font-size:24px;margin:56px 0 6px}
+.sub-lede{color:var(--muted);margin:0 0 16px;max-width:64ch}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.prod{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:12px 14px}
+.prod.plan{border-style:dashed;border-color:var(--plan)}
+.prod h3{margin:0 0 2px;font-size:15px}
+.prod .plat{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-bottom:6px}
+.prod p{margin:0;font-size:13.5px}
+footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
+
+@media (max-width:640px){
+  .row{grid-template-columns:1fr;gap:6px}
+  .link{display:none}
+  .stage-head{flex-wrap:wrap} .stage-head p{margin-left:0;flex-basis:100%}
+}
+@media (prefers-reduced-motion:reduce){.row{transition:none}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="wrap">
+<a class="back" href="/heliosoftware/">&larr; Software</a>
+<header>
+  <div class="eyebrow">gilly.space · Software · updated 2026-10-12</div>
+  <h1>What you're stuck on, and which tool gets you unstuck</h1>
+  <p>Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens: find the data, look at it, work with it, make something, share it. Dashed cards are approved but not built yet. Cards with a grey edge are planned utilities that will fold into an existing product rather than ship on their own.</p>
+  <div class="legend">
+    <span><i class="dot ok"></i>Available now</span>
+    <span><i class="dot plan"></i>Approved, not built</span>
+    <span><i class="dot fold"></i>Planned, folded into another product</span>
+  </div>
+  <div class="filters" role="group" aria-label="Show needs answered by one product">
+    <button type="button" id="f-all" data-f="all" aria-pressed="true">Everything</button>
+    <button type="button" id="f-heliad" data-f="heliad" aria-pressed="false">Heliad</button>
+    <button type="button" id="f-heliofits" data-f="heliofits" aria-pressed="false">HelioFITS</button>
+    <button type="button" id="f-studio" data-f="studio" aria-pressed="false">HelioFITS Studio</button>
+    <button type="button" id="f-rhef" data-f="rhef" aria-pressed="false">RHEF</button>
+    <button type="button" id="f-heliogram" data-f="heliogram" aria-pressed="false">Heliogram</button>
+    <button type="button" id="f-sun" data-f="sun" aria-pressed="false">The Sun, right now</button>
+    <button type="button" id="f-store" data-f="store" aria-pressed="false">My Heliograph</button>
+  </div>
+</header>
+
+<section class="stage">
+  <div class="stage-head"><span class="n">1</span><h2>Find it</h2><p>The empty seat today. Heliad fills it.</p></div>
+  <div class="row" data-p="heliad"><div class="need">I don't know how to get the data I need.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">Heliad</span><span class="st plan">planned</span></div><p>Search by time, instrument and wavelength; queue downloads from the archives and resume them when the connection drops.</p></div></div>
+  <div class="row" data-p="heliad"><div class="need">My downloads are in five folders and half of them are duplicates.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">Heliad</span><span class="st plan">planned</span></div><p>One library with one folder convention, checksums verified on arrival, duplicates caught.</p></div></div>
+  <div class="row" data-p="heliad"><div class="need">I want new frames to show up on my disk as they're released.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">Heliad</span><span class="st plan">planned</span></div><p>Watch a source or a folder; new files land in the library and get indexed.</p></div></div>
+  <div class="row" data-p="heliad"><div class="need">Is this header lying to me?</div><div class="link"></div>
+    <div class="ans fold"><div class="who"><span class="tag">Heliad</span><span class="st">header checks folded in</span><span class="st plan">planned</span></div><p>Headers and WCS are checked as files arrive: rotation keys that disagree, the wrong time scale, a solar radius that doesn't match the plate scale.</p></div></div>
+  <div class="row" data-p="heliad"><div class="need">Which of my Sun tools are out of date?</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">Heliad</span><span class="st plan">planned</span></div><p>A read-only status pane showing installed and latest versions from the family release feed. Each app still updates itself through its own channel.</p></div></div>
+</section>
+
+<section class="stage">
+  <div class="stage-head"><span class="n">2</span><h2>Look at it</h2><p>Seconds, on a file you already have.</p></div>
+  <div class="row" data-p="heliofits"><div class="need">I can't see which file is blurry.</div><div class="link"></div>
+    <div class="ans"><div class="who"><a class="tag" href="/heliofits/">HelioFITS</a><span class="st ok">available</span></div><p>Finder thumbnails render every FITS file as the Sun, in the instrument's colormap.</p></div></div>
+  <div class="row" data-p="heliofits"><div class="need">I have a folder full of .fits files and no idea which is which.</div><div class="link"></div>
+    <div class="ans"><div class="who"><a class="tag" href="/heliofits/">HelioFITS</a><span class="st ok">available</span></div><p>Press Space for a Quick Look preview with real coordinates; search the metadata in Spotlight.</p></div></div>
+  <div class="row" data-p="heliofits"><div class="need">I'm not on a Mac, or the file is on a cluster I just logged into.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">HelioFITS Web</span><span class="st plan">planned</span></div><p>Drop the file on a web page. It renders in your browser; nothing uploads and there's no account.</p></div></div>
+  <div class="row" data-p="heliofits"><div class="need">I want to see the image without leaving my editor or notebook.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">HelioFITS for VS Code and Jupyter</span><span class="st plan">planned</span></div><p>Inline previews where you already work.</p></div></div>
+  <div class="row" data-p="heliofits"><div class="need">I need headers and thumbnails from a script.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">HelioFITS CLI</span><span class="st plan">planned</span></div><p>Header dump, render and contact sheets from the command line, ready for a Makefile.</p></div></div>
+</section>
+
+<section class="stage">
+  <div class="stage-head"><span class="n">3</span><h2>Work with it</h2><p>Sit down with a series and follow the physics.</p></div>
+  <div class="row" data-p="studio"><div class="need">I'm following a CME out through the coronagraphs.</div><div class="link"></div>
+    <div class="ans"><div class="who"><a class="tag" href="/heliofits-studio/">HelioFITS Studio</a><span class="st ok">available</span></div><p>Layers, timelines and movies for coronagraph and wide-field data such as PUNCH, SOHO/LASCO and PROBA-3/ASPIICS.</p></div></div>
+  <div class="row" data-p="studio heliad"><div class="need">What changed between these two frames, or these two instruments?</div><div class="link"></div>
+    <div class="ans fold"><div class="who"><span class="tag">HelioFITS Studio</span><span class="plus">and</span><span class="tag">Heliad</span><span class="st">compare folded in</span><span class="st plan">planned</span></div><p>Studio aligns and differences layers across instruments. Heliad blinks two files in your library side by side.</p></div></div>
+  <div class="row" data-p="rhef"><div class="need">My figure shows a bright ball in a dark void, and I know there's corona out there.</div><div class="link"></div>
+    <div class="ans"><div class="who"><a class="tag" href="/rhef/">RHEF</a><span class="st ok">available</span></div><p>One call in sunkit-image brings out faint structure on the disk and off the limb, with no tuning. A visualization, not a calibrated radiance.</p></div></div>
+</section>
+
+<section class="stage">
+  <div class="stage-head"><span class="n">4</span><h2>Make something</h2><p>From a good look to a figure you can submit.</p></div>
+  <div class="row" data-p="studio heliofits heliad"><div class="need">I need a journal-ready panel, and I'm tired of rewriting the same matplotlib code.</div><div class="link"></div>
+    <div class="ans fold"><div class="who"><span class="tag">Studio</span><span class="plus">,</span><span class="tag">HelioFITS</span><span class="plus">and</span><span class="tag">Heliad</span><span class="st">figure export folded in</span><span class="st plan">planned</span></div><p>WCS axes, a colorbar with honest limits, limb and scale bar, sized to a journal column. One panel from Studio or Quick Look; a batch of panels from a Heliad selection.</p></div></div>
+</section>
+
+<section class="stage">
+  <div class="stage-head"><span class="n">5</span><h2>Share the Sun</h2><p>Imagery to look at, show off and hang up.</p></div>
+  <div class="row" data-p="heliogram"><div class="need">I just want to look up and see today's Sun.</div><div class="link"></div>
+    <div class="ans"><div class="who"><a class="tag" href="/heliogram/">Heliogram</a><span class="st ok">available</span></div><p>The last 48 hours of the Sun as your desktop picture, screen saver or a wall of video. macOS.</p></div></div>
+  <div class="row" data-p="sun"><div class="need">I want to check on the Sun from any browser, with nothing to install.</div><div class="link"></div>
+    <div class="ans"><div class="who"><a class="tag" href="/sun.html">The Sun, right now</a><span class="st ok">available</span></div><p>Near-real-time SDO/AIA views on a web page, updated every 20 minutes, with a 48-hour timelapse for every channel.</p></div></div>
+  <div class="row" data-p="heliogram"><div class="need">Our lobby has a TV, not a Mac.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">Heliogram for Apple TV</span><span class="st plan">planned</span></div><p>The same clips on a living-room or lobby screen.</p></div></div>
+  <div class="row" data-p="heliogram"><div class="need">I want the Sun on my phone.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">Heliogram on iPhone</span><span class="st plan">planned</span></div><p>Today's Sun as a widget and on the lock screen.</p></div></div>
+  <div class="row" data-p="heliogram"><div class="need">I want the live Sun on our department's website.</div><div class="link"></div>
+    <div class="ans plan"><div class="who"><span class="tag">Live Sun embed</span><span class="st plan">planned</span></div><p>Paste one snippet and the 48-hour Sun plays on your page, with credit and a link back.</p></div></div>
+  <div class="row" data-p="store"><div class="need">I want a print of the Sun from the day I was born.</div><div class="link"></div>
+    <div class="ans"><div class="who"><a class="tag" href="/shop.html">My Heliograph</a><span class="st ok">available</span></div><p>Pick a date and a wavelength, Original or Enhanced, and order a print at myheliograph.com.</p></div></div>
+</section>
+
+<h2 class="sub">The tools</h2>
+<p class="sub-lede">Everything on this page, available now or on the way.</p>
+<div class="products">
+  <div class="prod"><h3><a href="/heliogram/">Heliogram</a></h3><div class="plat">macOS · direct download</div><p>The live Sun on your screens.</p></div>
+  <div class="prod"><h3><a href="/heliofits/">HelioFITS</a></h3><div class="plat">macOS · Mac App Store</div><p>Quick Look previews, Finder thumbnails, Spotlight metadata and a viewer window.</p></div>
+  <div class="prod"><h3><a href="/heliofits-studio/">HelioFITS Studio</a></h3><div class="plat">Mac and Windows · Intel Mac and Linux in testing</div><p>Layers, timelines, alignment and movies for the coronagraphs and wide-field imagers.</p></div>
+  <div class="prod"><h3><a href="/rhef/">RHEF</a></h3><div class="plat">Python · sunkit-image</div><p>The Radial Histogram Equalizing Filter: faint corona, in one line of Python.</p></div>
+  <div class="prod"><h3><a href="/sun.html">The Sun, right now</a></h3><div class="plat">web · any browser</div><p>Today's Sun, updated every 20 minutes.</p></div>
+  <div class="prod"><h3><a href="/shop.html">My Heliograph</a></h3><div class="plat">web · myheliograph.com</div><p>Prints of the Sun on any date.</p></div>
+  <div class="prod plan"><h3>Heliad</h3><div class="plat">planned</div><p>Find solar data, download it and keep it in one library.</p></div>
+</div>
+
+<footer>Planned items are directions, not promises of a date. This page grows as the tools do.</footer>
+</main>
+
+<script>
+(function(){
+  var btns=document.querySelectorAll('.filters button'), rows=document.querySelectorAll('.row');
+  function apply(f){
+    btns.forEach(function(b){b.setAttribute('aria-pressed', String(b.dataset.f===f));});
+    rows.forEach(function(r){r.classList.toggle('dim', f!=='all' && r.dataset.p.split(' ').indexOf(f)<0);});
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.f);});});
+})();
+</script>
+</body>
+</html>
