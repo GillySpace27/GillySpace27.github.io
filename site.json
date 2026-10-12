@@ -267,7 +267,18 @@
       "sitemap": true,
       "priority": "0.8",
       "archived": false,
-      "description": "Four tools that put the Sun where you already work: Heliogram, HelioFITS, HelioFITS Studio and RHEF."
+      "description": "Tools that put the Sun where you already work: Heliogram, HelioFITS, HelioFITS Studio, RHEF, The Sun right now and My Heliograph."
+    },
+    {
+      "path": "heliosoftware/decide/index.html",
+      "url": "/heliosoftware/decide/",
+      "title": "Which Sun tool do I need?",
+      "palette": "Which Sun tool do I need?",
+      "keywords": "help me decide software chart heliad heliofits heliogram studio rhef",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false,
+      "description": "Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens, and the tool that answers it."
     },
     {
       "path": "heliosoftware/spec/index.html",
