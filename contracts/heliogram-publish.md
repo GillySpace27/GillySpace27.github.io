@@ -82,6 +82,15 @@ contract keeps the frozen block, and the owners of `publish.sh` (HG-7, HG-8,
 SU-1) still have to change `publish.sh:13`. Not re-read by the writer of this
 file: `publish.sh` is in the heliogram repo, which was not available.
 
+## Who owns the pages (SU-14)
+
+Decision (Gilly, 2026-10-12): this repository owns `heliogram/index.html` and
+`heliogram/privacy.html`; `publish.sh` writes release data only. The full table
+of what each product may write is
+[heliosoftware/spec/publish-handshake.md](../heliosoftware/spec/publish-handshake.md).
+The `writes` block above still records what `publish.sh` does today, until
+heliogram SU-14 Task 2 lands.
+
 ## Checks
 
 - Rule `contract`: every frozen path is tracked; `FROZEN_FEED` is listed in the
