@@ -88,20 +88,16 @@ To check an implementation: rank each bin of `input.f64` as `bin_index.i32` says
 
 Runner results, by case and implementation. Report mode never fails a build; enforce mode does. Enforce mode is permitted per port once that port passes the golden vectors (tie rule adopted 2026-10-02).
 
-Recorded 2026-10-13 in report mode against vector bundle 1.0.0 (section 6), public cases only: HelioFITS Studio `RhefConformanceCheck` at 1dfaadca7 (Java 25, Linux) and sunback `test_rhef_conformance` at 7817b4d (sunkit-image 0.7.0). A row named `oRHEF-2.0` compares against expectations that are not public yet (section 1); the numbers say how far the port is from that target, not whether it is wrong. HelioFITS has no column yet: its runner needs a Mac.
+Recorded 2026-10-13 in report mode against vector bundle 1.0.0 (section 6), public cases only: sunback `test_rhef_conformance` at 7817b4d (sunkit-image 0.7.0). HelioFITS Studio has no column yet: its runner compares against oRHEF 2.0 expectations that are not public yet (section 1). HelioFITS has no column yet: its runner needs a Mac.
 
 <!-- conformance-table begin -->
 Bundle 1.0.0.
 
-| Case (convention) | hfstudio-java | sunback-processor |
-|---|---|---|
-| nan_holes_64 (oRHEF-2.0) | 3.808e-01 REPORT | - |
-| nan_holes_64 (sunkit-0.7) | - | 0.000e+00 PASS |
-| negatives_64 (oRHEF-2.0) | 9.244e-01 REPORT | - |
-| negatives_64 (sunkit-0.7) | - | 0.000e+00 PASS |
-| single_and_empty_annulus_64 (oRHEF-2.0) | 1.090e-01 REPORT | - |
-| single_and_empty_annulus_64 (sunkit-0.7) | - | 0.000e+00 PASS |
-| ties_zero_fill_64 (oRHEF-2.0) | 6.922e-01 REPORT | - |
-| ties_zero_fill_64 (sunkit-0.7) | - | 0.000e+00 PASS |
-| mode | report | report |
+| Case (convention) | sunback-processor |
+|---|---|
+| nan_holes_64 (sunkit-0.7) | 0.000e+00 PASS |
+| negatives_64 (sunkit-0.7) | 0.000e+00 PASS |
+| single_and_empty_annulus_64 (sunkit-0.7) | 0.000e+00 PASS |
+| ties_zero_fill_64 (sunkit-0.7) | 0.000e+00 PASS |
+| mode | report |
 <!-- conformance-table end -->
