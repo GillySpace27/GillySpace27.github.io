@@ -80,7 +80,8 @@ class Cli(unittest.TestCase):
 
 
 def git(cwd, *args):
-    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com", *args],
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com",
+                    "-c", "gc.auto=0", "-c", "maintenance.auto=false", *args],
                    cwd=cwd, check=True, capture_output=True)
 
 
