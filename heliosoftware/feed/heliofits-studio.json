@@ -1,0 +1,302 @@
+{
+ "product": "heliofits-studio",
+ "name": "HelioFITS Studio",
+ "page": "https://gilly.space/heliofits-studio/",
+ "records": [
+  {
+   "version": "0.8.0",
+   "name": "HFStudio",
+   "date": "2026-09-16",
+   "channel": "github-prerelease",
+   "tag": "v0.8.0",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.0",
+   "notes": "Pre-release 0.8.0. The release page lists its files and what the fork adds.",
+   "assets": [
+    {
+     "name": "HFStudio-0.8.0.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.0/HFStudio-0.8.0.dmg",
+     "sha256": "a0c6defc8b088b7881067d6b5cb1db01678501cefc5ff8479e083db2424b0958",
+     "bytes": 373116772,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.8.0.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.0/HFStudio-0.8.0.zip",
+     "sha256": "117e4271188c4b53d404b05698b72ebdf51d90868d8cfd29652794e4bd8ff41d",
+     "bytes": 281562924,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.0/HFStudio-Guide.pdf",
+     "sha256": "cd26b4f8050fb256a1970d5b59fa3a21226ff38548d4134ce0aa0be05c6f5953",
+     "bytes": 9651535,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
+  },
+  {
+   "version": "0.8.1",
+   "name": "HFStudio",
+   "date": "2026-09-18",
+   "channel": "github-prerelease",
+   "tag": "v0.8.1",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.1",
+   "notes": "Pre-release 0.8.1. The release page lists its files and what the fork adds.",
+   "assets": [
+    {
+     "name": "HFStudio-0.8.1.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-0.8.1.dmg",
+     "sha256": "ca18f3d5e5f3d7a5549a696b9d3855c93a00f6f481f19106dc39304081292960",
+     "bytes": 373211560,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.8.1.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-0.8.1.zip",
+     "sha256": "3a4a15516e3569d769a92ee70bd9fd9341536755e021f5e6c250bc6a0850039a",
+     "bytes": 281574076,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.1/HFStudio-Guide.pdf",
+     "sha256": "f3a087c0de6f220104809671b35d6e4d45355f1490a9e6a0a0d5f494b2bb85bd",
+     "bytes": 9651464,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
+  },
+  {
+   "version": "0.8.2",
+   "name": "HFStudio",
+   "date": "2026-09-19",
+   "channel": "github-prerelease",
+   "tag": "v0.8.2",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.2",
+   "notes": "Pre-release 0.8.2. The release page lists its files and what the fork adds.",
+   "assets": [
+    {
+     "name": "HFStudio-0.8.2-intel.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2-intel.dmg",
+     "sha256": "0dbf01fe155a56ae7116db8f08a1fa1a22875eb3f088e4f96362079620fc5f22",
+     "bytes": 147464208,
+     "platform": "macos-x64",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.2-linux.tar.gz",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2-linux.tar.gz",
+     "sha256": "d27020ca28bf01945232f516e4d0494014c1827e8a3c4d0fba864f8235556598",
+     "bytes": 169617335,
+     "platform": "linux",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.2-windows.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2-windows.zip",
+     "sha256": "395c614231616ea71521ef39b9f2f0b209de7ee6564753c0f205a6f37701a4b4",
+     "bytes": 162941814,
+     "platform": "windows",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.2.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2.dmg",
+     "sha256": "5f4b5c53ba8df19dc46a88193405f84348e35bfdc1311f16e7209c38c32e8142",
+     "bytes": 139079590,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.8.2.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-0.8.2.zip",
+     "sha256": "b6884bf344e4ce8b6865589932ae9257c631699f43078f82353e99695a8a22fd",
+     "bytes": 281834482,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.2/HFStudio-Guide.pdf",
+     "sha256": "03f1e40a60e3a4d8464c7c4d90b4865b3bc955f97121e7e5963a184ade0e391d",
+     "bytes": 9651459,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
+  },
+  {
+   "version": "0.8.3",
+   "date": "2026-09-24",
+   "channel": "github-prerelease",
+   "tag": "v0.8.3",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.3",
+   "notes": "FITS files that hold more than one image now load. PUNCH's polarized mosaics (PAM, PTM) carry two or three images in one file, and earlier builds refused them. Each image is named from the file's own OBSLAYR keywords, such as PolarB and PolarpB",
+   "assets": [
+    {
+     "name": "HFStudio-0.8.3-intel.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3-intel.dmg",
+     "sha256": "9a6ee96f979c0b12ad1cfc4d5bbf407e2b0151da4db7292cc3f8f9783023b14d",
+     "bytes": 149300373,
+     "platform": "macos-x64",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.3-linux.tar.gz",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3-linux.tar.gz",
+     "sha256": "5c6f7da4e2fb7d7cfd4aa96170cf138f4cb05dde802afc18fe58ccecbe99168a",
+     "bytes": 169661588,
+     "platform": "linux",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.3-windows.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3-windows.zip",
+     "sha256": "2fe146e8b44005d32e37f9395217949951ddff8eb9e4616dc037d4004802afcc",
+     "bytes": 163001614,
+     "platform": "windows",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.3.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3.dmg",
+     "sha256": "4055bacb7e92b61b99aab3d41a4aa6690323c2e7b9339b818ed771d7db9ad111",
+     "bytes": 140465248,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.8.3.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-0.8.3.zip",
+     "sha256": "b630bce266d80c5a1b8bbf5b5aed80d25957f29629ce609cc8c0134df21178b1",
+     "bytes": 281939181,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.3/HFStudio-Guide.pdf",
+     "sha256": "289383c205b12f91401fa01a03903f7a00d5df9663f4e3bca98a7261eabcc56b",
+     "bytes": 9651539,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
+  },
+  {
+   "version": "0.8.5",
+   "date": "2026-10-07",
+   "channel": "github-prerelease",
+   "tag": "v0.8.5",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.5",
+   "notes": "A Welcome window opens on launch with the version, What's New for this version (read from the app itself, no network needed), and four ways to start: Continue, Start Blank, Open Session and Take the Tour. Help > Welcome to HelioFITS Studio reopens it, and a checkbox stops it opening at startup",
+   "assets": [
+    {
+     "name": "HFStudio-0.8.5-linux.tar.gz",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-linux.tar.gz",
+     "sha256": "17bd7144e8ce8bc9da4fb536dddaceae185db443fd3137838080c4e32c1be026",
+     "bytes": 169841816,
+     "platform": "linux",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.5-windows.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5-windows.zip",
+     "sha256": "03cf9c5764e8d15741a3f60e077a349523c0f83d1e80b048a325df9d5943b31f",
+     "bytes": 163180945,
+     "platform": "windows",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.5.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5.dmg",
+     "sha256": "53445e27b7faf5b51f7f417ac2fc4043bea8392be98f2b1c72954e514c400c90",
+     "bytes": 141212095,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.8.5.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-0.8.5.zip",
+     "sha256": "a9ad4c4b6d63ef9484261d38a8edbf5953858dd5f2e36c74a38853b26261126b",
+     "bytes": 282044886,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.5/HFStudio-Guide.pdf",
+     "sha256": "aef58c2c925695da8d7c82bb4a13d1b1a6a2f27658e38f93d75cc95762b1e4c5",
+     "bytes": 9651531,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
+  },
+  {
+   "version": "0.8.6",
+   "date": "2026-10-11",
+   "channel": "github-prerelease",
+   "tag": "v0.8.6",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.6",
+   "notes": "Send Feedback and the Report this... button on error dialogs now reach Gilly. Until reports can be sent directly, the button reads Send by Email...: it opens an email to gilly@nwra.com in your mail program, with your note, the version, the system and the top of the error filled in, and shows the full saved report (and screenshot, if you took one) in Finder or your file manager so you can attach it",
+   "assets": [
+    {
+     "name": "HFStudio-0.8.6-intel.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6-intel.dmg",
+     "sha256": "9800b29e226c266e184e4eb6efe9d58e674a5a5b58b0848bddc0381e9bb65287",
+     "bytes": 150644927,
+     "platform": "macos-x64",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.6-linux.tar.gz",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6-linux.tar.gz",
+     "sha256": "4d36a330e4dd473e5e423184cd1a5ff895c264fab453d8cff4ee921486bb92d9",
+     "bytes": 171301922,
+     "platform": "linux",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.6-windows.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6-windows.zip",
+     "sha256": "c14abbd9d184cae6f285b005e848d6ba8f28e4f25bd1e263be6b0f236f9d952f",
+     "bytes": 164643189,
+     "platform": "windows",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.6.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6.dmg",
+     "sha256": "4b52bc0f5ee611463ad1486f6e3edd4a05a14d2467999f6d6425f40ac4b7da63",
+     "bytes": 142192105,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.8.6.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-0.8.6.zip",
+     "sha256": "d8bcca38fae5814889c4739df3430e2aa477dad1e772fb0f95067383b3805459",
+     "bytes": 282896571,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.6/HFStudio-Guide.pdf",
+     "sha256": "2be16a7ccf7835b05fc93668398ee2ecc1cf0e4b54ca5e933b8baf9dee27fdfd",
+     "bytes": 9651532,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
+  }
+ ]
+}
