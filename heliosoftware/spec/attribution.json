@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "credit": "Imagery courtesy of NASA/SDO and the AIA science team.",
+  "disclaimer": "RHEF output is a visualization, not a calibrated radiance.",
+  "rhef_citation": null,
+  "rhef_doi": null,
+  "note": "rhef_citation and rhef_doi stay null until Gilly chooses the wording. The page gilly.space/sun.html already names Gilly and Cranmer 2025 in prose; that text is not copied here. credit is the line gilly.space/sun-wall.html already shows."
+}
