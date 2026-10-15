@@ -330,6 +330,18 @@
       "og_image": "https://gilly.space/assets/sw/rhef-compare.jpg"
     },
     {
+      "path": "rhef/lab/index.html",
+      "url": "/rhef/lab/",
+      "title": "RHEF Lab",
+      "palette": "RHEF Lab",
+      "keywords": "rhef lab browser fits try filter upsilon",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false,
+      "description": "Drop a solar FITS file and see it through RHEF, in your browser: nothing is uploaded. Tune Shadows and Highlights and download a stamped PNG.",
+      "og_image": "https://gilly.space/assets/sw/rhef-compare.jpg"
+    },
+    {
       "path": "archive/index.html",
       "url": "/archive/",
       "title": "Archive",
