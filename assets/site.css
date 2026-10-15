@@ -603,3 +603,7 @@ main .video-tile::after { content: none !important; }
   opacity: 0; pointer-events: none; transition: opacity 300ms ease; }
 #sun-toast.show { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { #sun-toast { transition: none; } }
+
+/* Homepage Software card (WS-14): two product icons side by side on the card's image area. */
+.sw-pair { display: flex; align-items: center; justify-content: center; gap: 10%; background: var(--card-bg); }
+.sw-pair img { width: 30%; height: auto; }
