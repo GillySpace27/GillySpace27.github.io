@@ -165,7 +165,7 @@
       "path": "play/index.html",
       "url": "/play/",
       "title": "Play",
-      "palette": "Play \u2014 the toys",
+      "palette": "Play: the toys",
       "keywords": "enso sudoku games",
       "sitemap": true,
       "priority": "0.8",
@@ -206,7 +206,7 @@
       "path": "whichclaude.html",
       "url": "/whichclaude.html",
       "title": "The Model Sequence \u2014 a Claude field guide",
-      "palette": "Which Claude? \u2014 model field guide",
+      "palette": "Which Claude? A model field guide",
       "keywords": "ai models opus sonnet haiku fable",
       "sitemap": true,
       "priority": "0.6",
@@ -365,6 +365,81 @@
     }
   ],
   "palette_extra": [
+    {
+      "t": "The Sun: Rainbow (RHEF composite)",
+      "u": "/sun.html#rainbow",
+      "k": "sun channel rainbow"
+    },
+    {
+      "t": "The Sun: AIA 171 \u00c5",
+      "u": "/sun.html#171",
+      "k": "sun channel 171"
+    },
+    {
+      "t": "The Sun: AIA 193 \u00c5",
+      "u": "/sun.html#193",
+      "k": "sun channel 193"
+    },
+    {
+      "t": "The Sun: AIA 211 \u00c5",
+      "u": "/sun.html#211",
+      "k": "sun channel 211"
+    },
+    {
+      "t": "The Sun: AIA 304 \u00c5",
+      "u": "/sun.html#304",
+      "k": "sun channel 304"
+    },
+    {
+      "t": "The Sun: AIA 335 \u00c5",
+      "u": "/sun.html#335",
+      "k": "sun channel 335"
+    },
+    {
+      "t": "The Sun: AIA 94 \u00c5",
+      "u": "/sun.html#94",
+      "k": "sun channel 94"
+    },
+    {
+      "t": "The Sun: AIA 131 \u00c5",
+      "u": "/sun.html#131",
+      "k": "sun channel 131"
+    },
+    {
+      "t": "The Sun: AIA 1600 \u00c5 (UV)",
+      "u": "/sun.html#1600",
+      "k": "sun channel 1600"
+    },
+    {
+      "t": "The Sun: AIA 1700 \u00c5 (UV)",
+      "u": "/sun.html#1700",
+      "k": "sun channel 1700"
+    },
+    {
+      "t": "The Sun: Composite (1700/1600/304)",
+      "u": "/sun.html#composite_uv",
+      "k": "sun channel composite uv"
+    },
+    {
+      "t": "The Sun: Temperature map (DEM)",
+      "u": "/sun.html#dem",
+      "k": "sun channel dem"
+    },
+    {
+      "t": "Heliogram",
+      "u": "/heliogram/",
+      "k": "mac app desktop picture screen saver wall live sun heliograph"
+    },
+    {
+      "t": "Sun wall (full screen)",
+      "u": "/sun-wall.html",
+      "k": "wall kiosk display lobby"
+    },
+    {
+      "t": "Download HelioFITS Studio",
+      "u": "/heliofits-studio/",
+      "k": "download install studio mac windows linux"
+    },
     {
       "t": "Email Gilly",
       "u": "mailto:Gilly@NWRA.com",

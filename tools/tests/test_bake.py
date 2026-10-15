@@ -46,7 +46,7 @@ class RealTreeTest(unittest.TestCase):
     def test_palette_items_are_what_site_js_has(self):
         js = read("assets/site.js")
         start = js.index("var ITEMS = [\n") + len("var ITEMS = [\n")
-        end = js.index("\n    ];", start)
+        end = start + re.search(r"\n *\];", js[start:]).start()  # ITEMS sits at IIFE scope since WS-19
         body = "\n".join(ln for ln in js[start:end].split("\n") if "bake" not in ln)
         self.assertEqual(body, bake().render_palette_items(real_site()))
 
