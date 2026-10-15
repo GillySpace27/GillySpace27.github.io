@@ -82,7 +82,7 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 .product .sw-pick { margin-top: .6rem; }
 .product .sw-pick a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
 .sw-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
-/* The Sun, right now: a 171-gold disk with a soft corona. My Heliograph: the same Sun, matted in a frame. */
+/* The Sun, right now: a 171-gold disk with a soft corona. My Heliogram: the same Sun, matted in a frame. */
 .sw-mark--live {
   background-image:
     radial-gradient(circle, #ffe7a0 0 12%, #f6c84c 22%, #d98a1a 27%, rgba(217,138,26,.45) 30%, rgba(217,138,26,.12) 40%, transparent 48%);

@@ -226,8 +226,8 @@
     {
       "path": "shop.html",
       "url": "/shop.html",
-      "title": "My Heliograph: prints",
-      "palette": "Store: My Heliograph",
+      "title": "My Heliogram: prints",
+      "palette": "Store: My Heliogram",
       "keywords": "prints buy",
       "sitemap": true,
       "priority": "0.7",
@@ -278,7 +278,7 @@
       "sitemap": true,
       "priority": "0.8",
       "archived": false,
-      "description": "Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliograph."
+      "description": "Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliogram."
     },
     {
       "path": "heliosoftware/decide/index.html",
@@ -338,6 +338,18 @@
       "priority": "0.7",
       "archived": false,
       "description": "RHEF brings out faint coronal structure in solar images, on the disk and off the limb, with no parameter tuning. In sunkit-image for Python.",
+      "og_image": "https://gilly.space/assets/sw/rhef-compare.jpg"
+    },
+    {
+      "path": "rhef/lab/index.html",
+      "url": "/rhef/lab/",
+      "title": "RHEF Lab",
+      "palette": "RHEF Lab",
+      "keywords": "rhef lab browser fits try filter upsilon",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false,
+      "description": "Drop a solar FITS file and see it through RHEF, in your browser: nothing is uploaded. Tune Shadows and Highlights and download a stamped PNG.",
       "og_image": "https://gilly.space/assets/sw/rhef-compare.jpg"
     },
     {
@@ -489,7 +501,7 @@
     },
     {
       "path": "shop/index.html",
-      "title": "My Heliograph: prints \u00b7 gilly.space",
+      "title": "My Heliogram: prints \u00b7 gilly.space",
       "target": "/shop",
       "canonical": "https://gilly.space/shop",
       "template": "stub-shop.html"

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sun channels, explained · gilly.space</title>
+<meta name="description" content="What each channel of the live Sun page shows: ions and characteristic temperatures for the nine SDO/AIA channels, and the three composites. Prints on one page.">
+<link rel="canonical" href="https://gilly.space/sun-explainer.html">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/assets/site.css?v=202610151525">
+<style>
+  .chan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 1.2rem 0; }
+  @media (max-width: 760px) { .chan-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) { .chan-grid { grid-template-columns: 1fr; } }
+  .chan { border: 1px solid var(--card-border); border-radius: 10px; padding: 14px 16px; background: var(--card-bg); break-inside: avoid; }
+  .chan h2 { margin: 0 0 .4rem; font-size: 1.05rem; }
+  .chan p { margin: .25rem 0; font-size: 14px; }
+  .chan .k { color: var(--muted); }
+  .chan-note { color: var(--muted); font-size: 13px; max-width: 70ch; }
+  @media print {
+    .site-header, .site-footer, .skip-link, .noprint { display: none !important; }
+    body { background: #fff; color: #000; }
+    .chan { border-color: #999; background: #fff; }
+    .chan-grid { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<div data-include="header"></div>
+<main id="main">
+  <section class="section wrap">
+    <p class="eyebrow">The Sun, right now</p>
+    <h1>What each channel shows</h1>
+    <p class="chan-note">Each image on <a href="/sun.html">the live Sun page</a> is one wavelength of ultraviolet light from NASA's SDO/AIA. The wavelength picks out the atoms that glow at one range of temperatures, so the channels read as a thermometer for the solar atmosphere. Temperatures are the characteristic log T per channel from the <a href="https://aia.lmsal.com/public/instrument.htm" target="_blank" rel="noopener">AIA instrument page</a>. A channel with more than one value is multithermal: a bright feature could be either the cool or the hot plasma, and the image alone does not say which.</p>
+    <div id="chan-grid" class="chan-grid"></div>
+    <p class="chan-note">Shown with RHEF (Gilly &amp; Cranmer 2025): a visualization, not a calibrated radiance. Imagery courtesy of NASA/SDO and the AIA science team.</p>
+    <p class="noprint"><button type="button" class="sun-retry" id="print-btn">Print this page</button></p>
+  </section>
+</main>
+<div data-include="footer"></div>
+<script src="/assets/site.js?v=202610151525"></script>
+<script src="/assets/sun.js?v=202610151525"></script>
+<script>
+  (function () {
+    var names = { rainbow: "Rainbow", composite_uv: "Composite (1700/1600/304)", dem: "Temperature map" };
+    var order = SunData.CHANNEL_ORDER.concat(["rainbow", "composite_uv", "dem"]);
+    var grid = document.getElementById("chan-grid");
+    function line(k, v) {
+      var p = document.createElement("p"), a = document.createElement("span");
+      a.className = "k"; a.textContent = k + ": ";
+      p.append(a, document.createTextNode(v));
+      return p;
+    }
+    order.forEach(function (id) {
+      var c = SunData.CHANNELS[id], el = document.createElement("div"), h = document.createElement("h2");
+      el.className = "chan";
+      h.textContent = names[id] || ("AIA " + c.wavelength);
+      el.append(h);
+      if (c.ions) el.append(line("Ions", c.ions));
+      el.append(line("Temperature", SunData.tempText(id)));
+      grid.append(el);
+    });
+    document.getElementById("print-btn").addEventListener("click", function () { window.print(); });
+  })();
+</script>
+</body>
+</html>

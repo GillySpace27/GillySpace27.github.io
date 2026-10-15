@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- bake:head -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RHEF Lab · gilly.space</title>
+<meta name="description" content="Drop a solar FITS file and see it through RHEF, in your browser: nothing is uploaded. Tune Shadows and Highlights and download a stamped PNG.">
+<link rel="canonical" href="https://gilly.space/rhef/lab/">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="RHEF Lab · gilly.space">
+<meta property="og:description" content="Drop a solar FITS file and see it through RHEF, in your browser: nothing is uploaded. Tune Shadows and Highlights and download a stamped PNG.">
+<meta property="og:url" content="https://gilly.space/rhef/lab/">
+<meta property="og:image" content="https://gilly.space/assets/sw/rhef-compare.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake -->
+<link rel="stylesheet" href="/assets/site.css?v=202610151525">
+<link rel="stylesheet" href="/assets/product.css?v=202610151525">
+<style>
+.lab { max-width: 46rem; margin: 0 auto; text-align: left; }
+.lab-drop { display: block; border: 2px dashed var(--card-border); border-radius: var(--radius); padding: 1.4rem 1rem;
+  text-align: center; color: var(--muted); cursor: pointer; }
+.lab-drop.is-over { border-color: var(--accent); color: var(--text); }
+.lab-drop input { display: block; margin: .6rem auto 0; max-width: 100%; }
+.lab-row { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; align-items: center; margin: .9rem 0; }
+.lab-row label { display: flex; align-items: center; gap: .5rem; font-size: .92rem; }
+.lab-row input[type="range"] { width: 9rem; }
+.lab button { font: inherit; font-size: .92rem; min-height: 44px; padding: .45rem 1rem; color: var(--text); background: none;
+  border: 1px solid var(--card-border); border-radius: 999px; cursor: pointer; }
+.lab button:hover, .lab button:focus-visible { border-color: var(--accent); }
+.lab button[disabled] { opacity: .5; cursor: default; }
+.lab-status { min-height: 1.4em; font-size: .9rem; color: var(--muted); }
+.lab-status.is-warn { color: var(--text); font-weight: 600; }
+.lab-stage { position: relative; margin: .6rem auto 0; background: #000; border-radius: var(--radius); overflow: hidden;
+  touch-action: none; }
+.lab-stage canvas { display: block; width: 100%; height: auto; image-rendering: auto; }
+.lab-stage canvas + canvas { position: absolute; inset: 0; }
+.lab-stage .lab-split { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,.85); pointer-events: none; }
+.lab-stage .lab-tag { position: absolute; top: .5rem; padding: .1rem .5rem; border-radius: 999px; font-size: .8rem;
+  background: rgba(0,0,0,.6); color: #fff; pointer-events: none; }
+.lab-readout { font-size: .9rem; min-height: 1.4em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lab-meta { font-size: .85rem; color: var(--muted); }
+.lab-meta dt { font-weight: 600; float: left; clear: left; width: 7rem; }
+.lab-meta dd { margin: 0 0 .2rem 7rem; overflow-wrap: anywhere; }
+.lab progress { width: 100%; }
+</style>
+</head>
+<body>
+<div data-include="header"></div>
+<main id="main" class="product">
+  <a class="back" href="/rhef/" data-no-blank>&larr; RHEF</a>
+  <span class="sw-mark sw-mark--rhef sw-mark--lg" aria-hidden="true"></span>
+  <h1>RHEF Lab</h1>
+  <p class="tag">Drop a solar FITS file and see it through RHEF. It runs in this page: the file never
+     leaves your computer.</p>
+
+  <div class="lab">
+    <label class="lab-drop" id="lab-drop">Drop a FITS file here, or choose one:
+      <input type="file" id="lab-file" accept=".fits,.fit,.fts,.FITS,.FIT,.FTS">
+    </label>
+    <div class="lab-row">
+      <button type="button" id="lab-synthetic">Try a synthetic Sun</button>
+      <span class="lab-meta">Not data: a made-up Sun, drawn by this page.</span>
+    </div>
+    <p class="lab-status" id="lab-status" role="status" aria-live="polite">Version 1 reads uncompressed FITS images
+       (BITPIX 8, 16, 32, 64, -32, -64). Tile-compressed files (RICE_1, as most PUNCH Level 3 files are) are not read yet.</p>
+    <progress id="lab-progress" max="100" value="0" hidden></progress>
+
+    <div id="lab-view" hidden>
+      <div class="lab-row">
+        <label>Shadows <input type="range" id="lab-lo" min="0.05" max="1.5" step="0.05" value="0.35"> <output id="lab-lo-out">0.35</output></label>
+        <label>Highlights <input type="range" id="lab-hi" min="0.05" max="1.5" step="0.05" value="0.35"> <output id="lab-hi-out">0.35</output></label>
+        <label><input type="checkbox" id="lab-ups" checked> Upsilon curve</label>
+        <label>Colour <select id="lab-cmap"><option value="grey">grey</option></select></label>
+      </div>
+      <div class="lab-row">
+        <label>Original | RHEF <input type="range" id="lab-wipe" min="0" max="100" step="1" value="50" aria-label="Wipe between the original and RHEF"></label>
+        <button type="button" id="lab-download">Download PNG</button>
+      </div>
+      <div class="lab-stage" id="lab-stage">
+        <canvas id="lab-raw"></canvas>
+        <canvas id="lab-out"></canvas>
+        <span class="lab-split" id="lab-split" aria-hidden="true"></span>
+        <span class="lab-tag" style="left:.5rem" aria-hidden="true">Original</span>
+        <span class="lab-tag" style="right:.5rem" aria-hidden="true">RHEF</span>
+      </div>
+      <p class="lab-readout" id="lab-readout" aria-live="off">Point at the image for a pixel's rank in its ring.</p>
+      <dl class="lab-meta" id="lab-meta"></dl>
+    </div>
+  </div>
+
+  <p class="alt">The left of the wipe is the file at a linear scale (1st to 99.5th percentile); the right is RHEF:
+     each value ranked within its ring around the Sun's centre, then the Upsilon curve (split at 0.5) if it is on.
+     Rings are equal width out to the farthest pixel, half as many as the image has rows. Frames over 4096 pixels
+     on a side are halved first, and the page says so. RHEF output is a visualization, not a calibrated radiance.
+     Method: Gilly &amp; Cranmer (2025), <i>Solar Physics</i>, <a href="https://doi.org/10.1007/s11207-025-02578-x">doi:10.1007/s11207-025-02578-x</a>.</p>
+</main>
+<div data-include="footer"></div>
+
+<script id="rhef-kernel">
+/* RHEF Lab kernel (RH-14). Runs in the page, in a Worker and in Node (tools/tests/test_rhef_lab.mjs).
+   Registry id rhef-lab-js; convention oRHEF-2.0 (ranks averaged over ties and divided by n, Upsilon
+   split at 0.5, NaN kept); deviation GEOM-GRID when the frame was halved first. The sunkit-0.7 mode
+   of upsilonImage exists only so the parity test can use the public vectors. */
+(function (root) {
+  'use strict';
+  var VERSION = '1.0.0';
+
+  // ---- FITS ----
+  function readHeader(bytes, start) {
+    var h = {}, order = [], pos = start, done = false;
+    var dec = new TextDecoder('ascii');
+    while (!done) {
+      if (pos + 2880 > bytes.length) throw new Error('This file ends inside a FITS header.');
+      var block = dec.decode(bytes.subarray(pos, pos + 2880));
+      pos += 2880;
+      for (var i = 0; i < 36; i++) {
+        var c = block.substr(i * 80, 80), key = c.substr(0, 8).trim();
+        if (key === 'END') { done = true; break; }
+        if (c.substr(8, 2) !== '= ') continue;
+        var v = c.substr(10), val;
+        var q = v.trim();
+        if (q[0] === "'") {
+          var m = q.match(/^'((?:[^']|'')*)'/);
+          val = m ? m[1].replace(/''/g, "'").replace(/\s+$/, '') : q;
+        } else {
+          q = q.split('/')[0].trim();
+          if (q === 'T') val = true;
+          else if (q === 'F') val = false;
+          else if (q !== '' && !isNaN(Number(q.replace(/D/i, 'E')))) val = Number(q.replace(/D/i, 'E'));
+          else val = q;
+        }
+        if (!(key in h)) { h[key] = val; order.push(key); }
+      }
+    }
+    return { header: h, dataStart: pos };
+  }
+
+  function parseFits(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var head = new TextDecoder('ascii').decode(bytes.subarray(0, 6));
+    if (head !== 'SIMPLE') throw new Error('This does not look like a FITS file (it does not start with SIMPLE).');
+    var pos = 0, hdu = 0, compressed = false;
+    while (pos < bytes.length) {
+      var r = readHeader(bytes, pos), h = r.header;
+      var naxis = h.NAXIS | 0, bitpix = h.BITPIX | 0, n = naxis ? 1 : 0;
+      for (var a = 1; a <= naxis; a++) n *= (h['NAXIS' + a] | 0);
+      var size = Math.abs(bitpix) / 8 * ((h.GCOUNT || 1) * ((h.PCOUNT || 0) + n));
+      if (h.ZIMAGE === true || h.ZCMPTYPE) compressed = true;
+      var isImage = hdu === 0 || h.XTENSION === 'IMAGE';
+      if (isImage && naxis >= 2 && n > 0) {
+        var w = h.NAXIS1 | 0, ht = h.NAXIS2 | 0, count = w * ht;
+        if (r.dataStart + count * Math.abs(bitpix) / 8 > bytes.length) throw new Error('This file ends inside its image data.');
+        var dv = new DataView(buffer, r.dataStart);
+        var out = new Float64Array(count);
+        var bs = typeof h.BSCALE === 'number' ? h.BSCALE : 1, bz = typeof h.BZERO === 'number' ? h.BZERO : 0;
+        var blank = typeof h.BLANK === 'number' ? h.BLANK : null, i, v;
+        for (i = 0; i < count; i++) {
+          switch (bitpix) {
+            case 8: v = dv.getUint8(i); break;
+            case 16: v = dv.getInt16(2 * i, false); break;
+            case 32: v = dv.getInt32(4 * i, false); break;
+            case 64: v = Number(dv.getBigInt64(8 * i, false)); break;
+            case -32: v = dv.getFloat32(4 * i, false); break;
+            case -64: v = dv.getFloat64(8 * i, false); break;
+            default: throw new Error('BITPIX ' + bitpix + ' is not a FITS image type.');
+          }
+          out[i] = (bitpix > 0 && blank !== null && v === blank) ? NaN : v * bs + bz;
+        }
+        var warnings = [];
+        if (naxis > 2) warnings.push('This HDU has ' + naxis + ' axes; the lab shows its first plane.');
+        return { header: h, width: w, height: ht, data: out, hdu: hdu, warnings: warnings };
+      }
+      pos = r.dataStart + Math.ceil(size / 2880) * 2880;
+      hdu++;
+    }
+    if (compressed) throw new Error('This file holds a tile-compressed image (RICE_1 or similar). Lab version 1 reads uncompressed FITS images only; PUNCH Level 3 files are usually compressed.');
+    throw new Error('No image found in this FITS file.');
+  }
+
+  // ---- geometry ----
+  function toArcsec(v, unit) {
+    var u = String(unit || 'arcsec').toLowerCase();
+    if (u === 'deg') return v * 3600;
+    if (u === 'arcmin') return v * 60;
+    if (u === 'rad') return v * 206264.80624709636;
+    return v;
+  }
+  // Sun centre in 0-based pixels and the solar radius in pixels, from a helioprojective header,
+  // on a flat sky (fine for fields of a few degrees). Says "unknown" rather than guess.
+  function geometry(h, w, ht) {
+    var cd1 = h.CDELT1, cd2 = h.CDELT2;
+    if (typeof cd1 !== 'number' || typeof cd2 !== 'number' || typeof h.CRPIX1 !== 'number' || typeof h.CRPIX2 !== 'number') {
+      return { cx: (w - 1) / 2, cy: (ht - 1) / 2, sx: 1, sy: 1, rsun: null, unit: 'unknown',
+        note: 'No WCS in the header: rings are centred on the frame and their radius is unknown.' };
+    }
+    var sx = Math.abs(toArcsec(cd1, h.CUNIT1)), sy = Math.abs(toArcsec(cd2, h.CUNIT2));
+    var cx = h.CRPIX1 - 1 - toArcsec(h.CRVAL1 || 0, h.CUNIT1) / toArcsec(cd1, h.CUNIT1);
+    var cy = h.CRPIX2 - 1 - toArcsec(h.CRVAL2 || 0, h.CUNIT2) / toArcsec(cd2, h.CUNIT2);
+    var rsun = null, src = '';
+    if (typeof h.RSUN_OBS === 'number') { rsun = h.RSUN_OBS; src = 'RSUN_OBS'; }
+    else if (typeof h.RSUN_ARC === 'number') { rsun = h.RSUN_ARC; src = 'RSUN_ARC'; }
+    else if (typeof h.DSUN_OBS === 'number') {
+      var rref = typeof h.RSUN_REF === 'number' ? h.RSUN_REF : 695700000;
+      rsun = Math.asin(rref / h.DSUN_OBS) * 206264.80624709636;
+      src = typeof h.RSUN_REF === 'number' ? 'DSUN_OBS and RSUN_REF' : 'DSUN_OBS and the IAU nominal radius';
+    }
+    if (rsun === null) {
+      return { cx: cx, cy: cy, sx: sx, sy: sy, rsun: null, unit: 'unknown',
+        note: 'Sun centre from CRPIX and CRVAL; no RSUN_OBS, RSUN_ARC or DSUN_OBS, so the radius in solar radii is unknown.' };
+    }
+    var off = cx < 0 || cy < 0 || cx > w - 1 || cy > ht - 1;
+    return { cx: cx, cy: cy, sx: sx, sy: sy, rsun: rsun, unit: 'R_sun',
+      note: 'Sun centre from CRPIX and CRVAL, solar radius from ' + src + '.' + (off ? ' The Sun centre is outside the frame.' : '') };
+  }
+  function radiiFor(w, ht, g) {
+    var r = new Float64Array(w * ht), k = g.rsun || 1;
+    for (var y = 0; y < ht; y++) for (var x = 0; x < w; x++) {
+      r[y * w + x] = Math.hypot((x - g.cx) * g.sx, (y - g.cy) * g.sy) / k;
+    }
+    return r;
+  }
+  // Equal-width bins from 0 to the largest radius; the farthest pixel joins the last bin.
+  function binIndexEqual(radii, nbins, rmax) {
+    var b = new Int32Array(radii.length);
+    for (var i = 0; i < radii.length; i++) {
+      var r = radii[i];
+      b[i] = r >= 0 && r <= rmax ? Math.min(nbins - 1, Math.floor(r / rmax * nbins)) : -1;
+    }
+    return b;
+  }
+
+  // ---- kernel ----
+  // Rank of each value among the finite values of its bin: average rank of ties over n, in (0, 1].
+  function rhefRanksFromBins(values, binIndex, nbins, progress) {
+    var n = values.length, i, b;
+    var counts = new Int32Array(nbins + 1);
+    for (i = 0; i < n; i++) { b = binIndex[i]; if (b >= 0 && b < nbins && values[i] === values[i]) counts[b + 1]++; }
+    for (b = 0; b < nbins; b++) counts[b + 1] += counts[b];
+    var sorted = new Float64Array(counts[nbins]), fill = counts.slice(0, nbins);
+    for (i = 0; i < n; i++) { b = binIndex[i]; if (b >= 0 && b < nbins && values[i] === values[i]) sorted[fill[b]++] = values[i]; }
+    for (b = 0; b < nbins; b++) {
+      sorted.subarray(counts[b], counts[b + 1]).sort();
+      if (progress && (b & 63) === 0) progress(b / nbins);
+    }
+    var out = new Float64Array(n);
+    for (i = 0; i < n; i++) {
+      b = binIndex[i];
+      var v = values[i];
+      if (b < 0 || b >= nbins || v !== v) { out[i] = NaN; continue; }
+      var s = counts[b], e = counts[b + 1], lo = s, hi = e, mid;
+      while (lo < hi) { mid = (lo + hi) >> 1; if (sorted[mid] < v) lo = mid + 1; else hi = mid; }
+      var below = lo - s; hi = e;
+      while (lo < hi) { mid = (lo + hi) >> 1; if (sorted[mid] <= v) lo = mid + 1; else hi = mid; }
+      var upto = lo - s;
+      out[i] = (below + 1 + upto) / 2 / (e - s);
+    }
+    return out;
+  }
+  function rhefRanks(values, radii, nbins, maxRadius) {
+    return rhefRanksFromBins(values, binIndexEqual(radii, nbins, maxRadius), nbins);
+  }
+  function applyUpsilon(p, low, high, split) {
+    if (p !== p) return NaN;
+    var s = split === undefined ? 0.5 : split;
+    return p < s ? Math.pow(2 * p, low) / 2 : 1 - Math.pow(2 - 2 * p, high) / 2;
+  }
+  // mode 'oRHEF-2.0': split 0.5, NaN kept. mode 'sunkit-0.7': split at the bin's mean rank and
+  // NaN becomes 0 (UPS-MEAN, NAN-ZERO); used only for parity with the public vectors.
+  function upsilonImage(ranks, binIndex, nbins, low, high, mode) {
+    var out = new Float64Array(ranks.length), i;
+    if (mode === 'sunkit-0.7') {
+      var sum = new Float64Array(nbins), cnt = new Float64Array(nbins);
+      for (i = 0; i < ranks.length; i++) { var b = binIndex[i]; if (b >= 0 && ranks[i] === ranks[i]) { sum[b] += ranks[i]; cnt[b]++; } }
+      for (i = 0; i < ranks.length; i++) {
+        var bb = binIndex[i], p = ranks[i];
+        out[i] = p !== p ? 0 : applyUpsilon(p, low, high, bb >= 0 ? sum[bb] / cnt[bb] : 0.5);
+      }
+      return out;
+    }
+    for (i = 0; i < ranks.length; i++) out[i] = applyUpsilon(ranks[i], low, high, 0.5);
+    return out;
+  }
+  // Halve each side, averaging the finite values of each 2 x 2 block.
+  function downsample2(data, w, ht) {
+    var w2 = w >> 1, h2 = ht >> 1, out = new Float64Array(w2 * h2);
+    for (var y = 0; y < h2; y++) for (var x = 0; x < w2; x++) {
+      var s = 0, c = 0, k = [data[2 * y * w + 2 * x], data[2 * y * w + 2 * x + 1], data[(2 * y + 1) * w + 2 * x], data[(2 * y + 1) * w + 2 * x + 1]];
+      for (var j = 0; j < 4; j++) if (k[j] === k[j]) { s += k[j]; c++; }
+      out[y * w2 + x] = c ? s / c : NaN;
+    }
+    return { data: out, width: w2, height: h2 };
+  }
+
+  // ---- stamp and PNG ----
+  function formatStamp(convention, impl, version, upsilon, deviations) {
+    var u = upsilon ? upsilon[0] + ',' + upsilon[1] : 'none';
+    return 'RHEF ' + convention + ' via ' + impl + ' ' + (version || 'unknown') + '; upsilon=' + u +
+      '; deviations=' + (deviations && deviations.length ? deviations.join(',') : 'none');
+  }
+  var CRC = null;
+  function crc32(bytes) {
+    if (!CRC) {
+      CRC = new Uint32Array(256);
+      for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC[n] = c >>> 0; }
+    }
+    var x = 0xFFFFFFFF;
+    for (var i = 0; i < bytes.length; i++) x = CRC[(x ^ bytes[i]) & 0xFF] ^ (x >>> 8);
+    return (x ^ 0xFFFFFFFF) >>> 0;
+  }
+  // Insert a tEXt chunk (Latin-1 keyword and text) just before IEND.
+  function pngAddText(png, keyword, text) {
+    var body = new Uint8Array(keyword.length + 1 + text.length), i;
+    for (i = 0; i < keyword.length; i++) body[i] = keyword.charCodeAt(i) & 0xFF;
+    for (i = 0; i < text.length; i++) body[keyword.length + 1 + i] = text.charCodeAt(i) & 0xFF;
+    var chunk = new Uint8Array(12 + body.length), dv = new DataView(chunk.buffer);
+    dv.setUint32(0, body.length, false);
+    chunk.set([116, 69, 88, 116], 4);
+    chunk.set(body, 8);
+    dv.setUint32(8 + body.length, crc32(chunk.subarray(4, 8 + body.length)), false);
+    var iend = png.length - 12;
+    var out = new Uint8Array(png.length + chunk.length);
+    out.set(png.subarray(0, iend), 0);
+    out.set(chunk, iend);
+    out.set(png.subarray(iend), iend + chunk.length);
+    return out;
+  }
+
+  var api = { VERSION: VERSION, parseFits: parseFits, geometry: geometry, radiiFor: radiiFor,
+    binIndexEqual: binIndexEqual, rhefRanksFromBins: rhefRanksFromBins, rhefRanks: rhefRanks,
+    applyUpsilon: applyUpsilon, upsilonImage: upsilonImage, downsample2: downsample2,
+    formatStamp: formatStamp, pngAddText: pngAddText, crc32: crc32 };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.RhefKernel = api;
+})(typeof self !== 'undefined' ? self : this);
+</script>
+
+<script>
+/* RHEF Lab page (RH-14): no upload, no network while a file is processed. The two colour tables are
+   fetched once when the page opens; if that fails, grey is the only choice. */
+(function () {
+  'use strict';
+  var K = window.RhefKernel;
+  var MAX_SIDE = 4096;
+  var $ = function (id) { return document.getElementById(id); };
+  var status = $('lab-status'), prog = $('lab-progress');
+  var state = null;   // {name, w, h, data, ranks, bins, radii, geom, halved, raw8}
+  var tables = { grey: null };
+
+  ['sdoaia171', 'punch'].forEach(function (name) {
+    fetch('/heliosoftware/spec/colormaps/' + name + '.json').then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.rgb || j.rgb.length !== 256) return;
+        tables[name] = j.rgb;
+        var o = document.createElement('option');
+        o.value = name; o.textContent = name + ' (' + j.source + ')';
+        $('lab-cmap').appendChild(o);
+      }).catch(function () {});
+  });
+
+  function say(text, warn) { status.textContent = text; status.classList.toggle('is-warn', !!warn); }
+
+  function percentiles(data) {
+    var step = Math.max(1, Math.floor(data.length / 200000)), s = [];
+    for (var i = 0; i < data.length; i += step) if (data[i] === data[i]) s.push(data[i]);
+    if (!s.length) return [0, 1];
+    var f = Float64Array.from(s).sort();
+    return [f[Math.floor(0.01 * (f.length - 1))], f[Math.floor(0.995 * (f.length - 1))]];
+  }
+
+  // Ranks in a Worker built from the kernel script; on the main thread if Workers are unavailable.
+  function rankAsync(values, bins, nbins) {
+    return new Promise(function (resolve) {
+      var w = null;
+      try {
+        var src = $('rhef-kernel').textContent +
+          '\nself.onmessage=function(e){var d=e.data;var r=self.RhefKernel.rhefRanksFromBins(d.v,d.b,d.n,function(f){self.postMessage({p:f});});self.postMessage({r:r},[r.buffer]);};';
+        w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+      } catch (e) { w = null; }
+      if (!w) { resolve(K.rhefRanksFromBins(values, bins, nbins)); return; }
+      w.onmessage = function (e) {
+        if (e.data.p !== undefined) { prog.value = 40 + 55 * e.data.p; return; }
+        w.terminate(); resolve(e.data.r);
+      };
+      w.onerror = function () { w.terminate(); resolve(K.rhefRanksFromBins(values, bins, nbins)); };
+      w.postMessage({ v: values, b: bins, n: nbins });
+    });
+  }
+
+  function load(name, buffer, headerOverride) {
+    var t0 = performance.now(), f;
+    try {
+      f = headerOverride || K.parseFits(buffer);
+    } catch (e) { say(e.message, true); return; }
+    var data = f.data, w = f.width, h = f.height, halved = 0, notes = f.warnings ? f.warnings.slice() : [];
+    while (w > MAX_SIDE || h > MAX_SIDE) {
+      var d = K.downsample2(data, w, h); data = d.data; w = d.width; h = d.height; halved++;
+    }
+    if (halved) notes.push('Frame halved ' + halved + ' time' + (halved > 1 ? 's' : '') + ' (to ' + w + ' x ' + h + ') to keep the page responsive.');
+    var g = K.geometry(f.header, f.width, f.height);
+    if (halved) { var k = Math.pow(2, halved); g = Object.assign({}, g, { cx: (g.cx - (k - 1) / 2) / k, cy: (g.cy - (k - 1) / 2) / k, sx: g.sx * k, sy: g.sy * k }); }
+    var radii = K.radiiFor(w, h, g), rmax = 0;
+    for (var i = 0; i < radii.length; i++) if (radii[i] > rmax) rmax = radii[i];
+    var nbins = Math.max(1, h >> 1), bins = K.binIndexEqual(radii, nbins, rmax);
+    prog.hidden = false; prog.value = 30;
+    say('Ranking ' + w + ' x ' + h + ' pixels in ' + nbins + ' rings...', false);
+    rankAsync(data, bins, nbins).then(function (ranks) {
+      prog.hidden = true;
+      state = { name: name, w: w, h: h, data: data, ranks: ranks, bins: bins, radii: radii, geom: g, halved: halved, header: f.header };
+      drawRaw();
+      draw();
+      $('lab-view').hidden = false;
+      var ms = Math.round(performance.now() - t0);
+      say(name + ': ' + w + ' x ' + h + ', ranked in ' + ms + ' ms on ' + (navigator.hardwareConcurrency || 'an unknown number of') + ' cores. ' + notes.concat([g.note]).join(' '), notes.length > 0);
+      showMeta();
+    });
+  }
+
+  function showMeta() {
+    var dl = $('lab-meta'); dl.textContent = '';
+    var add = function (k, v) {
+      var dt = document.createElement('dt'), dd = document.createElement('dd');
+      dt.textContent = k; dd.textContent = v; dl.appendChild(dt); dl.appendChild(dd);
+    };
+    var h = state.header;
+    ['TELESCOP', 'INSTRUME', 'WAVELNTH', 'DATE-OBS'].forEach(function (k) { if (h[k] !== undefined) add(k, String(h[k])); });
+    add('Read from', 'the file header, as written; not checked by the lab.');
+    add('Stamp', stamp());
+  }
+
+  function stamp() {
+    var on = $('lab-ups').checked;
+    return K.formatStamp('oRHEF-2.0', 'rhef-lab-js', K.VERSION, on ? [Number($('lab-lo').value), Number($('lab-hi').value)] : null, state.halved ? ['GEOM-GRID'] : []);
+  }
+
+  function paint(canvas, values01) {
+    var w = state.w, h = state.h, rgb = tables[$('lab-cmap').value];
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d'), img = ctx.createImageData(w, h), px = img.data;
+    for (var y = 0; y < h; y++) {
+      var src = (h - 1 - y) * w, dst = y * w * 4;   // FITS row 0 is the bottom row
+      for (var x = 0; x < w; x++) {
+        var v = values01[src + x], j = dst + 4 * x;
+        if (v !== v) { px[j] = px[j + 1] = px[j + 2] = 0; px[j + 3] = 255; continue; }
+        var n = Math.max(0, Math.min(255, Math.round(v * 255)));
+        if (rgb) { px[j] = rgb[n][0]; px[j + 1] = rgb[n][1]; px[j + 2] = rgb[n][2]; }
+        else px[j] = px[j + 1] = px[j + 2] = n;
+        px[j + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  function drawRaw() {
+    var p = percentiles(state.data), lo = p[0], span = (p[1] - p[0]) || 1, d = state.data;
+    var v = new Float64Array(d.length);
+    for (var i = 0; i < d.length; i++) v[i] = Math.max(0, Math.min(1, (d[i] - lo) / span));
+    state.raw01 = v;
+    paint($('lab-raw'), v);
+  }
+
+  function draw() {
+    if (!state) return;
+    $('lab-lo-out').textContent = $('lab-lo').value;
+    $('lab-hi-out').textContent = $('lab-hi').value;
+    var on = $('lab-ups').checked;
+    state.out01 = on ? K.upsilonImage(state.ranks, state.bins, 1, Number($('lab-lo').value), Number($('lab-hi').value), 'oRHEF-2.0') : state.ranks;
+    paint($('lab-out'), state.out01);
+    wipe();
+  }
+
+  function wipe() {
+    var v = Number($('lab-wipe').value);
+    $('lab-out').style.clipPath = 'inset(0 0 0 ' + v + '%)';
+    $('lab-split').style.left = v + '%';
+  }
+
+  $('lab-lo').addEventListener('input', draw);
+  $('lab-hi').addEventListener('input', draw);
+  $('lab-ups').addEventListener('change', draw);
+  $('lab-cmap').addEventListener('change', function () { if (state) { paint($('lab-raw'), state.raw01); draw(); } });
+  $('lab-wipe').addEventListener('input', wipe);
+
+  $('lab-stage').addEventListener('pointermove', function (e) {
+    if (!state) return;
+    var r = this.getBoundingClientRect();
+    var x = Math.floor((e.clientX - r.left) / r.width * state.w), yd = Math.floor((e.clientY - r.top) / r.height * state.h);
+    if (x < 0 || yd < 0 || x >= state.w || yd >= state.h) return;
+    var i = (state.h - 1 - yd) * state.w + x, rank = state.ranks[i], rad = state.radii[i];
+    $('lab-readout').textContent = rank === rank
+      ? 'rank ' + rank.toFixed(3) + ' in its ring (r = ' + (state.geom.unit === 'R_sun' ? rad.toFixed(3) + ' R_sun' : 'unknown') + ')'
+      : 'no rank here (no value, or outside every ring)';
+  });
+
+  $('lab-download').addEventListener('click', function () {
+    if (!state || !$('lab-out').toBlob) return;
+    var line = stamp();
+    $('lab-out').toBlob(function (blob) {
+      blob.arrayBuffer().then(function (buf) {
+        var png = K.pngAddText(new Uint8Array(buf), 'RHEF', line);
+        png = K.pngAddText(png, 'Comment', 'RHEF output is a visualization, not a calibrated radiance.');
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([png], { type: 'image/png' }));
+        a.download = 'rhef-' + new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z') + '.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+      });
+    }, 'image/png');
+  });
+
+  function readFile(file) {
+    if (!file) return;
+    say('Reading ' + file.name + '...', false);
+    file.arrayBuffer().then(function (buf) { load(file.name, buf); }, function () { say('Could not read that file.', true); });
+  }
+  $('lab-file').addEventListener('change', function () { readFile(this.files[0]); });
+  var drop = $('lab-drop');
+  ['dragenter', 'dragover'].forEach(function (t) { drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('is-over'); }); });
+  ['dragleave', 'drop'].forEach(function (t) { drop.addEventListener(t, function () { drop.classList.remove('is-over'); }); });
+  drop.addEventListener('drop', function (e) { e.preventDefault(); readFile(e.dataTransfer.files[0]); });
+
+  // A synthetic Sun drawn here: not data, so no header facts and no instrument.
+  $('lab-synthetic').addEventListener('click', function () {
+    var n = 512, c = (n - 1) / 2, d = new Float64Array(n * n), seed = 7;
+    var rnd = function () { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    var rays = []; for (var a = 0; a < 360; a++) rays.push(0.6 + 0.8 * rnd());
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      var r = Math.hypot(x - c, y - c) / (n * 0.2), th = Math.atan2(y - c, x - c);
+      var ray = rays[Math.floor((th + Math.PI) / (2 * Math.PI) * 359.999)];
+      d[y * n + x] = r <= 1 ? 0.8 + 0.2 * r * r + 0.05 * rnd() : 0.6 * Math.pow(r, -7) * ray * (1 + 1.5 * Math.pow(Math.cos(th), 16)) * (1 + 0.1 * rnd());
+    }
+    var hdr = { NAXIS1: n, NAXIS2: n, CRPIX1: c + 1, CRPIX2: c + 1, CRVAL1: 0, CRVAL2: 0, CDELT1: 960 / (n * 0.2), CDELT2: 960 / (n * 0.2), RSUN_OBS: 960 };
+    load('synthetic Sun', null, { header: hdr, width: n, height: n, data: d, hdu: 0, warnings: [] });
+  });
+})();
+</script>
+<script src="/assets/site.js?v=202610151525"></script>
+</body>
+</html>
