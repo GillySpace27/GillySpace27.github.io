@@ -37,7 +37,7 @@ exits 1 naming each page whose stamp is missing or differs, and `sw.js` when its
 | `resources.html` | Solar-physics link directory |
 | `RecordedPublicTalks.html`, `Space-Is-Full.html`, `Kelvin.html` | Outreach & science writing |
 | `Music-and-Theater.html`, `skitPage.html` | Creative work |
-| `shop.html` | My Heliograph print store landing (links to myheliograph.com) |
+| `shop.html` | My Heliogram print store landing (links to myheliograph.com) |
 | `enso/` | Daily AI-narrated enso calendar + editor |
 | `sudoku/` | Spectrum Sudoku |
 | `worker/` | Cloudflare Worker (Workers AI one-line evocation + KV cache) |
