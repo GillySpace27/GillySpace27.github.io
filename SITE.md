@@ -190,6 +190,18 @@ Post-merge checklist (Gilly, after the merge to `master` and Pages finishing):
 - The Share button on each card calls `SunData.share` (native sheet, else clipboard, else
   `execCommand`) and shows a toast with the link.
 
+## Family look (SU-20)
+
+The colour and layout tokens live once, in `heliosoftware/spec/tokens.json`. `assets/site.css`
+holds them between `/* heliosoftware-tokens v1 begin */` and `... end */`;
+`python3 heliosoftware/spec/tools/tokens.py --check assets/site.css` fails on any drift (the unit
+tests run it), and `--write` sets the values from the JSON. To change a colour, edit the JSON,
+run `--write`, then `python3 bump-assets.py` and `python3 heliosoftware/spec/spec_sums.py --write`.
+The store's stylesheets get the same block only after Gilly approves the colour change there.
+
+`assets/sun-compare.js` turns any `<figure data-compare>` into a before/after slider; the figure's
+own image stays as the no-script fallback. It is on `/rhef/` and the Software hub.
+
 ## Page head and icons
 
 - The shared part of a shell page's `<head>` (title, description, canonical,
