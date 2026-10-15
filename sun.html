@@ -33,7 +33,7 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="stylesheet" href="/assets/site.css?v=202610151525">
+<link rel="stylesheet" href="/assets/site.css?v=202610151527">
 <style>
   .sun-lead { font-size: 1.05rem; color: var(--muted); max-width: 62ch; margin: 0 0 1em; }
   .sun-times { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted);
@@ -140,6 +140,7 @@
         <a id="stage-movie" target="_blank" rel="noopener" download hidden>48 h movie file</a>
         <a href="/heliogram/">Put it on your desktop (Mac)</a>
         <a href="https://myheliograph.com/?ref=gilly.space" target="_blank" rel="noopener">Print this Sun</a>
+        <a id="stage-print" href="https://myheliograph.com/?utm_source=sun" target="_blank" rel="noopener">Print this moment</a>
       </div>
       <div id="stage-status" class="stage__status" role="status" aria-live="polite"></div>
       <p id="stage-note" class="stage__note"></p>
@@ -208,8 +209,8 @@
 </div>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610151525"></script>
-<script src="/assets/sun.js?v=202610151525"></script>
+<script src="/assets/site.js?v=202610151527"></script>
+<script src="/assets/sun.js?v=202610151527"></script>
 <script>
   const BUCKET = SunData.BUCKET;
   const PRODUCTS = [
@@ -446,6 +447,9 @@
     const m = MANIFESTS[SunStage.state().id];
     const still = document.getElementById("stage-still"), movie = document.getElementById("stage-movie");
     still.hidden = movie.hidden = !m;
+    // Print this moment follows the scrubber: the channel and the time on screen (SU-17).
+    const st = SunStage.state();
+    document.getElementById("stage-print").href = SunData.storeLink(st.id, m ? SunData.slotTime(m, st.slot).ms : NaN, "sun");
     if (!m) return;
     still.href = u(m.img1k, m.updated);
     movie.href = u(m.video, m.updated);

@@ -19,7 +19,7 @@ const link = { URLSearchParams, Math, String };
 vm.runInNewContext(region("wall/index.html", "wallLink") + "\nthis.l=wallLink;", link);
 
 // a bare link changes nothing
-assert.deepEqual(JSON.parse(JSON.stringify(wall.o(""))), { clock: null, caption: "brief", dome: false, attrib: null, ids: null });
+assert.deepEqual(JSON.parse(JSON.stringify(wall.o(""))), { clock: null, caption: "brief", dome: false, store: false, attrib: null, ids: null });
 // unknown values fall back to the default
 const bad = wall.o("?clock=sundial&caption=loud&dome=yes&attrib=2&ids=,,");
 assert.equal(bad.clock, null); assert.equal(bad.caption, "brief"); assert.equal(bad.dome, false); assert.equal(bad.attrib, null); assert.equal(bad.ids, null);
@@ -47,4 +47,7 @@ assert.equal(link.l({ caption: "brief", loops: "0" }, base), base + "/sun-wall.h
 // the builder's link round-trips through the wall's parser
 const rt = wall.o("?" + link.l({ dome: true, clock: "local", caption: "0", attrib: true, ids: ["94"] }, base).split("?")[1]);
 assert.equal(rt.dome, true); assert.equal(rt.clock, "local"); assert.equal(rt.caption, "0"); assert.equal(rt.attrib, "1"); assert.deepEqual(Array.from(rt.ids), ["94"]);
+// SU-17: store=1 is opt-in and exact
+assert.equal(wall.o("?store=1").store, true);
+assert.equal(wall.o("?store=yes").store, false);
 console.log("wall kit: ok");

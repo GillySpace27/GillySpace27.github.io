@@ -28,14 +28,18 @@
   /* WS-13: ?clock= puts the time at the top left. */
   #clock{position:fixed;left:2.2vw;top:2.2vh;display:none;color:#fff;opacity:.72;font-size:1.6em;
          font-variant-numeric:tabular-nums;text-shadow:0 1px 6px #000}
+  /* SU-17: ?store=1 names the print shop on screen (text only: a wall has no pointer). */
+  #store{position:fixed;right:2.2vw;bottom:calc(2.2vh + 2em);display:none;opacity:.72;
+         letter-spacing:.04em;text-shadow:0 1px 6px #000;font-size:1.05em;color:#fff}
   /* WS-13: ?dome=1 turns the picture into a centred circle (the largest that fits) and moves
      the clock, caption and credit to the middle of the lower half, where a dome audience looks. */
   body.dome #stage{position:fixed;left:50%;top:50%;width:min(100vw,100vh);height:min(100vw,100vh);
                    transform:translate(-50%,-50%);border-radius:50%;overflow:hidden}
   body.dome video{object-fit:cover}
-  body.dome #cap,body.dome #attr,body.dome #clock{left:0;right:0;text-align:center}
+  body.dome #cap,body.dome #attr,body.dome #clock,body.dome #store{left:0;right:0;text-align:center}
   body.dome #clock{top:auto;bottom:calc(50% - min(50vw,50vh) + 14%)}
   body.dome #cap{bottom:calc(50% - min(50vw,50vh) + 6%)}
+  body.dome #store{bottom:calc(50% - min(50vw,50vh) + 10%)}
   body.dome #attr{bottom:calc(50% - min(50vw,50vh) + 1%);font-size:.9em}
 </style>
 </head>
@@ -43,6 +47,7 @@
 <div id="stage"></div>
 <div id="clock" aria-hidden="true"></div>
 <div id="cap" aria-live="off"><b></b><span></span></div>
+<div id="store"></div>
 <div id="attr"></div>
 <script>
 const BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/";
@@ -60,6 +65,7 @@ const SHUFFLE = !!(window.WALL_SHUFFLE ?? (Q.get("shuffle") === "1"));
 //   dome=1            a circular picture for a planetarium dome
 //   attrib=0|1        0 hides the credit line; 1 shows it even outside the Mac app
 //   ids=171,304       only these channels, in the order they are given
+//   store=1           a line saying where to print this Sun
 // wallOptions begin
 function wallOptions(search) {
   const q = new URLSearchParams(search);
@@ -71,6 +77,7 @@ function wallOptions(search) {
     clock: clock === "utc" || clock === "local" ? clock : null,
     caption: caption === "0" || caption === "stay" ? caption : "brief",
     dome: q.get("dome") === "1",
+    store: q.get("store") === "1",
     attrib: attrib === "0" || attrib === "1" ? attrib : null,
     ids: ids.length ? ids : null,
   };
@@ -124,6 +131,11 @@ if (OPT.dome) document.body.classList.add("dome");
     const a = document.getElementById("attr");
     a.textContent = text; a.style.display = "block";
   }
+}
+if (OPT.store) {
+  const el = document.getElementById("store");
+  el.textContent = "Print this Sun: myheliograph.com";
+  el.style.display = "block";
 }
 if (OPT.clock) {
   const el = document.getElementById("clock");
