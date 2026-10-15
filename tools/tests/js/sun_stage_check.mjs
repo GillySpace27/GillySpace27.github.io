@@ -59,4 +59,15 @@ assert.equal(S.slotVideoTime(72), 72.5 / 18);
 assert.equal(S.slotVideoTime(500), 143.5 / 18, "clamped");
 assert.equal(typeof win.SunStage.init, "function");
 for (const k of ["setChannel", "seek", "play", "pause", "walk", "state"]) assert.equal(typeof win.SunStage[k], "function", k);
+
+// SU-17: storeLink follows Heliogram's Store.swift: utm_source, d, t (UTC, colon kept), wl for AIA ids only.
+const T = Date.UTC(2026, 8, 30, 14, 20);
+assert.equal(S.storeLink("171", T, "sun"), "https://myheliograph.com/?utm_source=sun&d=2026-09-30&t=14:20&wl=171");
+assert.equal(S.storeLink("rainbow", T, "sun"), "https://myheliograph.com/?utm_source=sun&d=2026-09-30&t=14:20", "no wl for a non-wavelength");
+assert.equal(S.storeLink("composite_uv", T), "https://myheliograph.com/?utm_source=sun&d=2026-09-30&t=14:20");
+assert.equal(S.storeLink("dem", T, "wall"), "https://myheliograph.com/?utm_source=wall&d=2026-09-30&t=14:20");
+assert.equal(S.storeLink("94", Date.UTC(2026, 0, 2, 3, 4), "sun"), "https://myheliograph.com/?utm_source=sun&d=2026-01-02&t=03:04&wl=94", "zero padded");
+assert.equal(S.storeLink("171", NaN, "sun"), "https://myheliograph.com/?utm_source=sun", "no time: no d, t or wl (wl needs a d)");
+assert.equal(S.storeLink("171", undefined), "https://myheliograph.com/?utm_source=sun");
+assert.equal(S.storeLink("171", S.slotTime({ updated: "2026-10-01T15:20:00Z" }, 140).ms, "sun"), "https://myheliograph.com/?utm_source=sun&d=2026-10-01&t=14:20&wl=171", "built from the scrubber's slot time");
 console.log("sun stage: ok");

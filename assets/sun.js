@@ -143,6 +143,25 @@
   // Lowercase only: GitHub Pages is case-sensitive. The stubs under s/ are made by tools/bake.py.
   const shareUrl = (id) => "https://gilly.space/s/" + String(id).toLowerCase() + "/";
 
+  // ---- Print this moment (SU-17) ------------------------------------------------------------
+  // The store link Heliogram's QR also uses (Store.swift): utm_source, then d and t in UTC, then wl
+  // only for a numeric (AIA) channel id. The store honours wl only with a valid d, so they travel
+  // together; rainbow, composite_uv and dem send the date alone. With no usable time the link is
+  // the plain store address plus utm_source. `source` is "sun" (this page) or "wall". t keeps its
+  // colon, as Heliogram's does. The store decides whether a date is printable yet.
+  const STORE_HOST = "myheliograph.com";
+  function storeLink(id, whenMs, source) {
+    const two = (n) => String(n).padStart(2, "0");
+    let q = "utm_source=" + encodeURIComponent(source || "sun");
+    if (typeof whenMs === "number" && isFinite(whenMs)) {
+      const t = new Date(whenMs);
+      q += "&d=" + t.getUTCFullYear() + "-" + two(t.getUTCMonth() + 1) + "-" + two(t.getUTCDate()) +
+           "&t=" + two(t.getUTCHours()) + ":" + two(t.getUTCMinutes());
+      if (/^\d+$/.test(String(id))) q += "&wl=" + String(id);
+    }
+    return "https://" + STORE_HOST + "/?" + q;
+  }
+
   // ---- Stage data: channel metadata, slot clock, id order (WS-15) -------------------------
   // Characteristic log T per AIA channel is copied from instruments/AIA.md section 4, table
   // "Channels" (lines 65-73 of that vault file), which cites the LMSAL AIA instrument page,
@@ -226,7 +245,7 @@
     BUCKET, u, loadManifest, loadAll, loadCaptureTime, freshness, loadSunIndex,
     FRESH_OK_MIN, FRESH_STALE_MIN, FPS, SLOTS, parseHash,
     CHANNELS, CHANNEL_ORDER, SLOT_MIN, stageIds, tempText, slotTime, alignSlot, slotVideoTime,
-    share, shareUrl,
+    share, shareUrl, storeLink, STORE_HOST,
   };
 
   // ---- The Stage: one large 48 hour clip, a 144 step scrubber, a channel strip (WS-15) ----

@@ -52,6 +52,14 @@ class WallKitTest(unittest.TestCase):
         for page in ("sun.html", "play/index.html", "index.html"):
             self.assertNotIn('href="/wall/"', (REPO / page).read_text(encoding="utf-8"), page)
 
+    def test_sun_page_has_a_print_this_moment_link_that_follows_the_stage(self):
+        page = (REPO / "sun.html").read_text(encoding="utf-8")
+        self.assertEqual(page.count('id="stage-print"'), 1)
+        self.assertIn("SunData.storeLink(st.id", page)
+        # the older, plain store link is kept
+        self.assertIn('href="https://myheliograph.com/?ref=gilly.space"', page)
+        self.assertIn("store=1", WALL)
+
     def test_builder_form_fields(self):
         for name in ("shape", "clock", "caption", "attrib", "loops", "shuffle"):
             self.assertRegex(BUILDER, rf'name="{name}"')
