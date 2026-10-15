@@ -33,8 +33,27 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="stylesheet" href="/assets/site.css?v=202610150215">
-<link rel="stylesheet" href="/assets/product.css?v=202610150215">
+<link rel="stylesheet" href="/assets/site.css?v=202610151510">
+<link rel="stylesheet" href="/assets/product.css?v=202610151510">
+<style>
+.rhef-tabs__list { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; margin: 1.6rem auto .8rem; }
+.rhef-tabs__list [role="tab"] { font: inherit; font-size: .92rem; color: var(--text); background: none; cursor: pointer;
+  padding: .45rem 1rem; min-height: 44px; border: 1px solid var(--card-border); border-radius: 999px; }
+.rhef-tabs__list [role="tab"][aria-selected="true"] { border-color: var(--accent); background: var(--card-bg); font-weight: 600; }
+.rhef-tabs__list [role="tab"]:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.product .rhef-h { margin: 2.6rem auto .6rem; font-size: 1.25rem; }
+.product .rhef-prose { margin: 0 auto 1rem; max-width: 32rem; text-align: left; }
+.rhef-movie { margin: 1rem auto 0; max-width: 30rem; }
+.rhef-movie video { display: block; width: 100%; height: auto; border-radius: var(--radius); background: #000; }
+.rhef-movie figcaption { margin-top: .5rem; font-size: .85rem; color: var(--muted); text-align: left; }
+.rhef-table-wrap { max-width: 44rem; margin: 0 auto; overflow-x: auto; }
+.rhef-table { width: 100%; border-collapse: collapse; font-size: .88rem; text-align: left; }
+.rhef-table th, .rhef-table td { padding: .5rem .6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.rhef-table code { font-size: .8rem; white-space: nowrap; }
+.product .rhef-cite { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .5rem; margin: .4rem auto 0; }
+.rhef-cite button { font: inherit; background: none; cursor: pointer; min-height: 44px; }
+.rhef-cite__status { font-size: .85rem; color: var(--muted); }
+</style>
 </head>
 <body>
 <div data-include="header"></div>
@@ -47,12 +66,21 @@
      in a dark void; RHEF shows the corona that is actually there, on the disk and off the limb,
      with no parameters to tune.</p>
 
-  <figure class="shot" data-compare="halves" data-before="Standard display" data-after="RHEF">
-    <img src="/assets/sw/rhef-compare.jpg" width="1320" height="660"
-         alt="The same SDO/AIA 171 Å image twice. Left, a standard display: a bright disk fading into black. Right, after RHEF: loops and streamers visible out to the edge of the frame.">
-    <figcaption>Left: a standard display. Right: <code>rhef()</code> at its defaults, nothing tuned.
-      SDO/AIA 171 Å, 2011-06-07, from the SunPy sample data.</figcaption>
-  </figure>
+  <div class="rhef-tabs" data-rhef-tabs>
+    <div class="rhef-tabs__list" role="tablist" aria-label="Instrument" hidden>
+      <button type="button" role="tab" id="rhef-tab-aia171" aria-controls="rhef-panel-aia171" aria-selected="true">SDO/AIA 171 Å</button>
+    </div>
+    <!-- One section per instrument. Make a new pair with tools/make_rhef_pairs.py, which prints
+         the header values the caption quotes; the tab list shows once there are two. -->
+    <section role="tabpanel" id="rhef-panel-aia171" aria-labelledby="rhef-tab-aia171">
+    <figure class="shot" data-compare="halves" data-before="Standard display" data-after="RHEF">
+      <img src="/assets/sw/rhef-compare.jpg" width="1320" height="660"
+           alt="The same SDO/AIA 171 Å image twice. Left, a standard display: a bright disk fading into black. Right, after RHEF: loops and streamers visible out to the edge of the frame.">
+      <figcaption>Left: a standard display. Right: <code>rhef()</code> at its defaults, nothing tuned.
+        SDO/AIA 171 Å, 2011-06-07, from the SunPy sample data.</figcaption>
+    </figure>
+    </section>
+  </div>
 
   <pre class="code"><code>pip install sunkit-image</code></pre>
   <pre class="code"><code>import sunpy.map
@@ -73,11 +101,106 @@ rhef(sunpy.map.Map("aia_171.fits")).peek()</code></pre>
     <li>Part of <a href="https://docs.sunpy.org/projects/sunkit-image/en/stable/">sunkit-image</a>, SunPy's image-processing package. An IDL version is described in the paper.</li>
   </ul>
 
+  <h2 class="rhef-h">How it works</h2>
+  <p class="rhef-prose">RHEF splits the image into rings around the Sun's centre and replaces each value by
+     its rank among the values in its ring. A faint ring and a bright ring then both span the whole
+     range from dark to light.</p>
+  <figure class="rhef-movie">
+    <video controls preload="none" playsinline width="480" height="480"
+           poster="/assets/sw/rhef-unroll-poster.jpg"
+           aria-describedby="rhef-movie-cap">
+      <source src="/assets/sw/rhef-unroll.mp4" type="video/mp4">
+    </video>
+    <figcaption id="rhef-movie-cap">A teaching visual, not a figure from the paper: a synthetic Sun is
+      unrolled so each row is one ring, every row is ranked, and the strip rolls back up. The rings
+      are equal width and the Upsilon curve is off. Nothing plays until you press play. Made with
+      <code>tools/make_rhef_unroll.py</code>.</figcaption>
+  </figure>
+
+  <h2 class="rhef-h">Every implementation</h2>
+  <p class="rhef-prose">The same filter ships in several places. Each one names the convention it
+     follows and lists, by id, where its code still differs; the ids are defined in the
+     <a href="/heliosoftware/spec/rhef/conventions.md">RHEF conventions</a>.</p>
+  <div class="rhef-table-wrap">
+  <table class="rhef-table" id="rhef-implementations">
+    <thead><tr><th scope="col">Implementation</th><th scope="col">Where</th><th scope="col">Convention</th><th scope="col">Differs by</th></tr></thead>
+    <tbody>
+      <tr><td>sunkit-image 0.7.0 (Python)</td><td><a href="https://pypi.org/project/sunkit-image/">PyPI</a></td><td><code>sunkit-0.7</code></td><td>none: it defines the convention</td></tr>
+      <tr><td>sunback (the live Sun on this site)</td><td><a href="https://github.com/GillySpace27/sunback">GitHub</a></td><td><code>sunkit-0.7</code></td><td>none</td></tr>
+      <tr><td>My Heliograph (prints)</td><td><a href="https://myheliograph.com">myheliograph.com</a></td><td><code>sunkit-0.7</code></td><td>none</td></tr>
+      <tr><td>HelioFITS (Swift)</td><td><a href="https://apps.apple.com/app/id6790952544">Mac App Store</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>UPS-MEAN</code> <code>TIES-TOL</code> <code>KEY-QUANT</code> <code>GEOM-GRID</code> <code>DTYPE-IN</code></td></tr>
+      <tr><td>HelioFITS Studio, ranking (Java)</td><td><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases">GitHub releases</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>RANK-N1</code> <code>POS-ONLY</code> <code>FP16</code> <code>MIN-BIN</code> <code>GEOM-PX</code> <code>UPS-EXT</code> <code>DTYPE-IN</code></td></tr>
+      <tr><td>HelioFITS Studio, Upsilon (GLSL)</td><td><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases">GitHub releases</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>RANK-EXT</code> <code>UPS-CLAMP</code> <code>UPS-DEFAULT</code></td></tr>
+      <tr><td>IDL</td><td><a href="https://doi.org/10.1007/s11207-025-02578-x">described in the paper</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>RANK-N1</code> <code>TIES-INTERP</code> <code>GEOM-CRPIX</code> <code>GEOM-PX</code> <code>NO-NAN-GUARD</code> <code>DTYPE-IN</code> <code>UPS-DEFAULT</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="alt">Rows from the fastRHEF conventions registry, read 2026-10-15. RHEF output is a
+     visualization, not a calibrated radiance.</p>
+
+  <h2 class="rhef-h" id="cite">Cite it</h2>
   <p class="alt">Gilly &amp; Cranmer (2025), <i>Visualization of High Dynamic Range Solar Imagery and the
      Radial Histogram Equalizing Filter</i>, Solar Physics.</p>
+  <pre class="code" id="rhef-bibtex"><code>@article{GillyCranmer2025,
+  author  = {Gilly, C. R. and Cranmer, S. R.},
+  title   = {Visualization of High Dynamic Range Solar Imagery and the Radial Histogram Equalizing Filter},
+  journal = {Solar Physics},
+  year    = {2025},
+  volume  = {300},
+  pages   = {174},
+  doi     = {10.1007/s11207-025-02578-x},
+  eprint  = {2511.02798},
+  archivePrefix = {arXiv}
+}</code></pre>
+  <p class="rhef-cite"><button type="button" class="sec" data-copy="rhef-bibtex" hidden>Copy BibTeX</button>
+     <span class="rhef-cite__status" role="status" aria-live="polite"></span>
+     <a class="sec" href="https://arxiv.org/abs/2511.02798">arXiv</a></p>
 </main>
 <div data-include="footer"></div>
-<script src="/assets/sun-compare.js?v=202610150215"></script>
-<script src="/assets/site.js?v=202610150215"></script>
+<script>
+/* RH-10: instrument tabs (shown once there are two panels) and the Copy BibTeX button. */
+(function () {
+  'use strict';
+  var box = document.querySelector('[data-rhef-tabs]');
+  if (box) {
+    var list = box.querySelector('[role="tablist"]');
+    var tabs = Array.prototype.slice.call(box.querySelectorAll('[role="tab"]'));
+    var show = function (tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+      });
+      if (focus) tab.focus();
+    };
+    if (tabs.length > 1) {
+      list.hidden = false;
+      tabs.forEach(function (t, i) {
+        t.addEventListener('click', function () { show(t, false); });
+        t.addEventListener('keydown', function (e) {
+          var n = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+          if (n === undefined) return;
+          e.preventDefault();
+          show(tabs[(n + tabs.length) % tabs.length], true);
+        });
+      });
+      show(tabs[0], false);
+    }
+  }
+  var btn = document.querySelector('[data-copy]');
+  if (btn && navigator.clipboard) {
+    var status = document.querySelector('.rhef-cite__status');
+    btn.hidden = false;
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.getAttribute('data-copy')).textContent;
+      navigator.clipboard.writeText(text).then(function () { status.textContent = 'Copied.'; },
+        function () { status.textContent = 'Copy failed: select the text above instead.'; });
+    });
+  }
+})();
+</script>
+<script src="/assets/sun-compare.js?v=202610151510"></script>
+<script src="/assets/site.js?v=202610151510"></script>
 </body>
 </html>
