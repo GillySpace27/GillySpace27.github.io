@@ -17,7 +17,7 @@ SITE_JS = (ROOT / "assets" / "site.js").read_text(encoding="utf-8")
 HEADER = (ROOT / "partials" / "header.html").read_text(encoding="utf-8")
 PAGE_404 = (ROOT / "404.html").read_text(encoding="utf-8")
 NODE = shutil.which("node")
-EM = "—"
+EM = chr(0x2014)  # spelled as a code point so this file holds no em dash
 
 
 def region(text: str, begin: str, end: str) -> str:
