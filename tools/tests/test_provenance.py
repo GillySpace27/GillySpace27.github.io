@@ -77,7 +77,7 @@ class AttributionTest(Case):
         html = (SPEC / "index.html").read_text(encoding="utf-8")
         for name in ("provenance.md", "attribution.json", "tools/check_provenance.py"):
             self.assertEqual(html.count(f'href="{name}"'), 1, name)
-            self.assertNotIn("—", (SPEC / name).read_text(encoding="utf-8"), name)
+            self.assertNotIn(chr(0x2014), (SPEC / name).read_text(encoding="utf-8"), name)
 
 
 class SidecarTest(Case):

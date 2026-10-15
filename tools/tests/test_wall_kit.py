@@ -64,7 +64,7 @@ class WallKitTest(unittest.TestCase):
         for name in ("shape", "clock", "caption", "attrib", "loops", "shuffle"):
             self.assertRegex(BUILDER, rf'name="{name}"')
         self.assertIn('<main id="main"', BUILDER)
-        self.assertIsNone(re.search("—", BUILDER + WALL))
+        self.assertIsNone(re.search(chr(0x2014), BUILDER + WALL))
 
 
 if __name__ == "__main__":
