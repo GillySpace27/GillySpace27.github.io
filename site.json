@@ -173,6 +173,17 @@
       "description": "Small interactive things Gilly built: a daily ens\u014d calendar, an ens\u014d editor, Spectrum Sudoku, Solar Corona &amp; Wind, and a Claude model field guide."
     },
     {
+      "path": "wall/index.html",
+      "url": "/wall/",
+      "title": "Sun wall builder",
+      "palette": "",
+      "keywords": "wall dome planetarium display sun",
+      "sitemap": false,
+      "priority": "0.5",
+      "archived": false,
+      "description": "Build one link that turns any screen or planetarium dome into a live, full-screen Sun, with a clock, captions and credit."
+    },
+    {
       "path": "enso/index.html",
       "url": "/enso/",
       "title": "Daily Ens\u014d Calendar",

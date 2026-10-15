@@ -1,4 +1,4 @@
-"""WS-11: the 22 shell pages carry a baked head and nothing was lost on the way
+"""WS-11: the 23 shell pages carry a baked head and nothing was lost on the way
 (run: python3 -m unittest discover -s tools/tests -p 'test_*.py').
 """
 from __future__ import annotations
@@ -33,7 +33,7 @@ def shell_pages() -> list:
     return [p["path"] for p in pages if "<!-- bake:head -->" in read(p["path"])]
 
 
-SHELL_COUNT = 23   # 22 at WS-11; RH-14 added rhef/lab/index.html
+SHELL_COUNT = 24   # 22 at WS-11; RH-14 added rhef/lab/index.html; WS-13 added wall/index.html
 NO_CANONICAL = ("404.html",)   # served for every missing path: no single URL to name
 
 

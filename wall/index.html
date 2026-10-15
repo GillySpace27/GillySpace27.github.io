@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- bake:head -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sun wall builder · gilly.space</title>
+<meta name="description" content="Build one link that turns any screen or planetarium dome into a live, full-screen Sun, with a clock, captions and credit.">
+<link rel="canonical" href="https://gilly.space/wall/">
+<script>
+  (function () {
+    try {
+      var mode = localStorage.getItem('enso-theme') || 'system';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (mode === 'dark' || (mode === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sun wall builder · gilly.space">
+<meta property="og:description" content="Build one link that turns any screen or planetarium dome into a live, full-screen Sun, with a clock, captions and credit.">
+<meta property="og:url" content="https://gilly.space/wall/">
+<meta property="og:image" content="https://gilly.space/images/bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
+<!-- /bake -->
+<link rel="stylesheet" href="/assets/site.css?v=202610151525">
+<link rel="stylesheet" href="/assets/product.css?v=202610151525">
+<style>
+  .wallkit { display: grid; gap: 1.6rem; grid-template-columns: minmax(0, 1fr); text-align: left; margin-top: 1.5rem; }
+  @media (min-width: 52rem) { .wallkit { grid-template-columns: minmax(0, 20rem) minmax(0, 1fr); } }
+  .wallkit fieldset { border: 0; border-top: 1px solid var(--rule); margin: 0 0 1rem; padding: .8rem 0 0; min-width: 0; }
+  .wallkit legend { padding: 0; font-weight: 600; }
+  .wallkit label { display: flex; gap: .55rem; align-items: center; min-height: 2.2rem; }
+  .wallkit .chan { display: grid; grid-template-columns: 1fr 1fr; gap: 0 .8rem; }
+  .wallkit select, .wallkit input[type="number"], .wallkit input[type="text"] {
+    font: inherit; color: var(--text); background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 6px; padding: .35rem .5rem; max-width: 100%; }
+  .wallkit input[type="number"] { width: 4.5rem; }
+  .wallkit .hint { color: var(--muted); font-size: .88rem; margin: .2rem 0 0; }
+  #wall-frame-box { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; }
+  #wall-frame-box.is-dome { width: min(100%, 26rem); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; }
+  #wall-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  #wall-url { width: 100%; font-size: .85rem; margin-top: 1rem; }
+  .wall-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
+  .wall-actions .btn { cursor: pointer; font: inherit; }
+</style>
+</head>
+<body>
+<div data-include="header"></div>
+<!-- bake:noscript -->
+<noscript>
+  <nav class="wrap" style="padding-top:12px" aria-label="Primary">
+    <a href="/Research.html">Research</a> ·
+    <a href="/sun.html">The Sun</a> ·
+    <a href="/RecordedPublicTalks.html">Outreach</a> ·
+    <a href="/play/">Play</a> ·
+    <a href="/heliosoftware/">Software</a> ·
+    <a href="/shop.html">Store</a> ·
+    <a href="/about.html">About / CV</a>
+  </nav>
+</noscript>
+<!-- /bake -->
+<main id="main" class="product product--wide" data-no-blank>
+  <p class="eyebrow"><a href="/sun.html">The Sun</a></p>
+  <h1>Sun wall builder</h1>
+  <p class="tag">Pick what a screen or a planetarium dome should show, then copy one link. It plays the latest 48-hour movies of the Sun, full screen, and keeps itself current.</p>
+
+  <form id="wall-form" class="wallkit" autocomplete="off" onsubmit="return false">
+    <div>
+      <fieldset>
+        <legend>Shape</legend>
+        <label><input type="radio" name="shape" value="screen" checked> A screen (fills it)</label>
+        <label><input type="radio" name="shape" value="dome"> A dome (a centred circle)</label>
+      </fieldset>
+      <fieldset>
+        <legend>Clock</legend>
+        <label><input type="radio" name="clock" value="" checked> None</label>
+        <label><input type="radio" name="clock" value="utc"> UTC</label>
+        <label><input type="radio" name="clock" value="local"> The screen's own time</label>
+      </fieldset>
+      <fieldset>
+        <legend>Caption and credit</legend>
+        <label for="w-caption">Channel name
+          <select id="w-caption" name="caption">
+            <option value="brief">Shows for a few seconds</option>
+            <option value="stay">Always on</option>
+            <option value="0">Hidden</option>
+          </select></label>
+        <label><input type="checkbox" name="attrib" checked> Show the NASA/SDO credit line</label>
+      </fieldset>
+      <fieldset>
+        <legend>Channels</legend>
+        <div class="chan" id="w-channels"></div>
+        <p class="hint">All of them when none is ticked, in the usual order.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Playback</legend>
+        <label for="w-loops">Plays per channel <input id="w-loops" type="number" name="loops" value="1" min="1" max="20"></label>
+        <label><input type="checkbox" name="shuffle"> Shuffle the order</label>
+      </fieldset>
+    </div>
+    <div>
+      <div id="wall-frame-box"><iframe id="wall-frame" title="Preview of the wall" loading="lazy" allow="fullscreen"></iframe></div>
+      <label for="wall-url" class="hint">Your link</label>
+      <input id="wall-url" type="text" readonly aria-label="Your wall link">
+      <div class="wall-actions">
+        <button type="button" class="btn" id="w-copy">Copy link</button>
+        <a class="btn btn--ghost" id="w-open" href="/sun-wall.html" target="_blank" rel="noopener">Open full screen</a>
+      </div>
+      <p class="hint">On the screen itself, press F for full screen. The page asks the browser to keep the display awake. Imagery is NASA/SDO (AIA); the pictures are a visualization, not calibrated radiances.</p>
+    </div>
+  </form>
+</main>
+<div data-include="footer"></div>
+<script>
+  // wallLink begin
+  function wallLink(opts, origin) {
+    const q = new URLSearchParams();
+    if (opts.clock === "utc" || opts.clock === "local") q.set("clock", opts.clock);
+    if (opts.caption === "stay" || opts.caption === "0") q.set("caption", opts.caption);
+    if (opts.dome) q.set("dome", "1");
+    q.set("attrib", opts.attrib === false ? "0" : "1");
+    if (opts.ids && opts.ids.length) q.set("ids", opts.ids.join(","));
+    const loops = Math.max(1, Math.min(20, Math.floor(+opts.loops || 1)));
+    if (loops > 1) q.set("loops", String(loops));
+    if (opts.shuffle) q.set("shuffle", "1");
+    return origin + "/sun-wall.html?" + q.toString().replace(/%2C/g, ",");
+  }
+  // wallLink end
+  (function () {
+    var CHANNELS = [["rainbow","Rainbow (RHEF)"],["171","AIA 171"],["193","AIA 193"],["211","AIA 211"],["304","AIA 304"],
+      ["335","AIA 335"],["94","AIA 94"],["131","AIA 131"],["1600","AIA 1600"],["1700","AIA 1700"],
+      ["composite_uv","UV composite"],["dem","Temperature (DEM)"]];
+    var form = document.getElementById("wall-form"), box = document.getElementById("w-channels");
+    CHANNELS.forEach(function (c) {
+      var l = document.createElement("label"), i = document.createElement("input");
+      i.type = "checkbox"; i.name = "ch"; i.value = c[0];
+      l.appendChild(i); l.appendChild(document.createTextNode(" " + c[1])); box.appendChild(l);
+    });
+    function read() {
+      var ids = []; form.querySelectorAll("input[name=ch]:checked").forEach(function (e) { ids.push(e.value); });
+      return { dome: form.elements.shape.value === "dome", clock: form.elements.clock.value, caption: form.elements.caption.value,
+               attrib: form.elements.attrib.checked, ids: ids, loops: form.elements.loops.value, shuffle: form.elements.shuffle.checked };
+    }
+    var frame = document.getElementById("wall-frame"), last = "";
+    function update() {
+      var o = read(), url = wallLink(o, location.origin === "null" ? "https://gilly.space" : location.origin);
+      document.getElementById("wall-url").value = url;
+      document.getElementById("w-open").href = url;
+      document.getElementById("wall-frame-box").classList.toggle("is-dome", o.dome);
+      if (url !== last) { last = url; frame.src = url; }
+    }
+    form.addEventListener("input", update); form.addEventListener("change", update);
+    document.getElementById("w-copy").addEventListener("click", function () {
+      var b = this, url = document.getElementById("wall-url").value;
+      function done(t) { b.textContent = t; setTimeout(function () { b.textContent = "Copy link"; }, 2000); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { done("Copied"); }, function () { done("Select the link above"); });
+      else { var f = document.getElementById("wall-url"); f.select(); done("Select the link above"); }
+    });
+    update();
+  })();
+</script>
+<script src="/assets/site.js?v=202610151525"></script>
+</body>
+</html>
