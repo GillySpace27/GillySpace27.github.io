@@ -2,7 +2,7 @@
 """Stamp a fresh ?v= on every page's link to the shared CSS/JS.
 
 Run after changing assets/site.css, assets/product.css, assets/site.js,
-assets/product.js or a partial. Each page then asks for exactly the files it
+assets/product.js, assets/sun.js, assets/sun-compare.js or a partial. Each page then asks for exactly the files it
 was deployed with, so a CDN edge still caching the old stylesheet can't pair
 it with new markup. site.js passes the same stamp on to the header/footer
 partials, and sw.js gets CACHE_VERSION = 'gilly-<stamp>' so returning
@@ -26,7 +26,7 @@ import subprocess
 import sys
 import time
 
-STAMPED_ASSETS = ("site.css", "product.css", "site.js", "product.js", "sun.js")
+STAMPED_ASSETS = ("site.css", "product.css", "site.js", "product.js", "sun.js", "sun-compare.js")
 CHECK_WARN_ONLY = ("heliograph/index.html", "heliogram/index.html")
 LINK = re.compile(r'(/assets/(?:%s))(?:\?v=(\w+))?"' % "|".join(re.escape(a) for a in STAMPED_ASSETS))
 SW_LINE = re.compile(r"const CACHE_VERSION = '([^']*)';")
