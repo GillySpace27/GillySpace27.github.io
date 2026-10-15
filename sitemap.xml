@@ -12,8 +12,8 @@
   <url><loc>https://gilly.space/Music-and-Theater.html</loc><priority>0.5</priority><lastmod>2026-10-15</lastmod></url>
   <url><loc>https://gilly.space/play/</loc><priority>0.8</priority><lastmod>2026-10-15</lastmod></url>
   <url><loc>https://gilly.space/enso/</loc><priority>0.7</priority><lastmod>2026-10-05</lastmod></url>
-  <url><loc>https://gilly.space/enso/pixelated-enso.html</loc><priority>0.5</priority><lastmod>2026-09-16</lastmod></url>
-  <url><loc>https://gilly.space/sudoku/</loc><priority>0.6</priority><lastmod>2026-09-16</lastmod></url>
+  <url><loc>https://gilly.space/enso/pixelated-enso.html</loc><priority>0.5</priority><lastmod>2026-09-18</lastmod></url>
+  <url><loc>https://gilly.space/sudoku/</loc><priority>0.6</priority><lastmod>2026-09-18</lastmod></url>
   <url><loc>https://gilly.space/whichclaude.html</loc><priority>0.6</priority><lastmod>2026-10-11</lastmod></url>
   <url><loc>https://gilly.space/shop.html</loc><priority>0.7</priority><lastmod>2026-10-15</lastmod></url>
   <url><loc>https://gilly.space/about.html</loc><priority>0.8</priority><lastmod>2026-10-15</lastmod></url>
@@ -25,6 +25,7 @@
   <url><loc>https://gilly.space/heliofits/</loc><priority>0.7</priority><lastmod>2026-10-15</lastmod></url>
   <url><loc>https://gilly.space/heliofits-studio/</loc><priority>0.7</priority><lastmod>2026-10-15</lastmod></url>
   <url><loc>https://gilly.space/rhef/</loc><priority>0.7</priority><lastmod>2026-10-15</lastmod></url>
+  <url><loc>https://gilly.space/rhef/lab/</loc><priority>0.6</priority><lastmod>2026-10-15</lastmod></url>
   <url><loc>https://gilly.space/archive/</loc><priority>0.3</priority><lastmod>2026-10-15</lastmod></url>
   <url><loc>https://gilly.space/corona/</loc><priority>0.5</priority><lastmod>2026-09-16</lastmod></url>
 </urlset>
