@@ -41,7 +41,7 @@
 
 <!-- Analytics is centralized in /assets/analytics.js (loaded site-wide via site.js). -->
 
-<link rel="stylesheet" href="/assets/site.css?v=202610150111">
+<link rel="stylesheet" href="/assets/site.css?v=202610150115">
 
 <!-- Structured data: anchors the "Dr. Gilly" identity + authority links for crawlers -->
 <script type="application/ld+json">
@@ -344,7 +344,7 @@
     function load() {
       if (window.SunData) return wire();
       var s = document.createElement('script');
-      s.src = "/assets/sun.js?v=202610150111";
+      s.src = "/assets/sun.js?v=202610150115";
       s.onload = wire;
       document.body.appendChild(s);
     }
@@ -352,6 +352,6 @@
     else addEventListener('load', function () { setTimeout(load, 0); });
   })();
 </script>
-<script src="/assets/site.js?v=202610150111"></script>
+<script src="/assets/site.js?v=202610150115"></script>
 </body>
 </html>

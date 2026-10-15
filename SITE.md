@@ -256,6 +256,15 @@ own image stays as the no-script fallback. It is on `/rhef/` and the Software hu
   (section 7 still reads "No results recorded yet."). After editing a spec file run
   `python3 heliosoftware/spec/spec_sums.py --write`.
 
+## Software hub releases (WS-20)
+
+The hub's version chips come from `heliosoftware/feed/<product>.json` through `assets/product.js`:
+version, date, and a "new" badge for a release 30 days old or less. Its "Recent releases" list
+(the newest ten) sits between `<!-- feed:recent -->` markers and is written by
+`python3 heliosoftware/feed/build_feed.py`, the same run that writes `feed.xml` and
+`whats-new/`; `check_site.py` fails when it is stale. HelioFITS Peek and RHEF have no feed
+file yet, so their cards show no chip.
+
 ## Heliogram publish
 
 - The Heliogram app (named Heliograph through 0.7) publishes into this repo

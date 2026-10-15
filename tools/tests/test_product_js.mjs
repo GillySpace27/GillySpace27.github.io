@@ -86,3 +86,22 @@ test('an element that is its own product root works, and a missing field leaves 
   P.fill(f, REC);
   assert.equal(f.textContent, 'static');
 });
+
+test('isNew is true within 30 days of the release date and false after or without a date', () => {
+  const now = Date.parse('2026-10-15T12:00:00Z');
+  assert.equal(P.isNew('2026-10-11', now), true);
+  assert.equal(P.isNew('2026-09-16', now), true);
+  assert.equal(P.isNew('2026-09-14', now), false);
+  assert.equal(P.isNew('', now), false);
+  assert.equal(P.isNew('not a date', now), false);
+});
+
+test('fill reveals a data-release-new badge only for a recent record', () => {
+  const badge = new El({ 'data-release-new': '' });
+  badge.hidden = true;
+  const root = new El({ 'data-release': 'heliogram' }, [badge]);
+  P.fill(root, { version: '0.7', date: '2000-01-01' });
+  assert.equal(badge.hidden, true);
+  P.fill(root, { version: '0.7', date: new Date().toISOString().slice(0, 10) });
+  assert.equal(badge.hidden, false);
+});
