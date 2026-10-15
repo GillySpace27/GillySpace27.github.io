@@ -37,6 +37,8 @@ jobs:
         run: node --test tools/tests/test_product_js.mjs
       - name: sun-compare.js tests
         run: node --test tools/tests/test_sun_compare.mjs
+      - name: RHEF Lab kernel tests (public vectors)
+        run: node --test tools/tests/test_rhef_lab.mjs
       - name: Worker syntax (ES module)
         run: cp worker/worker.js "$RUNNER_TEMP/worker.mjs" && node --check "$RUNNER_TEMP/worker.mjs"
       - name: Worker tests (stubbed AI and KV)

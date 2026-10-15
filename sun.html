@@ -33,7 +33,7 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="stylesheet" href="/assets/site.css?v=202610150635">
+<link rel="stylesheet" href="/assets/site.css?v=202610151530">
 <style>
   .sun-lead { font-size: 1.05rem; color: var(--muted); max-width: 62ch; margin: 0 0 1em; }
   .sun-times { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted);
@@ -52,6 +52,15 @@
   .sun-thumb { position: relative; display: block; width: 100%; padding: 0; border: 0;
                background: none; cursor: zoom-in; -webkit-touch-callout: none; user-select: none; }
   .sun-thumb video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sun-info { border: 1px solid var(--card-border); border-radius: 12px; padding: 22px 24px;
+              max-width: min(30rem, calc(100vw - 32px)); background: var(--bg); color: var(--text); }
+  .sun-info::backdrop { background: rgba(0,0,0,.55); }
+  .sun-info h2 { margin: 0 2rem .6rem 0; font-size: 1.15rem; }
+  .sun-info__x { position: absolute; top: 8px; right: 10px; background: none; border: 0;
+                 color: var(--text); font-size: 28px; line-height: 1; cursor: pointer; }
+  .sun-info dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 14px; }
+  .sun-info dt { color: var(--muted); } .sun-info dd { margin: 0; }
+  .sun-info__note { color: var(--muted); font-size: 13px; margin: .8rem 0 0; }
   .sun-retry { font: 600 13px/1 inherit; cursor: pointer; background: transparent;
                color: var(--accent-text); border: 1px solid var(--card-border); border-radius: 7px; padding: 5px 11px; }
   .card.err .card__img { display:flex; align-items:center; justify-content:center;
@@ -126,6 +135,7 @@
       </div>
       <div class="sun-links stage-share">
         <button type="button" id="stage-share-btn" class="ghost">Share this channel</button>
+        <button type="button" id="stage-about-btn" class="ghost">About this channel</button>
         <a id="stage-still" target="_blank" rel="noopener" hidden>Still</a>
         <a id="stage-movie" target="_blank" rel="noopener" download hidden>48 h movie file</a>
         <a href="/heliogram/">Put it on your desktop (Mac)</a>
@@ -159,7 +169,7 @@
         visualization, not a calibrated radiance. The unprocessed
         images can be seen at <a href="https://www.thesuntoday.org/" target="_blank" rel="noopener">The Sun Today</a>.
         Like one enough to hang it on a wall? Fine-art prints live in the
-        <a href="https://myheliograph.com/?ref=gilly.space" target="_blank" rel="noopener">My Heliograph store</a>.
+        <a href="https://myheliograph.com/?ref=gilly.space" target="_blank" rel="noopener">My Heliogram store</a>.
       </p>
       <p>
         A note on what you're seeing: each still is the <b>median of <span id="sun-integration">several</span>
@@ -169,10 +179,26 @@
         <b>Temperature map</b> is a differential-emission-measure reconstruction whose “T-scan”
         video sweeps through temperature rather than time.
       </p>
+      <p>
+        Imagery courtesy of NASA/SDO and the AIA science team. Each card has an About button that
+        says which ions and temperatures a channel shows, with a button to copy the citation;
+        <a href="/sun-explainer.html">all twelve are on one printable page</a>.
+      </p>
     </div>
   </section>
 </main>
 
+<dialog id="sun-info" class="sun-info" aria-labelledby="sun-info-h">
+  <form method="dialog"><button class="sun-info__x" aria-label="Close">&times;</button></form>
+  <h2 id="sun-info-h"></h2>
+  <dl id="sun-info-dl"></dl>
+  <p id="sun-info-note" class="sun-info__note"></p>
+  <div class="sun-links">
+    <button type="button" id="sun-info-cite">Copy citation</button>
+    <a href="/sun-explainer.html">All channels, printable</a>
+  </div>
+  <p class="sun-info__note">Imagery courtesy of NASA/SDO and the AIA science team.</p>
+</dialog>
 <div id="sun-toast" role="status" aria-live="polite"></div>
 <div id="lb">
   <button class="x" type="button" aria-label="Close">&times;</button>
@@ -183,8 +209,8 @@
 </div>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610150635"></script>
-<script src="/assets/sun.js?v=202610150635"></script>
+<script src="/assets/site.js?v=202610151530"></script>
+<script src="/assets/sun.js?v=202610151530"></script>
 <script>
   const BUCKET = SunData.BUCKET;
   const PRODUCTS = [
@@ -327,6 +353,7 @@
           <a href="${u(m.video, v)}" target="_blank" rel="noopener" download aria-label="${label}: 48 hour movie file">Movie</a>
           <button type="button" data-action="open" data-mode="video" data-idx="${idx}">&#9658; 48 h</button>
           <button type="button" class="ghost" data-action="share" data-idx="${idx}" aria-label="Share ${label}">Share</button>
+          <button type="button" class="ghost" data-action="info" aria-label="About ${label}">About</button>
           ${id === "dem" ? `<button type="button" class="ghost" data-action="open" data-mode="tscan" data-idx="${idx}">&#9658; T-scan</button>` : ""}
         </div>
       </div>`;
@@ -447,6 +474,36 @@
     hlTimer = setTimeout(() => el.classList.remove("is-hl"), 6000);
   }
 
+  // What am I looking at (WS-17): one dialog, filled from SunData.CHANNELS. Unknown stays "unknown".
+  function openInfo(id){
+    const p = PRODUCTS.find(x => x[0] === id), c = SunData.CHANNELS[id];
+    if (!p) return;
+    document.getElementById("sun-info-h").textContent = p[1];
+    const rows = [["Instrument", c ? c.instrument : "unknown"],
+                  ["Ions", c && c.ions ? c.ions : (c ? "not a single ion" : "unknown")],
+                  ["Temperature", SunData.tempText(id)]];
+    const dl = document.getElementById("sun-info-dl");
+    dl.textContent = "";
+    rows.forEach(r => { const dt = document.createElement("dt"), dd = document.createElement("dd");
+                        dt.textContent = r[0]; dd.textContent = r[1]; dl.append(dt, dd); });
+    const src = document.createElement("a");
+    src.href = SunData.CHANNEL_SOURCE; src.target = "_blank"; src.rel = "noopener"; src.textContent = "AIA instrument page";
+    if (c && c.logT.length) { const dt = document.createElement("dt"), dd = document.createElement("dd");
+                              dt.textContent = "Source"; dd.append(src); dl.append(dt, dd); }
+    document.getElementById("sun-info-note").textContent = SunData.RHEF_NOTE;
+    const dlg = document.getElementById("sun-info");
+    dlg.dataset.id = id;
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+  }
+  document.getElementById("sun-info-cite").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(SunData.CITATION); toast("Citation copied"); }
+    catch (e) { toast("Could not copy. The citation is " + SunData.CITATION); }
+  });
+  document.getElementById("sun-info").addEventListener("click", e => {   // a click on the backdrop closes it
+    if (e.target.id === "sun-info") e.target.close();
+  });
+  document.getElementById("stage-about-btn").addEventListener("click", () => openInfo(SunStage.state().id));
+
   // One delegated listener for every card button (open, share, retry).
   function onGridClick(e){
     const b = e.target.closest("[data-action]");
@@ -456,6 +513,7 @@
     const idx = PRODUCTS.findIndex(p => p[0] === card.dataset.id);
     if (b.dataset.action === "retry") { fillCard(card, PRODUCTS[idx], idx, true); return; }
     if (b.dataset.action === "share") { shareCard(card, PRODUCTS[idx]); return; }
+    if (b.dataset.action === "info") { openInfo(card.dataset.id); return; }
     if (b.dataset.action !== "open") return;
     const i = +b.dataset.idx;
     if (b.dataset.mode === "tscan") { if (ITEMS[i] && ITEMS[i].tscan) openTscan(ITEMS[i].tscan); }
