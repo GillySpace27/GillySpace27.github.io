@@ -124,3 +124,7 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
                           box-shadow: 0 1px 4px rgba(0,0,0,.5); }
 .compare__handle:focus-visible::after { box-shadow: 0 0 0 3px var(--accent), 0 1px 4px rgba(0,0,0,.5); }
 .sw-compare { max-width: 40rem; margin: 2.6rem auto 0; text-align: center; }
+/* Hub: a release from the last 30 days (assets/product.js, WS-20). */
+.sw-chip--new { display: inline-block; margin-left: .2em; padding: 0 .45em; border-radius: 999px; font-size: 11px;
+                font-weight: 600; line-height: 1.6; background: var(--accent); color: var(--accent-ink); }
+.sw-chip--new[hidden] { display: none; }
