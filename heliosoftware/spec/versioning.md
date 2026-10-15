@@ -13,7 +13,7 @@ read from each repository's default branch on 2026-10-05.
 | HelioFITS Studio | `VERSION` at the repository root, all whitespace removed (`release/deploy_release.sh:50`) | none | `v<VERSION>` (`deploy_release.sh:57`); one new tag and one new release per build | `changelog.md` (lowercase): `## HelioFITS Studio <version> (...)`; the newest heading may read `(unreleased)` | The changelog section whose heading contains ` <VERSION> `, which `deploy_release.sh:133` lifts into the release page |
 | Heliogram | `release.env`, `VERSION` (HG-5); set only with `./bump.sh <version>` | `BUILD` in `release.env` | `v<version>-build.<n>`, made locally by `ship.sh` at the built commit (HG-8) | `CHANGELOG.md` (`## <version> (build <n>), published YYYY-MM-DD`) | The notes block of `site/index.html`, which `ship.sh` writes into the signed appcast |
 | sunback | `pyproject.toml`, `version` (SB-12; `setup.py` is a shim) | none | the bare version, never a `v` prefix (existing: `0.6.17.1`, `0.6.17.2`, `0.6.17.3`) | none yet | none yet |
-| My Heliograph (store) | planned: the build stamp `YYYY.MM.DD-<sha7>` (UTC date, 7-character git sha) in `.deploy-run.json` (`build_stamp`) and `GET /api/build-info`; not built yet (SU-15 Task 2) | none | none from this page | none yet | none |
+| My Heliogram (store) | planned: the build stamp `YYYY.MM.DD-<sha7>` (UTC date, 7-character git sha) in `.deploy-run.json` (`build_stamp`) and `GET /api/build-info`; not built yet (SU-15 Task 2) | none | none from this page | none yet | none |
 | Website | none: a push to `master` publishes | none | none | none | the release feed (`release-feed.md`) |
 
 ## Rules
