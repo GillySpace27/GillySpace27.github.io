@@ -303,6 +303,7 @@
       { t: 'HelioFITS Peek', u: '/heliofits/', k: 'fits peek finder quick look mac preview' },
       { t: 'HelioFITS Studio', u: '/heliofits-studio/', k: 'viewer corona coronagraph wide-field jhelioviewer' },
       { t: 'RHEF', u: '/rhef/', k: 'filter corona python sunkit-image histogram' },
+      { t: 'RHEF Lab', u: '/rhef/lab/', k: 'rhef lab browser fits try filter upsilon' },
       { t: 'The Sun: Rainbow (RHEF composite)', u: '/sun.html#rainbow', k: 'sun channel rainbow' },
       { t: 'The Sun: AIA 171 Å', u: '/sun.html#171', k: 'sun channel 171' },
       { t: 'The Sun: AIA 193 Å', u: '/sun.html#193', k: 'sun channel 193' },

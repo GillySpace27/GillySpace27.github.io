@@ -33,16 +33,17 @@ def shell_pages() -> list:
     return [p["path"] for p in pages if "<!-- bake:head -->" in read(p["path"])]
 
 
+SHELL_COUNT = 23   # 22 at WS-11; RH-14 added rhef/lab/index.html
 NO_CANONICAL = ("404.html",)   # served for every missing path: no single URL to name
 
 
 class ShellPagesTest(unittest.TestCase):
     def test_twentytwo_pages_carry_the_marker(self):
-        self.assertEqual(len(shell_pages()), 22, shell_pages())
+        self.assertEqual(len(shell_pages()), SHELL_COUNT, shell_pages())
 
     def test_each_has_one_title_description_canonical_og_image_and_lang(self):
         pages = shell_pages()
-        self.assertEqual(len(pages), 22)
+        self.assertEqual(len(pages), SHELL_COUNT)
         for rel in pages:
             self.assertEqual(bake().head_problems(read(rel), canonical=rel not in NO_CANONICAL), [], rel)
 
@@ -58,7 +59,7 @@ class ShellPagesTest(unittest.TestCase):
 
     def test_the_search_console_meta_is_on_every_shell_page_exactly_once(self):
         pages = shell_pages()
-        self.assertEqual(len(pages), 22)
+        self.assertEqual(len(pages), SHELL_COUNT)
         for rel in pages:
             self.assertEqual(read(rel).count(VERIFICATION), 1, rel)
 
@@ -72,7 +73,7 @@ class ShellPagesTest(unittest.TestCase):
 
     def test_no_og_image_is_missing_on_any_shell_page(self):
         pages = shell_pages()
-        self.assertEqual(len(pages), 22)
+        self.assertEqual(len(pages), SHELL_COUNT)
         self.assertEqual([r for r in pages if 'property="og:image"' not in read(r)], [])
 
     def test_bake_check_is_clean(self):
