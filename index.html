@@ -41,7 +41,7 @@
 
 <!-- Analytics is centralized in /assets/analytics.js (loaded site-wide via site.js). -->
 
-<link rel="stylesheet" href="/assets/site.css?v=202610120329">
+<link rel="stylesheet" href="/assets/site.css?v=202610150115">
 
 <!-- Structured data: anchors the "Dr. Gilly" identity + authority links for crawlers -->
 <script type="application/ld+json">
@@ -129,15 +129,30 @@
     <h2 style="margin-top:0">A few things worth your time</h2>
     <div class="grid">
 
-      <article class="card">
+      <article class="card card--sun" id="sun-card">
         <a href="sun.html">
           <img class="card__img" loading="lazy"
                src="https://the-sun-now.s3.us-east-2.amazonaws.com/thumb/rhef_171_thumb.png"
+               onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E'"
                alt="The Sun imaged at 171 ångström, radially normalized with RHE">
           <div class="card__body">
             <p class="card__kicker">Live</p>
             <h3>The Sun, right now</h3>
             <p>Up-to-the-hour SDO imagery, radially equalized with my RHE method to reveal the faint corona.</p>
+          </div>
+        </a>
+      </article>
+
+      <article class="card">
+        <a href="/heliosoftware/">
+          <div class="card__img sw-pair" aria-hidden="true">
+            <img src="/assets/sw/heliogram.png" alt="" loading="lazy">
+            <img src="/assets/sw/heliofits-studio.png" alt="" loading="lazy">
+          </div>
+          <div class="card__body">
+            <p class="card__kicker">Tools</p>
+            <h3>Software</h3>
+            <p>Heliogram, HelioFITS Peek, HelioFITS Studio and RHEF: the Sun on your screens, in Finder, at your research desk and in your Python notebook.</p>
           </div>
         </a>
       </article>
@@ -281,6 +296,62 @@
     else addEventListener('load', function () { setTimeout(load, 0); });
   })();
 </script>
-<script src="/assets/site.js?v=202610120329"></script>
+<script>
+  // The sun-card goes live (WS-14): after first paint it asks the shared loader for the 171
+  // manifest and swaps in the newest still; on hover or keyboard focus it plays that channel's
+  // 48 hour clip, muted and inline, fetched only then. Reduced motion and Save-Data keep the still.
+  // Any failure leaves the static thumbnail (or, if that fails too, the card's gradient).
+  (function () {
+    var card = document.getElementById('sun-card');
+    if (!card || !window.fetch) return;
+    var img = card.querySelector('.card__img');
+    var link = card.querySelector('a');
+    function wire() {
+      var S = window.SunData;
+      if (!S) return;
+      S.loadManifest('171').then(function (m) {
+        if (m.thumb) {
+          var next = S.u(m.thumb, m.updated), probe = new Image();
+          probe.onload = function () { img.src = next; };
+          probe.src = next;
+        }
+        var quiet = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ||
+                    !!(navigator.connection && navigator.connection.saveData);
+        if (!m.video || quiet) return;
+        var video = null;
+        function play() {
+          if (!video) {
+            video = document.createElement('video');
+            video.className = 'card__img';
+            video.muted = true; video.loop = true; video.playsInline = true; video.preload = 'none';
+            video.setAttribute('playsinline', ''); video.setAttribute('aria-hidden', 'true');
+            video.poster = img.src;
+            video.addEventListener('error', function () { video.remove(); img.style.display = ''; });
+            video.src = S.u(m.video, m.updated);
+            img.parentNode.insertBefore(video, img.nextSibling);
+            img.style.display = 'none';
+          }
+          var p = video.play();
+          if (p && p.catch) p.catch(function () {});
+        }
+        function stop() { if (video) video.pause(); }
+        link.addEventListener('pointerenter', play);
+        link.addEventListener('focus', play);
+        link.addEventListener('pointerleave', stop);
+        link.addEventListener('blur', stop);
+      }).catch(function () {});
+    }
+    function load() {
+      if (window.SunData) return wire();
+      var s = document.createElement('script');
+      s.src = "/assets/sun.js?v=202610150115";
+      s.onload = wire;
+      document.body.appendChild(s);
+    }
+    if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 3000 });
+    else addEventListener('load', function () { setTimeout(load, 0); });
+  })();
+</script>
+<script src="/assets/site.js?v=202610150115"></script>
 </body>
 </html>

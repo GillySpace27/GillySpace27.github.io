@@ -104,3 +104,27 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 .product .code { text-align: left; margin: 0 auto .7rem; max-width: 32rem; padding: .8rem 1rem; overflow-x: auto;
                  background: #14110d; color: #f1e7cf; border-radius: 10px; font-size: 14px; line-height: 1.5; }
 .product .code code { font-size: inherit; }
+
+/* ---- Compare slider (assets/sun-compare.js, suite SU-20): "before" left of the divider,
+   "after" right of it. The page's own <img> is the fallback and is hidden once the stage is built.
+   Nothing animates, so prefers-reduced-motion has nothing to turn off. ---- */
+.compare--live img { display: none !important; }
+.compare__stage { position: relative; width: 100%; max-width: 36rem; margin: 0 auto; overflow: hidden; border-radius: var(--radius);
+                  box-shadow: var(--shadow); background: #000; cursor: ew-resize; touch-action: pan-y;
+                  -webkit-user-select: none; user-select: none; }
+.compare__layer { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 100% 100%; }
+.compare__label { position: absolute; top: .6rem; left: .6rem; padding: .15rem .5rem; border-radius: 999px;
+                  font-size: 12px; line-height: 1.5; color: #fff; background: rgba(0,0,0,.6); pointer-events: none; }
+.compare__label--after { left: auto; right: .6rem; }
+.compare__handle { position: absolute; top: 0; bottom: 0; width: 44px; margin-left: -22px; outline: none; }
+.compare__handle::before { content: ""; position: absolute; top: 0; bottom: 0; left: 21px; width: 2px;
+                           background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.35); }
+.compare__handle::after { content: ""; position: absolute; top: 50%; left: 50%; width: 28px; height: 28px;
+                          margin: -14px 0 0 -14px; border-radius: 50%; background: #fff;
+                          box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.compare__handle:focus-visible::after { box-shadow: 0 0 0 3px var(--accent), 0 1px 4px rgba(0,0,0,.5); }
+.sw-compare { max-width: 40rem; margin: 2.6rem auto 0; text-align: center; }
+/* Hub: a release from the last 30 days (assets/product.js, WS-20). */
+.sw-chip--new { display: inline-block; margin-left: .2em; padding: 0 .45em; border-radius: 999px; font-size: 11px;
+                font-weight: 600; line-height: 1.6; background: var(--accent); color: var(--accent-ink); }
+.sw-chip--new[hidden] { display: none; }

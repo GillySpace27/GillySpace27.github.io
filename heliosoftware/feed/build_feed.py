@@ -3,8 +3,8 @@
 
     python3 heliosoftware/feed/build_feed.py [--check] [--feed-dir DIR]
 
-Reads heliosoftware/feed/*.json and writes heliosoftware/feed.xml (Atom) and
-heliosoftware/whats-new/index.html. Deterministic: no clock, so --check can run in CI.
+Reads heliosoftware/feed/*.json and writes heliosoftware/feed.xml (Atom),
+heliosoftware/whats-new/index.html and the hub's "<!-- feed:recent -->" list. Deterministic: no clock, so --check can run in CI.
 Both outputs are regenerated from tracked records; nothing else is written. Exit 1
 (nothing written) when a record is invalid or the hub page has no ?v= stamp to copy;
 --check writes nothing and exits 1 when an output would change.
@@ -154,6 +154,20 @@ def render_page(entries, stamp: str) -> str:
     return PAGE.replace("@STAMP@", stamp).replace("@ENTRIES@", "\n".join(items))
 
 
+RECENT_RE = re.compile(r"(<!-- feed:recent -->\n).*?(<!-- /feed:recent -->)", re.S)
+RECENT_COUNT = 10
+
+
+def render_recent(entries) -> str:
+    """The hub's short list: the newest RECENT_COUNT releases, one line each (WS-20)."""
+    items = []
+    for product, name, rec in order(entries)[:RECENT_COUNT]:
+        title = html.escape(f"{rec.get('name') or name} {rec['version']}")
+        url = html.escape(rec["url"], quote=True)
+        items.append(f'    <li><a href="{url}">{title}</a> · {rec["date"]} · {CHANNEL_LABEL[rec["channel"]]}</li>')
+    return "\n".join(items)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--feed-dir", type=pathlib.Path, default=HERE)
@@ -172,6 +186,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     outputs = {site / "feed.xml": render_atom(entries),
                site / "whats-new" / "index.html": render_page(entries, m.group(1))}
+    hub_text = hub.read_text(encoding="utf-8")
+    if RECENT_RE.search(hub_text):   # the hub's "Recent releases" list, when the page has the markers
+        body = render_recent(entries)
+        outputs[hub] = RECENT_RE.sub(lambda r: r.group(1) + body + "\n" + r.group(2), hub_text, count=1)
     stale = [p for p, text in outputs.items() if not p.exists() or p.read_text(encoding="utf-8") != text]
     if args.check:
         for p in stale:

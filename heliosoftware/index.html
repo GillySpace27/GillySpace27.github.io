@@ -34,8 +34,8 @@
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
 <link rel="alternate" type="application/atom+xml" title="gilly.space software releases" href="/heliosoftware/feed.xml">
-<link rel="stylesheet" href="/assets/site.css?v=202610120329">
-<link rel="stylesheet" href="/assets/product.css?v=202610120329">
+<link rel="stylesheet" href="/assets/site.css?v=202610150115">
+<link rel="stylesheet" href="/assets/product.css?v=202610150115">
 </head>
 <body>
 <div data-include="header"></div>
@@ -55,7 +55,7 @@
       <h3>Heliogram</h3>
       <p>The live Sun as your desktop picture, your screen saver, or a wall of video.
          Imagery from NASA's Solar Dynamics Observatory.</p>
-      <p class="sw-meta">macOS · direct download<span data-release="heliogram" hidden> · v<span data-release-field="version"></span></span></p>
+      <p class="sw-meta">macOS · direct download<span data-release="heliogram" hidden> · v<span data-release-field="version"></span>, <span data-release-field="date"></span> <b class="sw-chip--new" data-release-new hidden>new</b></span></p>
     </a></article>
     <article class="card sw-card"><a href="/heliofits/">
       <span class="sw-mark sw-mark--fits sw-mark--lg" aria-hidden="true"></span>
@@ -63,7 +63,7 @@
       <h3>HelioFITS Peek</h3>
       <p>Solar FITS files rendered as the Sun, right in Finder and Quick Look: the instrument's
          colormap, real coordinates, and metadata you can search in Spotlight.</p>
-      <p class="sw-meta">macOS · free on the Mac App Store<span data-release="heliofits" hidden> · v<span data-release-field="version"></span></span></p>
+      <p class="sw-meta">macOS · free on the Mac App Store<span data-release="heliofits" hidden> · v<span data-release-field="version"></span>, <span data-release-field="date"></span> <b class="sw-chip--new" data-release-new hidden>new</b></span></p>
     </a></article>
     <article class="card sw-card"><a href="/heliofits-studio/">
       <img class="sw-icon sw-mark--lg" src="/assets/sw/heliofits-studio.png" alt="">
@@ -71,7 +71,7 @@
       <h3>HelioFITS Studio</h3>
       <p>A desktop viewer for solar and heliospheric imagery, built around coronagraph and wide-field data such as
          PUNCH, SOHO/LASCO and PROBA-3/ASPIICS. An unofficial fork of JHelioviewer.</p>
-      <p class="sw-meta">Mac and Windows · Intel Mac and Linux in testing<span data-release="heliofits-studio" hidden> · v<span data-release-field="version"></span></span></p>
+      <p class="sw-meta">Mac and Windows · Intel Mac and Linux in testing<span data-release="heliofits-studio" hidden> · v<span data-release-field="version"></span>, <span data-release-field="date"></span> <b class="sw-chip--new" data-release-new hidden>new</b></span></p>
     </a></article>
     <article class="card sw-card"><a href="/rhef/">
       <span class="sw-mark sw-mark--rhef sw-mark--lg" aria-hidden="true"></span>
@@ -99,6 +99,14 @@
     </a></article>
   </div>
 
+  <figure class="shot sw-compare" data-compare="halves" data-before="Original" data-after="Enhanced">
+    <img src="/assets/sw/rhef-compare.jpg" width="1320" height="660" loading="lazy"
+         alt="The same SDO/AIA 171 Å image twice. Left, a standard display: a bright disk fading into black. Right, after RHEF: loops and streamers visible out to the edge of the frame.">
+    <figcaption>Original and Enhanced: the same SDO/AIA 171 Å image as a standard display and after
+      <a href="/rhef/">RHEF</a>. Drag the divider, or use the arrow keys. The enhanced view is a
+      visualization, not a calibrated radiance.</figcaption>
+  </figure>
+
   <h2 class="sw-pick-title">Which one do I want?</h2>
   <ul class="points sw-pick">
     <li>You'd like to look up and see today's Sun: <a href="/heliogram/">Heliogram</a>.</li>
@@ -111,12 +119,25 @@
   </ul>
   <p class="sw-decide"><a class="btn btn--ghost" href="/heliosoftware/decide/">Help me decide</a>
      <span>Every need, step by step, with what's available now and what's coming.</span></p>
+  <h2 class="sw-pick-title">Recent releases</h2>
+  <ul class="points sw-recent">
+<!-- feed:recent -->
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.6">HelioFITS Studio 0.8.6</a> · 2026-10-11 · GitHub pre-release</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.5">HelioFITS Studio 0.8.5</a> · 2026-10-07 · GitHub pre-release</li>
+    <li><a href="https://gilly.space/heliograph/">Heliograph 0.7</a> · 2026-09-28 · direct download</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.3">HelioFITS Studio 0.8.3</a> · 2026-09-24 · GitHub pre-release</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.2">HFStudio 0.8.2</a> · 2026-09-19 · GitHub pre-release</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.1">HFStudio 0.8.1</a> · 2026-09-18 · GitHub pre-release</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.0">HFStudio 0.8.0</a> · 2026-09-16 · GitHub pre-release</li>
+<!-- /feed:recent -->
+  </ul>
   <p class="alt">What's new: <a href="/heliosoftware/whats-new/">release notes</a> and an <a href="/heliosoftware/feed.xml">Atom feed</a>.</p>
   <p class="alt">Shared contracts for these tools (checksums, rules for agents, drift checks) live in the
      <a href="/heliosoftware/spec/">spec folder</a>.</p>
 </main>
 <div data-include="footer"></div>
-<script src="/assets/product.js?v=202610120329"></script>
-<script src="/assets/site.js?v=202610120329"></script>
+<script src="/assets/product.js?v=202610150115"></script>
+<script src="/assets/sun-compare.js?v=202610150115"></script>
+<script src="/assets/site.js?v=202610150115"></script>
 </body>
 </html>

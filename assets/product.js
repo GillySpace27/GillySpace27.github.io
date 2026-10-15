@@ -7,6 +7,7 @@
    The feed is /heliosoftware/feed/<product>.json (records appended by the release scripts).
    data-release-field = version | date | notes | url   sets text, or href for url.
    data-release-asset = <platform>                      sets href to that asset, only when it is confirmed.
+   data-release-new                                     revealed only when the record is 30 days old or less.
    Static text and links in the page are the fallback: they stay when the fetch fails or the feed has
    no record. A hidden element is revealed, up to the data-release element, once it is filled.
    No dependencies. In Node (the tests) it exports its helpers and does not touch the DOM. */
@@ -49,6 +50,14 @@
     return null;
   }
 
+  // A release dated within the last 30 days (WS-20); false without a usable date.
+  var NEW_DAYS = 30;
+  function isNew(date, now) {
+    var t = Date.parse(String(date || '') + 'T00:00:00Z');
+    if (isNaN(t)) return false;
+    return ((now === undefined ? Date.now() : now) - t) <= NEW_DAYS * 86400000;
+  }
+
   function reveal(el, stopAt) {
     for (var n = el; n; n = n.parentElement) {
       n.hidden = false;
@@ -70,6 +79,7 @@
       else f.textContent = String(value);
       reveal(f, el);
     });
+    if (isNew(record.date)) within(el, 'data-release-new').forEach(function (b) { reveal(b, el); });
     within(el, 'data-release-asset').forEach(function (a) {
       var asset = assetFor(record, a.getAttribute('data-release-asset'));
       if (!asset) return;
@@ -100,7 +110,7 @@
     });
   }
 
-  var api = { versionKey: versionKey, cmp: cmp, newest: newest, assetFor: assetFor, fill: fill };
+  var api = { versionKey: versionKey, cmp: cmp, newest: newest, assetFor: assetFor, fill: fill, isNew: isNew };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
   } else {
