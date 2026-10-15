@@ -134,7 +134,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
 <main id="main" class="wrap">
 <a class="back" href="/heliosoftware/">&larr; Software</a>
 <header>
-  <div class="eyebrow">gilly.space · Software · updated 2026-10-13</div>
+  <div class="eyebrow">gilly.space · Software · updated 2026-10-15</div>
   <h1>What you're stuck on, and which tool gets you unstuck</h1>
   <p>Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens: find the data, look at it, work with it, make something, share it. Cards with a gold edge are built and being tested, not released yet. Dashed cards are approved but not built yet. Cards with a grey edge are planned utilities that will fold into an existing product rather than ship on their own.</p>
   <div class="legend">
@@ -151,7 +151,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
     <button type="button" id="f-rhef" data-f="rhef" aria-pressed="false">RHEF</button>
     <button type="button" id="f-heliogram" data-f="heliogram" aria-pressed="false">Heliogram</button>
     <button type="button" id="f-sun" data-f="sun" aria-pressed="false">The Sun, right now</button>
-    <button type="button" id="f-store" data-f="store" aria-pressed="false">My Heliograph</button>
+    <button type="button" id="f-store" data-f="store" aria-pressed="false">My Heliogram</button>
   </div>
 </header>
 
@@ -182,13 +182,15 @@ footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
   <div class="row" data-p="heliofits"><div class="need">I want to see the image without leaving my editor or notebook.</div><div class="link"></div>
     <div class="ans plan"><div class="who"><span class="tag">HelioFITS for VS Code and Jupyter</span><span class="st plan">planned</span></div><p>Inline previews where you already work.</p></div></div>
   <div class="row" data-p="heliofits"><div class="need">I need headers and thumbnails from a script.</div><div class="link"></div>
-    <div class="ans plan"><div class="who"><span class="tag">HelioFITS CLI</span><span class="st plan">planned</span></div><p>Header dump, render and contact sheets from the command line, ready for a Makefile.</p></div></div>
+    <div class="ans"><div class="who"><span class="tag">heliofits command line</span><span class="st ok">available, build from source</span></div><p>Print the header, summarize an image, or export a PNG from a script or an SSH session. Contact sheets and batch thumbnails are still to come.</p></div></div>
 </section>
 
 <section class="stage">
   <div class="stage-head"><span class="n">3</span><h2>Work with it</h2><p>Sit down with a series and follow the physics.</p></div>
   <div class="row" data-p="studio"><div class="need">I'm following a CME out through the coronagraphs.</div><div class="link"></div>
     <div class="ans"><div class="who"><a class="tag" href="/heliofits-studio/">HelioFITS Studio</a><span class="st ok">available</span></div><p>Layers, timelines and movies for coronagraph and wide-field data such as PUNCH, SOHO/LASCO and PROBA-3/ASPIICS.</p></div></div>
+  <div class="row" data-p="studio"><div class="need">I want a colleague to open my session on their computer, data and all.</div><div class="link"></div>
+    <div class="ans"><div class="who"><a class="tag" href="/heliofits-studio/">HelioFITS Studio</a><span class="st ok">available</span></div><p>File, Export Session with Data writes the session beside a data archive, so it opens on another machine without hunting for files. New in 0.8.6.</p></div></div>
   <div class="row" data-p="heliofits"><div class="need">What changed between these two frames?</div><div class="link"></div>
     <div class="ans dev"><div class="who"><span class="tag">HelioFITS Peek</span><span class="st dev">in development</span></div><p>Open a second file in the viewer and compare the pair by swipe, blink or side by side, with one shared zoom and a linked crosshair.</p></div></div>
   <div class="row" data-p="studio heliad"><div class="need">What changed between these two instruments, or across a whole series?</div><div class="link"></div>
@@ -216,7 +218,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
   <div class="row" data-p="heliogram"><div class="need">I want the live Sun on our department's website.</div><div class="link"></div>
     <div class="ans plan"><div class="who"><span class="tag">Live Sun embed</span><span class="st plan">planned</span></div><p>Paste one snippet and the 48-hour Sun plays on your page, with credit and a link back.</p></div></div>
   <div class="row" data-p="store"><div class="need">I want a print of the Sun from the day I was born.</div><div class="link"></div>
-    <div class="ans"><div class="who"><a class="tag" href="/shop.html">My Heliograph</a><span class="st ok">available</span></div><p>Pick a date and a wavelength, Original or Enhanced, and order a print at myheliograph.com.</p></div></div>
+    <div class="ans"><div class="who"><a class="tag" href="/shop.html">My Heliogram</a><span class="st ok">available</span></div><p>Pick a date and a wavelength, Original or Enhanced, and order a print at myheliograph.com.</p></div></div>
 </section>
 
 <h2 class="sub">The tools</h2>
@@ -227,7 +229,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12.5px;max-width:72ch}
   <div class="prod"><h3><a href="/heliofits-studio/">HelioFITS Studio</a></h3><div class="plat">Mac and Windows · Intel Mac and Linux in testing</div><p>Layers, timelines, alignment and movies for the coronagraphs and wide-field imagers.</p></div>
   <div class="prod"><h3><a href="/rhef/">RHEF</a></h3><div class="plat">Python · sunkit-image</div><p>The Radial Histogram Equalizing Filter: faint corona, in one line of Python.</p></div>
   <div class="prod"><h3><a href="/sun.html">The Sun, right now</a></h3><div class="plat">web · any browser</div><p>Today's Sun, updated every 20 minutes.</p></div>
-  <div class="prod"><h3><a href="/shop.html">My Heliograph</a></h3><div class="plat">web · myheliograph.com</div><p>Prints of the Sun on any date.</p></div>
+  <div class="prod"><h3><a href="/shop.html">My Heliogram</a></h3><div class="plat">web · myheliograph.com</div><p>Prints of the Sun on any date.</p></div>
   <div class="prod plan"><h3>Heliad</h3><div class="plat">planned</div><p>Find solar data, download it and keep it in one library.</p></div>
 </div>
 
