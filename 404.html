@@ -37,7 +37,7 @@
   // ponytail: one rule instead of duplicate folders, which collide on case-insensitive disks.
   if (location.pathname !== location.pathname.toLowerCase()) location.replace(location.pathname.toLowerCase() + location.search + location.hash);
 </script>
-<link rel="stylesheet" href="/assets/site.css?v=202610150103">
+<link rel="stylesheet" href="/assets/site.css?v=202610150111">
 </head>
 <body>
 <div data-include="header"></div>
@@ -47,17 +47,46 @@
 
 <main id="main">
   <section class="section wrap" style="text-align:center">
-    <p class="eyebrow">404 — nothing here</p>
+    <p class="eyebrow">404: nothing here</p>
     <h1 style="font-size:clamp(40px,12vw,96px);margin:.1em 0">∅</h1>
     <p class="hero__intro" style="margin-inline:auto">
-      A lot of people are taught that space is mostly empty. This particular corner of it is —
+      A lot of people are taught that space is mostly empty. This particular corner of it is:
       the page you're after has moved or never existed.
     </p>
     <p style="margin-top:1.5rem"><a class="btn" href="/">Back to gilly.space</a></p>
+    <div id="suggestions" hidden>
+      <p style="color:var(--muted);margin-top:2rem">Were you looking for one of these?</p>
+      <ul style="list-style:none;padding:0;margin:0"></ul>
+    </div>
   </section>
 </main>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610150103"></script>
+<script src="/assets/site.js?v=202610150111"></script>
+<script>
+  // The three closest pages to the address asked for (WS-19), scored by the palette's own
+  // fuzzyScore over the same entries. Skipped while the lowercase redirect above is leaving.
+  (function () {
+    var G = window.GillySite, path = location.pathname;
+    if (!G || path !== path.toLowerCase()) return;
+    var q = decodeURIComponent(path).replace(/\.html$/, '').replace(/[\/_-]+/g, ' ').trim();
+    if (!q) return;
+    var best = G.items
+      .filter(function (it) { return it.u.charAt(0) === '/'; })
+      .map(function (it) { return { it: it, s: G.fuzzyScore(q, it.u + ' ' + it.t + ' ' + it.k) }; })
+      .filter(function (x) { return x.s > 0; })
+      .sort(function (a, b) { return b.s - a.s; })
+      .slice(0, 3);
+    if (!best.length) return;
+    var box = document.getElementById('suggestions'), ul = box.querySelector('ul');
+    best.forEach(function (x) {
+      var li = document.createElement('li'), a = document.createElement('a');
+      a.href = x.it.u; a.textContent = x.it.t;
+      li.style.margin = '.4rem 0';
+      li.appendChild(a); ul.appendChild(li);
+    });
+    box.hidden = false;
+  })();
+</script>
 </body>
 </html>

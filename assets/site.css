@@ -164,6 +164,9 @@ main { flex: 1 0 auto; width: 100%; }
   opacity: 0.8; line-height: 1;
 }
 .theme-toggle:hover { opacity: 1; background: var(--card-bg); }
+/* The palette's search button (WS-19): phones only; a keyboard has / and Ctrl-K. */
+.cmdk-open { display: none; font-size: 18px; }
+@media (max-width: 640px), (pointer: coarse) { .cmdk-open { display: inline-flex; } }
 
 /* a11y + old-browser fallbacks */
 .visually-hidden {

@@ -279,10 +279,9 @@
     h1.insertAdjacentElement('afterend', tag);
   }
 
-  /* ---- Command palette (⌘K / Ctrl-K): jump anywhere, toggle theme ---- */
-  function buildCommandPalette() {
-    var ITEMS = [
-      /* bake:palette-items */
+  /* ---- Palette entries (baked from site.json) and the fuzzy scorer, shared with 404.html ---- */
+  var ITEMS = [
+    /* bake:palette-items */
       { t: 'Home', u: '/', k: 'home start' },
       { t: 'Research', u: '/Research.html', k: 'papers ghosts punch' },
       { t: 'Publications', u: '/publications.html', k: 'papers thesis ads' },
@@ -292,11 +291,11 @@
       { t: 'Outreach & talks', u: '/RecordedPublicTalks.html', k: 'video planetarium' },
       { t: 'Space Is Full (essay)', u: '/Space-Is-Full.html', k: 'asimov parker' },
       { t: 'Music & Theater', u: '/Music-and-Theater.html', k: 'songs plays' },
-      { t: 'Play — the toys', u: '/play/', k: 'enso sudoku games' },
+      { t: 'Play: the toys', u: '/play/', k: 'enso sudoku games' },
       { t: 'Ensō calendar', u: '/enso/', k: 'brushstroke daily' },
       { t: 'Ensō editor', u: '/enso/pixelated-enso.html', k: 'sliders' },
       { t: 'Spectrum Sudoku', u: '/sudoku/', k: 'puzzle color' },
-      { t: 'Which Claude? — model field guide', u: '/whichclaude.html', k: 'ai models opus sonnet haiku fable' },
+      { t: 'Which Claude? A model field guide', u: '/whichclaude.html', k: 'ai models opus sonnet haiku fable' },
       { t: 'Store: My Heliograph', u: '/shop.html', k: 'prints buy' },
       { t: 'About & CV', u: '/about.html', k: 'bio resume contact' },
       { t: 'Software', u: '/heliosoftware/', k: 'software apps heliosoftware heliograph heliogram heliofits studio rhef' },
@@ -304,10 +303,56 @@
       { t: 'HelioFITS Peek', u: '/heliofits/', k: 'fits peek finder quick look mac preview' },
       { t: 'HelioFITS Studio', u: '/heliofits-studio/', k: 'viewer corona coronagraph wide-field jhelioviewer' },
       { t: 'RHEF', u: '/rhef/', k: 'filter corona python sunkit-image histogram' },
+      { t: 'The Sun: Rainbow (RHEF composite)', u: '/sun.html#rainbow', k: 'sun channel rainbow' },
+      { t: 'The Sun: AIA 171 Å', u: '/sun.html#171', k: 'sun channel 171' },
+      { t: 'The Sun: AIA 193 Å', u: '/sun.html#193', k: 'sun channel 193' },
+      { t: 'The Sun: AIA 211 Å', u: '/sun.html#211', k: 'sun channel 211' },
+      { t: 'The Sun: AIA 304 Å', u: '/sun.html#304', k: 'sun channel 304' },
+      { t: 'The Sun: AIA 335 Å', u: '/sun.html#335', k: 'sun channel 335' },
+      { t: 'The Sun: AIA 94 Å', u: '/sun.html#94', k: 'sun channel 94' },
+      { t: 'The Sun: AIA 131 Å', u: '/sun.html#131', k: 'sun channel 131' },
+      { t: 'The Sun: AIA 1600 Å (UV)', u: '/sun.html#1600', k: 'sun channel 1600' },
+      { t: 'The Sun: AIA 1700 Å (UV)', u: '/sun.html#1700', k: 'sun channel 1700' },
+      { t: 'The Sun: Composite (1700/1600/304)', u: '/sun.html#composite_uv', k: 'sun channel composite uv' },
+      { t: 'The Sun: Temperature map (DEM)', u: '/sun.html#dem', k: 'sun channel dem' },
+      { t: 'Heliogram', u: '/heliogram/', k: 'mac app desktop picture screen saver wall live sun heliograph' },
+      { t: 'Sun wall (full screen)', u: '/sun-wall.html', k: 'wall kiosk display lobby' },
+      { t: 'Download HelioFITS Studio', u: '/heliofits-studio/', k: 'download install studio mac windows linux' },
       { t: 'Email Gilly', u: 'mailto:Gilly@NWRA.com', k: 'contact' },
       { t: 'Toggle theme', u: '#theme', k: 'dark light mode' }
-      /* /bake */
-    ];
+    /* /bake */
+  ];
+  /* fuzzy-score begin */
+  // Every query letter must appear in order (else 0). On top of that: letters in a row and at the
+  // start of a word, each query word found whole, and found early (the title comes first), score
+  // more. Accents are ignored ("enso" finds Ensō); a shorter entry wins a tie.
+  function fuzzyScore(query, text) {
+    var plain = function (x) { x = String(x || '').toLowerCase(); return x.normalize ? x.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : x; };
+    var words = plain(query).split(/\s+/).filter(Boolean);
+    var s = plain(text);
+    if (!words.length) return 1;
+    var q = words.join(''), score = 0, from = 0, prev = -2;
+    for (var i = 0; i < q.length; i++) {
+      var k = s.indexOf(q.charAt(i), from);
+      if (k < 0) return 0;
+      score += 1;
+      if (k === prev + 1) score += 2;
+      if (k === 0 || /[^a-z0-9]/.test(s.charAt(k - 1))) score += 3;
+      prev = k; from = k + 1;
+    }
+    words.forEach(function (w) {
+      var at = s.indexOf(w);
+      if (at < 0) return;
+      score += 2 * w.length + Math.max(0, 10 - at / 3);
+      if (at === 0 || /[^a-z0-9]/.test(s.charAt(at - 1))) score += 2 * w.length;
+    });
+    return score - Math.min(s.length, 100) / 1000;
+  }
+  /* fuzzy-score end */
+  window.GillySite = { fuzzyScore: fuzzyScore, items: ITEMS };
+
+  /* ---- Command palette (⌘K / Ctrl-K): jump anywhere, toggle theme ---- */
+  function buildCommandPalette() {
     var pal = document.createElement('div');
     pal.className = 'cmdk'; pal.setAttribute('aria-hidden', 'true'); pal.setAttribute('role', 'dialog'); pal.setAttribute('aria-label', 'Command palette');
     pal.innerHTML = '<div class="cmdk__box"><input class="cmdk__input" type="text" placeholder="Jump to…  (try “sun”, “play”, “theme”)" aria-label="Search pages and actions" autocomplete="off"><ul class="cmdk__list" role="listbox"></ul><div class="cmdk__hint">↑↓ navigate · ↵ open · esc close</div></div>';
@@ -315,7 +360,11 @@
     var input = pal.querySelector('.cmdk__input'), list = pal.querySelector('.cmdk__list'), sel = 0, shown = [];
     function render(q) {
       q = (q || '').toLowerCase().trim();
-      shown = ITEMS.filter(function (it) { return !q || (it.t + ' ' + it.k).toLowerCase().indexOf(q) >= 0; });
+      shown = !q ? ITEMS.slice() : ITEMS
+        .map(function (it) { return { it: it, s: fuzzyScore(q, it.t + ' ' + it.k) }; })
+        .filter(function (x) { return x.s > 0; })
+        .sort(function (a, b) { return b.s - a.s; })
+        .map(function (x) { return x.it; });
       list.innerHTML = shown.map(function (it, i) { return '<li role="option" class="' + (i === sel ? 'on' : '') + '" data-i="' + i + '">' + it.t + '</li>'; }).join('');
     }
     function open() { pal.classList.add('open'); pal.setAttribute('aria-hidden', 'false'); input.value = ''; sel = 0; render(''); setTimeout(function () { input.focus(); }, 30); }
