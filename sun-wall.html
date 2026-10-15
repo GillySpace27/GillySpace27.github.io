@@ -1,5 +1,8 @@
 <!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Sun Now</title>
 <style>
   html,body{margin:0;height:100%;background:#000;overflow:hidden;
@@ -22,9 +25,24 @@
      host app asks for it; a personal screen saver never does. */
   #attr{position:fixed;right:2.2vw;bottom:2.2vh;display:none;opacity:.55;
         letter-spacing:.04em;text-shadow:0 1px 6px #000;font-size:1.05em}
+  /* WS-13: ?clock= puts the time at the top left. */
+  #clock{position:fixed;left:2.2vw;top:2.2vh;display:none;color:#fff;opacity:.72;font-size:1.6em;
+         font-variant-numeric:tabular-nums;text-shadow:0 1px 6px #000}
+  /* WS-13: ?dome=1 turns the picture into a centred circle (the largest that fits) and moves
+     the clock, caption and credit to the middle of the lower half, where a dome audience looks. */
+  body.dome #stage{position:fixed;left:50%;top:50%;width:min(100vw,100vh);height:min(100vw,100vh);
+                   transform:translate(-50%,-50%);border-radius:50%;overflow:hidden}
+  body.dome video{object-fit:cover}
+  body.dome #cap,body.dome #attr,body.dome #clock{left:0;right:0;text-align:center}
+  body.dome #clock{top:auto;bottom:calc(50% - min(50vw,50vh) + 14%)}
+  body.dome #cap{bottom:calc(50% - min(50vw,50vh) + 6%)}
+  body.dome #attr{bottom:calc(50% - min(50vw,50vh) + 1%);font-size:.9em}
 </style>
+</head>
+<body>
 <div id="stage"></div>
-<div id="cap"><b></b><span></span></div>
+<div id="clock" aria-hidden="true"></div>
+<div id="cap" aria-live="off"><b></b><span></span></div>
 <div id="attr"></div>
 <script>
 const BUCKET = "https://the-sun-now.s3.us-east-2.amazonaws.com/";
@@ -35,6 +53,42 @@ const Q = new URLSearchParams(location.search);
 // shuffled. The host app injects these; a browser can pass ?loops=2&shuffle=1.
 const LOOPS_PER_PRODUCT = Math.max(1, +(window.WALL_LOOPS ?? Q.get("loops") ?? 1));
 const SHUFFLE = !!(window.WALL_SHUFFLE ?? (Q.get("shuffle") === "1"));
+// WS-13: the display kit. Every option is off unless named, so a link without these
+// behaves exactly as before; the /wall/ builder writes them for you.
+//   clock=utc|local   a clock, top left
+//   caption=0|stay    0 hides the channel label; stay keeps it on screen (default: six seconds a clip)
+//   dome=1            a circular picture for a planetarium dome
+//   attrib=0|1        0 hides the credit line; 1 shows it even outside the Mac app
+//   ids=171,304       only these channels, in the order they are given
+// wallOptions begin
+function wallOptions(search) {
+  const q = new URLSearchParams(search);
+  const clock = q.get("clock");
+  const caption = q.get("caption");
+  const attrib = q.get("attrib");
+  const ids = (q.get("ids") || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+  return {
+    clock: clock === "utc" || clock === "local" ? clock : null,
+    caption: caption === "0" || caption === "stay" ? caption : "brief",
+    dome: q.get("dome") === "1",
+    attrib: attrib === "0" || attrib === "1" ? attrib : null,
+    ids: ids.length ? ids : null,
+  };
+}
+function wallClockText(date, mode) {
+  const two = n => String(n).padStart(2, "0");
+  if (mode === "local") return two(date.getHours()) + ":" + two(date.getMinutes());
+  return two(date.getUTCHours()) + ":" + two(date.getUTCMinutes()) + " UTC";
+}
+function wallOrder(fresh, ids) {
+  if (!ids) return fresh;
+  const out = [];
+  for (const id of ids) { const m = fresh.find(x => x.id === id); if (m && !out.includes(m)) out.push(m); }
+  return out;
+}
+// wallOptions end
+const OPT = wallOptions(location.search);
+const WALL_CREDIT = "Imagery courtesy of NASA/SDO and the AIA science team.";
 const RATE = 0.5;                 // each 48 h clip is only 8 s at native 18 fps
 const REFRESH_MS = 20 * 60 * 1000; // pipeline cadence
 
@@ -61,10 +115,38 @@ function freshVideo(){
   stage.appendChild(el);
   return el;
 }
-if (window.WALL_ATTRIBUTION) {
-  const a = document.getElementById("attr");
-  a.textContent = window.WALL_ATTRIBUTION; a.style.display = "block";
+if (OPT.dome) document.body.classList.add("dome");
+// The host app's own line wins; ?attrib=1 adds the standard credit where there is none, and
+// ?attrib=0 hides whichever it would have been.
+{
+  const text = window.WALL_ATTRIBUTION || (OPT.attrib === "1" ? WALL_CREDIT : "");
+  if (text && OPT.attrib !== "0") {
+    const a = document.getElementById("attr");
+    a.textContent = text; a.style.display = "block";
+  }
 }
+if (OPT.clock) {
+  const el = document.getElementById("clock");
+  const tick = () => { el.textContent = wallClockText(new Date(), OPT.clock); };
+  tick(); el.style.display = "block"; setInterval(tick, 15000);
+}
+// A screen that must not dim: ask for a wake lock now and again whenever the tab is shown
+// (the browser drops it when the tab is hidden). Where it is unsupported, nothing happens.
+let wakeLock = null;
+async function keepAwake() {
+  try {
+    if (!navigator.wakeLock || document.visibilityState !== "visible") return;
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => { wakeLock = null; });
+  } catch (e) { wakeLock = null; }
+}
+keepAwake();
+document.addEventListener("visibilitychange", keepAwake);
+// F toggles full screen in a browser (the Mac app is already full screen).
+document.addEventListener("keydown", e => {
+  if (e.key !== "f" && e.key !== "F") return;
+  if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.();
+});
 // One product per screen: injected by the wall app, or ?p= in a browser.
 let PIN = window.WALL_PRODUCT || Q.get("p");
 if (PIN === "all") PIN = null;   // a screen set to cycle through everything
@@ -110,7 +192,7 @@ async function refresh(){
     fresh = got.filter(Boolean).map(m => ({...m, base: BUCKET}));
   }
 
-  let want = PIN ? fresh.filter(m => m.id === PIN) : fresh;
+  let want = PIN ? fresh.filter(m => m.id === PIN) : wallOrder(fresh, OPT.ids);
   if (SHUFFLE) {                       // Fisher-Yates; a fresh order every refresh
     for (let k = want.length - 1; k > 0; k--) {
       const j = Math.floor(Math.random() * (k + 1)); [want[k], want[j]] = [want[j], want[k]];
@@ -131,8 +213,8 @@ function play(){
   cap.querySelector("span").textContent =
     "48 h to " + new Date(m.updated).toLocaleString([], {
       month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"});
-  cap.classList.add("on");
-  setTimeout(() => cap.classList.remove("on"), 6000);
+  if (OPT.caption !== "0") cap.classList.add("on");
+  if (OPT.caption === "brief") setTimeout(() => cap.classList.remove("on"), 6000);
 }
 
 function onEnded(){
@@ -145,3 +227,5 @@ function onError(){ loops = 0; i++; setTimeout(play, 1000); }
 (async () => { await refresh(); play(); })();
 setInterval(refresh, REFRESH_MS);
 </script>
+</body>
+</html>
