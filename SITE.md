@@ -189,6 +189,10 @@ Post-merge checklist (Gilly, after the merge to `master` and Pages finishing):
   one `/s/` link to yourself to see it unfurl.
 - The Share button on each card calls `SunData.share` (native sheet, else clipboard, else
   `execCommand`) and shows a toast with the link.
+- Each card also links its 48 h movie file. The stage has Share this channel, Still and
+  48 h movie file for the channel on show, plus two handoffs: Put it on your desktop
+  (`/heliogram/`) and Print this Sun (`https://myheliograph.com/?ref=gilly.space`; deep
+  links into the store are not verified, so only `?ref`).
 
 ## Family look (SU-20)
 
