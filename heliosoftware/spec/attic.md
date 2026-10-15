@@ -42,13 +42,13 @@ One table with this exact header, in this order:
 
 - Name: `archive/<branch>`, the full branch name including slashes. Annotated: `git tag -a archive/<branch> <tip-sha> -m "Archive: <branch> at <sha7>; <reason>; branch left in place"`.
 - Tag the tip as it is now: read it with `git rev-parse <branch>` and write the same seven digits in the row. A tag on the wrong commit misleads.
-- An existing tag is never moved, renamed or deleted. Tags made before this page keep their names and are listed as they are: HelioFITS Studio uses `archive/branch/<branch>`, the My Heliograph store uses `archive/2026-10/<branch>`, the Website uses short names such as `archive/heliofits-sibling-link`. A repository never gets a second scheme.
+- An existing tag is never moved, renamed or deleted. Tags made before this page keep their names and are listed as they are: HelioFITS Studio uses `archive/branch/<branch>`, the My Heliogram store uses `archive/2026-10/<branch>`, the Website uses short names such as `archive/heliofits-sibling-link`. A repository never gets a second scheme.
 - Tags stay local until Gilly says push. Push named tags only: never `--tags`, never `--force`.
 - The prefix `attic/` is for moved files only. No `attic/<branch>` tag is made.
 
 ## Never tag
 
-A branch whose history holds a secret gets no tag, and is never pushed: a tag or branch on a remote publishes that history. The My Heliograph store has 16 local branches with `.env` commits from before the 2026-07-15 purge; they are listed, bundled outside the repository, and left in place.
+A branch whose history holds a secret gets no tag, and is never pushed: a tag or branch on a remote publishes that history. The My Heliogram store has 16 local branches with `.env` commits from before the 2026-07-15 purge; they are listed, bundled outside the repository, and left in place.
 
 ## Listed only
 
@@ -69,7 +69,7 @@ Worktrees, folders such as `.git-backup/`, large data folders (a render folder o
 | HelioFITS Studio | `archive/` with `archive/README.md` (`Folder / Contents / Why it is here`) | `ATTIC.md`, canonical rows, an index to `archive/` | Tags `archive/branch/<branch>`, `archive/origin/<branch>`, `archive/stash/<name>`. |
 | Heliogram | `attic/README.md`, one line per move: date, path, what, old path, why, `git mv` back | `ATTIC.md` when the first non-move item appears | Line format is kept. |
 | sunback | `attic/README.md` (`Original path / Moved to / LOC / Reason / Date / Restore`) | section `## Left in place (listed only)` in the same file, canonical rows | Restore is `git mv <moved to> <original path>`. |
-| My Heliograph store (sunback_webapp) | `attic/README.md` (`Path / Original path / Moved / Reason / Replacement`) | `ATTIC.md`, canonical rows; branch decisions in `BRANCHES.md` | Tags `archive/2026-10/<branch>`; none on the pre-purge branches. |
+| My Heliogram store (sunback_webapp) | `attic/README.md` (`Path / Original path / Moved / Reason / Replacement`) | `ATTIC.md`, canonical rows; branch decisions in `BRANCHES.md` | Tags `archive/2026-10/<branch>`; none on the pre-purge branches. |
 | fastRHEF | none | `ATTIC.md` when first needed | `tools/archive/` holds old scripts that were never a ledger. |
 
 A repository whose ledger predates this page keeps its columns and gains canonical rows beside them; old rows are not rewritten.

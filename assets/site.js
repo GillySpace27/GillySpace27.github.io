@@ -296,7 +296,7 @@
       { t: 'Ensō editor', u: '/enso/pixelated-enso.html', k: 'sliders' },
       { t: 'Spectrum Sudoku', u: '/sudoku/', k: 'puzzle color' },
       { t: 'Which Claude? A model field guide', u: '/whichclaude.html', k: 'ai models opus sonnet haiku fable' },
-      { t: 'Store: My Heliograph', u: '/shop.html', k: 'prints buy' },
+      { t: 'Store: My Heliogram', u: '/shop.html', k: 'prints buy' },
       { t: 'About & CV', u: '/about.html', k: 'bio resume contact' },
       { t: 'Software', u: '/heliosoftware/', k: 'software apps heliosoftware heliograph heliogram heliofits studio rhef' },
       { t: 'Which Sun tool do I need?', u: '/heliosoftware/decide/', k: 'help me decide software chart heliad heliofits heliogram studio rhef' },
