@@ -222,7 +222,14 @@
   // Middle of the frame, so a seek never lands on the boundary between two frames.
   function slotVideoTime(slot) { return (clampSlot(slot) + 0.5) / FPS; }
 
+  // Wording for the info dialog, the Cite button and the explainer (WS-17).
+  const CITATION = "Gilly & Cranmer 2025, Solar Physics, doi:10.1007/s11207-025-02578-x";
+  const CHANNEL_SOURCE = "https://aia.lmsal.com/public/instrument.htm";   // the page instruments/AIA.md section 4 cites
+  const RHEF_NOTE = "Shown with RHEF (Gilly & Cranmer 2025): a visualization, not a calibrated radiance.";
+  const CREDIT = "Imagery courtesy of NASA/SDO and the AIA science team.";
+
   window.SunData = {
+    CITATION, CHANNEL_SOURCE, RHEF_NOTE, CREDIT,
     BUCKET, u, loadManifest, loadAll, loadCaptureTime, freshness, loadSunIndex,
     FRESH_OK_MIN, FRESH_STALE_MIN, FPS, SLOTS, parseHash,
     CHANNELS, CHANNEL_ORDER, SLOT_MIN, stageIds, tempText, slotTime, alignSlot, slotVideoTime,
