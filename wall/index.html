@@ -97,6 +97,12 @@
             <option value="0">Hidden</option>
           </select></label>
         <label><input type="checkbox" name="attrib" checked> Show the NASA/SDO credit line</label>
+        <label for="w-print">Print this Sun
+          <select id="w-print" name="print">
+            <option value="">Off</option>
+            <option value="text">Text: myheliograph.com</option>
+            <option value="qr">Text and a QR code for the moment on screen</option>
+          </select></label>
       </fieldset>
       <fieldset>
         <legend>Channels</legend>
@@ -129,6 +135,8 @@
     if (opts.clock === "utc" || opts.clock === "local") q.set("clock", opts.clock);
     if (opts.caption === "stay" || opts.caption === "0") q.set("caption", opts.caption);
     if (opts.dome) q.set("dome", "1");
+    if (opts.print === "text") q.set("store", "1");
+    if (opts.print === "qr") q.set("qr", "1");
     q.set("attrib", opts.attrib === false ? "0" : "1");
     if (opts.ids && opts.ids.length) q.set("ids", opts.ids.join(","));
     const loops = Math.max(1, Math.min(20, Math.floor(+opts.loops || 1)));
@@ -149,7 +157,7 @@
     });
     function read() {
       var ids = []; form.querySelectorAll("input[name=ch]:checked").forEach(function (e) { ids.push(e.value); });
-      return { dome: form.elements.shape.value === "dome", clock: form.elements.clock.value, caption: form.elements.caption.value,
+      return { dome: form.elements.shape.value === "dome", clock: form.elements.clock.value, caption: form.elements.caption.value, print: form.elements.print.value,
                attrib: form.elements.attrib.checked, ids: ids, loops: form.elements.loops.value, shuffle: form.elements.shuffle.checked };
     }
     var frame = document.getElementById("wall-frame"), last = "";

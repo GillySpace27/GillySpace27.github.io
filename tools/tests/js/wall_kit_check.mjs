@@ -14,12 +14,12 @@ const region = (file, name) => {
   return m[1];
 };
 const wall = { URLSearchParams, String };
-vm.runInNewContext(region("sun-wall.html", "wallOptions") + "\nthis.o=wallOptions;this.c=wallClockText;this.r=wallOrder;", wall);
+vm.runInNewContext(region("sun-wall.html", "wallOptions") + "\nthis.o=wallOptions;this.c=wallClockText;this.r=wallOrder;this.s=wallStoreLink;", wall);
 const link = { URLSearchParams, Math, String };
 vm.runInNewContext(region("wall/index.html", "wallLink") + "\nthis.l=wallLink;", link);
 
 // a bare link changes nothing
-assert.deepEqual(JSON.parse(JSON.stringify(wall.o(""))), { clock: null, caption: "brief", dome: false, store: false, attrib: null, ids: null });
+assert.deepEqual(JSON.parse(JSON.stringify(wall.o(""))), { clock: null, caption: "brief", dome: false, store: false, qr: false, attrib: null, ids: null });
 // unknown values fall back to the default
 const bad = wall.o("?clock=sundial&caption=loud&dome=yes&attrib=2&ids=,,");
 assert.equal(bad.clock, null); assert.equal(bad.caption, "brief"); assert.equal(bad.dome, false); assert.equal(bad.attrib, null); assert.equal(bad.ids, null);
@@ -50,4 +50,28 @@ assert.equal(rt.dome, true); assert.equal(rt.clock, "local"); assert.equal(rt.ca
 // SU-17: store=1 is opt-in and exact
 assert.equal(wall.o("?store=1").store, true);
 assert.equal(wall.o("?store=yes").store, false);
+// SU-17 levels: store=1 is the text line; qr=1 is the text line plus the code; qr=0 and a bare link are neither
+assert.equal(wall.o("?qr=1").qr, true); assert.equal(wall.o("?qr=1").store, true, "the code never stands without its text line");
+assert.equal(wall.o("?qr=0").qr, false); assert.equal(wall.o("?qr=0").store, false);
+assert.equal(wall.o("?store=1").qr, false); assert.equal(wall.o("?store=1").store, true);
+assert.equal(wall.o("").qr, false);
+assert.equal(link.l({ print: "text" }, base), base + "/sun-wall.html?store=1&attrib=1");
+assert.equal(link.l({ print: "qr" }, base), base + "/sun-wall.html?qr=1&attrib=1");
+assert.equal(link.l({ print: "" }, base), base + "/sun-wall.html?attrib=1");
+// the wall's copy of the store link equals sun.js storeLink (utm_source wall)
+const sunWin = {};
+vm.runInNewContext(fs.readFileSync(path.join(root, "assets/sun.js"), "utf8"), { window: sunWin, location: { hostname: "gilly.space", search: "" }, URLSearchParams, fetch: () => Promise.reject(new Error("offline")), Date, Map, Promise, Math, isNaN, isFinite, parseInt, Number, Array, encodeURIComponent, decodeURIComponent, String, Set });
+for (const [id, ms] of [["171", Date.UTC(2026, 8, 30, 14, 20)], ["rainbow", Date.UTC(2026, 0, 2, 3, 4)], ["94", NaN], ["dem", undefined]]) {
+  assert.equal(wall.s(id, ms), sunWin.SunData.storeLink(id, ms, "wall"), id);
+}
+// matrix for the decode test: node tools/tests/js/wall_kit_check.mjs <root> --matrix <text>
 console.log("wall kit: ok");
+
+if (process.argv[3] === "--matrix") {
+  const qsrc = fs.readFileSync(path.join(root, "assets/vendor/qrcode-generator/qrcode.js"), "utf8");
+  const ctx = {}; vm.runInNewContext(qsrc + "\nthis.qrcode = qrcode;", ctx);
+  const q = ctx.qrcode(0, "M"); q.addData(process.argv[4]); q.make();
+  const n = q.getModuleCount(), rows = [];
+  for (let r = 0; r < n; r++) { let line = ""; for (let c = 0; c < n; c++) line += q.isDark(r, c) ? "1" : "0"; rows.push(line); }
+  console.log(JSON.stringify(rows));
+}
