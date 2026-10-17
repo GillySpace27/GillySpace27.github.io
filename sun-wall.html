@@ -31,6 +31,9 @@
   /* SU-17: ?store=1 names the print shop on screen (text only: a wall has no pointer). */
   #store{position:fixed;right:2.2vw;bottom:calc(2.2vh + 2em);display:none;opacity:.72;
          letter-spacing:.04em;text-shadow:0 1px 6px #000;font-size:1.05em;color:#fff}
+  /* SU-17: ?qr=1 adds a scannable code for the moment on screen above the text line. */
+  #qr{position:fixed;right:2.2vw;bottom:calc(2.2vh + 4em);display:none;width:min(16vmin,200px);opacity:.92}
+  #qr svg{display:block;width:100%;height:auto;border-radius:4px}
   /* WS-13: ?dome=1 turns the picture into a centred circle (the largest that fits) and moves
      the clock, caption and credit to the middle of the lower half, where a dome audience looks. */
   body.dome #stage{position:fixed;left:50%;top:50%;width:min(100vw,100vh);height:min(100vw,100vh);
@@ -40,6 +43,7 @@
   body.dome #clock{top:auto;bottom:calc(50% - min(50vw,50vh) + 14%)}
   body.dome #cap{bottom:calc(50% - min(50vw,50vh) + 6%)}
   body.dome #store{bottom:calc(50% - min(50vw,50vh) + 10%)}
+  body.dome #qr{left:50%;right:auto;transform:translateX(-50%);bottom:calc(50% - min(50vw,50vh) + 20%)}
   body.dome #attr{bottom:calc(50% - min(50vw,50vh) + 1%);font-size:.9em}
 </style>
 </head>
@@ -47,6 +51,7 @@
 <div id="stage"></div>
 <div id="clock" aria-hidden="true"></div>
 <div id="cap" aria-live="off"><b></b><span></span></div>
+<div id="qr" aria-hidden="true"></div>
 <div id="store"></div>
 <div id="attr"></div>
 <script>
@@ -65,7 +70,11 @@ const SHUFFLE = !!(window.WALL_SHUFFLE ?? (Q.get("shuffle") === "1"));
 //   dome=1            a circular picture for a planetarium dome
 //   attrib=0|1        0 hides the credit line; 1 shows it even outside the Mac app
 //   ids=171,304       only these channels, in the order they are given
-//   store=1           a line saying where to print this Sun
+//   store=1           level 1 of "Print this Sun": a text line, myheliograph.com (no dependency)
+//   qr=1              level 2: the text line plus a QR code for the moment on screen (store link with
+//                     utm_source=wall, d, t, wl). Loads assets/vendor/qrcode-generator/qrcode.js; if
+//                     that cannot load (the Mac app's cached copy), the text line stays alone.
+//   qr=0              the default: no code (store=1 alone is the text line)
 // wallOptions begin
 function wallOptions(search) {
   const q = new URLSearchParams(search);
@@ -77,7 +86,8 @@ function wallOptions(search) {
     clock: clock === "utc" || clock === "local" ? clock : null,
     caption: caption === "0" || caption === "stay" ? caption : "brief",
     dome: q.get("dome") === "1",
-    store: q.get("store") === "1",
+    store: q.get("store") === "1" || q.get("qr") === "1",
+    qr: q.get("qr") === "1",
     attrib: attrib === "0" || attrib === "1" ? attrib : null,
     ids: ids.length ? ids : null,
   };
@@ -92,6 +102,18 @@ function wallOrder(fresh, ids) {
   const out = [];
   for (const id of ids) { const m = fresh.find(x => x.id === id); if (m && !out.includes(m)) out.push(m); }
   return out;
+}
+// The store link Heliogram's QR and sun.js storeLink also use: utm_source, d, t (UTC), wl for AIA ids.
+function wallStoreLink(id, whenMs) {
+  const two = n => String(n).padStart(2, "0");
+  let q = "utm_source=wall";
+  if (typeof whenMs === "number" && isFinite(whenMs)) {
+    const t = new Date(whenMs);
+    q += "&d=" + t.getUTCFullYear() + "-" + two(t.getUTCMonth() + 1) + "-" + two(t.getUTCDate()) +
+         "&t=" + two(t.getUTCHours()) + ":" + two(t.getUTCMinutes());
+    if (/^\d+$/.test(String(id))) q += "&wl=" + String(id);
+  }
+  return "https://myheliograph.com/?" + q;
 }
 // wallOptions end
 const OPT = wallOptions(location.search);
@@ -136,6 +158,26 @@ if (OPT.store) {
   const el = document.getElementById("store");
   el.textContent = "Print this Sun: myheliograph.com";
   el.style.display = "block";
+}
+// Level 2: load the vendored encoder once; draw() is called for each clip. No encoder, no code.
+let drawQr = () => {};
+if (OPT.qr) {
+  const s = document.createElement("script");
+  s.src = "/assets/vendor/qrcode-generator/qrcode.js";
+  s.onload = () => {
+    if (typeof qrcode !== "function") return;
+    drawQr = (text) => {
+      try {
+        const q = qrcode(0, "M");
+        q.addData(text); q.make();
+        const box = document.getElementById("qr");
+        box.innerHTML = q.createSvgTag({cellSize: 4, margin: 16, scalable: true});
+        box.style.display = "block";
+      } catch (e) { /* too long or encoder error: the text line stays */ }
+    };
+    if (items.length) drawQr(wallStoreLink(items[i % items.length].id, Date.parse(items[i % items.length].updated)));
+  };
+  document.head.appendChild(s);
 }
 if (OPT.clock) {
   const el = document.getElementById("clock");
@@ -225,6 +267,7 @@ function play(){
   cap.querySelector("span").textContent =
     "48 h to " + new Date(m.updated).toLocaleString([], {
       month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"});
+  if (OPT.qr) drawQr(wallStoreLink(m.id, Date.parse(m.updated)));
   if (OPT.caption !== "0") cap.classList.add("on");
   if (OPT.caption === "brief") setTimeout(() => cap.classList.remove("on"), 6000);
 }

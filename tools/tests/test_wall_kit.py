@@ -13,6 +13,10 @@ import unittest
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
 NODE = shutil.which("node")
+try:
+    import cv2 as CV2
+except ImportError:  # CI has no OpenCV: the decode test is skipped there
+    CV2 = None
 WALL = (REPO / "sun-wall.html").read_text(encoding="utf-8")
 BUILDER = (REPO / "wall" / "index.html").read_text(encoding="utf-8")
 
@@ -59,6 +63,35 @@ class WallKitTest(unittest.TestCase):
         # the older, plain store link is kept
         self.assertIn('href="https://myheliograph.com/?ref=gilly.space"', page)
         self.assertIn("store=1", WALL)
+
+    def test_qr_level_loads_the_vendored_encoder_and_keeps_its_licence(self):
+        vend = REPO / "assets" / "vendor" / "qrcode-generator"
+        for name in ("qrcode.js", "LICENSE", "README.md"):
+            self.assertTrue((vend / name).is_file(), name)
+        self.assertIn("MIT", (vend / "LICENSE").read_text(encoding="utf-8"))
+        self.assertIn("/assets/vendor/qrcode-generator/qrcode.js", WALL)
+        self.assertEqual(len((vend / "qrcode.js").read_bytes()), 56694, "byte for byte the 1.4.4 file")
+
+    @unittest.skipUnless(NODE and CV2, "node or OpenCV is not installed; CI skips the decode")
+    def test_the_code_decodes_to_the_store_link(self):
+        import numpy as np
+        want = "https://myheliograph.com/?utm_source=wall&d=2026-09-30&t=14:20&wl=171"
+        r = subprocess.run([NODE, str(REPO / "tools" / "tests" / "js" / "wall_kit_check.mjs"), str(REPO), "--matrix", want],
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        rows = json.loads(r.stdout.strip().splitlines()[-1])
+        n = len(rows)
+        img = np.full(((n + 8) * 8, (n + 8) * 8), 255, dtype=np.uint8)
+        for y, line in enumerate(rows):
+            for x, ch in enumerate(line):
+                if ch == "1":
+                    img[(y + 4) * 8:(y + 5) * 8, (x + 4) * 8:(x + 5) * 8] = 0
+        got, _pts, _ = CV2.QRCodeDetector().detectAndDecode(img)
+        self.assertEqual(got, want)
+        # able to fail: a different text must not decode to this one
+        r2 = subprocess.run([NODE, str(REPO / "tools" / "tests" / "js" / "wall_kit_check.mjs"), str(REPO), "--matrix", want + "x"],
+                            capture_output=True, text=True)
+        self.assertNotEqual(r2.stdout.strip().splitlines()[-1], r.stdout.strip().splitlines()[-1])
 
     def test_builder_form_fields(self):
         for name in ("shape", "clock", "caption", "attrib", "loops", "shuffle"):
