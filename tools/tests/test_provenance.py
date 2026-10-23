@@ -80,6 +80,26 @@ class AttributionTest(Case):
             self.assertNotIn(chr(0x2014), (SPEC / name).read_text(encoding="utf-8"), name)
 
 
+class CreditsTest(Case):
+    def test_every_instrument_credit_is_ascii_and_has_a_source(self):
+        self.assertGreater(len(ATTR["credits"]), 0)
+        for key, c in ATTR["credits"].items():
+            self.assertEqual(set(c) - {"note"}, {"credit", "credit_source", "acknowledgement", "kind", "source"}, key)
+            self.assertIn(c["kind"], ("required", "suggested", "none_found"), key)
+            if c["credit"] is not None:
+                self.assertTrue(c["credit"].isascii(), key)
+                self.assertTrue(c["credit_source"].startswith("https://"), key)
+            if c["kind"] != "none_found":
+                self.assertTrue(c["source"].startswith("https://"), key)
+
+    def test_joined_instrument_credits_pass_and_a_stranger_or_a_repeat_fails(self):
+        lasco, aia = ATTR["credits"]["SOHO/LASCO"]["credit"], ATTR["credits"]["SDO/AIA"]["credit"]
+        for good in (aia, lasco + " " + aia, ATTR["credit_fallback"], ATTR["credit"]):
+            self.assertEqual(cp.check_object(dict(OBJ, credit=good)), [], good)
+        for bad in (aia + " " + aia, lasco + " Somebody else", lasco + "  " + aia, ATTR["credit_fallback"] + " " + aia):
+            self.assertIn("credit differs", "; ".join(cp.check_object(dict(OBJ, credit=bad))), bad)
+
+
 class SidecarTest(Case):
     def test_a_full_sidecar_passes(self):
         p = self.write("a.provenance.json", json.dumps(OBJ))

@@ -18,7 +18,7 @@ own export code: each product writes these fields, and
 | `version` | yes | The product's own version string. |
 | `instrument` | yes | Observatory, instrument and channel, e.g. `SDO/AIA 171`. `unknown` when not known. |
 | `observed` | yes | Observation time, UTC, `YYYY-MM-DDTHH:MM:SSZ`. For a movie, the time of its last frame. |
-| `credit` | yes | The credit line, copied from [attribution.json](attribution.json) `credit`. |
+| `credit` | yes | The credit line, built from [attribution.json](attribution.json) by its `credits_rule`: each enabled layer's instrument credit from `credits`, in layer order, each once, joined with one space; `credit_fallback` when none applies. `credit` alone remains valid (the AIA wall line). |
 | `rhef` | when RHEF was applied | The RHEF stamp line, byte for byte. `null` for a photometric export. |
 | `citation` | no | Text from [attribution.json](attribution.json) `rhef_citation` once Gilly sets it; `null` until then. |
 
@@ -94,8 +94,19 @@ python3 tools/check_provenance.py FILE...
 
 Prints `OK <file>` or `DRIFT <file>: <what is missing or wrong>` per file. Exit 0 when every file passes,
 1 when any file is missing a field or carries a wrong one, 2 when a file cannot be read or is not
-a PNG, FITS, MP4 or `.provenance.json` file. The checker confirms the credit line equals
-[attribution.json](attribution.json) `credit` when it can find that file beside itself.
+a PNG, FITS, MP4 or `.provenance.json` file. The checker confirms the credit line follows
+[attribution.json](attribution.json) `credits_rule` when it can find that file beside itself; in FITS
+`HISTORY` it looks for at least one of the lines that file lists.
+
+## Instrument credits
+
+[attribution.json](attribution.json) `credits` maps an instrument (`SDO/AIA`, `SOHO/LASCO`,
+`STEREO/SECCHI`, `PUNCH`, ...) to `credit`, the line an export writes (ASCII, so it fits a FITS
+card), and `acknowledgement`, the team's publication statement verbatim, which a processing record
+puts in the layer's `acknowledgement`. `kind` says whether the source requires the statement or only
+asks for it; `source` is the page it was read from on `credits_read`. An instrument whose team gives no
+statement (GOES/SUVI today) has `credit` null and adds nothing. Which header values map to which key is
+the producer's job; the keys only name the instrument.
 
 ## Status
 

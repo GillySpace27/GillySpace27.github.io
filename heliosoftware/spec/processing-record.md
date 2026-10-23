@@ -278,7 +278,7 @@ When the scene was read.
 | `source_set_sha256` | string (pattern `^[0-9a-f]{64}$`) | no | SHA-256 of the layer's source sha256 values, sorted, joined by newline. Lets a shortened record still be matched to a full one. |
 | `steps` | array of [step](#step) | yes | Ordered operations from decoded file to the layer's contribution to the frame, user-set and automatic alike. |
 | `native` | object | no | This layer's entry from the producer's scene, verbatim. |
-| `acknowledgement` | string or null | no | The instrument team's required acknowledgement line for this dataset, when known. |
+| `acknowledgement` | string or null | no | The instrument team's required acknowledgement line for this dataset, when known: the `acknowledgement` of the layer's instrument in [attribution.json](attribution.json) `credits` (provenance.md, Instrument credits). |
 
 ### `dataset`
 
