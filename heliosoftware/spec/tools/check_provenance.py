@@ -155,11 +155,44 @@ def mp4_tag(data: bytes, tag: bytes):
     return None
 
 
+def mp4_mdta(data: bytes) -> dict:
+    """Tags ffmpeg writes as mdta keys (with `-movflags use_metadata_tags`): a `keys` atom
+    names them in order, and each `ilst` item's type is its 1-based index into that list."""
+    k = data.find(b"keys")
+    if k < 4:
+        return {}
+    (count,) = struct.unpack(">I", data[k + 8:k + 12])
+    names, pos = [], k + 12
+    for _ in range(count):
+        (size,) = struct.unpack(">I", data[pos:pos + 4])
+        if size < 8:
+            return {}
+        names.append(data[pos + 8:pos + size].decode("utf-8", "replace"))
+        pos += size
+    i = data.find(b"ilst", pos)
+    if i < 4:
+        return {}
+    (ilst_size,) = struct.unpack(">I", data[i - 4:i])
+    end, pos, tags = i - 4 + ilst_size, i + 4, {}
+    while pos + 8 <= end:
+        size, index = struct.unpack(">II", data[pos:pos + 8])
+        if size < 8:
+            break
+        if data[pos + 12:pos + 16] == b"data" and 1 <= index <= len(names):
+            (dsize,) = struct.unpack(">I", data[pos + 8:pos + 12])
+            tags[names[index - 1]] = data[pos + 24:pos + 8 + dsize].decode("utf-8", "replace")
+        pos += size
+    return tags
+
+
 def check_mp4(data: bytes) -> list:
     if data[4:8] != b"ftyp":
         raise Unreadable("not an MP4")
     out = []
     desc, comment = mp4_tag(data, b"desc"), mp4_tag(data, b"\xa9cmt")
+    if desc is None and comment is None:
+        keyed = mp4_mdta(data)
+        desc, comment = keyed.get("description"), keyed.get("comment")
     credit = attribution().get("credit")
     if not desc:
         out.append("missing description (the credit line)")

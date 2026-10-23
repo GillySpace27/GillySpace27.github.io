@@ -143,9 +143,9 @@ class FitsTest(Case):
 
 @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg is not installed")
 class Mp4Test(Case):
-    def make(self, name, *meta):
+    def make(self, name, *meta, flags=()):
         out = self.tmp / name
-        cmd = ["ffmpeg", "-loglevel", "error", "-y", "-f", "lavfi", "-i", "color=c=black:s=64x64:d=1:r=5"]
+        cmd = ["ffmpeg", "-loglevel", "error", "-y", "-f", "lavfi", "-i", "color=c=black:s=64x64:d=1:r=5", *flags]
         for m in meta:
             cmd += ["-metadata", m]
         subprocess.run(cmd + [str(out)], check=True)
@@ -159,6 +159,16 @@ class Mp4Test(Case):
         self.assertEqual(self.run_tool(self.make("b.mp4"))[0], 1)
         p = self.make("c.mp4", "description=" + ATTR["credit"], "comment=RHEF broken")
         self.assertIn("comment is not a stamp line", self.run_tool(p)[1])
+
+    def test_mdta_keys_from_use_metadata_tags_are_read(self):
+        # Studio writes a custom hfrecord tag, which needs -movflags use_metadata_tags; ffmpeg
+        # then stores every tag as an mdta key instead of the classic desc and (c)cmt atoms.
+        tags = ("-movflags", "use_metadata_tags")
+        p = self.make("d.mp4", "description=" + ATTR["credit"], "comment=" + STAMP, "hfrecord={}", flags=tags)
+        self.assertEqual(self.run_tool(p)[0], 0)
+        p = self.make("e.mp4", "description=" + ATTR["credit"], "comment=RHEF broken", flags=tags)
+        self.assertIn("comment is not a stamp line", self.run_tool(p)[1])
+        self.assertEqual(self.run_tool(self.make("f.mp4", "hfrecord={}", flags=tags))[0], 1)
 
 
 class ExitCodeTest(Case):
