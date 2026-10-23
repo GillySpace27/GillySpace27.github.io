@@ -103,3 +103,5 @@ Version 1 is the format and the checker. No product writes it yet; each product 
 change (sunback manifest keys `rhef` and `credit`, the store's creator string and JSON-LD, Heliogram's
 Wall caption, HelioFITS and Studio exports). Adding a product is additive: nothing here is removed or
 renamed once a product reads it.
+
+The detailed companion, written beside this stamp by every export: [processing-record.md](processing-record.md).
