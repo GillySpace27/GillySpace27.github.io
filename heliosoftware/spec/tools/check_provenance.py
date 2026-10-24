@@ -38,6 +38,34 @@ def attribution() -> dict:
         return {}
 
 
+def credit_lines() -> list:
+    """Every line an export may credit: credit, credit_fallback and each instrument's credit."""
+    a = attribution()
+    lines = [a.get("credit"), a.get("credit_fallback")]
+    lines += [c.get("credit") for c in (a.get("credits") or {}).values() if isinstance(c, dict)]
+    return list(dict.fromkeys(x for x in lines if isinstance(x, str) and x))
+
+
+def credit_ok(text: str) -> bool:
+    """True when text is credit, credit_fallback, or instrument credits joined by one space, each once
+    (attribution.json credits_rule). True as well when attribution.json cannot be read."""
+    lines = credit_lines()
+    if not lines:
+        return True
+    if text in lines:
+        return True
+    parts = [x for x in lines if x != attribution().get("credit_fallback")]
+
+    def walk(rest: str, used: frozenset) -> bool:
+        if not rest:
+            return True
+        for x in parts:
+            if x not in used and (rest == x or rest.startswith(x + " ")) and walk(rest[len(x) + 1:], used | {x}):
+                return True
+        return False
+    return walk(text, frozenset())
+
+
 def check_object(obj) -> list:
     """Problems with a provenance object (PNG chunk or sidecar)."""
     if not isinstance(obj, dict):
@@ -53,8 +81,7 @@ def check_object(obj) -> list:
         out.append("observed is not YYYY-MM-DDTHH:MM:SSZ")
     if obj.get("rhef") is not None and isinstance(obj.get("rhef"), str) and not STAMP.match(obj["rhef"]):
         out.append("rhef is not a stamp line")
-    credit = attribution().get("credit")
-    if credit and isinstance(obj.get("credit"), str) and obj["credit"] and obj["credit"] != credit:
+    if isinstance(obj.get("credit"), str) and obj["credit"] and not credit_ok(obj["credit"]):
         out.append("credit differs from attribution.json")
     return out
 
@@ -131,8 +158,8 @@ def check_fits(data: bytes) -> list:
     if current:
         lines.append(current)
     text = "\n".join(lines)
-    credit = attribution().get("credit")
-    if credit and credit not in text.replace("\n", ""):
+    flat = text.replace("\n", "")
+    if credit_lines() and not any(c in flat for c in credit_lines()):
         out.append("missing the credit line in HISTORY")
     stamps = [ln.strip() for ln in lines if re.match(r"RHEF \S+ via ", ln.strip())]   # the disclaimer also starts with RHEF
     for s in stamps:
@@ -193,10 +220,9 @@ def check_mp4(data: bytes) -> list:
     if desc is None and comment is None:
         keyed = mp4_mdta(data)
         desc, comment = keyed.get("description"), keyed.get("comment")
-    credit = attribution().get("credit")
     if not desc:
         out.append("missing description (the credit line)")
-    elif credit and desc != credit:
+    elif not credit_ok(desc):
         out.append("description differs from the credit line in attribution.json")
     if comment is not None and comment.startswith("RHEF ") and not STAMP.match(comment):
         out.append("comment is not a stamp line")
