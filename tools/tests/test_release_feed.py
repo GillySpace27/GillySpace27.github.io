@@ -171,6 +171,28 @@ class Renderer(unittest.TestCase):
         self.put("heliofits", "HelioFITS", [])
         self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 1)
 
+    def test_hub_recent_region_lists_the_newest_ten_and_is_checked(self):
+        hub = self.site / "index.html"
+        hub.write_text(hub.read_text() + "<ul>\n<!-- feed:recent -->\nstale\n<!-- /feed:recent -->\n</ul>\n")
+        recs = [{"version": f"0.8.{i}", "date": f"2026-09-{10 + i:02d}", "channel": "github-prerelease",
+                 "tag": f"v0.8.{i}", "url": f"https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.{i}",
+                 "notes": "n", "assets": [{"name": f"HFStudio-0.8.{i}.dmg", "url": "https://example.test/x.dmg",
+                                           "sha256": SHA, "bytes": 1, "platform": "macos-arm64",
+                                           "confirmed": False}]} for i in range(12)]
+        self.put("heliofits-studio", "HelioFITS Studio", recs)
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir)]), 0)
+        text = hub.read_text()
+        region = text[text.index("<!-- feed:recent -->"):text.index("<!-- /feed:recent -->")]
+        self.assertNotIn("stale", region)
+        self.assertEqual(region.count("<li>"), 10)
+        self.assertIn("HelioFITS 1.4.0", region)
+        self.assertLess(region.index("HelioFITS 1.4.0"), region.index("HelioFITS Studio 0.8.11"))
+        self.assertNotIn("0.8.0<", region)
+        self.assertIn(f"/assets/site.css?v={self.STAMP}", text)
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 0)
+        hub.write_text(text.replace("<!-- /feed:recent -->", "x\n<!-- /feed:recent -->"))
+        self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 1)
+
     def test_an_invalid_record_writes_nothing(self):
         self.put("heliogram", "Heliogram", [{"version": "0.8", "date": "2026-10-02", "channel": "direct",
                                              "url": "https://gilly.space/heliogram/", "notes": "x",

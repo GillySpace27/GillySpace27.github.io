@@ -66,7 +66,7 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 
 /* ---- /heliosoftware/ family page ---- */
 .product .eyebrow a { color: var(--accent-text); }
-/* Back to the HelioSoftware index, top left, so a visitor can switch products without hunting. */
+/* Back to the Software index, top left, so a visitor can switch products without hunting. */
 .product .back { display: block; width: fit-content; margin: 0 auto 1.2rem 0; font-size: .92rem; color: var(--muted); text-decoration: none; }
 .product .back:hover, .product .back:focus-visible { color: var(--text); text-decoration: underline; }
 .product--wide { max-width: var(--maxw); }
@@ -82,6 +82,20 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 .product .sw-pick { margin-top: .6rem; }
 .product .sw-pick a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
 .sw-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+/* The Sun, right now: a 171-gold disk with a soft corona. My Heliogram: the same Sun, matted in a frame. */
+.sw-mark--live {
+  background-image:
+    radial-gradient(circle, #ffe7a0 0 12%, #f6c84c 22%, #d98a1a 27%, rgba(217,138,26,.45) 30%, rgba(217,138,26,.12) 40%, transparent 48%);
+}
+.sw-mark--print {
+  background-image:
+    radial-gradient(circle, #ffe7a0 0 9%, #f6c84c 16%, #d98a1a 20%, transparent 21%),
+    linear-gradient(#14110d, #14110d),
+    linear-gradient(#efe6d2, #efe6d2);
+  background-size: 100% 100%, 54% 54%, 70% 70%;
+}
+.sw-decide { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 16px; margin: 1.4rem 0 0; }
+.sw-decide span { color: var(--muted); font-size: 15px; }
 
 /* ---- RHEF page: comparison figure and install snippets ---- */
 .product .shot { margin: 0 auto 1.8rem; }
@@ -90,3 +104,27 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 .product .code { text-align: left; margin: 0 auto .7rem; max-width: 32rem; padding: .8rem 1rem; overflow-x: auto;
                  background: #14110d; color: #f1e7cf; border-radius: 10px; font-size: 14px; line-height: 1.5; }
 .product .code code { font-size: inherit; }
+
+/* ---- Compare slider (assets/sun-compare.js, suite SU-20): "before" left of the divider,
+   "after" right of it. The page's own <img> is the fallback and is hidden once the stage is built.
+   Nothing animates, so prefers-reduced-motion has nothing to turn off. ---- */
+.compare--live img { display: none !important; }
+.compare__stage { position: relative; width: 100%; max-width: 36rem; margin: 0 auto; overflow: hidden; border-radius: var(--radius);
+                  box-shadow: var(--shadow); background: #000; cursor: ew-resize; touch-action: pan-y;
+                  -webkit-user-select: none; user-select: none; }
+.compare__layer { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 100% 100%; }
+.compare__label { position: absolute; top: .6rem; left: .6rem; padding: .15rem .5rem; border-radius: 999px;
+                  font-size: 12px; line-height: 1.5; color: #fff; background: rgba(0,0,0,.6); pointer-events: none; }
+.compare__label--after { left: auto; right: .6rem; }
+.compare__handle { position: absolute; top: 0; bottom: 0; width: 44px; margin-left: -22px; outline: none; }
+.compare__handle::before { content: ""; position: absolute; top: 0; bottom: 0; left: 21px; width: 2px;
+                           background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.35); }
+.compare__handle::after { content: ""; position: absolute; top: 50%; left: 50%; width: 28px; height: 28px;
+                          margin: -14px 0 0 -14px; border-radius: 50%; background: #fff;
+                          box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.compare__handle:focus-visible::after { box-shadow: 0 0 0 3px var(--accent), 0 1px 4px rgba(0,0,0,.5); }
+.sw-compare { max-width: 40rem; margin: 2.6rem auto 0; text-align: center; }
+/* Hub: a release from the last 30 days (assets/product.js, WS-20). */
+.sw-chip--new { display: inline-block; margin-left: .2em; padding: 0 .45em; border-radius: 999px; font-size: 11px;
+                font-weight: 600; line-height: 1.6; background: var(--accent); color: var(--accent-ink); }
+.sw-chip--new[hidden] { display: none; }

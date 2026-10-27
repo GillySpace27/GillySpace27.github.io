@@ -4,8 +4,8 @@
 <!-- bake:head -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HelioSoftware · gilly.space</title>
-<meta name="description" content="Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio.">
+<title>Software · gilly.space</title>
+<meta name="description" content="Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliogram.">
 <link rel="canonical" href="https://gilly.space/heliosoftware/">
 <script>
   (function () {
@@ -19,8 +19,8 @@
   })();
 </script>
 <meta property="og:type" content="website">
-<meta property="og:title" content="HelioSoftware · gilly.space">
-<meta property="og:description" content="Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio.">
+<meta property="og:title" content="Software · gilly.space">
+<meta property="og:description" content="Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliogram.">
 <meta property="og:url" content="https://gilly.space/heliosoftware/">
 <meta property="og:image" content="https://gilly.space/images/bg.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -33,17 +33,20 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="alternate" type="application/atom+xml" title="HelioSoftware releases" href="/heliosoftware/feed.xml">
-<link rel="stylesheet" href="/assets/site.css?v=202610080352">
-<link rel="stylesheet" href="/assets/product.css?v=202610080352">
+<link rel="alternate" type="application/atom+xml" title="gilly.space software releases" href="/heliosoftware/feed.xml">
+<link rel="stylesheet" href="/assets/site.css?v=202610151530">
+<link rel="stylesheet" href="/assets/product.css?v=202610151530">
 </head>
 <body>
 <div data-include="header"></div>
 <main id="main" class="product product--wide" data-no-blank>
-  <p class="eyebrow">Software from gilly.space</p>
-  <h1><span class="gradient-text">HelioSoftware</span></h1>
-  <p class="tag">Four tools that put the Sun where you already work: on your screen,
-     in your file browser, at your research desk, and in your Python notebook.</p>
+  <p class="eyebrow">From gilly.space</p>
+  <h1><span class="gradient-text">Software</span></h1>
+  <p class="tag">Tools that put the Sun where you already work: on your screen,
+     in your file browser, at your research desk, in your Python notebook, in your web browser,
+     and on your wall.</p>
+  <p class="sw-decide"><a class="btn" href="/heliosoftware/decide/">Help me decide</a>
+     <span>Start from what you're stuck on and find the tool that answers it.</span></p>
 
   <div class="grid sw-grid">
     <article class="card sw-card"><a href="/heliogram/">
@@ -52,23 +55,23 @@
       <h3>Heliogram</h3>
       <p>The live Sun as your desktop picture, your screen saver, or a wall of video.
          Imagery from NASA's Solar Dynamics Observatory.</p>
-      <p class="sw-meta">macOS · direct download<span data-release="heliogram" hidden> · v<span data-release-field="version"></span></span></p>
+      <p class="sw-meta">macOS · direct download<span data-release="heliogram" hidden> · v<span data-release-field="version"></span>, <span data-release-field="date"></span> <b class="sw-chip--new" data-release-new hidden>new</b></span></p>
     </a></article>
     <article class="card sw-card"><a href="/heliofits/">
       <span class="sw-mark sw-mark--fits sw-mark--lg" aria-hidden="true"></span>
       <p class="card__kicker">For your Finder</p>
-      <h3>HelioFITS</h3>
+      <h3>HelioFITS Peek</h3>
       <p>Solar FITS files rendered as the Sun, right in Finder and Quick Look: the instrument's
          colormap, real coordinates, and metadata you can search in Spotlight.</p>
-      <p class="sw-meta">macOS · free on the Mac App Store<span data-release="heliofits" hidden> · v<span data-release-field="version"></span></span></p>
+      <p class="sw-meta">macOS · free on the Mac App Store<span data-release="heliofits" hidden> · v<span data-release-field="version"></span>, <span data-release-field="date"></span> <b class="sw-chip--new" data-release-new hidden>new</b></span></p>
     </a></article>
     <article class="card sw-card"><a href="/heliofits-studio/">
       <img class="sw-icon sw-mark--lg" src="/assets/sw/heliofits-studio.png" alt="">
       <p class="card__kicker">For your science</p>
       <h3>HelioFITS Studio</h3>
-      <p>A compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO and other
-         coronagraph data.</p>
-      <p class="sw-meta">macOS now · Windows and Linux in testing<span data-release="heliofits-studio" hidden> · v<span data-release-field="version"></span></span></p>
+      <p>A desktop viewer for solar and heliospheric imagery, built around coronagraph and wide-field data such as
+         PUNCH, SOHO/LASCO and PROBA-3/ASPIICS. An unofficial fork of JHelioviewer.</p>
+      <p class="sw-meta">Mac and Windows · Intel Mac and Linux in testing<span data-release="heliofits-studio" hidden> · v<span data-release-field="version"></span>, <span data-release-field="date"></span> <b class="sw-chip--new" data-release-new hidden>new</b></span></p>
     </a></article>
     <article class="card sw-card"><a href="/rhef/">
       <span class="sw-mark sw-mark--rhef sw-mark--lg" aria-hidden="true"></span>
@@ -78,22 +81,63 @@
          on the disk and off the limb, with no tuning.</p>
       <p class="sw-meta">Python · pip install sunkit-image</p>
     </a></article>
+    <article class="card sw-card"><a href="/sun.html">
+      <span class="sw-mark sw-mark--live sw-mark--lg" aria-hidden="true"></span>
+      <p class="card__kicker">For your browser</p>
+      <h3>The Sun, right now</h3>
+      <p>Near-real-time views of the Sun from NASA's SDO/AIA, radially normalized with RHE to pull
+         the faint corona into view, with a 48-hour timelapse for every channel.</p>
+      <p class="sw-meta">Any browser · updated every 20 minutes</p>
+    </a></article>
+    <article class="card sw-card"><a href="/shop.html">
+      <span class="sw-mark sw-mark--print sw-mark--lg" aria-hidden="true"></span>
+      <p class="card__kicker">For your wall</p>
+      <h3>My Heliogram</h3>
+      <p>Fine-art prints of the Sun from the same imagery and the same pipeline: real data,
+         made to hang on a wall.</p>
+      <p class="sw-meta">Web · myheliograph.com</p>
+    </a></article>
   </div>
+
+  <figure class="shot sw-compare" data-compare="halves" data-before="Original" data-after="Enhanced">
+    <img src="/assets/sw/rhef-compare.jpg" width="1320" height="660" loading="lazy"
+         alt="The same SDO/AIA 171 Å image twice. Left, a standard display: a bright disk fading into black. Right, after RHEF: loops and streamers visible out to the edge of the frame.">
+    <figcaption>Original and Enhanced: the same SDO/AIA 171 Å image as a standard display and after
+      <a href="/rhef/">RHEF</a>. Drag the divider, or use the arrow keys. The enhanced view is a
+      visualization, not a calibrated radiance.</figcaption>
+  </figure>
 
   <h2 class="sw-pick-title">Which one do I want?</h2>
   <ul class="points sw-pick">
     <li>You'd like to look up and see today's Sun: <a href="/heliogram/">Heliogram</a>.</li>
-    <li>You have a folder full of <code>.fits</code> files and no idea which is which: <a href="/heliofits/">HelioFITS</a>.</li>
+    <li>You have a folder full of <code>.fits</code> files and no idea which is which: <a href="/heliofits/">HelioFITS Peek</a>.</li>
     <li>You're following a CME out through the coronagraphs: <a href="/heliofits-studio/">HelioFITS Studio</a>.</li>
     <li>Your figure shows a bright ball in a dark void, and you know there's corona out there: <a href="/rhef/">RHEF</a>.</li>
-    <li>All four: they get along fine.</li>
+    <li>You want to check on the Sun from any browser, today: <a href="/sun.html">The Sun, right now</a>.</li>
+    <li>You want the Sun from a day that matters on your wall: <a href="/shop.html">My Heliogram</a>.</li>
+    <li>All of them: they get along fine.</li>
+  </ul>
+  <p class="sw-decide"><a class="btn btn--ghost" href="/heliosoftware/decide/">Help me decide</a>
+     <span>Every need, step by step, with what's available now and what's coming.</span></p>
+  <h2 class="sw-pick-title">Recent releases</h2>
+  <ul class="points sw-recent">
+<!-- feed:recent -->
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.6">HelioFITS Studio 0.8.6</a> · 2026-10-11 · GitHub pre-release</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.5">HelioFITS Studio 0.8.5</a> · 2026-10-07 · GitHub pre-release</li>
+    <li><a href="https://gilly.space/heliograph/">Heliograph 0.7</a> · 2026-09-28 · direct download</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.3">HelioFITS Studio 0.8.3</a> · 2026-09-24 · GitHub pre-release</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.2">HFStudio 0.8.2</a> · 2026-09-19 · GitHub pre-release</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.1">HFStudio 0.8.1</a> · 2026-09-18 · GitHub pre-release</li>
+    <li><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.0">HFStudio 0.8.0</a> · 2026-09-16 · GitHub pre-release</li>
+<!-- /feed:recent -->
   </ul>
   <p class="alt">What's new: <a href="/heliosoftware/whats-new/">release notes</a> and an <a href="/heliosoftware/feed.xml">Atom feed</a>.</p>
   <p class="alt">Shared contracts for these tools (checksums, rules for agents, drift checks) live in the
      <a href="/heliosoftware/spec/">spec folder</a>.</p>
 </main>
 <div data-include="footer"></div>
-<script src="/assets/product.js?v=202610080352"></script>
-<script src="/assets/site.js?v=202610080352"></script>
+<script src="/assets/product.js?v=202610151530"></script>
+<script src="/assets/sun-compare.js?v=202610151530"></script>
+<script src="/assets/site.js?v=202610151530"></script>
 </body>
 </html>

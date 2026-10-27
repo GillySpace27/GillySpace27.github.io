@@ -26,7 +26,10 @@ def ma():
 
 
 def git(root: pathlib.Path, *args: str) -> str:
-    r = subprocess.run(["git", "-C", str(root), "-c", "user.name=t", "-c", "user.email=t@example.com", *args],
+    # gc.auto=0 and maintenance.auto=false: a commit otherwise starts "git maintenance run --auto", which
+    # newer git detaches, and it can write into .git while TemporaryDirectory is removing it (CI, 2026-10-13).
+    r = subprocess.run(["git", "-C", str(root), "-c", "user.name=t", "-c", "user.email=t@example.com",
+                        "-c", "gc.auto=0", "-c", "maintenance.auto=false", *args],
                        check=True, capture_output=True, text=True)
     return r.stdout.strip()
 

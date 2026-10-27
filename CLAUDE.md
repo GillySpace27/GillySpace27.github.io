@@ -3,7 +3,7 @@
 > **Site-wide:** after editing `assets/site.css`, `assets/product.css`, `assets/site.js` or
 > anything in `partials/`, run `python3 bump-assets.py` so every page requests the new files.
 
-<!-- heliosoftware-preamble v1 sha256=48530480cbf126634473beaec510783e34c582d2c1b1d9fc06b054ef833de461 -->
+<!-- heliosoftware-preamble v1 sha256=c9882316496d18859bd87a955f296b195d734e67b354e4d19800befc8b19a8ce -->
 ## HelioSoftware suite rules
 
 Shared by every HelioSoftware repository. The canonical copy is
@@ -15,7 +15,7 @@ into every repository.
 The family: HelioFITS (Quick Look plugin), HelioFITS Studio (a fork of
 JHelioviewer), Heliogram (macOS app, formerly Heliograph), RHEF and oRHEF (the
 filter: sunkit-image, fastRHEF, IDL_RHEF), sunback (imagery pipeline),
-gilly.space (the site) and My Heliograph (the store).
+gilly.space (the site) and My Heliogram (the store, formerly My Heliograph).
 
 ### Owner and approvals
 
@@ -47,7 +47,8 @@ gilly.space (the site) and My Heliograph (the store).
    release notes, UI strings. Use a colon, semicolon, comma, period or
    parentheses.
 4. heliograph.com is not Gilly's site (it belongs to Heliograph, Inc.). Never
-   link it or name it as ours. The store is myheliograph.com.
+   link it or name it as ours. The store is myheliogram.com; myheliograph.com
+   only redirects to it.
 5. Data contracts that other products read are append-only: S3 keys,
    `manifest/*.json`, `appcast.xml`, `version.json`, bundle identifiers, the
    app group, defaults domains, SAMP names, `HFStudio-<version>.*` asset names.
@@ -74,8 +75,14 @@ gilly.space (the site) and My Heliograph (the store).
   `space.gilly.heliograph` and `https://gilly.space/heliograph/appcast.xml`, so
   every file under `/heliograph/` stays. `SUPublicEDKey` is frozen;
   `version.json` keeps its shape.
-- My Heliograph: the store's public brand. Internal names stay `solar-archive`
-  and `myheliograph-api`. Buyers see Original and Enhanced only.
+- My Heliogram, formerly My Heliograph: the store's public brand, served at
+  myheliogram.com (myheliograph.com redirects to it). On 2026-10-17 Gilly chose
+  to remove "myheliograph" and "heliograph" from every name, internal ones
+  included: Fly apps, Workers, the R2 bucket and hosts each move to the
+  myheliogram or heliogram form in their own migration step (the rename
+  migration plan in Gilly's project files). Until a resource's step lands, its
+  old name is the live one: never rename a live resource outside its step.
+  `solar-archive` stays. Buyers see Original and Enhanced only.
 - RHEF: "oRHEF" is RHEF 2.0; there is no `strict=` legacy flag; Upsilon splits
   at 0.5.
 - gilly.space: GitHub Pages is case-sensitive, so short links are handed out
@@ -110,7 +117,7 @@ gilly.space (the site) and My Heliograph (the store).
 | HelioFITS-Studio | `ant check-all` |
 | heliogram | `./check.sh` |
 | sunback | `devtools/check.sh` |
-| sunback_webapp (My Heliograph) | `infra/scripts/check.sh` |
+| sunback_webapp (My Heliogram) | `infra/scripts/check.sh` |
 | GillySpace27.github.io (gilly.space) | `python3 tools/check_site.py` |
 | fastRHEF | `make check` |
 

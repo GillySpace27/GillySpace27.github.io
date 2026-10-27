@@ -189,6 +189,22 @@ Post-merge checklist (Gilly, after the merge to `master` and Pages finishing):
   one `/s/` link to yourself to see it unfurl.
 - The Share button on each card calls `SunData.share` (native sheet, else clipboard, else
   `execCommand`) and shows a toast with the link.
+- Each card also links its 48 h movie file. The stage has Share this channel, Still and
+  48 h movie file for the channel on show, plus two handoffs: Put it on your desktop
+  (`/heliogram/`) and Print this Sun (`https://myheliograph.com/?ref=gilly.space`; deep
+  links into the store are not verified, so only `?ref`).
+
+## Family look (SU-20)
+
+The colour and layout tokens live once, in `heliosoftware/spec/tokens.json`. `assets/site.css`
+holds them between `/* heliosoftware-tokens v1 begin */` and `... end */`;
+`python3 heliosoftware/spec/tools/tokens.py --check assets/site.css` fails on any drift (the unit
+tests run it), and `--write` sets the values from the JSON. To change a colour, edit the JSON,
+run `--write`, then `python3 bump-assets.py` and `python3 heliosoftware/spec/spec_sums.py --write`.
+The store's stylesheets get the same block only after Gilly approves the colour change there.
+
+`assets/sun-compare.js` turns any `<figure data-compare>` into a before/after slider; the figure's
+own image stays as the no-script fallback. It is on `/rhef/` and the Software hub.
 
 ## Page head and icons
 
@@ -239,6 +255,15 @@ Post-merge checklist (Gilly, after the merge to `master` and Pages finishing):
   port once that port passes the golden vectors; no port is recorded as passing yet
   (section 7 still reads "No results recorded yet."). After editing a spec file run
   `python3 heliosoftware/spec/spec_sums.py --write`.
+
+## Software hub releases (WS-20)
+
+The hub's version chips come from `heliosoftware/feed/<product>.json` through `assets/product.js`:
+version, date, and a "new" badge for a release 30 days old or less. Its "Recent releases" list
+(the newest ten) sits between `<!-- feed:recent -->` markers and is written by
+`python3 heliosoftware/feed/build_feed.py`, the same run that writes `feed.xml` and
+`whats-new/`; `check_site.py` fails when it is stale. HelioFITS Peek and RHEF have no feed
+file yet, so their cards show no chip.
 
 ## Heliogram publish
 

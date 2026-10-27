@@ -18,7 +18,7 @@
       "href": "/play/"
     },
     {
-      "label": "HelioSoftware",
+      "label": "Software",
       "href": "/heliosoftware/",
       "children": [
         {
@@ -29,16 +29,16 @@
           "mark": null
         },
         {
-          "label": "HelioFITS",
+          "label": "HelioFITS Peek",
           "href": "/heliofits/",
-          "blurb": "Solar FITS files, previewed in Finder",
+          "blurb": "Quick Look plugin for FITS files",
           "icon": null,
           "mark": "fits"
         },
         {
           "label": "HelioFITS Studio",
           "href": "/heliofits-studio/",
-          "blurb": "A compositor and work surface for the corona",
+          "blurb": "A desktop viewer for coronagraph and wide-field data",
           "icon": "/assets/sw/heliofits-studio.png",
           "mark": null
         },
@@ -165,12 +165,23 @@
       "path": "play/index.html",
       "url": "/play/",
       "title": "Play",
-      "palette": "Play \u2014 the toys",
+      "palette": "Play: the toys",
       "keywords": "enso sudoku games",
       "sitemap": true,
       "priority": "0.8",
       "archived": false,
       "description": "Small interactive things Gilly built: a daily ens\u014d calendar, an ens\u014d editor, Spectrum Sudoku, Solar Corona &amp; Wind, and a Claude model field guide."
+    },
+    {
+      "path": "wall/index.html",
+      "url": "/wall/",
+      "title": "Sun wall builder",
+      "palette": "",
+      "keywords": "wall dome planetarium display sun",
+      "sitemap": false,
+      "priority": "0.5",
+      "archived": false,
+      "description": "Build one link that turns any screen or planetarium dome into a live, full-screen Sun, with a clock, captions and credit."
     },
     {
       "path": "enso/index.html",
@@ -206,7 +217,7 @@
       "path": "whichclaude.html",
       "url": "/whichclaude.html",
       "title": "The Model Sequence \u2014 a Claude field guide",
-      "palette": "Which Claude? \u2014 model field guide",
+      "palette": "Which Claude? A model field guide",
       "keywords": "ai models opus sonnet haiku fable",
       "sitemap": true,
       "priority": "0.6",
@@ -216,7 +227,7 @@
       "path": "shop.html",
       "url": "/shop.html",
       "title": "My Heliogram: prints",
-      "palette": "Store \u2014 Solar Archive",
+      "palette": "Store: My Heliogram",
       "keywords": "prints buy",
       "sitemap": true,
       "priority": "0.7",
@@ -261,13 +272,24 @@
     {
       "path": "heliosoftware/index.html",
       "url": "/heliosoftware/",
-      "title": "HelioSoftware",
-      "palette": "HelioSoftware",
-      "keywords": "software apps heliograph heliogram heliofits studio rhef",
+      "title": "Software",
+      "palette": "Software",
+      "keywords": "software apps heliosoftware heliograph heliogram heliofits studio rhef",
       "sitemap": true,
       "priority": "0.8",
       "archived": false,
-      "description": "Three programs for putting the Sun where you already work: Heliogram, HelioFITS and HelioFITS Studio."
+      "description": "Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliogram."
+    },
+    {
+      "path": "heliosoftware/decide/index.html",
+      "url": "/heliosoftware/decide/",
+      "title": "Which Sun tool do I need?",
+      "palette": "Which Sun tool do I need?",
+      "keywords": "help me decide software chart heliad heliofits heliogram studio rhef",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false,
+      "description": "Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens, and the tool that answers it."
     },
     {
       "path": "heliosoftware/spec/index.html",
@@ -283,14 +305,14 @@
     {
       "path": "heliofits/index.html",
       "url": "/heliofits/",
-      "title": "HelioFITS: solar FITS files, previewable on your Mac",
-      "palette": "HelioFITS",
-      "keywords": "fits finder quick look mac preview",
+      "title": "HelioFITS Peek: Quick Look plugin for FITS files",
+      "palette": "HelioFITS Peek",
+      "keywords": "fits peek finder quick look mac preview",
       "sitemap": true,
       "priority": "0.7",
       "archived": false,
-      "description": "HelioFITS renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.",
-      "head_title": "HelioFITS: solar FITS files, previewable on your Mac",
+      "description": "HelioFITS Peek renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.",
+      "head_title": "HelioFITS Peek: Quick Look plugin for FITS files",
       "canonical": "https://apps.apple.com/app/id6790952544",
       "og_image": "https://gilly.space/heliofits/icon.png"
     },
@@ -299,11 +321,11 @@
       "url": "/heliofits-studio/",
       "title": "HelioFITS Studio",
       "palette": "HelioFITS Studio",
-      "keywords": "compositor corona coronagraph work surface",
+      "keywords": "viewer corona coronagraph wide-field jhelioviewer",
       "sitemap": true,
       "priority": "0.7",
       "archived": false,
-      "description": "HelioFITS Studio: a desktop compositor and work surface for scientists studying the Sun's outer corona, built for PUNCH, LASCO and other coronagraph data.",
+      "description": "HelioFITS Studio: a desktop viewer for solar and heliospheric imagery, built around coronagraph and wide-field data such as PUNCH, SOHO/LASCO and PROBA-3/ASPIICS.",
       "head_title": "HelioFITS Studio"
     },
     {
@@ -316,6 +338,18 @@
       "priority": "0.7",
       "archived": false,
       "description": "RHEF brings out faint coronal structure in solar images, on the disk and off the limb, with no parameter tuning. In sunkit-image for Python.",
+      "og_image": "https://gilly.space/assets/sw/rhef-compare.jpg"
+    },
+    {
+      "path": "rhef/lab/index.html",
+      "url": "/rhef/lab/",
+      "title": "RHEF Lab",
+      "palette": "RHEF Lab",
+      "keywords": "rhef lab browser fits try filter upsilon",
+      "sitemap": true,
+      "priority": "0.6",
+      "archived": false,
+      "description": "Drop a solar FITS file and see it through RHEF, in your browser: nothing is uploaded. Tune Shadows and Highlights and download a stamped PNG.",
       "og_image": "https://gilly.space/assets/sw/rhef-compare.jpg"
     },
     {
@@ -355,6 +389,81 @@
   ],
   "palette_extra": [
     {
+      "t": "The Sun: Rainbow (RHEF composite)",
+      "u": "/sun.html#rainbow",
+      "k": "sun channel rainbow"
+    },
+    {
+      "t": "The Sun: AIA 171 \u00c5",
+      "u": "/sun.html#171",
+      "k": "sun channel 171"
+    },
+    {
+      "t": "The Sun: AIA 193 \u00c5",
+      "u": "/sun.html#193",
+      "k": "sun channel 193"
+    },
+    {
+      "t": "The Sun: AIA 211 \u00c5",
+      "u": "/sun.html#211",
+      "k": "sun channel 211"
+    },
+    {
+      "t": "The Sun: AIA 304 \u00c5",
+      "u": "/sun.html#304",
+      "k": "sun channel 304"
+    },
+    {
+      "t": "The Sun: AIA 335 \u00c5",
+      "u": "/sun.html#335",
+      "k": "sun channel 335"
+    },
+    {
+      "t": "The Sun: AIA 94 \u00c5",
+      "u": "/sun.html#94",
+      "k": "sun channel 94"
+    },
+    {
+      "t": "The Sun: AIA 131 \u00c5",
+      "u": "/sun.html#131",
+      "k": "sun channel 131"
+    },
+    {
+      "t": "The Sun: AIA 1600 \u00c5 (UV)",
+      "u": "/sun.html#1600",
+      "k": "sun channel 1600"
+    },
+    {
+      "t": "The Sun: AIA 1700 \u00c5 (UV)",
+      "u": "/sun.html#1700",
+      "k": "sun channel 1700"
+    },
+    {
+      "t": "The Sun: Composite (1700/1600/304)",
+      "u": "/sun.html#composite_uv",
+      "k": "sun channel composite uv"
+    },
+    {
+      "t": "The Sun: Temperature map (DEM)",
+      "u": "/sun.html#dem",
+      "k": "sun channel dem"
+    },
+    {
+      "t": "Heliogram",
+      "u": "/heliogram/",
+      "k": "mac app desktop picture screen saver wall live sun heliograph"
+    },
+    {
+      "t": "Sun wall (full screen)",
+      "u": "/sun-wall.html",
+      "k": "wall kiosk display lobby"
+    },
+    {
+      "t": "Download HelioFITS Studio",
+      "u": "/heliofits-studio/",
+      "k": "download install studio mac windows linux"
+    },
+    {
       "t": "Email Gilly",
       "u": "mailto:Gilly@NWRA.com",
       "k": "contact"
@@ -392,7 +501,7 @@
     },
     {
       "path": "shop/index.html",
-      "title": "Solar Archive \u2014 prints \u00b7 gilly.space",
+      "title": "My Heliogram: prints \u00b7 gilly.space",
       "target": "/shop",
       "canonical": "https://gilly.space/shop",
       "template": "stub-shop.html"

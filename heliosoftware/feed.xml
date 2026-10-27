@@ -1,18 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>HelioSoftware releases</title>
+  <title>gilly.space software releases</title>
   <id>https://gilly.space/heliosoftware/feed.xml</id>
-  <updated>2026-09-28T00:00:00Z</updated>
+  <updated>2026-10-11T00:00:00Z</updated>
   <author>
     <name>gilly.space</name>
   </author>
   <link rel="self" href="https://gilly.space/heliosoftware/feed.xml" />
   <link rel="alternate" href="https://gilly.space/heliosoftware/whats-new/" />
   <entry>
+    <id>tag:gilly.space,2026-10-11:heliofits-studio-0.8.6</id>
+    <title>HelioFITS Studio 0.8.6</title>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.6" />
+    <summary>Send Feedback and the Report this... button on error dialogs now reach Gilly. Until reports can be sent directly, the button reads Send by Email...: it opens an email to gilly@nwra.com in your mail program, with your note, the version, the system and the top of the error filled in, and shows the full saved report (and screenshot, if you took one) in Finder or your file manager so you can attach it</summary>
+  </entry>
+  <entry>
+    <id>tag:gilly.space,2026-10-07:heliofits-studio-0.8.5</id>
+    <title>HelioFITS Studio 0.8.5</title>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.5" />
+    <summary>A Welcome window opens on launch with the version, What's New for this version (read from the app itself, no network needed), and four ways to start: Continue, Start Blank, Open Session and Take the Tour. Help &gt; Welcome to HelioFITS Studio reopens it, and a checkbox stops it opening at startup</summary>
+  </entry>
+  <entry>
     <id>tag:gilly.space,2026-09-28:heliogram-0.7-build.7</id>
     <title>Heliograph 0.7</title>
     <updated>2026-09-28T00:00:00Z</updated>
     <link rel="alternate" href="https://gilly.space/heliograph/" />
     <summary>Heliograph now updates itself. It checks once a day, downloads in the background and installs when you quit; a kiosk installs overnight.</summary>
+  </entry>
+  <entry>
+    <id>tag:gilly.space,2026-09-24:heliofits-studio-0.8.3</id>
+    <title>HelioFITS Studio 0.8.3</title>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.3" />
+    <summary>FITS files that hold more than one image now load. PUNCH's polarized mosaics (PAM, PTM) carry two or three images in one file, and earlier builds refused them. Each image is named from the file's own OBSLAYR keywords, such as PolarB and PolarpB</summary>
+  </entry>
+  <entry>
+    <id>tag:gilly.space,2026-09-19:heliofits-studio-0.8.2</id>
+    <title>HFStudio 0.8.2</title>
+    <updated>2026-09-19T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.2" />
+    <summary>Pre-release 0.8.2. The release page lists its files and what the fork adds.</summary>
+  </entry>
+  <entry>
+    <id>tag:gilly.space,2026-09-18:heliofits-studio-0.8.1</id>
+    <title>HFStudio 0.8.1</title>
+    <updated>2026-09-18T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.1" />
+    <summary>Pre-release 0.8.1. The release page lists its files and what the fork adds.</summary>
+  </entry>
+  <entry>
+    <id>tag:gilly.space,2026-09-16:heliofits-studio-0.8.0</id>
+    <title>HFStudio 0.8.0</title>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.0" />
+    <summary>Pre-release 0.8.0. The release page lists its files and what the fork adds.</summary>
   </entry>
 </feed>

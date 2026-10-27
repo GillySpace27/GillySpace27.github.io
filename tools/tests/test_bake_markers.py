@@ -23,7 +23,7 @@ class MarkersTest(unittest.TestCase):
         pages = json.loads(read("site.json"))["pages"]
         marked = [p["path"] for p in pages if "<!-- bake:noscript -->" in read(p["path"])]
         carrying = [p["path"] for p in pages if "<noscript>" in read(p["path"])]
-        self.assertEqual(len(carrying), 16, carrying)
+        self.assertEqual(len(carrying), 17, carrying)
         self.assertEqual(marked, carrying)
 
 
