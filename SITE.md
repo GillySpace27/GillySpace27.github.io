@@ -301,6 +301,35 @@ must name the newest release too.
   `release/deploy_release.sh publish` could print this command, or run the
   dry run, after `gh release create`.
 
+## After a suite release (WS-21)
+
+What's new is `/heliosoftware/whats-new/`, linked from the Software hub. It, the hub's
+"Recent releases" list and `feed.xml` are all rendered from `heliosoftware/feed/*.json`, so a
+release shows up on the site only when its record is appended. Until 2026-10-28 records were
+written by hand and Studio 0.8.7 was missed.
+
+HelioFITS Studio, after `deploy_release.sh publish` and once `package.yml` has attached the
+Windows and Linux packages:
+
+1. `python3 tools/pin_studio_fallback.py --from-github --dry-run`, then without `--dry-run`.
+2. `python3 tools/feed_studio_release.py --dry-run`, then
+   `python3 tools/feed_studio_release.py --confirm macos-arm64 --confirm guide` (name only the
+   platforms someone actually ran; each gets `confirmed: true`). It reads the release from
+   GitHub (GET only), takes sha256 and size from GitHub's asset digests, and the notes from the
+   first bullet under `### New in`; it refuses a draft, a release without a Mac dmg, an asset
+   without a digest or notes it cannot find. Exit 3 means already recorded.
+3. `python3 heliosoftware/feed/build_feed.py` (writes `feed.xml`, `whats-new/` and the hub list).
+4. The checks in "Before you push" (CLAUDE.md), one commit, a pull request; merging it publishes
+   gilly.space and needs Gilly's yes.
+
+`python3 tools/feed_studio_release.py --check` exits 1 while the newest Studio release is not
+in the feed.
+
+Other products have no fetch helper; use `heliosoftware/feed/append_record.py` (spec:
+`heliosoftware/spec/release-feed.md`), then step 3. Heliogram: after `publish.sh` has pushed.
+HelioFITS (Peek): only once App Store Connect reports READY_FOR_SALE. sunback: after the PyPI
+upload.
+
 ## Rollback
 
 Applies once Pages is published by `.github/workflows/pages.yml` (WS-9). Until

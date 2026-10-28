@@ -297,6 +297,64 @@
      "confirmed": true
     }
    ]
+  },
+  {
+   "version": "0.8.7",
+   "date": "2026-10-21",
+   "channel": "github-prerelease",
+   "tag": "v0.8.7",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.7",
+   "notes": "New Layer is a button again, not a dropdown: it opens one window with a tab for each source. HV (JPEG 2000) streams Helioviewer's browse images, VSO (FITS) queries the Virtual Solar Observatory, Direct (FITS) opens a mission's own archive (PUNCH, SOAR, ASPIICS, MLSO) or loads LASCO from NRL, and Heliad (Local FITS Cache) lists what the Heliad app has already downloaded. The window has its own time range and time step (or frame count) at the top, which every tab uses. They start as the master ones beside New Layer each time it opens, and changing them affects only the layer being added, never the master range; PUNCH, SOAR and MLSO open on that range, PUNCH on that time step too. It opens on the tab used last. Layers > New Image Layer... (Cmd-N) opens the same window.",
+   "assets": [
+    {
+     "name": "HFStudio-0.8.7.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.7/HFStudio-0.8.7.dmg",
+     "sha256": "fad53fc90075bcb8bc20df05c3a06f753eda447e3682d747a6c26681f0334142",
+     "bytes": 142504366,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.8.7-intel.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.7/HFStudio-0.8.7-intel.dmg",
+     "sha256": "8e14b967e74fea7e80c6b824b0ebfb1a91a66e98e8e05c04fc85c345f9c48357",
+     "bytes": 150831639,
+     "platform": "macos-x64",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.7-windows.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.7/HFStudio-0.8.7-windows.zip",
+     "sha256": "bf495491ad2394413557b99e023e1964b0b983659ac69ff4db04bc1776e79009",
+     "bytes": 164868645,
+     "platform": "windows",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.7-linux.tar.gz",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.7/HFStudio-0.8.7-linux.tar.gz",
+     "sha256": "a14fc8087e6ae584c204e8adb72bef372e365fb71830790b300fd4305ee2312c",
+     "bytes": 171528323,
+     "platform": "linux",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.7.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.7/HFStudio-0.8.7.zip",
+     "sha256": "c47d467f14b5b7e66cc8a8aa28e73fa00859caca15626655692215cfa9ce2ac2",
+     "bytes": 283217423,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.7/HFStudio-Guide.pdf",
+     "sha256": "10d12ea23e424a6c6900646225d5d8e77ed3cd5dc6b2ba59b7de6a01aba98aa4",
+     "bytes": 9651431,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
   }
  ]
 }
