@@ -24,13 +24,20 @@ def card_template() -> str:
 
 
 class Handoffs(unittest.TestCase):
-    def test_stage_has_share_still_movie_and_both_handoffs(self):
+    def test_stage_has_share_still_movie_and_print_this_moment(self):
         s = stage()
         self.assertIn('id="stage-share-btn"', s)
         self.assertIn('id="stage-still"', s)
         self.assertRegex(s, r'<a id="stage-movie"[^>]*\bdownload\b')
-        self.assertIn('href="/heliogram/"', s)
-        self.assertIn('href="https://myheliograph.com/?ref=gilly.space"', s)
+        self.assertIn('id="stage-print"', s)
+
+    def test_both_handoffs_sit_on_the_main_path(self):
+        # The stage is collapsed by default, so the desktop and print handoffs live above it.
+        i = SUN.index('class="sun-links sun-main-links"')
+        main = SUN[i:SUN.index("</p>", i)]
+        self.assertIn('href="/heliogram/"', main)
+        self.assertIn('href="https://myheliograph.com/?ref=gilly.space"', main)
+        self.assertLess(i, SUN.index('<details id="stage-wrap"'))
 
     def test_stage_links_follow_the_channel_on_show(self):
         self.assertIn('addEventListener("sun:stage", syncStageShare)', SUN)

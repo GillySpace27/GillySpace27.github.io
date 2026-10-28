@@ -33,7 +33,7 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="stylesheet" href="/assets/site.css?v=202610151530">
+<link rel="stylesheet" href="/assets/site.css?v=202610281610">
 <style>
   .sun-lead { font-size: 1.05rem; color: var(--muted); max-width: 62ch; margin: 0 0 1em; }
   .sun-times { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted);
@@ -115,6 +115,14 @@
       <span>Loading capture time…</span>
     </div>
 
+    <p class="sun-links sun-main-links">
+      <a href="/heliogram/">Put it on your desktop (Mac)</a>
+      <a href="https://myheliograph.com/?ref=gilly.space" target="_blank" rel="noopener">Print this Sun</a>
+    </p>
+
+    <!-- The stage is opt-in: it loads nothing until opened, and a #stage=<id>@<slot> link opens it. -->
+    <details id="stage-wrap" class="stage-wrap">
+      <summary><span><b>Scrub through the last 48 hours</b><small>One channel at a time, with a time slider and a temperature walk</small></span></summary>
     <section id="stage" class="stage" aria-labelledby="stage-h" aria-busy="true">
       <h2 id="stage-h" class="stage__h">48 hours, one channel at a time</h2>
       <p class="stage__lead">Drag the slider to move through the last two days. Pick another channel and the same moment stays on screen.</p>
@@ -138,13 +146,12 @@
         <button type="button" id="stage-about-btn" class="ghost">About this channel</button>
         <a id="stage-still" target="_blank" rel="noopener" hidden>Still</a>
         <a id="stage-movie" target="_blank" rel="noopener" download hidden>48 h movie file</a>
-        <a href="/heliogram/">Put it on your desktop (Mac)</a>
-        <a href="https://myheliograph.com/?ref=gilly.space" target="_blank" rel="noopener">Print this Sun</a>
         <a id="stage-print" href="https://myheliograph.com/?utm_source=sun" target="_blank" rel="noopener">Print this moment</a>
       </div>
       <div id="stage-status" class="stage__status" role="status" aria-live="polite"></div>
       <p id="stage-note" class="stage__note"></p>
     </section>
+    </details>
 
     <div class="grid sun-grid" id="grid"></div>
   </section>
@@ -209,8 +216,8 @@
 </div>
 
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610151530"></script>
-<script src="/assets/sun.js?v=202610151530"></script>
+<script src="/assets/site.js?v=202610281610"></script>
+<script src="/assets/sun.js?v=202610281610"></script>
 <script>
   const BUCKET = SunData.BUCKET;
   const PRODUCTS = [
@@ -531,7 +538,18 @@
     const cards = PRODUCTS.map(p => grid.appendChild(renderSkeleton(p)));
     const labels = {};
     PRODUCTS.forEach(p => { labels[p[0]] = p[1]; });
-    SunStage.init(document.getElementById("stage"), SunData.stageIds(PRODUCTS.map(p => p[0])), labels);
+    // The stage starts on first open, so the page's first load is just the grid.
+    const stageWrap = document.getElementById("stage-wrap");
+    let stageOn = false;
+    const startStage = () => {
+      if (stageOn) return;
+      stageOn = true;
+      SunStage.init(document.getElementById("stage"), SunData.stageIds(PRODUCTS.map(p => p[0])), labels);
+    };
+    const stageFromHash = () => { if (SunData.parseHash(location.hash).stage) { stageWrap.open = true; startStage(); } };
+    stageWrap.addEventListener("toggle", () => { if (stageWrap.open) startStage(); });
+    window.addEventListener("hashchange", stageFromHash);
+    stageFromHash();
     grid.addEventListener("click", onGridClick);
     window.addEventListener("hashchange", highlightFromHash);
     wirePreviews(grid);

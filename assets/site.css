@@ -610,3 +610,21 @@ main .video-tile::after { content: none !important; }
 /* Homepage Software card (WS-14): two product icons side by side on the card's image area. */
 .sw-pair { display: flex; align-items: center; justify-content: center; gap: 10%; background: var(--card-bg); }
 .sw-pair img { width: 30%; height: auto; }
+
+/* ---- Sun page: the 48 h stage sits behind a bar until opened ---- */
+.sun-main-links { margin: .6rem 0 1.2rem; }
+.stage-wrap { margin: 0 0 clamp(20px, 4vw, 32px); }
+.stage-wrap > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
+}
+.stage-wrap > summary::-webkit-details-marker { display: none; }
+.stage-wrap > summary:hover { border-color: var(--accent); }
+.stage-wrap > summary b { display: block; }
+.stage-wrap > summary small { color: var(--muted); font-size: 14px; }
+.stage-wrap > summary::after {
+  content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg); transition: transform .15s ease;
+}
+.stage-wrap[open] > summary::after { transform: rotate(225deg); }
+.stage-wrap[open] > summary { margin-bottom: 1rem; }
