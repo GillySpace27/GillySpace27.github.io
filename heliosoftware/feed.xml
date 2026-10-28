@@ -2,12 +2,19 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>gilly.space software releases</title>
   <id>https://gilly.space/heliosoftware/feed.xml</id>
-  <updated>2026-10-21T00:00:00Z</updated>
+  <updated>2026-10-28T00:00:00Z</updated>
   <author>
     <name>gilly.space</name>
   </author>
   <link rel="self" href="https://gilly.space/heliosoftware/feed.xml" />
   <link rel="alternate" href="https://gilly.space/heliosoftware/whats-new/" />
+  <entry>
+    <id>tag:gilly.space,2026-10-28:heliofits-studio-0.8.8</id>
+    <title>HelioFITS Studio 0.8.8</title>
+    <updated>2026-10-28T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.8" />
+    <summary>Pizza, on the toolbar, cuts every shown image layer into its own wedges, squares or polar tiles of one Sun, so the same patch of the Sun is seen through every filter side by side. Nothing is resampled: each layer is drawn whole and keeps only its own cells. Wedges can be labelled with each channel's wavelength, the turn is animatable, and a spin can be recorded as a movie.</summary>
+  </entry>
   <entry>
     <id>tag:gilly.space,2026-10-21:heliofits-studio-0.8.7</id>
     <title>HelioFITS Studio 0.8.7</title>

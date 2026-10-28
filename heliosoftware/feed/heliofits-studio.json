@@ -355,6 +355,56 @@
      "confirmed": true
     }
    ]
+  },
+  {
+   "version": "0.8.8",
+   "date": "2026-10-28",
+   "channel": "github-prerelease",
+   "tag": "v0.8.8",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.8",
+   "notes": "Pizza, on the toolbar, cuts every shown image layer into its own wedges, squares or polar tiles of one Sun, so the same patch of the Sun is seen through every filter side by side. Nothing is resampled: each layer is drawn whole and keeps only its own cells. Wedges can be labelled with each channel's wavelength, the turn is animatable, and a spin can be recorded as a movie.",
+   "assets": [
+    {
+     "name": "HFStudio-0.8.8.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.8/HFStudio-0.8.8.dmg",
+     "sha256": "844e2e216c3438255120c9395aacb96e027bebeccfeec8b9f26da2d2df7b5d44",
+     "bytes": 260562064,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.8.8-windows.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.8/HFStudio-0.8.8-windows.zip",
+     "sha256": "89eb8848a4ee8b960c259a8eca8cd32e475a74de0129107234e45b6a910b0339",
+     "bytes": 165059698,
+     "platform": "windows",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.8-linux.tar.gz",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.8/HFStudio-0.8.8-linux.tar.gz",
+     "sha256": "7dbea10a1b458e09c72a6074433b2ef267bd0c036920d4cf9621388a1ed4a7cb",
+     "bytes": 171671931,
+     "platform": "linux",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.8.8.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.8/HFStudio-0.8.8.zip",
+     "sha256": "3e08c14ecbb5ce7848d0fe13a66c3dfe97d74faf2db3e5da8c9114be5ef3592e",
+     "bytes": 283064334,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.8.8/HFStudio-Guide.pdf",
+     "sha256": "3ecd423124e4be43c0f7f6c3d7be6bd408464e244e947f259982e085df5e44c2",
+     "bytes": 9651425,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
   }
  ]
 }
