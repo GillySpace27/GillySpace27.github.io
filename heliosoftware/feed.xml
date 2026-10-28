@@ -2,12 +2,19 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>gilly.space software releases</title>
   <id>https://gilly.space/heliosoftware/feed.xml</id>
-  <updated>2026-10-11T00:00:00Z</updated>
+  <updated>2026-10-21T00:00:00Z</updated>
   <author>
     <name>gilly.space</name>
   </author>
   <link rel="self" href="https://gilly.space/heliosoftware/feed.xml" />
   <link rel="alternate" href="https://gilly.space/heliosoftware/whats-new/" />
+  <entry>
+    <id>tag:gilly.space,2026-10-21:heliofits-studio-0.8.7</id>
+    <title>HelioFITS Studio 0.8.7</title>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.8.7" />
+    <summary>New Layer is a button again, not a dropdown: it opens one window with a tab for each source. HV (JPEG 2000) streams Helioviewer's browse images, VSO (FITS) queries the Virtual Solar Observatory, Direct (FITS) opens a mission's own archive (PUNCH, SOAR, ASPIICS, MLSO) or loads LASCO from NRL, and Heliad (Local FITS Cache) lists what the Heliad app has already downloaded. The window has its own time range and time step (or frame count) at the top, which every tab uses. They start as the master ones beside New Layer each time it opens, and changing them affects only the layer being added, never the master range; PUNCH, SOAR and MLSO open on that range, PUNCH on that time step too. It opens on the tab used last. Layers &gt; New Image Layer... (Cmd-N) opens the same window.</summary>
+  </entry>
   <entry>
     <id>tag:gilly.space,2026-10-11:heliofits-studio-0.8.6</id>
     <title>HelioFITS Studio 0.8.6</title>
