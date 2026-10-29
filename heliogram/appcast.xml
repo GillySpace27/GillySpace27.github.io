@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
+IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>Heliogram</title>
+    <item>
+      <title>Heliogram 0.8</title>
+      <pubDate>Thu, 29 Oct 2026 07:23:25 +0000</pubDate>
+      <sparkle:version>9</sparkle:version>
+      <sparkle:shortVersionString>0.8</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+      <description>&lt;section class="notes"&gt;
+    &lt;h2&gt;What's new in 0.8&lt;/h2&gt;
+    &lt;ul class="points"&gt;
+      &lt;li&gt;Heliograph is now Heliogram.&lt;/li&gt;
+      &lt;li&gt;Kiosk, for lobbies and classrooms, is now a subscription from the Mac
+          App Store, monthly or yearly, with the first month free, in two tiers: Kiosk, and a lower-priced Kiosk with
+          Store that keeps the My Heliogram link on screen. Macs already running
+          Kiosk keep it.&lt;/li&gt;
+      &lt;li&gt;Heliogram is coming to the Mac App Store.&lt;/li&gt;
+      &lt;li&gt;Help &amp;gt; Copy Diagnostics copies a short report to paste into a
+          support email, with your home folder hidden.&lt;/li&gt;
+      &lt;li&gt;A clip with no readable time is captioned UNKNOWN.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/section&gt;</description>
+      <enclosure url="https://gilly.space/heliogram/Heliogram-0.8.dmg" sparkle:edSignature="U1pTpyEasZWM8+GQ6vpwgL+8L4vgqlZLBo5n0AAANbMhwcPx5tXmmLhIto0tT7NbWf4rjmzNBuvrvAtU/g+GCw==" length="12946282" type="application/octet-stream"></enclosure>
+    </item>
+  </channel>
+</rss><!-- sparkle-signatures:
+edSignature: 8R1LEp9GlT0u3a6GYM4MgkhIVGvb2kfOFyCisAz9cWcItzu2sC4APZ1aiQtrNAnBiYsXeWcTOago/944ACE5Bw==
+length: 1827
+-->

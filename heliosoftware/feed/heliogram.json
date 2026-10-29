@@ -21,6 +21,24 @@
      "confirmed": true
     }
    ]
+  },
+  {
+   "version": "0.8",
+   "build": 9,
+   "date": "2026-10-29",
+   "channel": "direct",
+   "url": "https://gilly.space/heliogram/",
+   "notes": "Heliograph is now Heliogram.",
+   "assets": [
+    {
+     "name": "Heliogram-0.8.dmg",
+     "url": "https://gilly.space/heliogram/Heliogram-0.8.dmg",
+     "sha256": "ce7e72536e678333ab1020e5da41c031a3a6847940adce4a3424594cb9154e07",
+     "bytes": 12946282,
+     "platform": "macos-universal",
+     "confirmed": true
+    }
+   ]
   }
  ]
 }
