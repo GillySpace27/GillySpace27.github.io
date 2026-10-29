@@ -32,8 +32,8 @@
           "label": "HelioFITS Peek",
           "href": "/heliofits/",
           "blurb": "Quick Look plugin for FITS files",
-          "icon": null,
-          "mark": "fits"
+          "icon": "/assets/sw/heliofits.png",
+          "mark": null
         },
         {
           "label": "HelioFITS Studio",
@@ -313,7 +313,7 @@
       "archived": false,
       "description": "HelioFITS Peek renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.",
       "head_title": "HelioFITS Peek: Quick Look plugin for FITS files",
-      "canonical": "https://apps.apple.com/app/id6790952544",
+      "canonical": "https://gilly.space/heliofits/",
       "og_image": "https://gilly.space/heliofits/icon.png"
     },
     {
@@ -498,6 +498,18 @@
       "target": "https://gilly.space/heliofits-studio/",
       "template": "stub.html",
       "path": "jhv/index.html"
+    },
+    {
+      "title": "HelioFITS Peek",
+      "target": "https://gilly.space/heliofits/",
+      "template": "stub.html",
+      "path": "hfp/index.html"
+    },
+    {
+      "title": "HelioFITS Peek",
+      "target": "https://gilly.space/heliofits/",
+      "template": "stub.html",
+      "path": "heliofits-peek/index.html"
     },
     {
       "path": "shop/index.html",

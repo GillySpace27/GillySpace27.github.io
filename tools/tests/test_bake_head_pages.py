@@ -66,7 +66,7 @@ class ShellPagesTest(unittest.TestCase):
     def test_values_that_differ_for_a_reason_are_preserved(self):
         self.assertIn('<meta property="og:image" content="https://the-sun-now.s3.us-east-2.amazonaws.com/1k/rhef_rainbow_1k.png">',
                       read("sun.html"))
-        self.assertIn('<link rel="canonical" href="https://apps.apple.com/app/id6790952544">', read("heliofits/index.html"))
+        self.assertIn('<link rel="canonical" href="https://gilly.space/heliofits/">', read("heliofits/index.html"))
         self.assertIn('<link rel="canonical" href="https://gilly.space/shop">', read("shop.html"))
         self.assertIn("<title>HelioFITS Studio</title>", read("heliofits-studio/index.html"))
         self.assertIn('<meta property="og:image" content="https://gilly.space/assets/sw/rhef-compare.jpg">', read("rhef/index.html"))

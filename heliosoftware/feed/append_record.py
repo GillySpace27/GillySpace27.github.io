@@ -24,7 +24,7 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 DASH = "\u2014"
 PRODUCTS = {
-    "heliofits": ("HelioFITS", "https://gilly.space/heliofits/"),
+    "heliofits": ("HelioFITS Peek", "https://gilly.space/heliofits/"),
     "heliofits-studio": ("HelioFITS Studio", "https://gilly.space/heliofits-studio/"),
     "heliogram": ("Heliogram", "https://gilly.space/heliogram/"),
     "sunback": ("sunback", "https://pypi.org/project/sunback/"),
