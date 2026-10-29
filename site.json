@@ -500,6 +500,18 @@
       "path": "jhv/index.html"
     },
     {
+      "title": "HelioFITS Peek",
+      "target": "https://gilly.space/heliofits/",
+      "template": "stub.html",
+      "path": "hfp/index.html"
+    },
+    {
+      "title": "HelioFITS Peek",
+      "target": "https://gilly.space/heliofits/",
+      "template": "stub.html",
+      "path": "heliofits-peek/index.html"
+    },
+    {
       "path": "shop/index.html",
       "title": "My Heliogram: prints \u00b7 gilly.space",
       "target": "/shop",
