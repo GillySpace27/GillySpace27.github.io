@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Heliogram for Mac</title>
+<title>Heliogram</title>
 <meta name="description" content="Heliogram puts the live Sun on your Mac's screens: as your desktop picture, your screen saver, or a wall of video.">
 <link rel="canonical" href="https://gilly.space/heliogram/">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -45,6 +45,22 @@
     <li>From 0.7 on, Heliogram keeps itself up to date. Earlier versions show a
         notice in the menu bar Sun; download this one over them.</li>
   </ul>
+  <!-- other platforms: one App Store record (Apple ID 6821630613) carries the Mac, iPhone,
+       iPad and Apple TV versions, so one badge serves them all. The badge is Apple's own,
+       served by Apple Marketing Tools as Apple's embed code does; do not restyle it. The link
+       shows Heliogram once Apple approves the first version. Android stays a disabled card until
+       a signed release APK is attached to a release of this public repository; then swap
+       aria-disabled for an href, and later add the Google Play badge. -->
+  <section class="notes" id="platforms">
+    <h2>iPhone, iPad and Android</h2>
+    <p><a data-no-blank href="https://apps.apple.com/app/id6821630613"><img src="https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/en-us" alt="Download on the App Store" height="40"></a></p>
+    <p class="alt">The App Store version is the one with Kiosk, for lobbies and classrooms.
+       iPhone and iPad come to the same App Store page next; Apple TV is planned.</p>
+    <div class="platforms platforms--one">
+      <a class="dl" aria-disabled="true"><b>Android</b><small>Phones and tablets, with a widget · coming soon</small></a>
+    </div>
+  </section>
+  <!-- /platforms -->
   <!-- notes: ship.sh copies this block into the update feed, and refuses to
        run unless its heading names the version being shipped -->
   <section class="notes">
