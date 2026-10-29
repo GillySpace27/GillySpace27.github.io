@@ -16,6 +16,13 @@
     <summary>Pizza, on the toolbar, cuts every shown image layer into its own wedges, squares or polar tiles of one Sun, so the same patch of the Sun is seen through every filter side by side. Nothing is resampled: each layer is drawn whole and keeps only its own cells. Wedges can be labelled with each channel's wavelength, the turn is animatable, and a spin can be recorded as a movie.</summary>
   </entry>
   <entry>
+    <id>tag:gilly.space,2026-10-26:heliofits-1.5.0-build.12</id>
+    <title>HelioFITS Peek 1.5.0</title>
+    <updated>2026-10-26T00:00:00Z</updated>
+    <link rel="alternate" href="https://apps.apple.com/app/id6790952544" />
+    <summary>HelioFITS is now HelioFITS Peek, with a new icon. A header drawer in Quick Look; RHEF, MGN and WOW filters with a swipe to compare; Compare two files by helioprojective coordinates; movie mode for a folder of FITS files; saved PNGs that record how they were made.</summary>
+  </entry>
+  <entry>
     <id>tag:gilly.space,2026-10-21:heliofits-studio-0.8.7</id>
     <title>HelioFITS Studio 0.8.7</title>
     <updated>2026-10-21T00:00:00Z</updated>

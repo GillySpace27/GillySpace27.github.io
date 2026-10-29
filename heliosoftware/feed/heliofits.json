@@ -1,0 +1,17 @@
+{
+ "product": "heliofits",
+ "name": "HelioFITS Peek",
+ "page": "https://gilly.space/heliofits/",
+ "records": [
+  {
+   "version": "1.5.0",
+   "build": 12,
+   "date": "2026-10-26",
+   "channel": "mac-app-store",
+   "tag": "v1.5.0-build.12",
+   "url": "https://apps.apple.com/app/id6790952544",
+   "notes": "HelioFITS is now HelioFITS Peek, with a new icon. A header drawer in Quick Look; RHEF, MGN and WOW filters with a swipe to compare; Compare two files by helioprojective coordinates; movie mode for a folder of FITS files; saved PNGs that record how they were made.",
+   "assets": []
+  }
+ ]
+}
