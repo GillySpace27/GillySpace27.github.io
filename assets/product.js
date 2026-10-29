@@ -10,6 +10,7 @@
    data-release-new                                     revealed only when the record is 30 days old or less.
    Static text and links in the page are the fallback: they stay when the fetch fails or the feed has
    no record. A hidden element is revealed, up to the data-release element, once it is filled.
+   <button data-cite-copy="bib-id" hidden>   in a section.cite: copies the text of #bib-id, then says "Copied".
    No dependencies. In Node (the tests) it exports its helpers and does not touch the DOM. */
 (function (root) {
   'use strict';
@@ -110,12 +111,46 @@
     });
   }
 
+  // Copy button of a cite block. Hidden in the markup, so without JavaScript the BibTeX is
+  // plain selectable text and no dead button shows. If the clipboard is refused, select the text.
+  function initCite() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-cite-copy]'), function (btn) {
+      var pre = document.getElementById(btn.getAttribute('data-cite-copy'));
+      var status = btn.parentNode.querySelector('.cite__status');
+      if (!pre || !status) return;
+      var timer;
+      function say(msg) {
+        status.textContent = msg;
+        clearTimeout(timer);
+        timer = setTimeout(function () { status.textContent = ''; }, 3000);
+      }
+      function select() {
+        var r = document.createRange();
+        r.selectNodeContents(pre);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        say('Selected. Press Ctrl+C or Cmd+C to copy.');
+      }
+      btn.hidden = false;
+      btn.addEventListener('click', function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(pre.textContent).then(function () { say('Copied'); }, select);
+        } else {
+          select();
+        }
+      });
+    });
+  }
+
+  function start() { run(); initCite(); }
+
   var api = { versionKey: versionKey, cmp: cmp, newest: newest, assetFor: assetFor, fill: fill, isNew: isNew };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
   } else {
     root.HSRelease = api;
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
-    else run();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
   }
 })(typeof window !== 'undefined' ? window : this);
