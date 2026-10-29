@@ -1,26 +1,23 @@
 # HelioSoftware icon family
 
-Version 1, 2026-10-15 (suite SU-20). Describes the icons that exist; nothing here is redrawn.
+Version 2, 2026-10-28. Describes the icons that ship; nothing here is redrawn.
 Each icon stays where its product keeps it. Colour tokens for pages are in
 [tokens.json](tokens.json), checked by [tools/tokens.py](tools/tokens.py).
 
-| Product | What the icon shows | Where it lives | Source for the description |
+The three app icons share one ground: a violet gradient from #2F2263 at the top to #15102A at
+the bottom, lifted family-wide on 2026-10-28, with a white line drawing over real solar imagery
+or a drawn Sun.
+
+| Product | What the icon shows | Where it lives | On gilly.space |
 |---|---|---|---|
-| HelioFITS Peek | an AIA 171 image of the Sun | the HelioFITS repository's app icon; on gilly.space the CSS mark `.sw-mark--fits` | suite preamble, "Settled names": "it keeps the AIA 171 icon" |
-| HelioFITS Studio | the Studio app icon | `release/AppIcon.appiconset/` in HelioFITS-Studio; on gilly.space `assets/sw/heliofits-studio.png` | see "Open question" below |
-| Heliogram | the photographic Sun, with a large white glyph naming the product | `icons/make_app_icon.py` in heliogram draws it; on gilly.space `assets/sw/heliogram.png` | heliogram `icons/README.md` ("Heliogram products wear the photographic Sun") |
-| RHEF, The Sun right now, My Heliogram | CSS marks, no app icon | `assets/product.css` (`.sw-mark--rhef`, `.sw-mark--live`, `.sw-mark--print`) | this site |
+| HelioFITS Peek | an AIA 171 image of the Sun inside a white file outline | `HelioFITS/Assets.xcassets/AppIcon.appiconset/` in HelioFITS-Peek | `assets/sw/heliofits.png` (nav, hub, page, Research), `heliofits/icon.png` (link preview) |
+| HelioFITS Studio | an iris of six solar images in white lines, a drawn Sun at its centre, inset on the violet ground | `release/HFStudio_icon_1024.png` and `release/AppIcon.appiconset/` in HelioFITS-Studio | `assets/sw/heliofits-studio.png` |
+| Heliogram | a drawn Sun on a white monitor outline | `icons/appicon.png` in heliogram, drawn by `icons/make_app_icon.py` | `assets/sw/heliogram.png` |
+| RHEF, The Sun right now, My Heliogram | CSS marks, no app icon | `assets/product.css` (`.sw-mark--rhef`, `.sw-mark--live`, `.sw-mark--print`) | the same |
 
-## Open question for Gilly
-
-Two sources describe the Studio icon differently, and this page does not pick one:
-
-- the SU-20 register entry says "Studio icon is the iris";
-- heliogram `icons/README.md` says HelioFITS products wear "the hexagon-wedge HF mark" with a
-  white badge disc, and that "Studio's badge is stacked layers".
-
-The same README puts the HelioFITS Peek icon in the HF-mark family, while the suite preamble says
-HelioFITS "keeps the AIA 171 icon". Until Gilly settles both, the files above are the reference.
+The gilly.space files are 160 px exports of the shipped 1024 px icons: Studio and Heliogram
+cropped to their shape, Peek given the same corner shape, since its app icon ships full-bleed.
+Re-export all three whenever one changes.
 
 ## Rules
 

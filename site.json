@@ -32,8 +32,8 @@
           "label": "HelioFITS Peek",
           "href": "/heliofits/",
           "blurb": "Quick Look plugin for FITS files",
-          "icon": null,
-          "mark": "fits"
+          "icon": "/assets/sw/heliofits.png",
+          "mark": null
         },
         {
           "label": "HelioFITS Studio",
