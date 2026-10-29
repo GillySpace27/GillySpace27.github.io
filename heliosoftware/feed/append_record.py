@@ -33,6 +33,7 @@ CHANNELS = ("mac-app-store", "github-prerelease", "github-release", "direct", "p
 NEEDS_ASSET = ("github-prerelease", "github-release", "direct", "pypi")
 HEX64 = re.compile(r"[0-9a-f]{64}")
 DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+DOI = re.compile(r"10\.5281/zenodo\.\d+")   # a Zenodo version DOI, optional on a record
 
 
 def parse_asset(text: str) -> dict:
@@ -79,6 +80,8 @@ def validate_record(rec: dict) -> list[str]:
     if channel not in CHANNELS:
         errs.append(f"channel {channel!r} is not one of {', '.join(CHANNELS)}")
     errs += url_errors("url", str(rec.get("url", "")))
+    if "doi" in rec and not DOI.fullmatch(str(rec["doi"])):
+        errs.append(f"doi {rec['doi']!r} is not a Zenodo DOI like 10.5281/zenodo.123456")
     notes = rec.get("notes", "")
     if not isinstance(notes, str) or not notes.strip():
         errs.append("notes are empty")
@@ -135,6 +138,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--date", required=True, help="YYYY-MM-DD, UTC")
     ap.add_argument("--channel", required=True, choices=CHANNELS)
     ap.add_argument("--tag")
+    ap.add_argument("--doi", help="the release's Zenodo version DOI, e.g. 10.5281/zenodo.123456 (optional)")
     ap.add_argument("--url", required=True)
     ap.add_argument("--notes-file", required=True, type=pathlib.Path)
     ap.add_argument("--asset", action="append", default=[], help="name=,url=,sha256=,bytes=,platform=,confirmed=")
@@ -156,6 +160,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.tag:
         rec["tag"] = args.tag
     rec.update({"url": args.url, "notes": notes, "assets": assets})
+    if args.doi:
+        rec["doi"] = args.doi
     errs = validate_record(rec)
     if errs:
         for e in errs:

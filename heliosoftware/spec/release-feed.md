@@ -25,13 +25,14 @@ The values above are illustrative, not a real release.
   version is claimed live before Apple says so. The date is the day the record was written (UTC).
 - `url` is a release page or tag page. It is never `/releases/latest`.
 - `notes` is one plain sentence or two, with no U+2014.
+- `doi` is optional: the release's Zenodo version DOI (`10.5281/zenodo.<digits>`), written only when known; What's new then shows "Cite this release".
 - The newest record is the one with the highest version number; a later record wins a tie.
 - Sparkle's `appcast.xml` and `version.json` are separate files and are never read or written here.
 
 ## Tools
 
 - Write: `python3 heliosoftware/feed/append_record.py --product ... --version ... --date ... --channel ...
-  --url ... --notes-file ... [--asset name=...,url=...,sha256=...,bytes=...,platform=...,confirmed=...]`.
+  --url ... --notes-file ... [--doi 10.5281/zenodo.N] [--asset name=...,url=...,sha256=...,bytes=...,platform=...,confirmed=...]`.
   Exit 0 appended, 1 invalid, 3 duplicate (version, build).
 - Render: `python3 heliosoftware/feed/build_feed.py` writes `heliosoftware/feed.xml` and
   `heliosoftware/whats-new/index.html`; `--check` exits 1 when either would change.

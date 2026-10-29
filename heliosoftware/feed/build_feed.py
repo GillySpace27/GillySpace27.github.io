@@ -150,7 +150,11 @@ def render_page(entries, stamp: str) -> str:
         label = CHANNEL_LABEL[rec["channel"]]
         notes = html.escape(rec["notes"])
         url = html.escape(rec["url"], quote=True)
-        items.append(f'    <li><b>{title}</b> · {rec["date"]} · {label}<br>{notes} <a href="{url}">Release page</a></li>')
+        cite = ""
+        if rec.get("doi"):
+            doi = html.escape(f"https://doi.org/{rec['doi']}", quote=True)
+            cite = f' Cite this release: <a href="{doi}">{doi}</a>'
+        items.append(f'    <li><b>{title}</b> · {rec["date"]} · {label}<br>{notes} <a href="{url}">Release page</a>{cite}</li>')
     return PAGE.replace("@STAMP@", stamp).replace("@ENTRIES@", "\n".join(items))
 
 

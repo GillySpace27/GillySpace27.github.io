@@ -109,6 +109,18 @@ class Writer(unittest.TestCase):
     def test_unknown_product_is_a_usage_error(self):
         self.assertEqual(self.run_writer("--asset", asset(), product="nope").returncode, 2)
 
+    def test_doi_is_optional_validated_and_last(self):
+        plain = self.run_writer("--build", "8", "--asset", asset())
+        self.assertEqual(plain.returncode, 0, plain.stderr)
+        self.assertNotIn("doi", self.feed()["records"][0])
+        bad = self.run_writer("--build", "9", "--asset", asset(), "--doi", "10.5281/zenodo.12x", version="0.9")
+        self.assertEqual(bad.returncode, 1)
+        self.assertIn("is not a Zenodo DOI", bad.stderr)
+        self.assertEqual(len(self.feed()["records"]), 1)
+        ok = self.run_writer("--build", "10", "--asset", asset(), "--doi", "10.5281/zenodo.23749497", version="1.0")
+        self.assertEqual(ok.returncode, 0, ok.stderr)
+        self.assertEqual(list(self.feed()["records"][1])[-1], "doi")
+
     def test_optional_name_is_kept(self):
         r = self.run_writer("--name", "Heliograph", "--asset", asset("Heliograph-0.7.dmg"), version="0.7")
         self.assertEqual(r.returncode, 0, r.stderr)
@@ -162,6 +174,22 @@ class Renderer(unittest.TestCase):
         self.assertNotIn("<first>", page)
         self.assertIn(f"/assets/site.css?v={self.STAMP}", page)
         self.assertIn(f"/assets/site.js?v={self.STAMP}", page)
+
+    def test_page_shows_cite_line_only_for_a_record_with_a_doi(self):
+        recs = json.loads((self.feed_dir / "heliofits.json").read_text(encoding="utf-8"))["records"]
+        entries, _ = self.bf.load_entries(self.feed_dir)
+        self.assertNotIn("Cite this release", self.bf.render_page(entries, self.STAMP))
+        recs[0]["doi"] = "10.5281/zenodo.23749497"
+        self.put("heliofits", "HelioFITS", recs)
+        entries, errors = self.bf.load_entries(self.feed_dir)
+        self.assertEqual(errors, [])
+        page = self.bf.render_page(entries, self.STAMP)
+        self.assertEqual(page.count("Cite this release"), 1)
+        self.assertIn('Cite this release: <a href="https://doi.org/10.5281/zenodo.23749497">'
+                      "https://doi.org/10.5281/zenodo.23749497</a>", page)
+        recs[0]["doi"] = "nope"
+        self.put("heliofits", "HelioFITS", recs)
+        self.assertTrue(self.bf.load_entries(self.feed_dir)[1])
 
     def test_check_flags_stale_outputs_and_passes_after_a_write(self):
         self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 1)
