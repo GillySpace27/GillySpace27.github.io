@@ -32,18 +32,15 @@
   <p class="tag">The live Sun on your Mac's screens: as your desktop picture,
      your screen saver, or a wall of video.</p>
   <div class="platforms platforms--one">
-    <a class="dl primary" href="/heliograph/Heliograph.dmg"><b>Download for Mac</b><small>Apple Silicon and Intel</small></a>
+    <a class="dl primary" href="/heliogram/Heliogram.dmg"><b>Download for Mac</b><small>Apple Silicon and Intel</small></a>
   </div>
   <p class="ver" id="ver">macOS 13 or later · Apple Silicon and Intel</p>
-  <!-- interim: until the first Heliogram publish replaces this file, the button
-       serves the Heliograph 0.7 disk image from /heliograph/ -->
-  <p class="alt">Until Heliogram 0.8 is out, this downloads Heliograph 0.7, the same app
-     under its old name.</p>
   <ul class="points">
     <li>Open the disk image and drag Heliogram to Applications.</li>
     <li>Already have it? Drag the new one over the old; your settings stay.</li>
-    <li>From 0.7 on, Heliogram keeps itself up to date. Earlier versions show a
-        notice in the menu bar Sun; download this one over them.</li>
+    <li>Heliogram keeps itself up to date.</li>
+    <li>Coming from Heliograph 0.7? It will not update itself to Heliogram:
+        install this one, then move Heliograph to the Trash.</li>
   </ul>
   <!-- other platforms: one App Store record (Apple ID 6821630613) carries the Mac, iPhone,
        iPad and Apple TV versions, so one badge serves them all. The badge is Apple's own,
@@ -64,20 +61,17 @@
   <!-- notes: ship.sh copies this block into the update feed, and refuses to
        run unless its heading names the version being shipped -->
   <section class="notes">
-    <h2>What's new in 0.7</h2>
+    <h2>What's new in 0.8</h2>
     <ul class="points">
-      <li>Heliogram now updates itself. It checks once a day, downloads in the
-          background and installs when you quit; a kiosk installs overnight.</li>
-      <li>Lighter on your network: imagery is checked once a day, or twice if you
-          choose, only what your screens show is downloaded, and nothing is
-          fetched unless it has changed.</li>
-      <li>What you pick is what you see. Un-ticking a product takes it off every
-          screen; ticking one fetches it at once.</li>
-      <li>On a wall, the arrow keys step through the clips, and no wavelength
-          appears on two screens at once or twice in a row.</li>
-      <li>A redesigned Settings window that follows dark mode, shows the version,
-          and has a Turn Off and Quit button that undoes what Heliogram set up.</li>
-      <li>A new icon.</li>
+      <li>Heliograph is now Heliogram.</li>
+      <li>Kiosk, for lobbies and classrooms, is now a subscription from the Mac
+          App Store, monthly or yearly, with the first month free, in two tiers: Kiosk, and a lower-priced Kiosk with
+          Store that keeps the My Heliogram link on screen. Macs already running
+          Kiosk keep it.</li>
+      <li>Heliogram is coming to the Mac App Store.</li>
+      <li>Help &gt; Copy Diagnostics copies a short report to paste into a
+          support email, with your home folder hidden.</li>
+      <li>A clip with no readable time is captioned UNKNOWN.</li>
     </ul>
   </section>
   <!-- /notes -->
@@ -86,7 +80,7 @@
 <div data-include="footer"></div>
 <script src="/assets/site.js?v=202610281923"></script>
 <script>
-fetch("/heliograph/version.json", {cache: "no-store"}).then(r => r.json()).then(v => {
+fetch("/heliogram/version.json", {cache: "no-store"}).then(r => r.json()).then(v => {
   document.getElementById("ver").textContent =
     "Version " + v.version + " · macOS 13 or later · Apple Silicon and Intel";
 }).catch(() => {});
