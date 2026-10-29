@@ -2,8 +2,18 @@
   "version": 1,
   "links": [
     {
+      "path": "heliofits-peek/",
+      "target": "https://gilly.space/heliofits/",
+      "kind": "redirect"
+    },
+    {
       "path": "heliograph/",
       "target": "https://gilly.space/heliogram/",
+      "kind": "redirect"
+    },
+    {
+      "path": "hfp/",
+      "target": "https://gilly.space/heliofits/",
       "kind": "redirect"
     },
     {

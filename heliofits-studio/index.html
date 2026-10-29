@@ -34,8 +34,8 @@
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="/assets/site.css?v=202610281610">
-<link rel="stylesheet" href="/assets/product.css?v=202610281610">
+<link rel="stylesheet" href="/assets/site.css?v=202610281923">
+<link rel="stylesheet" href="/assets/product.css?v=202610281923">
 </head>
 <body>
 <div data-include="header"></div>
@@ -110,6 +110,22 @@
           <a href="https://github.com/GillySpace27/HelioFITS-Studio/releases">releases page</a>.</li>
     </ul>
   </details>
+
+  <!-- Cite: the DOI is the concept DOI (all versions) and does not change at release. The version in the APA line is filled from heliosoftware/feed/heliofits-studio.json, as in the Version line above; the text below is the fallback. At release time update that text (the 0.8.8 in the span inside .cite__apa) to match. -->
+  <section class="cite" aria-labelledby="cite-h">
+    <h2 id="cite-h">Cite this software</h2>
+    <a class="cite__badge" href="https://doi.org/10.5281/zenodo.23541893"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.23541893.svg" alt="DOI 10.5281/zenodo.23541893, the Zenodo record for HelioFITS Studio" height="20"></a>
+    <p class="cite__apa">Gilly, C. R. (2026). HelioFITS Studio (Version <span data-release="heliofits-studio" data-release-field="version">0.8.8</span>) [Computer software]. Zenodo. <a href="https://doi.org/10.5281/zenodo.23541893">https://doi.org/10.5281/zenodo.23541893</a></p>
+    <pre id="bib-studio"><code>@software{gilly_heliofits_studio,
+  author = {Gilly, Chris R.},
+  title = {{HelioFITS Studio}},
+  year = {2026},
+  publisher = {Zenodo},
+  doi = {10.5281/zenodo.23541893},
+  url = {https://doi.org/10.5281/zenodo.23541893}
+}</code></pre>
+    <div class="cite__bar"><button type="button" class="cite__copy" data-cite-copy="bib-studio" hidden>Copy BibTeX</button><span class="cite__status" role="status"></span></div>
+  </section>
 
   <p class="alt">An unofficial fork of JHelioviewer, from the ESA/NASA Helioviewer Project, and not
      affiliated with it. For Finder and Quick Look previews of FITS files, see <a href="/heliofits/">HelioFITS Peek</a>. Problems to <a href="https://github.com/GillySpace27/HelioFITS-Studio/issues">GitHub</a>
@@ -221,7 +237,7 @@ fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_p
     intelNote();
   }).catch(() => {});
 </script>
-<script src="/assets/product.js?v=202610281610"></script>
-<script src="/assets/site.js?v=202610281610"></script>
+<script src="/assets/product.js?v=202610281923"></script>
+<script src="/assets/site.js?v=202610281923"></script>
 </body>
 </html>

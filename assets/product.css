@@ -128,3 +128,26 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 .sw-chip--new { display: inline-block; margin-left: .2em; padding: 0 .45em; border-radius: 999px; font-size: 11px;
                 font-weight: 600; line-height: 1.6; background: var(--accent); color: var(--accent-ink); }
 .sw-chip--new[hidden] { display: none; }
+
+/* ---- Cite block (section.cite, wired in assets/product.js): Zenodo DOI badge, an APA line and
+   BibTeX with a Copy button. One component for /heliofits/, /heliofits-studio/ and /heliosoftware/. ---- */
+.product section.cite { margin: 2.2rem auto 0; max-width: 36rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+                        text-align: left; color: var(--muted); font-size: .95rem; }
+.cite h2 { margin: 0 0 .6rem; font-size: 1.1rem; color: var(--text); }
+.cite p { margin: .6rem 0 0; }
+.cite a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
+.cite a:hover, .cite a:focus-visible { color: var(--link-hover); }
+.cite a.cite__badge { display: inline-block; line-height: 0; text-decoration: none; }
+.cite a.cite__badge::after { content: none !important; }
+.cite__badge img { height: 20px; width: auto; }
+.cite pre { margin: .8rem 0 0; padding: .8rem 1rem; overflow-x: auto; background: #14110d; color: #f1e7cf;
+            border-radius: 10px; font-size: 13px; line-height: 1.5; }
+.cite pre code { font-size: inherit; }
+.cite__bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .6rem; }
+.cite__copy { font: inherit; font-size: .92rem; color: var(--text); background: transparent; cursor: pointer;
+              padding: .4rem 1rem; border: 1px solid var(--card-border); border-radius: 999px; }
+.cite__copy:hover, .cite__copy:focus-visible { border-color: var(--accent); }
+.cite__status { font-size: .88rem; color: var(--muted); }
+.cite table { width: 100%; margin-top: .8rem; border-collapse: collapse; font-size: .92rem; }
+.cite th, .cite td { padding: .45rem .5rem; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.cite th { font-weight: 600; color: var(--text); }
