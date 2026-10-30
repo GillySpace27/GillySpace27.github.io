@@ -305,14 +305,14 @@
     {
       "path": "heliofits/index.html",
       "url": "/heliofits/",
-      "title": "HelioFITS Peek: Quick Look plugin for FITS files",
+      "title": "HelioFITS Peek: solar FITS file previews for macOS",
       "palette": "HelioFITS Peek",
       "keywords": "fits peek finder quick look mac preview",
       "sitemap": true,
       "priority": "0.7",
       "archived": false,
       "description": "HelioFITS Peek renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.",
-      "head_title": "HelioFITS Peek: Quick Look plugin for FITS files",
+      "head_title": "HelioFITS Peek: solar FITS file previews for macOS",
       "canonical": "https://gilly.space/heliofits/",
       "og_image": "https://gilly.space/heliofits/icon.png"
     },
