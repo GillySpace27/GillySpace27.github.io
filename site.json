@@ -278,7 +278,8 @@
       "sitemap": true,
       "priority": "0.8",
       "archived": false,
-      "description": "Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliogram."
+      "description": "Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliogram.",
+      "og_image": "https://gilly.space/assets/social/heliosoftware.png"
     },
     {
       "path": "heliosoftware/decide/index.html",
@@ -314,7 +315,7 @@
       "description": "HelioFITS Peek renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.",
       "head_title": "HelioFITS Peek: solar FITS file previews for macOS",
       "canonical": "https://gilly.space/heliofits/",
-      "og_image": "https://gilly.space/heliofits/icon.png"
+      "og_image": "https://gilly.space/assets/social/heliofits.png"
     },
     {
       "path": "heliofits-studio/index.html",
@@ -326,7 +327,8 @@
       "priority": "0.7",
       "archived": false,
       "description": "HelioFITS Studio: a desktop viewer for solar and heliospheric imagery, built around coronagraph and wide-field data such as PUNCH, SOHO/LASCO and PROBA-3/ASPIICS.",
-      "head_title": "HelioFITS Studio"
+      "head_title": "HelioFITS Studio",
+      "og_image": "https://gilly.space/assets/social/heliofits-studio.png"
     },
     {
       "path": "rhef/index.html",
