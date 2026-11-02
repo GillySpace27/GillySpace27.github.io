@@ -330,6 +330,31 @@ Other products have no fetch helper; use `heliosoftware/feed/append_record.py` (
 HelioFITS (Peek): only once App Store Connect reports READY_FOR_SALE. sunback: after the PyPI
 upload.
 
+## Release sync (WS-22)
+
+The release scripts write the feed record into the local checkout; `tools/release_pr.py` turns
+that record into a pull request, and `.github/workflows/release-sync.yml` is the backstop.
+Neither merges: merging publishes, and that stays Gilly's click.
+
+- `python3 tools/release_pr.py --product <product> --version <v> [--build N]`, from the local
+  checkout after the release script's feed step. It reads the local record, then in a temporary
+  worktree on a fresh `origin/master` appends it, runs `build_feed.py`, moves static version text
+  (Studio: `pin_studio_fallback.py --from-github`), runs `check_site.py`, commits on
+  `release/<product>-<v>[-build.N]`, asks y/N, pushes and opens the pull request. The local
+  checkout is not changed. `--dry-run` stops before the push; so does a run with no terminal and
+  no `--yes`.
+- Studio: `check_site.py` fails a feed newer than the page's fallback pin, and the pin refuses
+  until `package.yml` has attached the Windows and Linux packages. So right after
+  `deploy_release.sh publish` it refuses; run it again once `package.yml` is green, or let
+  `release-sync.yml` (every 6 hours, or Actions > release-sync > Run workflow) open the same
+  pull request. Both use the same branch name, so only one ever opens.
+- `release-sync.yml` confirms the guide plus the Mac platforms whose PLATFORMS flag on the page is
+  `confirmed: true` (the same rule as `deploy_release.sh`). It needs Settings > Actions > General >
+  "Allow GitHub Actions to create and approve pull requests". Its pull requests do not start
+  `check.yml`; the workflow runs `check_site.py` and the unit tests itself first.
+- Peek: run `release_pr.py` after the ship-heliofits skill has written the READY_FOR_SALE record.
+  No backstop, since only App Store Connect knows when a version is live.
+
 ## Rollback
 
 Applies once Pages is published by `.github/workflows/pages.yml` (WS-9). Until
