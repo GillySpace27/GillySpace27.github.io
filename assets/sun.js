@@ -149,7 +149,7 @@
   // together; rainbow, composite_uv and dem send the date alone. With no usable time the link is
   // the plain store address plus utm_source. `source` is "sun" (this page) or "wall". t keeps its
   // colon, as Heliogram's does. The store decides whether a date is printable yet.
-  const STORE_HOST = "myheliograph.com";
+  const STORE_HOST = "myheliogram.com";
   function storeLink(id, whenMs, source) {
     const two = (n) => String(n).padStart(2, "0");
     let q = "utm_source=" + encodeURIComponent(source || "sun");
