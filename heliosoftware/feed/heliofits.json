@@ -12,6 +12,25 @@
    "url": "https://apps.apple.com/app/id6790952544",
    "notes": "HelioFITS is now HelioFITS Peek, with a new icon. A header drawer in Quick Look; RHEF, MGN and WOW filters with a swipe to compare; Compare two files by helioprojective coordinates; movie mode for a folder of FITS files; saved PNGs that record how they were made.",
    "assets": []
+  },
+  {
+   "version": "1.5.1",
+   "build": 13,
+   "date": "2026-11-03",
+   "channel": "mac-app-store",
+   "tag": "v1.5.1-build.13",
+   "url": "https://apps.apple.com/app/id6790952544",
+   "notes": "A Movie, Grid and List switch for a folder's FITS files, with a sortable table you can export as CSV; Get Info and Spotlight metadata in the Mac App Store build; a Colorbar button; faster folder movies; PUNCH units read as a multiplier.",
+   "assets": [
+    {
+     "name": "HelioFITS-1.5.1-b13.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Peek/releases/download/v1.5.1-build.13/HelioFITS-1.5.1-b13.zip",
+     "sha256": "d90ce8f8c63c9b909d47b152c2d2c2244ec0a9a93004fbc3dd59bd7d3652ef39",
+     "bytes": 8294066,
+     "platform": "macos-universal",
+     "confirmed": false
+    }
+   ]
   }
  ]
 }
