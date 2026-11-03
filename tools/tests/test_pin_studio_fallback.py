@@ -8,6 +8,7 @@ from __future__ import annotations
 import contextlib
 import io
 import pathlib
+import re
 import shutil
 import sys
 import tempfile
@@ -99,6 +100,15 @@ class PinTests(unittest.TestCase):
         code, out, err = self.run_main("--from-github")
         self.assertEqual(code, 0, err)
         self.assertIn(f"-> {NEW}", out)
+        self.assertIn(f"kept HFStudio-{self.old}-intel.dmg", out)
+        after = self.page.read_text(encoding="utf-8")
+        # The Intel links stay on the release that has the file; every other pinned link moves.
+        for el in ("intel", "try-intel"):
+            href = re.search(r'id="%s" href="([^"]+)"' % el, after).group(1)
+            self.assertTrue(href.endswith(f"/v{self.old}/HFStudio-{self.old}-intel.dmg"), href)
+        self.assertNotIn(f"HFStudio-{NEW}-intel.dmg", after)
+        self.assertIn(f"/v{NEW}/HFStudio-{NEW}.dmg", after)
+        self.assertIn(f"/v{NEW}/HFStudio-{NEW}-windows.zip", after)
 
     def test_from_github_complete_release_pins_newest(self):
         pin.release_assets = lambda url=pin.RELEASES_API: ("v" + NEW, assets_for(NEW))
