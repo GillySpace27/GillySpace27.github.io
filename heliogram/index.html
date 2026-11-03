@@ -48,17 +48,28 @@
   <!-- other platforms: one App Store record (Apple ID 6821630613) carries the Mac, iPhone,
        iPad and Apple TV versions, so one badge serves them all. The badge is Apple's own,
        served by Apple Marketing Tools as Apple's embed code does; do not restyle it. The link
-       shows Heliogram once Apple approves the first version. Android stays a disabled card until
-       a signed release APK is attached to a release of this public repository; then swap
-       aria-disabled for an href, and later add the Google Play badge. -->
+       shows Heliogram once Apple approves the first version. Android: the APK lives in
+       /heliogram/android/ (Heliogram.apk, the stable name, and Heliogram-<version>.apk), with
+       android.json, which the website build reads once a day; android/release.sh in the
+       heliogram repository stages all three and prints the SHA-256 below. Add the Google Play
+       badge once the Play listing is live. -->
   <section class="notes" id="platforms">
     <h2>iPhone, iPad and Android</h2>
     <p><a data-no-blank href="https://apps.apple.com/app/id6821630613"><img src="https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/en-us" alt="Download on the App Store" height="40"></a></p>
     <p class="alt">The App Store version is the one with Kiosk, for lobbies and classrooms.
        iPhone and iPad come to the same App Store page next; Apple TV is planned.</p>
     <div class="platforms platforms--one">
-      <a class="dl" aria-disabled="true"><b>Android</b><small>Phones and tablets, with a widget · coming soon</small></a>
+      <a class="dl" href="/heliogram/android/Heliogram.apk" data-no-blank><b>Download for Android</b><small>Android 8 or later · phones and tablets, with a widget</small></a>
     </div>
+    <ul class="points">
+      <li>Tap the button on your phone. When Android asks, allow your browser to
+          install unknown apps, then open the downloaded file and tap Install.</li>
+      <li>This version tells you when a newer one is out; download it the same way
+          and your settings stay.</li>
+      <li>Google Play is coming. The Play version and this one are signed with the
+          same key, so either can update the other.</li>
+    </ul>
+    <p class="alt">Version 0.1 · SHA-256 <code>6840c604e1e9351e03ce09217187236399eb9c386badd0c700cfe523a8d0edac</code></p>
   </section>
   <!-- /platforms -->
   <!-- notes: ship.sh copies this block into the update feed, and refuses to
