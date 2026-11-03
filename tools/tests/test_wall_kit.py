@@ -61,7 +61,7 @@ class WallKitTest(unittest.TestCase):
         self.assertEqual(page.count('id="stage-print"'), 1)
         self.assertIn("SunData.storeLink(st.id", page)
         # the older, plain store link is kept
-        self.assertIn('href="https://myheliograph.com/?ref=gilly.space"', page)
+        self.assertIn('href="https://myheliogram.com/?ref=gilly.space"', page)
         self.assertIn("store=1", WALL)
 
     def test_qr_level_loads_the_vendored_encoder_and_keeps_its_licence(self):
@@ -75,7 +75,7 @@ class WallKitTest(unittest.TestCase):
     @unittest.skipUnless(NODE and CV2, "node or OpenCV is not installed; CI skips the decode")
     def test_the_code_decodes_to_the_store_link(self):
         import numpy as np
-        want = "https://myheliograph.com/?utm_source=wall&d=2026-09-30&t=14:20&wl=171"
+        want = "https://myheliogram.com/?utm_source=wall&d=2026-09-30&t=14:20&wl=171"
         r = subprocess.run([NODE, str(REPO / "tools" / "tests" / "js" / "wall_kit_check.mjs"), str(REPO), "--matrix", want],
                            capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)

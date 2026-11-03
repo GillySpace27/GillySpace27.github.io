@@ -4,7 +4,7 @@
 <!-- bake:head -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HelioSoftware spec · gilly.space</title>
+<title>Software spec · gilly.space</title>
 <meta name="description" content="The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check.">
 <link rel="canonical" href="https://gilly.space/heliosoftware/spec/">
 <script>
@@ -19,7 +19,7 @@
   })();
 </script>
 <meta property="og:type" content="website">
-<meta property="og:title" content="HelioSoftware spec · gilly.space">
+<meta property="og:title" content="Software spec · gilly.space">
 <meta property="og:description" content="The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check.">
 <meta property="og:url" content="https://gilly.space/heliosoftware/spec/">
 <meta property="og:image" content="https://gilly.space/images/bg.jpg">
@@ -33,8 +33,8 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="stylesheet" href="/assets/site.css?v=202610281923">
-<link rel="stylesheet" href="/assets/product.css?v=202610281923">
+<link rel="stylesheet" href="/assets/site.css?v=202611021830">
+<link rel="stylesheet" href="/assets/product.css?v=202611021830">
 <style>
   .product .spec-wrap { text-align: left; margin-top: 2rem; }
   .product .spec-wrap h2 { font-size: clamp(18px, 2.4vw, 22px); margin: 2.2rem 0 .5rem; }
@@ -52,7 +52,7 @@
 <body>
 <div data-include="header"></div>
 <main id="main" class="product product--wide" data-no-blank>
-  <p class="eyebrow"><a href="/heliosoftware/">HelioSoftware</a></p>
+  <p class="eyebrow"><a href="/heliosoftware/">Software</a></p>
   <h1>Spec</h1>
   <p class="tag">The contracts that two HelioSoftware tools depend on, written down once, with checksums so a
      copy that drifts is caught.</p>
@@ -137,7 +137,7 @@
         </tr>
         <tr>
           <td>Family look</td><td>1</td><td>this folder</td>
-          <td>gilly.space stylesheets now; the store stylesheets (sunback_webapp) once Gilly approves the colour change. <code>tools/tokens.py --check</code> fails on drift</td>
+          <td>gilly.space stylesheets now; the store stylesheets (sunback_webapp) once the colour change there is approved. <code>tools/tokens.py --check</code> fails on drift</td>
           <td><a href="tokens.json">tokens.json</a>, <a href="tools/tokens.py">tools/tokens.py</a>, <a href="icon-family.md">icon-family.md</a></td>
         </tr>
         <tr>
@@ -158,7 +158,7 @@
     <h2>Using it from another repository</h2>
     <p>Keep a copy of this folder next to your checkout and point the check at it. The check reads the marker a
        copied file carries and says whether the copy still matches its source.</p>
-    <pre class="code"><code>export HELIOSOFTWARE_SPEC_DIR=~/vscode/Website/heliosoftware/spec
+    <pre class="code"><code>export HELIOSOFTWARE_SPEC_DIR=&lt;your clone of GillySpace27.github.io&gt;/heliosoftware/spec
 python3 check_spec.py CLAUDE.md
 python3 spec_sums.py --check</code></pre>
     <p>Two markers are understood. A copied block of text sits between
@@ -179,6 +179,6 @@ python3 spec_sums.py --check</code></pre>
   </div>
 </main>
 <div data-include="footer"></div>
-<script src="/assets/site.js?v=202610281923"></script>
+<script src="/assets/site.js?v=202611021830"></script>
 </body>
 </html>

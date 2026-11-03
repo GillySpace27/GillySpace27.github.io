@@ -278,7 +278,8 @@
       "sitemap": true,
       "priority": "0.8",
       "archived": false,
-      "description": "Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliogram."
+      "description": "Tools that put the Sun where you already work: Heliogram, HelioFITS Peek, HelioFITS Studio, RHEF, The Sun right now and My Heliogram.",
+      "og_image": "https://gilly.space/assets/social/heliosoftware.png"
     },
     {
       "path": "heliosoftware/decide/index.html",
@@ -292,12 +293,23 @@
       "description": "Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens, and the tool that answers it."
     },
     {
+      "path": "heliosoftware/whats-new/index.html",
+      "url": "/heliosoftware/whats-new/",
+      "title": "What's new",
+      "palette": "What's new in the software",
+      "keywords": "release notes changelog heliofits heliogram studio",
+      "sitemap": true,
+      "priority": "0.5",
+      "archived": false,
+      "description": "Release notes for Heliogram, HelioFITS Peek and HelioFITS Studio, newest first."
+    },
+    {
       "path": "heliosoftware/spec/index.html",
       "url": "/heliosoftware/spec/",
-      "title": "HelioSoftware spec",
+      "title": "Software spec",
       "palette": null,
       "keywords": "",
-      "sitemap": true,
+      "sitemap": false,
       "priority": "0.4",
       "archived": false,
       "description": "The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check."
@@ -305,16 +317,16 @@
     {
       "path": "heliofits/index.html",
       "url": "/heliofits/",
-      "title": "HelioFITS Peek: Quick Look plugin for FITS files",
+      "title": "HelioFITS Peek: solar FITS file previews for macOS",
       "palette": "HelioFITS Peek",
       "keywords": "fits peek finder quick look mac preview",
       "sitemap": true,
       "priority": "0.7",
       "archived": false,
       "description": "HelioFITS Peek renders solar FITS files as real images on macOS: the right instrument colormap, real coordinates, and searchable metadata.",
-      "head_title": "HelioFITS Peek: Quick Look plugin for FITS files",
+      "head_title": "HelioFITS Peek: solar FITS file previews for macOS",
       "canonical": "https://gilly.space/heliofits/",
-      "og_image": "https://gilly.space/heliofits/icon.png"
+      "og_image": "https://gilly.space/assets/social/heliofits.png"
     },
     {
       "path": "heliofits-studio/index.html",
@@ -326,7 +338,8 @@
       "priority": "0.7",
       "archived": false,
       "description": "HelioFITS Studio: a desktop viewer for solar and heliospheric imagery, built around coronagraph and wide-field data such as PUNCH, SOHO/LASCO and PROBA-3/ASPIICS.",
-      "head_title": "HelioFITS Studio"
+      "head_title": "HelioFITS Studio",
+      "og_image": "https://gilly.space/assets/social/heliofits-studio.png"
     },
     {
       "path": "rhef/index.html",

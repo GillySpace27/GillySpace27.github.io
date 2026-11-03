@@ -7,3 +7,5 @@ images/fulls/doubleStreamSmSlow.gif
 images/fulls/streamSmSlow.gif
 heliograph/Heliograph-0.7.dmg
 heliograph/Heliograph.dmg
+heliogram/Heliogram.dmg
+heliogram/Heliogram-*.dmg
