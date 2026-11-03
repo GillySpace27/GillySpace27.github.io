@@ -295,10 +295,10 @@
     {
       "path": "heliosoftware/spec/index.html",
       "url": "/heliosoftware/spec/",
-      "title": "HelioSoftware spec",
+      "title": "Software spec",
       "palette": null,
       "keywords": "",
-      "sitemap": true,
+      "sitemap": false,
       "priority": "0.4",
       "archived": false,
       "description": "The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check."
