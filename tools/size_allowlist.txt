@@ -7,5 +7,7 @@ images/fulls/doubleStreamSmSlow.gif
 images/fulls/streamSmSlow.gif
 heliograph/Heliograph-0.7.dmg
 heliograph/Heliograph.dmg
+# Gilly, 2026-11-02: the Android APK (about 13 MB), one stable file replaced each release.
+heliogram/android/*.apk
 heliogram/Heliogram.dmg
 heliogram/Heliogram-*.dmg
