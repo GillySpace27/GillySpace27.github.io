@@ -1,7 +1,7 @@
 # HelioSoftware icon family
 
-Version 4, 2026-11-03 (RHEF icon shrunk inside its tile; version 3, 2026-11-02, added it). Describes the
-icons that ship; nothing here is redrawn.
+Version 4, 2026-11-03 (RHEF and Studio icons shrunk inside their tiles; version 3, 2026-11-02,
+added RHEF). Describes the icons that ship; nothing here is redrawn.
 Each icon stays where its product keeps it. Colour tokens for pages are in
 [tokens.json](tokens.json), checked by [tools/tokens.py](tools/tokens.py).
 
@@ -12,7 +12,7 @@ or a drawn Sun.
 | Product | What the icon shows | Where it lives | On gilly.space |
 |---|---|---|---|
 | HelioFITS Peek | an AIA 171 image of the Sun inside a white file outline | `HelioFITS/Assets.xcassets/AppIcon.appiconset/` in HelioFITS-Peek | `assets/sw/heliofits.png` (nav, hub, page, Research), `heliofits/icon.png` (link preview) |
-| HelioFITS Studio | an iris of six solar images in white lines, a drawn Sun at its centre, inset on the violet ground | `release/HFStudio_icon_1024.png` and `release/AppIcon.appiconset/` in HelioFITS-Studio | `assets/sw/heliofits-studio.png` |
+| HelioFITS Studio | an iris of six solar images in white lines, a drawn Sun at its centre, inset on the violet ground (window and iris at 0.88 of their first size since 2026-11-03, like RHEF) | `release/HFStudio_icon_1024.png` and `release/AppIcon.appiconset/` in HelioFITS-Studio | `assets/sw/heliofits-studio.png` |
 | Heliogram | a drawn Sun on a white monitor outline | `icons/appicon.png` in heliogram, drawn by `icons/make_app_icon.py` | `assets/sw/heliogram.png` |
 | RHEF | the SunPy sample AIA 171 image (2011-06-07), the whole frame inside a white squircle (superellipse, exponent 5), split by a slider: a log-stretch standard display on the left, `rhef()` at its defaults on the right; since 2026-11-03 the squircle and the image sit at 0.88 of their first size, so more ground shows (`tools/shrink_rhef_icon.py`) | no app; the 1024 px master is `assets/sw/rhef-1024.png` | `assets/sw/rhef.png`, shown by the `.sw-mark--rhef` rule in `assets/site.css` |
 | The Sun right now, My Heliogram | CSS marks, no app icon | `assets/product.css` (`.sw-mark--live`, `.sw-mark--print`) | the same |
