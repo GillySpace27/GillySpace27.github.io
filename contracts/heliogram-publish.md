@@ -51,14 +51,22 @@ heliogram/privacy.html
   heliogram repo's `site/index.html` and `site/privacy.html`.
 - `:23-25` `git add`, commit `Heliogram <ver>`, push. The push is the deploy.
 
-## What publish.sh removes (a73b04a)
+## What publish.sh removed at a73b04a (historical)
 
 - `:13` `git -C "$SITE" rm -r -q --ignore-unmatch heliograph`: every path in
   the frozen block above.
 - `:20` `git -C "$SITE" rm -q --ignore-unmatch 'heliogram/Heliogram-*.dmg'`:
   older versioned DMGs (each stays in git history).
 
-## Open conflict: an owner decision
+## Resolved: /heliograph/ stays (Gilly, 2026-10-02)
+
+Re-read 2026-11-02 against heliogram origin/main (45efc20): `publish.sh` no longer runs
+`git rm` on `heliograph/`; it keeps the folder and only replaces `heliograph/index.html` with
+a redirect to /heliogram/ (`publish.sh:70-73`). Since a5d5542 (SU-14 Task 2) it writes data
+only: the DMG, `version.json` and `appcast.xml` under `heliogram/`. The record below is the
+conflict as it stood before that.
+
+### The conflict as recorded (historical)
 
 `publish.sh:13` contradicts the frozen block: the next `./publish.sh` would
 remove the 0.7 feed, `version.json`, both DMGs and the page from gilly.space, and

@@ -141,7 +141,8 @@ template licence only; a licence for Gilly's own content is his decision (open).
   signature; warning at its line 1). Contract: `contracts/heliogram-publish.md` (WS-4).
 - Short links handed out in mail, posters and talks: `/hfs/`, `/hfstudio/`,
   `/punchstudio/`, `/jhv/`, `/heliofits/`, `/heliograph/`, `/shop/`. Pages is
-  case-sensitive: hand out lowercase only, or add the cased duplicate at the same time.
+  case-sensitive: hand out lowercase only. 404.html sends a cased address to its lowercase
+  twin; a cased duplicate folder needs Gilly's yes, and tools/check_site.py fails on case twins.
 - `CNAME`, `google690400622efc7ebc.html`, the favicons, `manifest.json`,
   `browserconfig.xml`. Every existing URL keeps working.
 

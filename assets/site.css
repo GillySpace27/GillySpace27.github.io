@@ -428,7 +428,7 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
    HelioSoftware: nav dropdown + the three product marks
    ========================================================================== */
 /* Products without a branded app icon get a tiny Sun on a night-sky tile, the same in both themes:
-   HelioFITS a disk seen through a pixel grid, RHEF a disk with the streamers it reveals. */
+   HelioFITS a disk seen through a pixel grid. RHEF uses its icon image. */
 .sw-mark, .sw-icon { --s: 30px; flex: none; width: var(--s); height: var(--s); display: inline-block; }
 .sw-mark {
   border-radius: 22.5%; background-color: #14110d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
@@ -442,13 +442,8 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
     radial-gradient(circle, #ffe7a0 0 14%, #d9a91a 28%, #8a5a08 36%, transparent 38%);
 }
 
-/* RHEF: a small Sun with the streamers it pulls out of the dark. */
-.sw-mark--rhef {
-  background-image:
-    radial-gradient(circle, #f6c84c 0 17%, #d98a1a 21%, transparent 22%),
-    radial-gradient(circle, transparent 24%, #14110d 47%),
-    repeating-conic-gradient(from 4deg, rgba(246,200,76,.75) 0 5deg, transparent 5deg 22.5deg);
-}
+/* RHEF: its icon, AIA 171 split into a standard display and RHEF (assets/sw/rhef.png). */
+.sw-mark--rhef { background: transparent url(/assets/sw/rhef.png) center / cover; box-shadow: none; }
 
 .nav-drop { position: relative; }
 .nav-drop > a { display: inline-flex; align-items: center; gap: 6px; }

@@ -191,7 +191,7 @@ Post-merge checklist (Gilly, after the merge to `master` and Pages finishing):
   `execCommand`) and shows a toast with the link.
 - Each card also links its 48 h movie file. The stage has Share this channel, Still and
   48 h movie file for the channel on show, plus two handoffs: Put it on your desktop
-  (`/heliogram/`) and Print this Sun (`https://myheliograph.com/?ref=gilly.space`; deep
+  (`/heliogram/`) and Print this Sun (`https://myheliogram.com/?ref=gilly.space`; deep
   links into the store are not verified, so only `?ref`).
 
 ## Family look (SU-20)
@@ -269,13 +269,11 @@ file yet, so their cards show no chip.
 
 - The Heliogram app (named Heliograph through 0.7) publishes into this repo
   from `/Users/gilly/vscode/heliogram/publish.sh`: it pulls, copies the DMG,
-  `version.json`, `appcast.xml`, `index.html` and `privacy.html`, commits
-  `Heliogram <ver>` and pushes, which deploys.
-- As of heliogram a73b04a (2026-09-29) it writes to `heliogram/` and runs
-  `git rm -r --ignore-unmatch heliograph` (`publish.sh:13`): the next publish
-  would remove the frozen `heliograph/` feed that installed 0.7 builds poll.
-  Open conflict for Gilly; `publish.sh` belongs to HG-7, HG-8 and SU-1; the
-  written contract is `contracts/heliogram-publish.md` (WS-4).
+  `version.json` and `appcast.xml` into `heliogram/`, commits `Heliogram <ver>`
+  and pushes, which deploys. This site owns the Heliogram pages (SU-14).
+- The `/heliograph/` conflict is resolved: `publish.sh` keeps the folder and only
+  makes its `index.html` a redirect (re-read 2026-11-02 at heliogram 45efc20).
+  The written contract is `contracts/heliogram-publish.md` (WS-4).
 - Agents never run `publish.sh` or `ship.sh`, never hand-edit either
   `appcast.xml`, and never edit files the publish step writes.
 
@@ -329,6 +327,31 @@ Other products have no fetch helper; use `heliosoftware/feed/append_record.py` (
 `heliosoftware/spec/release-feed.md`), then step 3. Heliogram: after `publish.sh` has pushed.
 HelioFITS (Peek): only once App Store Connect reports READY_FOR_SALE. sunback: after the PyPI
 upload.
+
+## Release sync (WS-22)
+
+The release scripts write the feed record into the local checkout; `tools/release_pr.py` turns
+that record into a pull request, and `.github/workflows/release-sync.yml` is the backstop.
+Neither merges: merging publishes, and that stays Gilly's click.
+
+- `python3 tools/release_pr.py --product <product> --version <v> [--build N]`, from the local
+  checkout after the release script's feed step. It reads the local record, then in a temporary
+  worktree on a fresh `origin/master` appends it, runs `build_feed.py`, moves static version text
+  (Studio: `pin_studio_fallback.py --from-github`), runs `check_site.py`, commits on
+  `release/<product>-<v>[-build.N]`, asks y/N, pushes and opens the pull request. The local
+  checkout is not changed. `--dry-run` stops before the push; so does a run with no terminal and
+  no `--yes`.
+- Studio: `check_site.py` fails a feed newer than the page's fallback pin, and the pin refuses
+  until `package.yml` has attached the Windows and Linux packages. So right after
+  `deploy_release.sh publish` it refuses; run it again once `package.yml` is green, or let
+  `release-sync.yml` (every 6 hours, or Actions > release-sync > Run workflow) open the same
+  pull request. Both use the same branch name, so only one ever opens.
+- `release-sync.yml` confirms the guide plus the Mac platforms whose PLATFORMS flag on the page is
+  `confirmed: true` (the same rule as `deploy_release.sh`). It needs Settings > Actions > General >
+  "Allow GitHub Actions to create and approve pull requests". Its pull requests do not start
+  `check.yml`; the workflow runs `check_site.py` and the unit tests itself first.
+- Peek: run `release_pr.py` after the ship-heliofits skill has written the READY_FOR_SALE record.
+  No backstop, since only App Store Connect knows when a version is live.
 
 ## Rollback
 

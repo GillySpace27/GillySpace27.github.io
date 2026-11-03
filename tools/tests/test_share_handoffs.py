@@ -36,7 +36,7 @@ class Handoffs(unittest.TestCase):
         i = SUN.index('class="sun-links sun-main-links"')
         main = SUN[i:SUN.index("</p>", i)]
         self.assertIn('href="/heliogram/"', main)
-        self.assertIn('href="https://myheliograph.com/?ref=gilly.space"', main)
+        self.assertIn('href="https://myheliogram.com/?ref=gilly.space"', main)
         self.assertLess(i, SUN.index('<details id="stage-wrap"'))
 
     def test_stage_links_follow_the_channel_on_show(self):

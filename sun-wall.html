@@ -70,7 +70,7 @@ const SHUFFLE = !!(window.WALL_SHUFFLE ?? (Q.get("shuffle") === "1"));
 //   dome=1            a circular picture for a planetarium dome
 //   attrib=0|1        0 hides the credit line; 1 shows it even outside the Mac app
 //   ids=171,304       only these channels, in the order they are given
-//   store=1           level 1 of "Print this Sun": a text line, myheliograph.com (no dependency)
+//   store=1           level 1 of "Print this Sun": a text line, myheliogram.com (no dependency)
 //   qr=1              level 2: the text line plus a QR code for the moment on screen (store link with
 //                     utm_source=wall, d, t, wl). Loads assets/vendor/qrcode-generator/qrcode.js; if
 //                     that cannot load (the Mac app's cached copy), the text line stays alone.
@@ -113,7 +113,7 @@ function wallStoreLink(id, whenMs) {
          "&t=" + two(t.getUTCHours()) + ":" + two(t.getUTCMinutes());
     if (/^\d+$/.test(String(id))) q += "&wl=" + String(id);
   }
-  return "https://myheliograph.com/?" + q;
+  return "https://myheliogram.com/?" + q;
 }
 // wallOptions end
 const OPT = wallOptions(location.search);
@@ -156,7 +156,7 @@ if (OPT.dome) document.body.classList.add("dome");
 }
 if (OPT.store) {
   const el = document.getElementById("store");
-  el.textContent = "Print this Sun: myheliograph.com";
+  el.textContent = "Print this Sun: myheliogram.com";
   el.style.display = "block";
 }
 // Level 2: load the vendored encoder once; draw() is called for each clip. No encoder, no code.
