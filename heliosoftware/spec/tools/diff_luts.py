@@ -5,7 +5,7 @@
     python3 diff_luts.py --ref ... --candidate sunpy:                 # the installed sunpy
     python3 diff_luts.py --ref ... --candidate sunback:~/vscode/sunback
 
-Reference: <name>.json files {"name", "source", "rgb": 256 x [r, g, b]} written by HelioFITS's
+Reference: <name>.json files {"name", "source", "rgb": 256 x [r, g, b]} written by HelioFITS Peek's
 tools/colormaps/gen_colormaps.py --json-out. Candidates (a folder is scanned, a file is one table):
   *.json  the same shape
   *.csv   256 rows of r,g,b (lines starting # and an "r,g,b" header are skipped); name = file stem

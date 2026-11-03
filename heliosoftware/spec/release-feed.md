@@ -21,8 +21,8 @@ The values above are illustrative, not a real release.
   `mac-app-store` needs at least one asset, and every asset needs a 64-hex `sha256` and a byte count.
 - `confirmed` is true only after a person has run that build on real hardware. A page links an asset
   only when it is confirmed.
-- A HelioFITS record is written only when App Store Connect reports READY_FOR_SALE. No HelioFITS
-  version is claimed live before Apple says so. The date is the day the record was written (UTC).
+- A HelioFITS Peek record is written only when App Store Connect reports READY_FOR_SALE. No
+  HelioFITS Peek version is claimed live before Apple says so. The date is the day the record was written (UTC).
 - `url` is a release page or tag page. It is never `/releases/latest`.
 - `notes` is one plain sentence or two, with no U+2014.
 - The newest record is the one with the highest version number; a later record wins a tie.

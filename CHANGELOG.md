@@ -53,12 +53,12 @@ Notable changes to gilly.space, newest first, by commit date. Full history:
 
 - Studio download page moved to `/heliofits-studio/`; every older address
   forwards (893d784).
-- HelioFITS page shows the AIA 171 icon and points at HelioFITS Studio
+- HelioFITS Peek page shows the AIA 171 icon and points at HelioFITS Studio
   (cb5a4f8, a73968f).
 
 ## 2026-09-22
 
-- HelioFITS page shows its icon (5ab80c7).
+- HelioFITS Peek page shows its icon (5ab80c7).
 
 ## 2026-09-21
 

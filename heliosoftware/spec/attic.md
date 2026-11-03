@@ -65,7 +65,7 @@ Worktrees, folders such as `.git-backup/`, large data folders (a render folder o
 | Repository | Moved items | Everything else | Notes |
 |---|---|---|---|
 | gilly.space (Website) | none yet; `attic/` when first needed | `ATTIC.md`: two older tables (`Path / What it was / Why retired / Replacement / Date` and `Ref / What it was / Why retired / Archive tag / Date`) plus the section `## Canonical rows` | Tags `archive/heliofits-sibling-link`, `archive/whichclaude-worktree-ff91b7f`. |
-| HelioFITS | none yet | `ATTIC.md`, canonical rows from the start | `build-attic/` is git-ignored build output, not a ledger. Tags `archive/<branch>`. |
+| HelioFITS Peek | none yet | `ATTIC.md`, canonical rows from the start | `build-attic/` is git-ignored build output, not a ledger. Tags `archive/<branch>`. |
 | HelioFITS Studio | `archive/` with `archive/README.md` (`Folder / Contents / Why it is here`) | `ATTIC.md`, canonical rows, an index to `archive/` | Tags `archive/branch/<branch>`, `archive/origin/<branch>`, `archive/stash/<name>`. |
 | Heliogram | `attic/README.md`, one line per move: date, path, what, old path, why, `git mv` back | `ATTIC.md` when the first non-move item appears | Line format is kept. |
 | sunback | `attic/README.md` (`Original path / Moved to / LOC / Reason / Date / Restore`) | section `## Left in place (listed only)` in the same file, canonical rows | Restore is `git mv <moved to> <original path>`. |
