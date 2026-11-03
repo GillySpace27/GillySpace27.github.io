@@ -405,6 +405,48 @@
      "confirmed": true
     }
    ]
+  },
+  {
+   "version": "0.9.0",
+   "date": "2026-11-03",
+   "channel": "github-prerelease",
+   "tag": "v0.9.0",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.9.0",
+   "notes": "Every command now has one stable id, a plain description, a note of what it changes (read, write, destructive or interface only) and a JSON Schema for its arguments and result, and every one is run through one place that checks the arguments first. Help > Search Controls (Cmd-K), the guided tours and the Welcome window run commands that way. docs/commands.json lists them all in the shape of an MCP",
+   "assets": [
+    {
+     "name": "HFStudio-0.9.0.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.0/HFStudio-0.9.0.dmg",
+     "sha256": "2b6d200168d33deac692fa150377c77ca3bfcad35879dec0ce004c914f5fe51f",
+     "bytes": 256916542,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.9.0-intel.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.0/HFStudio-0.9.0-intel.dmg",
+     "sha256": "036b7d41efa14a4e555bec1995dda408f499bd58ccde4ed6ceddcee80420fd80",
+     "bytes": 269330802,
+     "platform": "macos-x64",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.9.0.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.0/HFStudio-0.9.0.zip",
+     "sha256": "4e517a1c22166173fe230d5ade03c7c272357e1cbac7389034e59a822902875f",
+     "bytes": 282842458,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.0/HFStudio-Guide.pdf",
+     "sha256": "8240ffd8a3270570d62e660391125c0bf792ece64c5d5b0a0f5a5319ab5746b3",
+     "bytes": 9651432,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
   }
  ]
 }

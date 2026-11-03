@@ -9,6 +9,13 @@
   <link rel="self" href="https://gilly.space/heliosoftware/feed.xml" />
   <link rel="alternate" href="https://gilly.space/heliosoftware/whats-new/" />
   <entry>
+    <id>tag:gilly.space,2026-11-03:heliofits-studio-0.9.0</id>
+    <title>HelioFITS Studio 0.9.0</title>
+    <updated>2026-11-03T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.9.0" />
+    <summary>Every command now has one stable id, a plain description, a note of what it changes (read, write, destructive or interface only) and a JSON Schema for its arguments and result, and every one is run through one place that checks the arguments first. Help &gt; Search Controls (Cmd-K), the guided tours and the Welcome window run commands that way. docs/commands.json lists them all in the shape of an MCP</summary>
+  </entry>
+  <entry>
     <id>tag:gilly.space,2026-11-03:heliofits-1.5.1-build.13</id>
     <title>HelioFITS Peek 1.5.1</title>
     <updated>2026-11-03T00:00:00Z</updated>
