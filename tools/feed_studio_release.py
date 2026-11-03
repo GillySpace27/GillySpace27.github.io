@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Add one HelioFITS Studio release to the family feed, and so to What's new (WS-21).
 
-python3 tools/feed_studio_release.py [VERSION] [--confirm PLATFORM ...] [--dry-run]
+python3 tools/feed_studio_release.py [VERSION] [--confirm PLATFORM ...] [--confirm-from-page] [--dry-run]
 python3 tools/feed_studio_release.py --check     (exit 1 when the newest release is not in the feed)
 
 Reads the release v<VERSION> (default: the newest, releases?per_page=1) from the
@@ -11,7 +11,10 @@ the tag page, the publish date (UTC), every asset named in
 contracts/studio-release-assets.md with GitHub's own sha256 digest and size, and as
 notes the first bullet under the release body's "### New in" heading. Every asset is
 confirmed: false unless its platform is named with --confirm (a person ran that build
-on real hardware). Then run python3 heliosoftware/feed/build_feed.py.
+on real hardware). --confirm-from-page adds the guide plus every Mac platform whose
+PLATFORMS entry on heliofits-studio/index.html says confirmed: true, the same rule
+release/deploy_release.sh uses in the Studio repo (release-sync.yml passes it). Then
+run python3 heliosoftware/feed/build_feed.py.
 Exit 0 appended (or --check: in the feed), 1 refused or stale, 3 already recorded.
 """
 from __future__ import annotations
@@ -41,6 +44,19 @@ PLATFORM_OF = {  # asset template -> feed platform, as in the records written by
     "HFStudio-{v}.zip": "any-java25",
     "HFStudio-Guide.pdf": "guide",
 }
+
+
+PAGE_PLATFORM = {"mac": "macos-arm64", "intel": "macos-x64"}  # PLATFORMS key -> feed platform, as in deploy_release.sh
+
+
+def confirmed_from_page(page_text):
+    """The guide plus each Mac platform the download page marks confirmed: true (Gilly's own flag)."""
+    import pin_studio_fallback as pin  # noqa: E402  (shares the PLATFORMS parser)
+    m = pin.PLATFORMS_RE.search(page_text)
+    if not m:
+        raise FeedError("cannot find const PLATFORMS on the Studio page; pass --confirm by hand")
+    return {"guide"} | {PAGE_PLATFORM[k] for k, v in pin.CONFIRMED_RE.findall(m.group(0))
+                        if v == "true" and k in PAGE_PLATFORM}
 
 
 class FeedError(Exception):
@@ -118,6 +134,8 @@ def main(argv=None):
     ap.add_argument("version", nargs="?", help="without the leading v; default the newest release")
     ap.add_argument("--confirm", action="append", default=[], choices=sorted(set(PLATFORM_OF.values())),
                     help="a platform someone ran on real hardware (repeat for more)")
+    ap.add_argument("--confirm-from-page", action="store_true",
+                    help="also confirm the guide and the Mac platforms the download page marks confirmed")
     ap.add_argument("--dry-run", action="store_true", help="print the record; write nothing")
     ap.add_argument("--check", action="store_true", help="write nothing; exit 1 when the release is not in the feed")
     ap.add_argument("--root", type=pathlib.Path, default=ROOT)
@@ -134,7 +152,10 @@ def main(argv=None):
                   f" python3 tools/feed_studio_release.py {version}", file=sys.stderr)
             return 1
         templates = check_site.contract_block(a.root / check_site.CONTRACT_STUDIO, "assets")
-        rec = record_from(rel, templates, set(a.confirm))
+        confirm = set(a.confirm)
+        if a.confirm_from_page:
+            confirm |= confirmed_from_page((a.root / check_site.STUDIO_PAGE).read_text(encoding="utf-8"))
+        rec = record_from(rel, templates, confirm)
     except (FeedError, ValueError, KeyError) as e:
         print(f"feed_studio_release: {e}", file=sys.stderr)
         return 1
