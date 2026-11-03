@@ -41,8 +41,12 @@ def version_rx(version):
     return re.compile(r"(?<![\d.])" + re.escape(version) + r"(?!\.?\d)")
 
 
-def pin(text, new):
-    """(new_text, old_version, count); raises PinError and changes nothing on any mismatch."""
+def pin(text, new, keep=()):
+    """(new_text, old_version, count); raises PinError and changes nothing on any mismatch.
+
+    keep: asset templates ("HFStudio-{v}-intel.dmg") whose links stay on the old version, because
+    the new release lacks that optional file. They are masked before counting and put back after.
+    """
     if not VERSION_RE.match(new):
         raise PinError(f"not a version: {new!r}")
     m = check_site.STUDIO_PIN_RE.search(text)
@@ -52,9 +56,21 @@ def pin(text, new):
     if not plat:
         raise PinError("PLATFORMS not found on the page")
     old = m.group(1)
+    held = []
+
+    def hold(mm):
+        held.append(mm.group(0))
+        return "\x00%d\x00" % (len(held) - 1)
+
+    for tpl in keep:
+        text = re.sub(r"https?://[^\"'\s<>]*/" + re.escape(tpl.replace("{v}", old)), hold, text)
+
+    def restore(s):
+        return re.sub("\x00(\\d+)\x00", lambda mm: held[int(mm.group(1))], s)
+
     before = len(version_rx(old).findall(text))
     if old == new:
-        return text, old, before
+        return restore(text), old, before
     if version_rx(new).search(text):
         raise PinError(f"{new} already occurs on the page before patching; refusing to mix versions")
     out, replaced = version_rx(old).subn(new, text)
@@ -64,7 +80,7 @@ def pin(text, new):
     new_plat = PLATFORMS_RE.search(out)
     if not new_plat or new_plat.group(0) != plat.group(0):
         raise PinError("PLATFORMS would change; it is edited by hand only")
-    return out, old, before
+    return restore(out), old, before
 
 
 def release_assets(url=RELEASES_API):
@@ -107,6 +123,7 @@ def main(argv=None):
                 optional = set(check_site.contract_block(a.root / check_site.CONTRACT_STUDIO, "optional-assets"))
             except ValueError:
                 optional = set()
+            keep = [t for t in optional if t.replace("{v}", version) not in names]
             templates = [t for t in templates if t not in optional]
             problems = [f"MISSING {n}" for n in missing_assets(templates, version, names)]
             if tag != "v" + version:
@@ -114,7 +131,7 @@ def main(argv=None):
             if problems:
                 raise PinError("; ".join(problems))
         text = page.read_text(encoding="utf-8")
-        new_text, old, count = pin(text, version)
+        new_text, old, count = pin(text, version, keep if a.from_github else ())
     except (PinError, ValueError) as e:
         print(f"pin_studio_fallback: {e}", file=sys.stderr)
         return 1
@@ -125,6 +142,8 @@ def main(argv=None):
     else:
         page.write_text(new_text, encoding="utf-8")
         print(f"pinned {old} -> {version}: {count} occurrences in {check_site.STUDIO_PAGE}")
+    for tpl in (keep if a.from_github and new_text != text else ()):
+        print(f"kept {tpl.replace('{v}', old)} at {old}: v{version} has no {tpl.replace('{v}', version)}")
     for pid, state in CONFIRMED_RE.findall(text):
         print(f"confirmed {pid}={state} (unchanged)")
     print("A tile lights only after someone runs that build on real hardware; then Gilly edits"

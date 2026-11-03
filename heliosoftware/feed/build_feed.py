@@ -40,7 +40,13 @@ PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What's new · Software · gilly.space</title>
-<meta name="description" content="Release notes for Heliogram, HelioFITS, HelioFITS Studio and sunback, newest first.">
+<meta name="description" content="Release notes for Heliogram, HelioFITS Peek and HelioFITS Studio, newest first.">
+<link rel="canonical" href="https://gilly.space/heliosoftware/whats-new/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="What's new · Software · gilly.space">
+<meta property="og:description" content="Release notes for Heliogram, HelioFITS Peek and HelioFITS Studio, newest first.">
+<meta property="og:url" content="https://gilly.space/heliosoftware/whats-new/">
+<meta property="og:image" content="https://gilly.space/assets/social/heliosoftware.png">
 <link rel="alternate" type="application/atom+xml" title="gilly.space software releases" href="/heliosoftware/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <script>
@@ -54,8 +60,6 @@ PAGE = """<!doctype html>
 </script>
 <meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
-<link rel="stylesheet" href="/assets/css/academicons.min.css">
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
 <link rel="stylesheet" href="/assets/site.css?v=@STAMP@">
 <link rel="stylesheet" href="/assets/product.css?v=@STAMP@">
 </head>

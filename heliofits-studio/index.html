@@ -33,8 +33,8 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="stylesheet" href="/assets/site.css?v=202611021729">
-<link rel="stylesheet" href="/assets/product.css?v=202611021729">
+<link rel="stylesheet" href="/assets/site.css?v=202611021830">
+<link rel="stylesheet" href="/assets/product.css?v=202611021830">
 </head>
 <body>
 <div data-include="header"></div>
@@ -115,6 +115,10 @@
     <h2 id="cite-h">Cite this software</h2>
     <a class="cite__badge" href="https://doi.org/10.5281/zenodo.23541893"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.23541893.svg" alt="DOI 10.5281/zenodo.23541893, the Zenodo record for HelioFITS Studio" height="20"></a>
     <p class="cite__apa">Gilly, C. R. (2026). HelioFITS Studio (Version <span data-release="heliofits-studio" data-release-field="version">0.8.8</span>) [Computer software]. Zenodo. <a href="https://doi.org/10.5281/zenodo.23541893">https://doi.org/10.5281/zenodo.23541893</a></p>
+    <p class="cite__also">Please cite the methods too: the JHelioviewer paper Studio is built on, Müller et al. (2017),
+      <i>Astronomy &amp; Astrophysics</i> 606, A10, <a href="https://doi.org/10.1051/0004-6361/201730893">https://doi.org/10.1051/0004-6361/201730893</a>;
+      and, if you used the RHEF filter, Gilly &amp; Cranmer (2025), <i>Solar Physics</i> 300, 174,
+      <a href="https://doi.org/10.1007/s11207-025-02578-x">https://doi.org/10.1007/s11207-025-02578-x</a>.</p>
     <pre id="bib-studio"><code>@software{gilly_heliofits_studio,
   author = {Gilly, Chris R.},
   title = {{HelioFITS Studio}},
@@ -234,9 +238,15 @@ fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_p
     document.getElementById("ver").textContent =
       "Version " + rel.tag_name.replace(/^v/, "") + " · " + (rel.prerelease ? "pre-release" : "release");
     intelNote();
+    // File sizes come from the release, so none is typed in; a tile still on its fallback link shows none.
+    for (const id of Object.keys(PLATFORMS)) {
+      const a = rel.assets.find(x => PLATFORMS[id].asset.test(x.name));
+      if (a && document.getElementById(id).href === a.browser_download_url)
+        document.getElementById(id + "-note").textContent += " · " + Math.round(a.size / 1e6) + " MB";
+    }
   }).catch(() => {});
 </script>
-<script src="/assets/product.js?v=202611021729"></script>
-<script src="/assets/site.js?v=202611021729"></script>
+<script src="/assets/product.js?v=202611021830"></script>
+<script src="/assets/site.js?v=202611021830"></script>
 </body>
 </html>

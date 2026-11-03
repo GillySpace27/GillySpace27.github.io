@@ -163,6 +163,14 @@ class Renderer(unittest.TestCase):
         self.assertIn(f"/assets/site.css?v={self.STAMP}", page)
         self.assertIn(f"/assets/site.js?v={self.STAMP}", page)
 
+    def test_page_head_has_canonical_and_og_and_no_icon_fonts(self):
+        page = self.bf.render_page(self.bf.load_entries(self.feed_dir)[0], self.STAMP)
+        self.assertIn('<link rel="canonical" href="https://gilly.space/heliosoftware/whats-new/">', page)
+        self.assertIn('<meta property="og:image"', page)
+        self.assertNotIn("font-awesome", page)
+        self.assertNotIn("academicons", page)
+        self.assertNotIn("sunback", page.split("</head>")[0])
+
     def test_check_flags_stale_outputs_and_passes_after_a_write(self):
         self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 1)
         self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir)]), 0)

@@ -269,13 +269,11 @@ file yet, so their cards show no chip.
 
 - The Heliogram app (named Heliograph through 0.7) publishes into this repo
   from `/Users/gilly/vscode/heliogram/publish.sh`: it pulls, copies the DMG,
-  `version.json`, `appcast.xml`, `index.html` and `privacy.html`, commits
-  `Heliogram <ver>` and pushes, which deploys.
-- As of heliogram a73b04a (2026-09-29) it writes to `heliogram/` and runs
-  `git rm -r --ignore-unmatch heliograph` (`publish.sh:13`): the next publish
-  would remove the frozen `heliograph/` feed that installed 0.7 builds poll.
-  Open conflict for Gilly; `publish.sh` belongs to HG-7, HG-8 and SU-1; the
-  written contract is `contracts/heliogram-publish.md` (WS-4).
+  `version.json` and `appcast.xml` into `heliogram/`, commits `Heliogram <ver>`
+  and pushes, which deploys. This site owns the Heliogram pages (SU-14).
+- The `/heliograph/` conflict is resolved: `publish.sh` keeps the folder and only
+  makes its `index.html` a redirect (re-read 2026-11-02 at heliogram 45efc20).
+  The written contract is `contracts/heliogram-publish.md` (WS-4).
 - Agents never run `publish.sh` or `ship.sh`, never hand-edit either
   `appcast.xml`, and never edit files the publish step writes.
 

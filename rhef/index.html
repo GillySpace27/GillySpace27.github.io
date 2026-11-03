@@ -33,8 +33,8 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="stylesheet" href="/assets/site.css?v=202611021729">
-<link rel="stylesheet" href="/assets/product.css?v=202611021729">
+<link rel="stylesheet" href="/assets/site.css?v=202611021830">
+<link rel="stylesheet" href="/assets/product.css?v=202611021830">
 <style>
 .rhef-tabs__list { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; margin: 1.6rem auto .8rem; }
 .rhef-tabs__list [role="tab"] { font: inherit; font-size: .92rem; color: var(--text); background: none; cursor: pointer;
@@ -129,7 +129,7 @@ rhef(sunpy.map.Map("aia_171.fits")).peek()</code></pre>
       <tr><td>sunkit-image 0.7.0 (Python)</td><td><a href="https://pypi.org/project/sunkit-image/">PyPI</a></td><td><code>sunkit-0.7</code></td><td>none: it defines the convention</td></tr>
       <tr><td>sunback (the live Sun on this site)</td><td><a href="https://github.com/GillySpace27/sunback">GitHub</a></td><td><code>sunkit-0.7</code></td><td>none</td></tr>
       <tr><td>My Heliogram (prints)</td><td><a href="https://myheliogram.com">myheliogram.com</a></td><td><code>sunkit-0.7</code></td><td>none</td></tr>
-      <tr><td>HelioFITS (Swift)</td><td><a href="https://apps.apple.com/app/id6790952544">Mac App Store</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>UPS-MEAN</code> <code>TIES-TOL</code> <code>KEY-QUANT</code> <code>GEOM-GRID</code> <code>DTYPE-IN</code></td></tr>
+      <tr><td>HelioFITS Peek (Swift)</td><td><a href="https://apps.apple.com/app/id6790952544">Mac App Store</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>UPS-MEAN</code> <code>TIES-TOL</code> <code>KEY-QUANT</code> <code>GEOM-GRID</code> <code>DTYPE-IN</code></td></tr>
       <tr><td>HelioFITS Studio, ranking (Java)</td><td><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases">GitHub releases</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>RANK-N1</code> <code>POS-ONLY</code> <code>FP16</code> <code>MIN-BIN</code> <code>GEOM-PX</code> <code>UPS-EXT</code> <code>DTYPE-IN</code></td></tr>
       <tr><td>HelioFITS Studio, Upsilon (GLSL)</td><td><a href="https://github.com/GillySpace27/HelioFITS-Studio/releases">GitHub releases</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>RANK-EXT</code> <code>UPS-CLAMP</code> <code>UPS-DEFAULT</code></td></tr>
       <tr><td>IDL</td><td><a href="https://doi.org/10.1007/s11207-025-02578-x">described in the paper</a></td><td>targets <code>oRHEF-2.0</code></td><td><code>RANK-N1</code> <code>TIES-INTERP</code> <code>GEOM-CRPIX</code> <code>GEOM-PX</code> <code>NO-NAN-GUARD</code> <code>DTYPE-IN</code> <code>UPS-DEFAULT</code></td></tr>
@@ -138,6 +138,8 @@ rhef(sunpy.map.Map("aia_171.fits")).peek()</code></pre>
   </div>
   <p class="alt">Rows from the fastRHEF conventions registry, read 2026-10-15. RHEF output is a
      visualization, not a calibrated radiance.</p>
+  <p class="alt">RHEF is also a filter in <a href="/heliofits/">HelioFITS Peek</a> (Quick Look and the
+     viewer, since 1.5.0) and in <a href="/heliofits-studio/">HelioFITS Studio</a>.</p>
 
   <h2 class="rhef-h" id="cite">Cite it</h2>
   <p class="alt">Gilly &amp; Cranmer (2025), <i>Visualization of High Dynamic Range Solar Imagery and the
@@ -156,6 +158,8 @@ rhef(sunpy.map.Map("aia_171.fits")).peek()</code></pre>
   <p class="rhef-cite"><button type="button" class="sec" data-copy="rhef-bibtex" hidden>Copy BibTeX</button>
      <span class="rhef-cite__status" role="status" aria-live="polite"></span>
      <a class="sec" href="https://arxiv.org/abs/2511.02798">arXiv</a></p>
+  <p class="alt">The IDL implementation, <a href="https://github.com/GillySpace27/IDL_RHEF">IDL_RHEF</a>,
+     has its own DOI: <a href="https://doi.org/10.5281/zenodo.17226414">10.5281/zenodo.17226414</a>.</p>
 </main>
 <div data-include="footer"></div>
 <script>
@@ -201,7 +205,7 @@ rhef(sunpy.map.Map("aia_171.fits")).peek()</code></pre>
   }
 })();
 </script>
-<script src="/assets/sun-compare.js?v=202611021729"></script>
-<script src="/assets/site.js?v=202611021729"></script>
+<script src="/assets/sun-compare.js?v=202611021830"></script>
+<script src="/assets/site.js?v=202611021830"></script>
 </body>
 </html>

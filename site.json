@@ -293,12 +293,23 @@
       "description": "Every need a solar scientist, student or Sun fan brings to the suite, in the order the work happens, and the tool that answers it."
     },
     {
+      "path": "heliosoftware/whats-new/index.html",
+      "url": "/heliosoftware/whats-new/",
+      "title": "What's new",
+      "palette": "What's new in the software",
+      "keywords": "release notes changelog heliofits heliogram studio",
+      "sitemap": true,
+      "priority": "0.5",
+      "archived": false,
+      "description": "Release notes for Heliogram, HelioFITS Peek and HelioFITS Studio, newest first."
+    },
+    {
       "path": "heliosoftware/spec/index.html",
       "url": "/heliosoftware/spec/",
-      "title": "HelioSoftware spec",
+      "title": "Software spec",
       "palette": null,
       "keywords": "",
-      "sitemap": true,
+      "sitemap": false,
       "priority": "0.4",
       "archived": false,
       "description": "The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check."
