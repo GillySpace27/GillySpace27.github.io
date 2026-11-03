@@ -2,12 +2,19 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>gilly.space software releases</title>
   <id>https://gilly.space/heliosoftware/feed.xml</id>
-  <updated>2026-10-29T00:00:00Z</updated>
+  <updated>2026-11-03T00:00:00Z</updated>
   <author>
     <name>gilly.space</name>
   </author>
   <link rel="self" href="https://gilly.space/heliosoftware/feed.xml" />
   <link rel="alternate" href="https://gilly.space/heliosoftware/whats-new/" />
+  <entry>
+    <id>tag:gilly.space,2026-11-03:heliofits-1.5.1-build.13</id>
+    <title>HelioFITS Peek 1.5.1</title>
+    <updated>2026-11-03T00:00:00Z</updated>
+    <link rel="alternate" href="https://apps.apple.com/app/id6790952544" />
+    <summary>A Movie, Grid and List switch for a folder's FITS files, with a sortable table you can export as CSV; Get Info and Spotlight metadata in the Mac App Store build; a Colorbar button; faster folder movies; PUNCH units read as a multiplier.</summary>
+  </entry>
   <entry>
     <id>tag:gilly.space,2026-10-29:heliogram-0.8-build.9</id>
     <title>Heliogram 0.8</title>
