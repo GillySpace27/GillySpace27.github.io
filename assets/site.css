@@ -428,7 +428,7 @@ html.js-reveal .reveal.in { opacity: 1; transform: none; }
    HelioSoftware: nav dropdown + the three product marks
    ========================================================================== */
 /* Products without a branded app icon get a tiny Sun on a night-sky tile, the same in both themes:
-   HelioFITS a disk seen through a pixel grid. RHEF uses its icon image. */
+   HelioFITS Peek a disk seen through a pixel grid. RHEF uses its icon image. */
 .sw-mark, .sw-icon { --s: 30px; flex: none; width: var(--s); height: var(--s); display: inline-block; }
 .sw-mark {
   border-radius: 22.5%; background-color: #14110d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);

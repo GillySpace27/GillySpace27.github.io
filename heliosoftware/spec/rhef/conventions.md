@@ -88,7 +88,7 @@ To check an implementation: rank each bin of `input.f64` as `bin_index.i32` says
 
 Runner results, by case and implementation. Report mode never fails a build; enforce mode does. Enforce mode is permitted per port once that port passes the golden vectors (tie rule adopted 2026-10-02).
 
-Recorded 2026-10-13 in report mode against vector bundle 1.0.0 (section 6), public cases only: sunback `test_rhef_conformance` at 7817b4d (sunkit-image 0.7.0). HelioFITS Studio has no column yet: its runner compares against oRHEF 2.0 expectations that are not public yet (section 1). HelioFITS has no column yet: its runner needs a Mac.
+Recorded 2026-10-13 in report mode against vector bundle 1.0.0 (section 6), public cases only: sunback `test_rhef_conformance` at 7817b4d (sunkit-image 0.7.0). HelioFITS Studio has no column yet: its runner compares against oRHEF 2.0 expectations that are not public yet (section 1). HelioFITS Peek has no column yet: its runner needs a Mac.
 
 <!-- conformance-table begin -->
 Bundle 1.0.0.

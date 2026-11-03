@@ -325,7 +325,7 @@ in the feed.
 
 Other products have no fetch helper; use `heliosoftware/feed/append_record.py` (spec:
 `heliosoftware/spec/release-feed.md`), then step 3. Heliogram: after `publish.sh` has pushed.
-HelioFITS (Peek): only once App Store Connect reports READY_FOR_SALE. sunback: after the PyPI
+HelioFITS Peek: only once App Store Connect reports READY_FOR_SALE. sunback: after the PyPI
 upload.
 
 ## Release sync (WS-22)

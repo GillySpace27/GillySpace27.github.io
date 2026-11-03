@@ -11,7 +11,7 @@ Heliogram DMGs may go to GitHub Releases on this repository, behind a switch tha
 | Product | Writes (paths under the Website repo) | Never writes |
 |---|---|---|
 | Heliogram | `heliogram/Heliogram.dmg`, `heliogram/Heliogram-<ver>.dmg`, `heliogram/version.json`, `heliogram/appcast.xml`, `heliograph/index.html`, `heliosoftware/feed/heliogram.json`, `heliosoftware/feed.xml`, `heliosoftware/whats-new/index.html` | `heliogram/index.html`, `heliogram/privacy.html`, any other page, `assets/`, `sitemap.xml`, `heliograph/appcast.xml`, `heliograph/version.json`, `heliograph/Heliograph.dmg`, `heliograph/Heliograph-0.7.dmg`, a deletion of anything but an old `heliogram/Heliogram-*.dmg` |
-| HelioFITS | `heliosoftware/feed/heliofits.json`, `heliosoftware/feed.xml`, `heliosoftware/whats-new/index.html` | everything else; the Mac App Store is the release channel and no file is published here |
+| HelioFITS Peek | `heliosoftware/feed/heliofits.json`, `heliosoftware/feed.xml`, `heliosoftware/whats-new/index.html` | everything else; the Mac App Store is the release channel and no file is published here |
 | HelioFITS Studio | `heliosoftware/feed/heliofits-studio.json`, `heliosoftware/feed.xml`, `heliosoftware/whats-new/index.html` | everything else; releases are GitHub assets on its own repository and the download page asks GitHub |
 | sunback and My Heliogram | nothing | everything; they publish to S3, R2 and Fly, not to this repository |
 

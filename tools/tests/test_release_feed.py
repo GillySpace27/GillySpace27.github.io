@@ -133,7 +133,7 @@ class Renderer(unittest.TestCase):
         self.put("heliogram", "Heliogram", [{"version": "0.7", "build": 7, "name": "Heliograph", "date": "2026-09-28",
                                              "channel": "direct", "url": "https://gilly.space/heliograph/",
                                              "notes": "Heliograph now updates itself.", "assets": [a]}])
-        self.put("heliofits", "HelioFITS", [{"version": "1.4.0", "build": 10, "date": "2026-10-02",
+        self.put("heliofits", "HelioFITS Peek", [{"version": "1.4.0", "build": 10, "date": "2026-10-02",
                                              "channel": "mac-app-store", "url": "https://apps.apple.com/app/id6790952544",
                                              "notes": "Opens the viewer <first> & \"more\".", "assets": []}])
 
@@ -152,7 +152,7 @@ class Renderer(unittest.TestCase):
         self.assertEqual(ids, ["tag:gilly.space,2026-10-02:heliofits-1.4.0-build.10",
                                "tag:gilly.space,2026-09-28:heliogram-0.7-build.7"])
         titles = [e.find("a:title", ns).text for e in root.findall("a:entry", ns)]
-        self.assertEqual(titles, ["HelioFITS 1.4.0", "Heliograph 0.7"])
+        self.assertEqual(titles, ["HelioFITS Peek 1.4.0", "Heliograph 0.7"])
         self.assertEqual(root.find("a:updated", ns).text, "2026-10-02T00:00:00Z")
 
     def test_page_escapes_notes_and_carries_the_hub_stamp(self):
@@ -176,7 +176,7 @@ class Renderer(unittest.TestCase):
         self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir)]), 0)
         self.assertTrue((self.site / "feed.xml").exists() and (self.site / "whats-new" / "index.html").exists())
         self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 0)
-        self.put("heliofits", "HelioFITS", [])
+        self.put("heliofits", "HelioFITS Peek", [])
         self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 1)
 
     def test_hub_recent_region_lists_the_newest_ten_and_is_checked(self):
@@ -193,8 +193,8 @@ class Renderer(unittest.TestCase):
         region = text[text.index("<!-- feed:recent -->"):text.index("<!-- /feed:recent -->")]
         self.assertNotIn("stale", region)
         self.assertEqual(region.count("<li>"), 10)
-        self.assertIn("HelioFITS 1.4.0", region)
-        self.assertLess(region.index("HelioFITS 1.4.0"), region.index("HelioFITS Studio 0.8.11"))
+        self.assertIn("HelioFITS Peek 1.4.0", region)
+        self.assertLess(region.index("HelioFITS Peek 1.4.0"), region.index("HelioFITS Studio 0.8.11"))
         self.assertNotIn("0.8.0<", region)
         self.assertIn(f"/assets/site.css?v={self.STAMP}", text)
         self.assertEqual(self.bf.main(["--feed-dir", str(self.feed_dir), "--check"]), 0)

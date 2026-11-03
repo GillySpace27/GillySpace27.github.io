@@ -312,7 +312,7 @@
       "sitemap": false,
       "priority": "0.4",
       "archived": false,
-      "description": "The shared contracts behind HelioFITS, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check."
+      "description": "The shared contracts behind HelioFITS Peek, HelioFITS Studio, Heliogram, RHEF and the Sun pages: one public folder, with checksums and a drift check."
     },
     {
       "path": "heliofits/index.html",
