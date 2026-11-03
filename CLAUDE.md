@@ -61,7 +61,8 @@ gilly.space (the site) and My Heliogram (the store, formerly My Heliograph).
 
 ### Settled names (do not reopen)
 
-- HelioFITS: the Mac App Store is its one official channel; bundle id
+- HelioFITS: the Mac App Store is its main channel, with a notarized direct
+  download beside it as the fallback; bundle id
   `com.gillyspace27.HelioFITS`; app group `UB45PPC2JS.com.gillyspace27.fits`;
   no Apple trademarks in the name or subtitle; it keeps the AIA 171 icon.
 - HelioFITS Studio: the display name. `HFStudio` stays the technical name (jar,
