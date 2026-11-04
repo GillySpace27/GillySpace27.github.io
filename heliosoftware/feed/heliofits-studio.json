@@ -447,6 +447,48 @@
      "confirmed": true
     }
    ]
+  },
+  {
+   "version": "0.9.1",
+   "date": "2026-11-04",
+   "channel": "github-prerelease",
+   "tag": "v0.9.1",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.9.1",
+   "notes": "What's New is now a button in the Welcome window's header instead of the main panel, so the window shows the ways to start first. Take a Tour is a button that opens a list of every tour with its number of steps (Getting started marked as the place to begin); clicking one starts it. The first time the window opens, Return opens that list instead of Continue. A new Find your way around panel lists t",
+   "assets": [
+    {
+     "name": "HFStudio-0.9.1.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.1/HFStudio-0.9.1.dmg",
+     "sha256": "7051d32b515b6ef50517c5e85dbc8d3418e47496758e543646bf6303f6ba8cb6",
+     "bytes": 262662629,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.9.1-intel.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.1/HFStudio-0.9.1-intel.dmg",
+     "sha256": "88d620e820bad2514f2d960e453db20bc73e1b17be98a193aa50707c129c5a7f",
+     "bytes": 269573270,
+     "platform": "macos-x64",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.9.1.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.1/HFStudio-0.9.1.zip",
+     "sha256": "cbc0036b7215ebd6f973fbfb9b0705f6fde5bb86f28ace540aada02ea948ff63",
+     "bytes": 283447389,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.1/HFStudio-Guide.pdf",
+     "sha256": "b58abcc401abe28f56f74c7abdd082f33161ff7f364966de41d88a716f7ca969",
+     "bytes": 9651434,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
   }
  ]
 }

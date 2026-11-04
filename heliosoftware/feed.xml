@@ -2,12 +2,19 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>gilly.space software releases</title>
   <id>https://gilly.space/heliosoftware/feed.xml</id>
-  <updated>2026-11-03T00:00:00Z</updated>
+  <updated>2026-11-04T00:00:00Z</updated>
   <author>
     <name>gilly.space</name>
   </author>
   <link rel="self" href="https://gilly.space/heliosoftware/feed.xml" />
   <link rel="alternate" href="https://gilly.space/heliosoftware/whats-new/" />
+  <entry>
+    <id>tag:gilly.space,2026-11-04:heliofits-studio-0.9.1</id>
+    <title>HelioFITS Studio 0.9.1</title>
+    <updated>2026-11-04T00:00:00Z</updated>
+    <link rel="alternate" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.9.1" />
+    <summary>What's New is now a button in the Welcome window's header instead of the main panel, so the window shows the ways to start first. Take a Tour is a button that opens a list of every tour with its number of steps (Getting started marked as the place to begin); clicking one starts it. The first time the window opens, Return opens that list instead of Continue. A new Find your way around panel lists t</summary>
+  </entry>
   <entry>
     <id>tag:gilly.space,2026-11-03:heliofits-studio-0.9.0</id>
     <title>HelioFITS Studio 0.9.0</title>
