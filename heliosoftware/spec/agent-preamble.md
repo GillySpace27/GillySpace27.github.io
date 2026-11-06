@@ -27,10 +27,12 @@ gilly.space (the site) and My Heliogram (the store, formerly My Heliograph).
 
 1. Delete nothing; make nothing irrecoverable. Never `rm` a tracked file, never
    `git rm`, never `git push --force`, never rewrite history, never delete a
-   branch, tag, release, release asset, S3 or R2 object, Fly volume, Shopify
+   tag, release, release asset, S3 or R2 object, Fly volume, Shopify
    product, App Store version, cache or user settings key. Retire code with
-   `git mv` into `attic/` plus one line in `attic/README.md`. Retire a branch by
-   tagging its tip `archive/<branch>` and leaving it. Before a refactor that
+   `git mv` into `attic/` plus one line in `attic/README.md`. Retire an unmerged
+   branch by tagging its tip `archive/<branch>` and leaving it. A branch whose tip
+   is an ancestor of the default branch may be deleted, local and remote, after
+   Gilly's yes for that batch. Before a refactor that
    touches more than one file, tag the start: `git tag pre/<initiative-id>`.
 2. Never GUI-launch any Heliograph or Heliogram copy (any bundle id) unasked in
    Wall, Kiosk or Desktop mode. Wall and Kiosk take every screen; Desktop
