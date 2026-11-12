@@ -489,6 +489,48 @@
      "confirmed": true
     }
    ]
+  },
+  {
+   "version": "0.9.2",
+   "date": "2026-11-12",
+   "channel": "github-prerelease",
+   "tag": "v0.9.2",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.9.2",
+   "notes": "The Image Layers and Playback and Recording sections start open on a fresh install; a fold state already saved in your settings is kept.",
+   "assets": [
+    {
+     "name": "HFStudio-0.9.2.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.2/HFStudio-0.9.2.dmg",
+     "sha256": "84bf6bdfa3c2b6ce15c90536a090078416f4176eb5a7eb9bcc03a075823edefb",
+     "bytes": 238933887,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.9.2-intel.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.2/HFStudio-0.9.2-intel.dmg",
+     "sha256": "02177aac67d43b3b3e9d8eb79787fad27761e6d6193e5712e7bb4b0508c16a1a",
+     "bytes": 245788993,
+     "platform": "macos-x64",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.9.2.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.2/HFStudio-0.9.2.zip",
+     "sha256": "5459a14a31c890046799396838e4643de30226e3f02734b5bc4feab3b73de32a",
+     "bytes": 293236373,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.2/HFStudio-Guide.pdf",
+     "sha256": "5fc4571722c4b3cb67bb6f61417043f6dd53a759aa8e60a498d5031c79e845e9",
+     "bytes": 9651432,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
   }
  ]
 }
