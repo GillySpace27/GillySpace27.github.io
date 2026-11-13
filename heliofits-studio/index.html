@@ -92,8 +92,9 @@
           installs the same way.</li>
       <li><b>Windows:</b> the <a id="try-windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.2/HFStudio-0.9.2-windows.zip">Windows zip</a>
           is a portable app; no administrator rights are needed. Right-click it, choose <i>Extract All</i>,
-          then run <code>HFStudio\HFStudio.exe</code> in the folder it makes. It is not code-signed yet, so
-          Windows may say it protected your PC; choose <i>More info</i>, then <i>Run anyway</i>.</li>
+          then run <code>HFStudio\HFStudio.exe</code> in the folder it makes. It is code-signed, but
+          SmartScreen is slow to learn a new publisher, so Windows may still say it protected your PC;
+          choose <i>More info</i>, then <i>Run anyway</i>.</li>
       <li><b>Linux:</b> unpack the <a id="try-linux" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.2/HFStudio-0.9.2-linux.tar.gz">Linux archive</a>
           anywhere and run <code>HFStudio/bin/HFStudio</code>. Java comes with it. The Windows and Linux
           packages need a 64-bit Intel or AMD processor.</li>
@@ -151,7 +152,7 @@
 const PLATFORMS = {
   mac:     { confirmed: true,  asset: /^HFStudio-[\d.]+\.dmg$/,                    how: "Open the disk image and drag HelioFITS Studio to Applications. Java comes with it." },
   intel:   { confirmed: false, asset: /^HFStudio-[\d.]+-intel\.dmg$/,              how: "Open the disk image and drag HelioFITS Studio to Applications. Java comes with it." },
-  windows: { confirmed: true,  asset: /-windows\.(zip|msi|exe)$/i,              how: "Download the zip, right-click it and choose Extract All (the app will not start from inside the zip), then open the HFStudio folder and run HFStudio.exe. No installer and no administrator rights are needed. It is not code-signed yet, so Windows may say it protected your PC; choose More info, then Run anyway." },
+  windows: { confirmed: true,  asset: /-windows\.(zip|msi|exe)$/i,              how: "Download the zip, right-click it and choose Extract All (the app will not start from inside the zip), then open the HFStudio folder and run HFStudio.exe. No installer and no administrator rights are needed. It is code-signed, but SmartScreen is slow to learn a new publisher, so Windows may still say it protected your PC; choose More info, then Run anyway." },
   linux:   { confirmed: false, asset: /-linux\.(tar\.gz|zip|AppImage|deb|rpm)$/i, how: "Unpack it anywhere and run HFStudio/bin/HFStudio. Java comes with it." },
 };
 const EARLY = " This build passes our automated checks but few people have run it yet: please try it, and tell us how it goes, breakage included.";
