@@ -31,6 +31,25 @@
      "confirmed": false
     }
    ]
+  },
+  {
+   "version": "1.5.2",
+   "build": 14,
+   "date": "2026-11-17",
+   "channel": "mac-app-store",
+   "tag": "v1.5.2-build.14",
+   "url": "https://apps.apple.com/app/id6790952544",
+   "notes": "Processing records open as readable reports with a Quick Look preview and Finder thumbnail; DKIST CryoNIRSP spectrogram thumbnails and Quick Look; the app is now named HelioFITS Peek in Finder, the Dock and the menu bar.",
+   "assets": [
+    {
+     "name": "HelioFITS-1.5.2-b14.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Peek/releases/download/v1.5.2-build.14/HelioFITS-1.5.2-b14.zip",
+     "sha256": "b665d09ae79519e185a04907a0b1b7324b2b0f40eaffd1cd0eb063b909a2992e",
+     "bytes": 9165647,
+     "platform": "macos-universal",
+     "confirmed": false
+    }
+   ]
   }
  ]
 }
