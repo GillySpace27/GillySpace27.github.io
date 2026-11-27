@@ -531,6 +531,48 @@
      "confirmed": true
     }
    ]
+  },
+  {
+   "version": "0.9.4",
+   "date": "2026-11-27",
+   "channel": "github-prerelease",
+   "tag": "v0.9.4",
+   "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/tag/v0.9.4",
+   "notes": "Timelines: an IMAP (NASA SPDF) catalog, available at once with no server: merged hourly field, speed, density and temperature, SWAPI 1-minute proton and alpha plasma, and MAG 1-minute means (heavy; at most 14 days visible), plus an IMAP solar wind stack and a data-credit line when an IMAP band is selected.",
+   "assets": [
+    {
+     "name": "HFStudio-0.9.4.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4.dmg",
+     "sha256": "780fa9be8f86e3bd77ca1c4cf3bc18f94a948d96fb22cc6219f37c4f5a916155",
+     "bytes": 237499098,
+     "platform": "macos-arm64",
+     "confirmed": true
+    },
+    {
+     "name": "HFStudio-0.9.4-intel.dmg",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4-intel.dmg",
+     "sha256": "8af5d685861d613c26a40802f4c5cce3bfc0b7cd927bbdc977a71ac09c8b7638",
+     "bytes": 247355984,
+     "platform": "macos-x64",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-0.9.4.zip",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4.zip",
+     "sha256": "f85a86b4f95336c952f5ec47ba5e0d1190ad767b416054add73db7ac7319cb33",
+     "bytes": 294069118,
+     "platform": "any-java25",
+     "confirmed": false
+    },
+    {
+     "name": "HFStudio-Guide.pdf",
+     "url": "https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-Guide.pdf",
+     "sha256": "5fbfa54a4c37cf1fa1c092d4a5afc7f572b88904a90380b56086f8e501713255",
+     "bytes": 9651424,
+     "platform": "guide",
+     "confirmed": true
+    }
+   ]
   }
  ]
 }
