@@ -16,6 +16,13 @@
     <summary>Timelines: an IMAP (NASA SPDF) catalog, available at once with no server: merged hourly field, speed, density and temperature, SWAPI 1-minute proton and alpha plasma, and MAG 1-minute means (heavy; at most 14 days visible), plus an IMAP solar wind stack and a data-credit line when an IMAP band is selected.</summary>
   </entry>
   <entry>
+    <id>tag:gilly.space,2026-11-17:heliofits-1.5.2-build.14</id>
+    <title>HelioFITS Peek 1.5.2</title>
+    <updated>2026-11-17T00:00:00Z</updated>
+    <link rel="alternate" href="https://apps.apple.com/app/id6790952544" />
+    <summary>Processing records open as readable reports with a Quick Look preview and Finder thumbnail; DKIST CryoNIRSP spectrogram thumbnails and Quick Look; the app is now named HelioFITS Peek in Finder, the Dock and the menu bar.</summary>
+  </entry>
+  <entry>
     <id>tag:gilly.space,2026-11-12:heliofits-studio-0.9.2</id>
     <title>HelioFITS Studio 0.9.2</title>
     <updated>2026-11-12T00:00:00Z</updated>
