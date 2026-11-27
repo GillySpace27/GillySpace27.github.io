@@ -66,6 +66,46 @@
     }
   }
 
+  // A download tile's own label: the version in the file it links to.
+  function hrefVersion(url) {
+    var m = /(\d+(?:\.\d+)+)/.exec(String(url || '').split('/').pop());
+    return m ? m[1] : '';
+  }
+
+  function labelFromHref(a, url) {
+    var v = hrefVersion(url);
+    if (v) Array.prototype.forEach.call(a.querySelectorAll('[data-href-version]'), function (s) { s.textContent = v; });
+  }
+
+  // The version a Homebrew cask serves; 'a,b' (version, build) shows as a.
+  function caskVersion(text) {
+    var m = /^\s*version\s+"([0-9][0-9.]*)(?:,[^"]*)?"/m.exec(text || '');
+    return m ? m[1] : '';
+  }
+
+  var TAP = 'https://raw.githubusercontent.com/GillySpace27/homebrew-tap/main/Casks/';
+
+  // data-brew="<cask>": once the tap answers, show its version and any element that was
+  // hidden until the cask exists.
+  function initBrew() {
+    var cache = {};
+    Array.prototype.forEach.call(document.querySelectorAll('[data-brew]'), function (el) {
+      var token = el.getAttribute('data-brew');
+      if (!cache[token]) {
+        cache[token] = fetch(TAP + encodeURIComponent(token) + '.rb', { cache: 'no-cache' })
+          .then(function (r) { return r.ok ? r.text() : ''; })
+          .catch(function () { return ''; });
+      }
+      cache[token].then(function (text) {
+        var v = caskVersion(text);
+        if (!v) return;
+        el.hidden = false;
+        Array.prototype.forEach.call(el.querySelectorAll('[data-brew-version]'), function (s) { s.textContent = v; });
+        Array.prototype.forEach.call(el.querySelectorAll('[data-brew-has]'), function (s) { s.hidden = false; });
+      });
+    });
+  }
+
   function within(el, name) {
     var found = Array.prototype.slice.call(el.querySelectorAll('[' + name + ']'));
     return el.hasAttribute(name) ? [el].concat(found) : found;
@@ -85,6 +125,7 @@
       var asset = assetFor(record, a.getAttribute('data-release-asset'));
       if (!asset) return;
       a.setAttribute('href', asset.url);
+      labelFromHref(a, asset.url);
       ['aria-disabled', 'role', 'title'].forEach(function (k) { a.removeAttribute(k); });
       reveal(a, el);
     });
@@ -143,9 +184,9 @@
     });
   }
 
-  function start() { run(); initCite(); }
+  function start() { run(); initCite(); if (typeof fetch === 'function') initBrew(); }
 
-  var api = { versionKey: versionKey, cmp: cmp, newest: newest, assetFor: assetFor, fill: fill, isNew: isNew };
+  var api = { versionKey: versionKey, cmp: cmp, newest: newest, assetFor: assetFor, fill: fill, isNew: isNew, hrefVersion: hrefVersion, caskVersion: caskVersion };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
   } else {

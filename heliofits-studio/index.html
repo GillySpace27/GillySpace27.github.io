@@ -33,8 +33,9 @@
 <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
 <meta name="google-site-verification" content="gBmU3RrJO0EJM2ZK92nWp1mKEWWL5MvmJLVxTDAgF-c">
 <!-- /bake -->
-<link rel="stylesheet" href="/assets/site.css?v=202611021830">
-<link rel="stylesheet" href="/assets/product.css?v=202611021830">
+<link rel="stylesheet" href="/assets/site.css?v=202611262210">
+<link rel="stylesheet" href="/assets/product.css?v=202611262210">
+<script src="/assets/reel.js?v=202611262210"></script>
 </head>
 <body>
 <div data-include="header"></div>
@@ -57,16 +58,19 @@
   </svg>
   <div class="platforms" id="platforms">
     <a class="dl primary" id="mac" data-release="heliofits-studio" data-release-asset="macos-arm64" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4.dmg">
-      <svg class="os" aria-hidden="true"><use href="#os-apple"/></svg><b>Download for Mac</b><small id="mac-note">Apple Silicon (M1 or later) · Java included</small>
+      <svg class="os" aria-hidden="true"><use href="#os-apple"/></svg><b>Download for Mac</b><small id="mac-note">Version 0.9.4 · Apple Silicon (M1 or later) · Java included</small>
     </a>
     <a class="dl" id="intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4-intel.dmg">
-      <svg class="os" aria-hidden="true"><use href="#os-apple"/></svg><b>Download for Intel Mac</b><small id="intel-note">Disk image · early build</small>
+      <svg class="os" aria-hidden="true"><use href="#os-apple"/></svg><b>Download for Intel Mac</b><small id="intel-note">Version 0.9.4 · Java included · early build</small>
     </a>
     <a class="dl" id="windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4-windows.zip">
-      <svg class="os" aria-hidden="true"><use href="#os-windows"/></svg><b>Download for Windows</b><small id="windows-note">64-bit · Java included · no admin needed</small>
+      <svg class="os" aria-hidden="true"><use href="#os-windows"/></svg><b>Download for Windows</b><small id="windows-note">Version 0.9.4 · 64-bit · Java included · no admin needed</small>
     </a>
     <a class="dl" id="linux" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4-linux.tar.gz">
-      <svg class="os" aria-hidden="true"><use href="#os-linux"/></svg><b>Download for Linux</b><small id="linux-note">64-bit · Java included · please report problems</small>
+      <svg class="os" aria-hidden="true"><use href="#os-linux"/></svg><b>Download for Linux</b><small id="linux-note">Version 0.9.4 · 64-bit · Java included · please report problems</small>
+    </a>
+    <a class="dl" id="brew-tile" href="#brew" data-brew="hfstudio" data-no-blank>
+      <svg class="os" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 3h18a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 4v12h18V7H3zm2.3 3.1 1.4-1.4 4.3 4.3-4.3 4.3-1.4-1.4 2.9-2.9zM12 15h6v2h-6z"/></svg><b>Install with Homebrew</b><small><span data-brew-has hidden>Version <span data-brew-version></span> · </span>Mac · macOS 14 or later</small>
     </a>
   </div>
   <p class="how" id="how"></p>
@@ -77,6 +81,22 @@
 
   <p class="ver" id="ver">Version <span data-release="heliofits-studio" data-release-field="version">0.9.4</span> · pre-release</p>
   <p class="note" id="note"></p>
+
+  <!-- Homebrew: the version is read live from the tap's cask (assets/product.js), so no release has
+       to edit this page. Without JavaScript, or if GitHub cannot be reached, the commands still show. -->
+  <section class="brew" id="brew" data-brew="hfstudio" aria-labelledby="brew-h">
+    <h2 id="brew-h">Install with Homebrew</h2>
+    <p data-brew-has hidden>Homebrew currently has HelioFITS Studio <b data-brew-version></b>.</p>
+    <p class="brew__label">Install</p>
+    <pre id="brew-install"><code>brew tap GillySpace27/tap
+brew install --cask gillyspace27/tap/hfstudio</code></pre>
+    <div class="cite__bar"><button type="button" class="cite__copy" data-cite-copy="brew-install" hidden>Copy install commands</button><span class="cite__status" role="status"></span></div>
+    <p class="brew__label">Update</p>
+    <pre id="brew-update"><code>brew update
+brew upgrade --cask gillyspace27/tap/hfstudio</code></pre>
+    <div class="cite__bar"><button type="button" class="cite__copy" data-cite-copy="brew-update" hidden>Copy update commands</button><span class="cite__status" role="status"></span></div>
+    <p>If Homebrew refuses the tap as untrusted, run <code>brew trust gillyspace27/tap</code> once, then install again. Needs macOS 14 or later.</p>
+  </section>
 
   <p class="links">
     <a class="sec" id="guide" data-release="heliofits-studio" data-release-asset="guide" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-Guide.pdf">Field guide (PDF)</a>
@@ -90,10 +110,7 @@
       <li><b>Mac (Apple Silicon):</b> open the disk image and drag the application to Applications. Java comes with it.</li>
       <li><b>Intel Mac:</b> the <a id="try-intel" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4-intel.dmg">Intel disk image</a>
           installs the same way.</li>
-      <li><b>Homebrew (Mac):</b> run <code>brew tap GillySpace27/tap</code> once, then <code>brew install hfstudio</code>;
-          the one-line form is <code>brew install --cask GillySpace27/tap/hfstudio</code>. Update with
-          <code>brew upgrade --cask hfstudio</code>. If a newer Homebrew refuses the tap as untrusted, run
-          <code>brew trust gillyspace27/tap</code> first. Needs macOS 14 or later.</li>
+      <li><b>Homebrew (Mac):</b> see <a href="#brew" data-no-blank>Install with Homebrew</a> above.</li>
       <li><b>Windows:</b> the <a id="try-windows" href="https://github.com/GillySpace27/HelioFITS-Studio/releases/download/v0.9.4/HFStudio-0.9.4-windows.zip">Windows zip</a>
           is a portable app; no administrator rights are needed. Right-click it, choose <i>Extract All</i>,
           then run <code>HFStudio\HFStudio.exe</code> in the folder it makes. It is code-signed, but
@@ -194,6 +211,7 @@ function lead() {
   if (os) box.prepend(document.getElementById(os));
   for (const a of document.querySelectorAll("#switch a"))
     a.toggleAttribute("aria-current", a.dataset.os === os);
+  box.append(document.getElementById("brew-tile")); // Homebrew is always the last tile
   box.classList.toggle("platforms--lead", !!os);
   const how = document.getElementById("how"), note = document.getElementById("note");
   how.textContent = os ? PLATFORMS[os].how + (PLATFORMS[os].confirmed ? "" : EARLY) : "";
@@ -220,12 +238,17 @@ if (os === "mac" && !archKnown && navigator.userAgentData?.getHighEntropyValues)
     if (v.architecture) { archKnown = true; lead(); }
   }).catch(() => {});
 
-// The Intel tile names its own version: it can trail the others.
-function intelNote() {
-  const v = document.getElementById("intel").href.match(/HFStudio-([\d.]+)-intel\.dmg/);
-  document.getElementById("intel-note").textContent = (v ? "Version " + v[1] + " · " : "") + "Java included · early build";
+// Every tile names the version of the file it links to, so a tile left on an older release says so.
+const NOTES = {};
+function versionNotes() {
+  for (const id of Object.keys(PLATFORMS)) {
+    const el = document.getElementById(id + "-note");
+    NOTES[id] ??= el.textContent.replace(/^Version [\d.]+ · /, "");
+    const v = document.getElementById(id).href.match(/HFStudio-([\d.]+?)(?:-[a-z]+)?\.(?:dmg|zip|tar\.gz)$/i);
+    el.textContent = (v ? "Version " + v[1] + " · " : "") + NOTES[id];
+  }
 }
-intelNote();
+versionNotes();
 
 // Every release so far is a pre-release, which GitHub's releases/latest skips, so ask for the
 // newest one outright. The links above are the fallback when this cannot reach GitHub.
@@ -242,7 +265,7 @@ fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_p
     document.getElementById("notes").href = rel.html_url;
     document.getElementById("ver").textContent =
       "Version " + rel.tag_name.replace(/^v/, "") + " · " + (rel.prerelease ? "pre-release" : "release");
-    intelNote();
+    versionNotes();
     // File sizes come from the release, so none is typed in; a tile still on its fallback link shows none.
     for (const id of Object.keys(PLATFORMS)) {
       const a = rel.assets.find(x => PLATFORMS[id].asset.test(x.name));
@@ -251,7 +274,7 @@ fetch("https://api.github.com/repos/GillySpace27/HelioFITS-Studio/releases?per_p
     }
   }).catch(() => {});
 </script>
-<script src="/assets/product.js?v=202611021830"></script>
-<script src="/assets/site.js?v=202611021830"></script>
+<script src="/assets/product.js?v=202611262210"></script>
+<script src="/assets/site.js?v=202611262210"></script>
 </body>
 </html>

@@ -64,6 +64,56 @@ a.dl.primary:hover, a.dl.primary:focus-visible { opacity: .9; color: var(--btn-t
 .product details a:hover, .product .alt a:hover { color: var(--link-hover); }
 .product .alt { margin: 1.8rem auto 0; max-width: 32rem; font-size: .88rem; color: var(--muted); }
 
+.dl[hidden], .brew[hidden] { display: none; }
+/* One tile across the top, the rest two to a row (Peek always; Studio once it leads with a platform,
+   where Homebrew makes four quiet tiles). */
+.platforms--lead.platforms--pairs, .platforms--lead:has(> .dl:nth-child(5)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.platforms--one .dl + .dl { grid-column: 1; }
+@media (max-width: 34rem) { .platforms--lead.platforms--pairs, .platforms--lead:has(> .dl:nth-child(5)) { grid-template-columns: 1fr; } }
+
+/* ---- Homebrew panel ---- */
+.product section.brew { margin: 2.2rem auto 0; max-width: 36rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+                        text-align: left; color: var(--muted); font-size: .95rem; scroll-margin-top: 5rem; }
+.brew h2 { margin: 0 0 .6rem; font-size: 1.1rem; color: var(--text); }
+.brew p { margin: .6rem 0 0; }
+.brew .brew__label { font-weight: 600; color: var(--text); }
+.brew pre { margin: .4rem 0 0; padding: .8rem 1rem; overflow-x: auto; background: #14110d; color: #f1e7cf;
+            border-radius: 10px; font-size: 13px; line-height: 1.5; }
+.brew pre code { font-size: inherit; }
+
+/* ---- The reel between the software pages (assets/reel.js): side arrows, and a drum-like turn where
+   the browser supports cross-document view transitions. Elsewhere the arrows are plain links. ---- */
+.reel__arrow { position: fixed; top: 50%; z-index: 30; display: flex; align-items: center; justify-content: center;
+               width: 3rem; height: 3rem; margin-top: -1.5rem; border-radius: 50%; border: 1px solid var(--card-border);
+               background: var(--card-bg); color: var(--text); box-shadow: var(--shadow); text-decoration: none;
+               font-size: 1.5rem; line-height: 1; }
+.reel__arrow::after { content: none !important; }
+.reel__arrow:hover, .reel__arrow:focus-visible { border-color: var(--accent); color: var(--text); }
+.reel__arrow--prev { left: max(.6rem, calc(50vw - 29rem)); }
+.reel__arrow--next { right: max(.6rem, calc(50vw - 29rem)); }
+/* Narrow screens have no side margin to spare: the arrows sit on the "All software" row and scroll
+   with the page, so they never cover a download tile. */
+@media (max-width: 62rem) {
+  .product { position: relative; }
+  .reel__arrow { position: absolute; top: clamp(40px, 8vw, 80px); margin-top: -.6rem; width: 2.5rem; height: 2.5rem; }
+  .reel__arrow--prev { left: auto; right: calc(var(--pad) + 3.1rem); }
+  .reel__arrow--next { right: var(--pad); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  html.reel-next main.product, html.reel-prev main.product { view-transition-name: reel; }
+  html.reel-next::view-transition-old(reel) { animation: reel-out-left .5s ease-in both; }
+  html.reel-next::view-transition-new(reel) { animation: reel-in-right .5s ease-out both; }
+  html.reel-prev::view-transition-old(reel) { animation: reel-out-right .5s ease-in both; }
+  html.reel-prev::view-transition-new(reel) { animation: reel-in-left .5s ease-out both; }
+}
+::view-transition-image-pair(reel) { isolation: auto; }
+::view-transition-old(reel), ::view-transition-new(reel) { mix-blend-mode: normal; height: auto; }
+@keyframes reel-out-left  { to   { transform: perspective(1400px) translateX(-75%) rotateY(55deg) scale(.85); opacity: 0; } }
+@keyframes reel-in-right  { from { transform: perspective(1400px) translateX(75%) rotateY(-55deg) scale(.85); opacity: 0; } }
+@keyframes reel-out-right { to   { transform: perspective(1400px) translateX(75%) rotateY(-55deg) scale(.85); opacity: 0; } }
+@keyframes reel-in-left   { from { transform: perspective(1400px) translateX(-75%) rotateY(55deg) scale(.85); opacity: 0; } }
+
 /* ---- /heliosoftware/ family page ---- */
 .product .eyebrow a { color: var(--accent-text); }
 /* Back to the Software index, top left, so a visitor can switch products without hunting. */
